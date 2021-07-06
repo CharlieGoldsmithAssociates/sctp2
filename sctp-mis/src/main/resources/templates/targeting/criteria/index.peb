@@ -1,0 +1,54 @@
+    {% extends "base" %}
+
+    {% block contextMenu %}
+    <div class="container context-nav-container">
+        <div class="buttons is-right">
+            <a href="{{ href('criteria/new') }}" class="button is-primary">Add New</a>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block content %}
+    <div class="columns">
+        <div class="column">
+            <div class="card" style="border-radius: 0px">
+                <header class="card-header">
+                    <p class="card-header-title">Targeting Criteria</p>
+                </header>
+                <div class="card-content">
+                    <div class="content">
+                        <table class="table is-narrow is-striped is-hoverable">
+                            <thead>
+                            <tr>
+                                <th>Criteria Name</th>
+                                <th>Formula</th>
+                                <th>Active</th>
+                                <th>Options</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {# @pebvariable name="criteria" type="org.cga.sctp.mis.targeting.Criteria" #}
+                                {% for criterion in criteria %}
+                                <tr>
+                                    <td>{{ criterion.name | escape }}</td>
+                                    <td>{{ criterion.formula }}</td>
+                                    <td style="width: 10%">{{ criterion.active }}</td>
+                                    <td style="width: 10%">
+                                        <div style="z-index: 9999999" class="navbar-item has-dropdown is-hoverable">
+                                            <a class="navbar-link">Options</a>
+                                            <div class="navbar-dropdown">
+                                                <a class="navbar-item">Edit</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+

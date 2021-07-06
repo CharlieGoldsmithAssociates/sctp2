@@ -1,0 +1,3 @@
+    {% set authenticated = isAuthenticated() %}
+    {% set extra = 'Something went terribly wrong. Please try again or contact the site administrator for help.' %}
+    {% extends authenticated ? 'error/generic' : 'error/anon-generic' %}

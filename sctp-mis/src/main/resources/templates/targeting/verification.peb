@@ -1,0 +1,194 @@
+{% extends "base" %}
+
+{% block headerStyles %}
+    .verification-results {
+        margin: 1rem 0 !important;
+    }
+{% endblock %}
+
+    {% block content %}
+    <div class="container">
+        <div class="card" style="border-radius: 0px">
+            <header class="card-header">
+                <p class="card-header-title">Pre-Eligibility Verification</p>
+            </header>
+            <div class="card-content">
+                <div class="content">
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label">Program</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                        <select>
+                                            <option disabled selected>Select Program</option>
+                                            <option>SCTP</option>
+                                            <option>Program 2</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                        <select>
+                                            <option disabled selected>Select Data Source</option>
+                                            <option>UBR</option>
+                                            <option>National Data Set</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label">Location</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                        <select>
+                                            <option disabled selected>Select District</option>
+                                            <option>Dowa</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                        <select>
+                                            <option disabled selected>Select TA</option>
+                                            <option>Dzoole</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label">Village Cluster</label>
+                        </div>
+
+                        <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                    <div class="select is-multiple is-fullwidth">
+                                        <select multiple size="4">
+                                            <option>Kachitsa</option>
+                                            <option>Chimwetsero</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label">Targeting Criteria</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                        <select>
+                                            <option>Criteria 1</option>
+                                            <option>Criteria 2</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field is-horizontal">
+                        <div class="field-label">
+                            <!-- Left empty for spacing -->
+                        </div>
+                        <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                    <div class="buttons is-right">
+                                        <button class="button is-primary">Apply</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="block"></div>
+
+    <div class="container verification-results">
+        <div class="card" style="border-radius: 0px">
+            <header class="card-header">
+                <p class="card-header-title">Verification Results</p>
+            </header>
+            <div class="card-content">
+                <div class="content">
+                    <div class="table-container">
+                        <div class="buttons has-addons">
+                            <button class="button is-small" onclick="t2.exportable.toCSV()">
+                                <span class="icon-text">
+                                    <span class="icon"><i class="fas fa-file-csv"></i></span>
+                                    <span>DOWNLOAD AS EXCEL</span>
+                                </span>
+                            </button>
+                            <button class="button is-small" onclick="t2.exportable.print()">
+                                <span class="icon-text">
+                                    <span class="icon"><i class="fas fa-print"></i></span>
+                                    <span>PRINT</span>
+                                </span>
+                            </button>
+                        </div>
+                        <table id="results" class="table is-narrow is-striped is-hoverable">
+                            <thead>
+                            <tr>
+                                <th>Household</th>
+                                <th>Head of Household</th>
+                                <th>District</th>
+                                <th>TA</th>
+                                <th>GVH Name</th>
+                                <th>VG Cluster</th>
+                                <th>Zone</th>
+                                <th>Pre-Printed Num</th>
+                                <th>ID Form</th>
+                                <th>Status</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {% for result in results %}
+    {# @pebvariable name="result" type="org.cga.sctp.mis.targeting.VerificationResult" #}
+                                    <tr>
+                                        <td>{{ result.householdCode }}</td>
+                                        <td>{{ result.householdHead }}</td>
+                                        <td>{{ result.district }}</td>
+                                        <td>{{ result.ta }}</td>
+                                        <td>{{ result.gvhName }}</td>
+                                        <td>{{ result.villageCluster }}</td>
+                                        <td>{{ result.zone }}</td>
+                                        <td>{{ result.printedNumber }}</td>
+                                        <td>{{ result.idForm }}</td>
+                                        <td>{{ result.status }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+

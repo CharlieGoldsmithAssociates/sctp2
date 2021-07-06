@@ -1,0 +1,3 @@
+    {% set authenticated = isAuthenticated() %}
+        {% set extra = 'You do not have permission to access the requested page.' %}
+    {% extends authenticated ? 'error/generic' : 'error/anon-generic' %}

@@ -1,0 +1,82 @@
+    {% extends "base" %}
+
+        {% block contextMenu %}
+        <div class="container context-nav-container">
+            <div class="buttons is-left">
+                <a href="{{ href('/transfers/calculation') }}" class="button is-danger">
+                    <span class="icon-text">
+                        <span class="icon">
+                            <i class="fa fa-chevron-left"></i>
+                        </span>
+                        <span>Back</span>
+                    </span>
+                </a>
+            </div>
+        </div>
+        {% endblock %}
+
+    {% block content %}
+    <div class="container">
+        <div class="card">
+            <header class="card-header">
+                <p class="card-header-title">New Cash Transfer Amount Calculation</p>
+            </header>
+            <div class="card-content">
+                <div class="content">
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label">Program</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                        <select>
+                                            <option disabled selected>Select Program</option>
+                                            <option>SCTP</option>
+                                            <option>Program 2</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label">Cash Transfer Parameters</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                        <select>
+                                            <option>Individual</option>
+                                            <option>Household</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field is-horizontal">
+                        <div class="field-label">
+                            <!-- Left empty for spacing -->
+                        </div>
+                        <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                    <div class="buttons is-right">
+                                        <a href="/transfers/calculation" class="button is-primary">Calculate</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+

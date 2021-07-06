@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="csrf-name" content="{{ _csrf.parameterName }}"/>
+    <meta name="csrf-token" content="{{ _csrf.token }}"/>
+    <meta name="csrf-header-name" content="{{ _csrf.headerName }}"/>
+    {% block meta %}{% endblock %}
+    <title>{% block title %}SCTP IMS{% endblock %}</title>
+    <link rel="stylesheet" href="/assets/css/sctp.css"/>
+    <link rel="stylesheet" href="/assets/css/vendor/bulma/bulma.min.css"/>
+    <link rel="stylesheet" href="/assets/css/vendor/bulma/social.min.css"/>
+    <link rel="stylesheet" href="/assets/css/vendor/fontawesome/all.min.css"/>
+    <link rel="stylesheet" href="/assets/css/vendor/fiduswriter/simple-datatables.min.css"/>
+    <style>{% block headerStyles %}{% endblock %}</style>
+    {% block headerScripts %}{% endblock %}
+</head>
+<body>
+    {% block body %}{% endblock %}
+    {% block footer %}
+    <section class="section">
+        <nav class="level">
+            <div class="level-item has-text-centered">
+                <p>&copy; {{ now() | date('yyyy') }} CGA Technologies</p>
+            </div>
+        </nav>
+    </section>
+    {% endblock %}
+    <script src="/assets/js/vendor/fiduswriter/simple-datatables.min.js" type="text/javascript"></script>
+    <script src="/assets/js/vendor/bulma/bulma.js" type="text/javascript"></script>
+    <script src="/assets/js/app.js"></script>
+    {% block footerScripts %}{% endblock %}
+</body>
+</html>

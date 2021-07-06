@@ -1,0 +1,108 @@
+    {% import "../utils/form" %}
+    {% extends "base" %}
+
+    {% block title %}
+        {{ parent() }} - Edit Role Permissions
+    {% endblock %}
+
+    {% block contextMenu %}
+    <div class="container context-nav-container">
+        <div class="buttons is-left">
+            <a href="{{ href('/roles') }}" class="button is-danger">
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fa fa-chevron-left"></i>
+                    </span>
+                    <span>Back</span>
+                </span>
+            </a>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block content %}
+    <div class="card">
+    <header class="card-header">
+        <p class="card-header-title">Edit Permissions For Role: {{ role.description }}</p>
+    </header>
+    <div class="card-content">
+        <div class="content">
+            {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+            <div class="columns">
+                <div class="column">
+                    {{ showMessages(null, message('roles.permissions.info'), null, null) }}
+                    <table id="rolePermissions" class="table is-narrow is-striped is-hoverable">
+                        <tbody>
+                            {% for permission in rolePermissions %}
+                            <tr>
+                                <td>
+                                    {% if permission.header %}
+                                        <b>{{ permission.name }}</b>
+                                    {% else %}
+                                        <a onclick="rp{{ permission.id }}.submit()">
+                                            <span class="icon-text">
+                                                <span>{{ permission.name }}</span>
+                                                <span class="icon">
+                                                    <i class="fa fa-chevron-right"></i>
+                                                </span>
+                                            </span>
+                                        </a>
+                                        <form id="rp{{ permission.id }}"
+                                              enctype="application/x-www-form-urlencoded"
+                                              action="/roles/remove-role-permission" method="post">
+                                            {{ csrf(_csrf) }}
+                                            <input type="hidden" name="roleId" value="{{ role.id }}" />
+                                            <input type="hidden" name="permissionId" value="{{ permission.id }}" />
+                                        </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="column">
+                    {{ showMessages(null, message('roles.permissions.available.info'), null, null) }}
+                    <table id="permissionPool" class="table is-narrow is-striped is-hoverable">
+                        <tbody>
+                            {% for permission in availablePermissions %}
+                            <tr>
+                                <td>
+                                    {% if permission.header %}
+                                        <b>{{ permission.name }}</b>
+                                    {% else %}
+                                        <a onclick="p{{ permission.id }}.submit()">
+                                            <span class="icon-text">
+                                                <span class="icon">
+                                                    <i class="fa fa-chevron-left"></i>
+                                                </span>
+                                                <span>{{ permission.name }}</span>
+                                            </span>
+                                        </a>
+                                        <form id="p{{ permission.id }}"
+                                              enctype="application/x-www-form-urlencoded"
+                                              action="/roles/add-role-permission" method="post">
+                                            {{ csrf(_csrf) }}
+                                            <input type="hidden" name="roleId" value="{{ role.id }}" />
+                                            <input type="hidden" name="permissionId" value="{{ permission.id }}" />
+                                        </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    {% endblock %}
+
+    {% block footerScripts %}
+    <script>
+        (function(){
+            setupDataTables(rolePermissions, permissionPool);
+        })();
+    </script>
+    {% endblock %}

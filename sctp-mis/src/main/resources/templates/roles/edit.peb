@@ -1,0 +1,65 @@
+    {% import "../utils/form" %}
+    {% extends "base" %}
+
+    {% block title %}
+    {{ parent() }} - Update Role
+    {% endblock %}
+
+    {% block contextMenu %}
+    <div class="container context-nav-container">
+        <div class="buttons is-left">
+            <a href="{{ href('/roles') }}" class="button is-danger">
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fa fa-chevron-left"></i>
+                    </span>
+                    <span>Back</span>
+                </span>
+            </a>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block content %}
+    <div class="container">
+        <div class="card">
+            <header class="card-header">
+                <p class="card-header-title">Update Role</p>
+            </header>
+            <div class="card-content">
+                {{ showMessages(successMessage, infoMessage, dangerMessage, message('roles.edit.info')) }}
+                <form id="addRoleForm" action="/roles/update" method="post"
+                      enctype="application/x-www-form-urlencoded">
+                    {{ csrf(_csrf) }}
+                    <input name="id" type="hidden" value="{{ roleUpdateForm.id }}" required="required" />
+                    <div class="columns">
+                        <div class="column">
+                            <div class="field">
+                                <label class="label is-required">Role Name</label>
+                                <div class="control">
+                                        {{ textField('roleName', roleUpdateForm.roleName, 3, 50, true, null) }}
+                                </div>
+                                {{ printFieldErrors(getFieldErrors('roleUpdateForm', 'roleName')) }}
+                            </div>
+                        </div>
+
+                        <div class="column is-one-fifth">
+                            <div class="field">
+                                <label class="label is-required">Active</label>
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                        {{ selectField('active', options, roleUpdateForm.active, true) }}
+                                    </div>
+                                </div>
+                                {{ printFieldErrors(getFieldErrors('roleUpdateForm', 'active')) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="buttons is-right">
+                        <button class="button is-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endblock %}

@@ -1,0 +1,128 @@
+    {% extends "../base" %}
+
+        {% block contextMenu %}
+        <div class="container context-nav-container">
+            <div class="buttons is-right">
+                <a href="{{ href('/programs/new') }}" class="button is-primary">Add New</a>
+            </div>
+        </div>
+        {% endblock %}
+
+    {% block content %}
+
+    <div class="container">
+        <div class="card">
+            <header class="card-header">
+                <p class="card-header-title">Programmes</p>
+            </header>
+            <div class="card-content">
+                <div class="content">
+                    <table class="table is-narrow is-striped is-hoverable">
+                        <thead>
+                        <tr>
+                            <th>Programme Name</th>
+                            <th>Donor</th>
+                            <th>Active</th>
+                            <th width="20%">Options</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>SCTP</td>
+                            <td>DFID</td>
+                            <td>Yes</td>
+                            <td>
+                                <div class="dropdown is-hoverable">
+                                    <div class="dropdown-trigger">
+                                        <button class="button button is-info is-inverted"
+                                                aria-haspopup="true" aria-controls="dropdown-menu2">
+                                            <span>Options</span>
+                                            <span class="icon is-small">
+                                                <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <div class="dropdown-menu" id="dropdown-menu2" role="menu">
+                                        <div class="dropdown-content">
+                                            <a class="dropdown-item">Edit</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Child Protection Program</td>
+                            <td>UNICEF</td>
+                            <td>No</td>
+                            <td>
+                                <div class="dropdown is-hoverable">
+                                    <div class="dropdown-trigger">
+                                        <button class="button button is-info is-inverted"
+                                                aria-haspopup="true" aria-controls="dropdown-menu2">
+                                            <span>Options</span>
+                                            <span class="icon is-small">
+                                                <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <div class="dropdown-menu" id="dropdown-menu2" role="menu">
+                                        <div class="dropdown-content">
+                                            <a class="dropdown-item">Edit</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Refugee Protection Program</td>
+                            <td>UNHCR</td>
+                            <td>Yes</td>
+                            <td>
+                                <div class="dropdown is-hoverable">
+                                    <div class="dropdown-trigger">
+                                        <button class="button button is-info is-inverted"
+                                                aria-haspopup="true" aria-controls="dropdown-menu2">
+                                            <span>Options</span>
+                                            <span class="icon is-small">
+                                                <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <div class="dropdown-menu" id="dropdown-menu2" role="menu">
+                                        <div class="dropdown-content">
+                                            <a class="dropdown-item">Edit</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>No Tummy Left Empty Food Program</td>
+                            <td>USAID</td>
+                            <td>Yes</td>
+                            <td>
+                                <div class="dropdown is-hoverable">
+                                    <div class="dropdown-trigger">
+                                        <button class="button button is-info is-inverted"
+                                                aria-haspopup="true" aria-controls="dropdown-menu2">
+                                            <span>Options</span>
+                                            <span class="icon is-small">
+                                                <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <div class="dropdown-menu" id="dropdown-menu2" role="menu">
+                                        <div class="dropdown-content">
+                                            <a class="dropdown-item">Edit</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}

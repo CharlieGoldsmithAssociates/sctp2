@@ -1,0 +1,129 @@
+{% extends "base" %}
+
+    {% block contextMenu %}
+    <div class="container context-nav-container">
+        <div class="buttons is-left">
+            <a href="{{ href('/targeting/import') }}" class="button is-danger">
+                    <span class="icon-text">
+                        <span class="icon">
+                            <i class="fa fa-chevron-left"></i>
+                        </span>
+                        <span>Back</span>
+                    </span>
+            </a>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block content %}
+    <div class="container">
+        <div class="card" style="border-radius: 0px">
+            <header class="card-header">
+                <p class="card-header-title">Population Data Source Import</p>
+            </header>
+            <div class="card-content">
+                <div class="content">
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label">Select Program</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                        <select>
+                                            <option>SCTP</option>
+                                            <option>Emergency Funding Program</option>
+                                            <option>Program 3</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label">Select Data Source</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                        <select>
+                                            <option>UBR</option>
+                                            <option>National Data Set</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label">Location</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                        <select>
+                                            <option disabled selected>Select District</option>
+                                            <option>Dowa</option>
+                                            <option>Ntchisi</option>
+                                            <option>Machinga</option>
+                                            <option>Zomba</option>
+                                            <option>Dedza</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            {# <div class="field">
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                        <select>
+                                            <option disabled selected>Select TA</option>
+                                            <option>Dzoole</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>#}
+                        </div>
+                    </div>
+
+                    {# <div class="field is-horizontal">
+                        <div class="field-label">
+                            <!-- Left empty for spacing -->
+                        </div>
+                        <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                    <div class="notification is-light is-info">
+                                        <p>Last import was on Feb 23 2021</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div> #}
+
+                    <div class="field is-horizontal">
+                        <div class="field-label">
+                            <!-- Left empty for spacing -->
+                        </div>
+                        <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                    <div class="buttons is-right">
+                                        <button class="button is-primary">Get Data</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+

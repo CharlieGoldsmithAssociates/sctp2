@@ -1,0 +1,50 @@
+    {% import "../utils/form" %}
+    {% extends "base" %}
+
+        {% block title %}
+            {{ parent() }} - Permissions
+        {% endblock %}
+
+        {% block contextMenu %}
+        <div class="container context-nav-container">
+            <div class="buttons is-left">
+                <a href="{{ href('/permissions') }}" class="button is-danger">
+                    <span class="icon-text">
+                        <span class="icon">
+                            <i class="fa fa-chevron-left"></i>
+                        </span>
+                        <span>Back</span>
+                    </span>
+                </a>
+            </div>
+        </div>
+        {% endblock %}
+
+    {% block content %}
+    <div class="container">
+        <div class="card">
+            <header class="card-header">
+                <p class="card-header-title">{{ group.description  }} Access Permissions</p>
+            </header>
+            <div class="card-content">
+                <div class="content">
+                    {{ showMessages(null, message('permissions.info', group.description), dangerMessage, null) }}
+                    <table class="table dataTable is-narrow is-striped is-hoverable">
+                        <thead>
+                        <tr>
+                            <th>Permission</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for permission in permissions %}
+                            <tr>
+                                <td>{{ permission.description }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}

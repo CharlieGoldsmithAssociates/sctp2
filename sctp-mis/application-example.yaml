@@ -1,0 +1,15 @@
+# Logging level
+logging:
+  level:
+    org:
+      cga: INFO
+    root: INFO
+
+auth:
+  max_attempts: 3
+
+spring:
+  datasource:
+    username:
+    password:
+    url: jdbc:mysql://localhost/sctp

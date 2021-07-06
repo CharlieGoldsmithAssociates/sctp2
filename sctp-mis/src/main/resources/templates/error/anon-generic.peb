@@ -1,0 +1,15 @@
+{% extends "../unsecured-base" %}
+
+{% block title %}Error {{ status }} {{ error }}{% endblock %}
+
+{% block body %}
+{{ parent() }}
+<section class="section has-text-centered">
+    <h1 class="title is-1 is-spaced">{{ status }} {{ error }}</h1>
+    {% if extra %}
+        <p class="subtitle is-5">{{ extra }}</p>
+    {% endif %}
+    <div class="block"></div>
+    <p><a href="/">Return to homepage</a></p>
+</section>
+{% endblock %}

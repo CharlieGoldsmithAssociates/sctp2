@@ -1,0 +1,94 @@
+    {% import "../utils/form" %}
+    {% extends "../base" %}
+
+    {% block contextMenu %}
+        {% set canArchiveLogs = hasAuthority('ARCHIVE_LOGS') %}
+        {% if canArchiveLogs %}
+        <div class="container context-nav-container">
+            <div class="buttons is-right">
+                <button onclick="clearSelection()" class="button is-primary">Clear Selection</button>
+                <button onclick="archiveSelection()" class="button is-danger">Archive Selected Logs</button>
+            </div>
+        </div>
+        {% endif %}
+    {% endblock %}
+
+    {% block content %}
+        <div class="container">
+        <div class="card">
+            <header class="card-header">
+                <p class="card-header-title">Audit Event Logs</p>
+            </header>
+            <div class="card-content">
+                <div class="content">
+                    {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+                    {% if canArchiveLogs %}
+                    <form id="archiveForm"
+                          action="/logs/archive" enctype="application/x-www-form-urlencoded" method="post">
+                        {{ csrf(_csrf) }}
+                    {% endif %}
+                    <table class="table dataTable is-narrow is-striped is-hoverable">
+                        <thead>
+                        <tr>
+                            {% if canArchiveLogs %}
+                            <th data-sortable="false">
+                                <label class="checkbox">
+                                    <input type="checkbox"
+                                           class="is-medium"
+                                           onclick="toggleSelection()" />&nbsp;&nbsp;
+                                </label>
+                            </th>
+                            {% endif %}
+                            <th>Timestamp</th>
+                            <th>Event Type</th>
+                            <th>Description</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in logs %}
+                            <tr>
+                                {% if canArchiveLogs %}
+                                <td>
+                                    <label class="checkbox">
+                                        <input
+                                                id="log{{ log.id }}"
+                                                name="logIds[]"
+                                                value="{{ log.id }}"
+                                                class="is-medium toggle-me"
+                                                type="checkbox" />
+                                    </label>
+                                </td>
+                                {% endif %}
+                                <td>{{ log.createdAt | date("yyyy-MM-dd HH:mm:ss") }}</td>
+                                <td>{{ log.eventType }}</td>
+                                <td>{{ printLogMessage(log) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block footerScripts %}
+    {% if canArchiveLogs %}
+    <script>
+        (function(){
+            window.clearSelection = function(){
+                queryAll('input[type="checkbox"]:checked').forEach(function(el){ el.checked = false;})
+            };
+            window.toggleSelection = function(){
+                queryAll('.toggle-me').forEach(function(el){ el.checked = !el.checked;})
+            };
+            window.archiveSelection = function(){
+                if(queryAll('.toggle-me:checked').length > 0){
+                    archiveForm.submit();
+                }
+            }
+        })();
+    </script>
+    {% endif %}
+    {% endblock %}

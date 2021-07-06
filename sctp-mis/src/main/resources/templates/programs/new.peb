@@ -1,0 +1,78 @@
+    {% extends "base" %}
+
+        {% block contextMenu %}
+        <div class="container context-nav-container">
+            <div class="buttons is-left">
+                <a href="{{ href('/donors') }}" class="button is-danger">
+                    <span class="icon-text">
+                        <span class="icon">
+                            <i class="fa fa-chevron-left"></i>
+                        </span>
+                        <span>Back</span>
+                    </span>
+                </a>
+            </div>
+        </div>
+        {% endblock %}
+
+    {% block content %}
+    <div class="container">
+        <div class="card">
+            <header class="card-header">
+                <p class="card-header-title">New Program</p>
+            </header>
+            <div class="card-content">
+                <div class="content">
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label">Program Name</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                    <input type="text" minlength="1" maxlength="50" class="input"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label">Program Donor</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                        <select>
+                                            <option>DFID</option>
+                                            <option>UNICEF</option>
+                                            <option>UNHCR</option>
+                                            <option>USAID</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field is-horizontal">
+                        <div class="field-label">
+                            <!-- Left empty for spacing -->
+                        </div>
+                        <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                    <div class="buttons is-right">
+                                        <a href="/programs" class="button is-primary">Save</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+

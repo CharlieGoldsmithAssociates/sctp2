@@ -1,0 +1,226 @@
+    {% extends "unsecured-base" %}
+    {% block body %}
+    <div id="navbar-container">
+        <nav class="navbar top-nav" role="navigation" aria-label="main navigation">
+            <div class="navbar-brand">
+                <a class="navbar-item" href="/">
+                    <h3 class="site-title">
+                        SCTP INFORMATION MANAGEMENT SYSTEM
+                    </h3>
+                </a>
+                <a role="button" class="navbar-burger overflow-menu" aria-label="menu" aria-expanded="false"
+                   data-target="nav2">
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                </a>
+            </div>
+
+            <div id="nav1" class="navbar-menu">
+                <div class="navbar-end">
+                    <div class="navbar-item has-dropdown is-hoverable profile-menu">
+                        <a class="navbar-link nav_link">
+                      <span class="icon-text">
+                        <span class="icon">
+                          <i class="fas fa-user-circle"></i>
+                        </span>
+                        <span>{{ (principalDetails().firstName ~ ' ' ~ principalDetails().lastName) | title }}</span>
+                      </span>
+                        </a>
+                        <div class="navbar-dropdown">
+                            <a href="/account/settings" class="navbar-item">
+                                Settings
+                            </a>
+                            <a href="/account/password" class="navbar-item">
+                                Password
+                            </a>
+                            <hr class="navbar-divider"/>
+                            <form id="logoutForm"  method="post" enctype="multipart/form-data" action="/logout">
+                                <input name="{{ _csrf.parameterName }}" value="{{ _csrf.token }}" type="hidden"/>
+                            </form>
+                            <a onclick="logoutForm.submit()" target="_parent" class="navbar-item">
+                                Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <!-- /top navbar -->
+
+            </div>
+        </nav>
+
+        <!-- bottom nav -->
+        <nav class="navbar bottom-nav" role="navigation" aria-label="main navigation">
+            <div id="nav2" class="navbar-menu nav-shadow">
+                <div class="navbar-start">
+                    {% if hasAuthority('ACCESS_ADMINISTRATION') %}
+                    <div class="navbar-item has-dropdown is-hoverable">
+                        <a class="navbar-link">
+                          <span class="icon-text">
+                            <span class="icon">
+                                <i class="fas fa-desktop">&nbsp;</i>
+                            </span>
+                            <span>Administration</span>
+                          </span>
+                        </a>
+                        <div class="navbar-dropdown">
+                            {% if hasAuthority('READ_PERMISSIONS') %}<a href="/permissions" class="navbar-item">Access Permissions</a>{% endif %}
+                            {% if hasAuthority('READ_ROLES') %}<a href="/roles" class="navbar-item">User Roles</a>{% endif %}
+                            {% if hasAuthority('READ_USERS') %}<a href="/users" class="navbar-item">System Users</a>{% endif %}
+                            {% if hasAuthority('READ_LOGS') %}<a href="/logs" class="navbar-item">Audit Log</a>{% endif %}
+                            {% if hasAuthority('READ_VERSION') %}<a href="/system/version" class="navbar-item">Version Information</a>{% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {#
+                    <div class="navbar-item has-dropdown is-hoverable">
+                        <a class="navbar-link">
+                      <span class="icon-text">
+                        <span class="icon">
+                          <i class="fas fa-hands-helping">&nbsp;</i>
+                        </span>
+                        <span>Programmes &amp; Funders</span>
+                      </span>
+                        </a>
+                        <div class="navbar-dropdown">
+                            <a class="navbar-item" href="/donors">Funders</a>
+                            <a class="navbar-item" href="/programs">Programmes</a>
+                        </div>
+                    </div>
+                     #}
+
+                    {#
+                    <div class="navbar-item has-dropdown is-hoverable">
+                        <a class="navbar-link">
+                      <span class="icon-text">
+                        <span class="icon">
+                          <i class="far fa-address-book">&nbsp;</i>
+                        </span>
+                        <span>Targeting &amp; Enrolment</span>
+                      </span>
+                        </a>
+                        <div class="navbar-dropdown">
+                            <a href="/targeting/import" class="navbar-item">Import Data From Sources</a>
+                            <a href="/targeting/criteria" class="navbar-item">Create Targeting Criteria</a>
+                            <a href="/targeting/verification" class="navbar-item">Pre-Eligibility Verification</a>
+                            <a href="/targeting/community" class="navbar-item">Community Based Targeting</a>
+                        </div>
+                    </div> #}
+
+                    {#
+                    <div class="navbar-item has-dropdown is-hoverable">
+                        <a class="navbar-link">
+                      <span class="icon-text">
+                        <span class="icon">
+                          <i class="far fa-address-book">&nbsp;</i>
+                        </span>
+                        <span>Recipient Management</span>
+                      </span>
+                        </a>
+                        <div class="navbar-dropdown">
+                            <a class="navbar-item">Option 1</a>
+                            <a class="navbar-item">Option 2</a>
+                        </div>
+                    </div>
+                    #}
+
+                    {#
+                    <div class="navbar-item has-dropdown is-hoverable">
+                        <a class="navbar-link">
+                      <span class="icon-text">
+                        <span class="icon">
+                          <i class="fas fa-hand-holding-usd">&nbsp;</i>
+                        </span>
+                        <span>Transfers &amp; Deliveries</span>
+                      </span>
+                        </a>
+                        <div class="navbar-dropdown">
+                            <a class="navbar-item" href="/transfers/parameters">
+                                Transfer Parameters
+                            </a>
+                            <a class="navbar-item" href="/transfers/calculation">
+                                Calculate Cash Transfer Amounts
+                            </a>
+                            <a class="navbar-item" href="/transfers/generation">
+                                Generate Transfers
+                            </a>
+                            <a class="navbar-item is-static">
+                                Reconciliation
+                            </a>
+                        </div>
+                    </div>
+                    #}
+
+                    {#
+                    <div class="navbar-item has-dropdown is-hoverable">
+                        <a class="navbar-link">
+                      <span class="icon-text">
+                        <span class="icon">
+                          <i class="far fa-address-book">&nbsp;</i>
+                        </span>
+                        <span>GRM</span>
+                      </span>
+                        </a>
+                        <div class="navbar-dropdown">
+                            <a class="navbar-item">Option 1</a>
+                            <a class="navbar-item">Option 2</a>
+                        </div>
+                    </div>
+                    #}
+
+                    {#
+                    <div class="navbar-item has-dropdown is-hoverable">
+                        <a class="navbar-link">
+                      <span class="icon-text">
+                        <span class="icon">
+                          <i class="far fa-address-book">&nbsp;</i>
+                        </span>
+                        <span>Monitoring &amp; Evaluation</span>
+                      </span>
+                        </a>
+                        <div class="navbar-dropdown">
+                            <a class="navbar-item">Option 1</a>
+                            <a class="navbar-item">Option 2</a>
+                        </div>
+                    </div>
+                    #}
+
+                </div>
+                <!-- Start Menu -->
+
+                {#
+                <div class="navbar-end">
+                    <div class="navbar-item has-dropdown is-hoverable">
+                        <a class="navbar-link">
+                      <span class="icon-text">
+                        <span class="icon">
+                            <i class="fas fa-cog">&nbsp;</i>
+                        </span>
+                        <span>Settings</span>
+                      </span>
+                        </a>
+                        <div class="navbar-dropdown">
+                            <a class="navbar-item">
+                                Location
+                            </a>
+                        </div>
+                    </div>
+                </div> #}
+                <!-- /top navbar -->
+            </div>
+        </nav>
+        <!-- /end-bottom nav -->
+    </div>
+
+    <section class="section">
+    <!-- Context Nav -->
+        {% block contextMenu %}{% endblock %}
+    <!-- /End Context Nav -->
+
+    <div class="container">
+        <!-- start content -->
+        {% block content %}{% endblock %}
+        <!-- /end content -->
+    </div>
+    </section>
+    {% endblock %}

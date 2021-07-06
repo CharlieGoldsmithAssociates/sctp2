@@ -1,0 +1,76 @@
+    {% import "../utils/form" %}
+    {% extends "base" %}
+
+        {% block title %}
+            {{ parent() }} - Update Information
+        {% endblock %}
+
+    {% block content %}
+    <div class="container">
+        <div class="card">
+            <header class="card-header">
+                <p class="card-header-title">Update Information</p>
+            </header>
+            <div class="card-content">
+                {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+                <form id="updateForm" name="updateForm" action="/account/settings" method="post"
+                      enctype="application/x-www-form-urlencoded">
+                    {{ csrf(_csrf) }}
+
+                    <div class="columns">
+
+                        <div class="column">
+                            <div class="field">
+                                <label class="label">Username</label>
+                                <div class="control">
+                                    <input readonly="readonly"
+                                           value="{{ principal() }}"
+                                           type="text"
+                                           class="input is-locked"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="column">
+                            <div class="field">
+                                <label class="label is-required">E-mail address</label>
+                                <div class="control">
+                                        {{ emailField('email', settingsForm.email, 3, 50, true, null) }}
+                                </div>
+                                {{ printFieldErrors(getFieldErrors('settingsForm', 'email')) }}
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="columns">
+                        <div class="column">
+                            <div class="field">
+                                <label class="label is-required">First Name</label>
+                                <div class="control">
+                                    {{ textField('firstName', settingsForm.firstName, 3, 50, true, null) }}
+                                </div>
+                                {{ printFieldErrors(getFieldErrors('settingsForm', 'firstName')) }}
+                            </div>
+                        </div>
+
+                        <div class="column">
+                            <div class="field">
+                                <label class="label is-required">Last Name</label>
+                                <div class="control">
+                                        {{ textField('lastName', settingsForm.lastName, 3, 50, true, null) }}
+                                </div>
+                                {{ printFieldErrors(getFieldErrors('settingsForm', 'lastName')) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="buttons is-right">
+                        <button class="button is-primary">Save Information</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+

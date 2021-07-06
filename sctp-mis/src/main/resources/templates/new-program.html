@@ -1,0 +1,367 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SCTP</title>
+    <style>
+      .navbar-shadow {
+  -webkit-box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+  box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+}
+      
+a.nav_link:hover, a.nav_link:focus, a.nav_link:focus-within {
+  color: #34495e !important;
+  background-color: #0000 !important;
+}
+html {
+	background-color: #dedede !important;
+}
+    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css" />
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-social@2/css/all.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma-carousel@4.0.3/dist/css/bulma-carousel.min.css"
+    />
+    <link rel="stylesheet"
+          href="https://fiduswriter.github.io/Simple-DataTables/dist/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/bulma-carousel@4.0.3/dist/js/bulma-carousel.min.js"></script>
+    <script src="https://fiduswriter.github.io/Simple-DataTables/dist/module.js"></script>
+  </head>
+
+  <body>
+    <div id="navbar-container">
+      
+<nav class="navbar" style="background-color: #34495e" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item" href="home.html">
+      <h3 style="color: #fff; font-weight: 900">
+        SCTP INFORMATION MANAGEMENT SYSTEM
+      </h3>
+    </a>
+
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+
+  <div id="navbarBasicExample" class="navbar-menu">
+    <div class="navbar-end">
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link" style="color: #fff" class="nav_link">
+          <span class="icon-text">
+            <span class="icon">
+              <i class="fas fa-user-circle"></i>
+            </span>
+            <span>Jonathan Doe</span>
+          </span>
+        </a>
+        <div class="navbar-dropdown">
+          <a class="navbar-item">
+            Settings
+          </a>
+          <a class="navbar-item">
+            Password
+          </a>
+          <hr class="navbar-divider">
+          <a class="navbar-item">
+            Logout
+          </a>
+        </div>
+      </div>
+    </div>
+    <!-- /top navbar -->
+    
+  </div>
+</nav>
+      
+<!-- bottom nav -->
+      <nav class="navbar" style="z-index: 1; box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);" role="navigation" aria-label="main navigation">
+
+  <div id="navbarBasicExample" class="navbar-menu nav-shadow">
+    <div class="navbar-start">
+      
+     <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          <span class="icon-text">
+            <span class="icon">
+              <i class="fas fa-hands-helping"></i>
+            </span>
+            <span>Donors &amp; Programs</span>
+          </span>
+        </a>
+        <div class="navbar-dropdown">
+          <a class="navbar-item">
+            Donors
+          </a>
+          <a class="navbar-item">
+            Programs
+          </a>
+          <a class="navbar-item">
+            Projects
+          </a>
+        </div>
+      </div>
+      
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          <span class="icon-text">
+            <span class="icon">
+              <i class="far fa-address-book"></i>
+            </span>
+            <span>Targeting</span>
+          </span>
+        </a>
+        <div class="navbar-dropdown">
+          <a class="navbar-item">
+            Beneficiaries
+          </a>
+          <a class="navbar-item">
+            Household Management
+          </a>
+        </div>
+      </div>
+
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          <span class="icon-text">
+            <span class="icon">
+              <i class="fas fa-hand-holding-usd"></i>
+            </span>
+            <span>Cash Transfers</span>
+          </span>
+        </a>
+        <div class="navbar-dropdown">
+          <a class="navbar-item">
+            Delivery Agencies
+          </a>
+          <a class="navbar-item">
+            Transfers
+          </a>
+          <a class="navbar-item">
+            Reconciliation
+          </a>
+        </div>
+      </div>
+      
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          <span class="icon-text">
+            <span class="icon">
+              <i class="fas fa-chart-pie"></i>
+            </span>
+            <span>Reports</span>
+          </span>
+        </a>
+        <div class="navbar-dropdown">
+          <a class="navbar-item">
+            Report 1
+          </a>
+          <a class="navbar-item">
+            Report 2 
+          </a>
+          <a class="navbar-item">
+            Another Report
+          </a>
+          <a class="navbar-item">
+            Even More Reports
+          </a>
+        </div>
+      </div>
+      
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          <span class="icon-text">
+            <span class="icon">
+              <i class="fas fa-desktop"></i>
+            </span>
+            <span>System Management</span>
+          </span>
+        </a>
+        <div class="navbar-dropdown">
+          <a class="navbar-item">
+            Access Permissions
+          </a>
+          <a class="navbar-item">
+            User Roles
+          </a>
+          <a class="navbar-item">
+            System Users
+          </a>
+          <a class="navbar-item">
+            Audit Log
+          </a>
+          <hr class="navbar-divider">
+          <a class="navbar-item">
+            Version Information
+          </a>
+        </div>
+      </div>
+      
+    </div>
+    <!-- Start Menu -->
+
+    <div class="navbar-end">
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          <span class="icon-text">
+            <span class="icon">
+              <i class="fas fa-cog"></i>
+            </span>
+            <span>Settings</span>
+          </span>
+        </a>
+        <div class="navbar-dropdown">
+          <a class="navbar-item">
+            Location
+          </a>
+        </div>
+      </div>
+    </div>
+    <!-- /top navbar -->
+    
+  </div>
+</nav>
+<!-- /end-bottom nav -->
+    </div>
+    
+    <section class="section" style="background-color: #dedede">
+      
+      <!-- Context Nav -->
+      <div class="container" style="padding: 0px 16px 16px 16px">
+          <div class="container">
+            <div class="columns">
+              <div class="column is-narrow">
+                <a href="home.html">
+                  <span class="icon">
+                    <i class="fas fa-arrow-left"></i>
+                  </span>
+                  Back to programs</a>
+              </div>
+            </div>
+          </div>
+      </div>
+      <!-- /End Context Nav -->
+      
+      <div class="container" style="background-color: #f00;">
+   
+        <!-- start table -->
+        <div class="card" style="border-radius: 0px">
+         
+  <header class="card-header">
+    <p class="card-header-title">
+      Add New Program
+    </p>
+  </header>
+  <div class="card-content">
+    <div class="content">
+      <!-- Start form -->
+      
+      <div class="field is-horizontal">
+  <div class="field-label is-normal">
+    <label class="label">Program Name</label>
+  </div>
+  <div class="field-body">
+    <div class="field">
+      <p class="control is-expanded">
+        <input class="input" type="text" placeholder="Name">
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="field is-horizontal">
+  <div class="field-label is-normal">
+    <label class="label">Duration</label>
+  </div>
+  
+  <div class="field-body">
+    
+    <div class="field is-narrow">
+      <div class="control">
+        <div class="is-fullwidth">
+          <input type="date" class="input" />
+        </div>
+      </div>
+    </div>
+    
+    <div class="field is-narrow">
+      <div class="control">
+        <div class="is-fullwidth">
+          <input type="date" class="input" />
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+<div class="field is-horizontal">
+  <div class="field-label is-normal">
+    <label class="label">Delivering Agency</label>
+  </div>
+  
+  <div class="field-body">
+    <div class="field">
+      <div class="control">
+        <div class="select is-fullwidth">
+          <select>
+            <option>District Office 1</option>
+            <option>Agency 2</option>
+            <option>Agency 3</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+</div>
+
+<div class="field is-horizontal">
+  <div class="field-label">
+    <!-- Left empty for spacing -->
+  </div>
+  <div class="field-body">
+    <div class="field">
+      <div class="control">
+        <button class="button is-primary">
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+      
+      <!-- /End form -->
+    </div>
+  </div>
+</div>
+        <!-- /end table -->
+        
+      </div>
+    </section>
+    
+    <section class="section" style="background-color: #dedede">
+      <nav class="level">
+        <div class="level-item has-text-centered">
+          <p>&copy; 2021 CGA Technologies</p>
+        </div>
+      </nav>
+    </section>
+    
+    <script type="module">
+    import {DataTable} from "https://fiduswriter.github.io/Simple-DataTables/dist/module.js"
+    const table = new DataTable("table")
+  </script>
+  </body>
+</html>
+

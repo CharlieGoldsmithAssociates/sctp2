@@ -1,0 +1,35 @@
+server:
+  error:
+    path: error
+  servlet:
+    session:
+      cookie:
+        name: SCTP-JSESSIONID
+  port: 8282
+
+auth:
+  max_attempts: 3
+
+logging:
+  level:
+    org:
+      cga: INFO
+    root: ERROR
+
+spring:
+  application:
+    name: "SCTP MIS"
+    version: @project.version@
+    build_timestamp: @maven.build.timestamp@
+  mvc:
+    logResolvedException: false
+  datasource:
+    username:
+    password:
+    url: jdbc:mysql://
+
+# Pebble configuration
+pebble:
+  prefix: templates # Look for templates is /resources/templates (Under class path)
+  suffix: .peb # Extension of template files
+  exposeRequestAttributes: true

@@ -1,0 +1,62 @@
+{# This template contains utility macros #}
+{# NOTE: Macros do not have access to request contexts. However, they do have access to our customs extensions. #}
+
+{% macro csrf(_csrf) %}
+    <input name="{{ _csrf.parameterName }}" value="{{ _csrf.token }}" type="hidden"/>
+{% endmacro %}
+
+{% macro printFieldErrors(_field_errors_) %}
+    {% if not isEmpty(_field_errors_) %}
+        {% for error in _field_errors_ %}
+        <p class="help has-text-danger has-text-left">&bullet; {{ error }}</p>
+        {% endfor %}
+    {% endif %}
+{% endmacro %}
+
+    {% macro inputField(type, id, value, min, max, required, classes) %}
+    <input id="{{ id }}"
+           name="{{ id }}" {{ required ? 'required="required"' : '' }}
+           type="{{ type }}"
+           autocomplete="off"
+           value="{{ value }}"
+           minlength="{{ min }}"
+           maxlength="{{ max }}"
+           class="input{{ classes ? classes : '' }}"/>
+    {% endmacro %}
+
+    {% macro emailField(id, value, min, max, required, classes) %}
+        {{ inputField('email', id, value, min, max, required, classes) }}
+    {% endmacro %}
+
+    {% macro textField(id, value, min, max, required, classes) %}
+        {{ inputField('text', id, value, min, max, required, classes) }}
+    {% endmacro %}
+
+    {% macro selectField(id, options, value, required) %}
+        {{ formSelect(id, options, value, required) | raw }}
+    {% endmacro %}
+
+    {% macro passwordField(id, min, max, required) %}
+    <input id="{{ id }}"
+           name="{{ id }}" {{ required ? 'required="required"' : '' }}
+           type="password"
+           minlength="{{ min }}"
+           maxlength="{{ max }}" class="input"/>
+    {% endmacro %}
+
+
+{% macro showMessages(successMessage, infoMessage, dangerMessage, warningMessage) %}
+    {% if successMessage %}
+        {{ showMessageBox(successMessage | escape, 'success') | raw }}
+    {% endif %}
+    {% if dangerMessage %}
+        {{ showMessageBox(dangerMessage | escape, 'danger') | raw }}
+    {% endif %}
+    {% if warningMessage %}
+        {{ showMessageBox(warningMessage | escape, 'warning') | raw }}
+    {% endif %}
+    {% if infoMessage %}
+        {{ showMessageBox(infoMessage | escape, 'info') | raw }}
+    {% endif %}
+{% endmacro %}
+

@@ -1,0 +1,5 @@
+{% macro showMessageBox(msg, type) %}
+<article class="message no-border is-{{ type }}">
+    <div class="message-body has-text-left">{{ msg }}</div>
+</article>
+{% endmacro %}

@@ -1,0 +1,65 @@
+    {% import "../utils/form" %}
+    {% extends "base" %}
+
+    {% block title %}
+    {{ parent() }} - Add New Role
+    {% endblock %}
+
+    {% block contextMenu %}
+    <div class="container context-nav-container">
+        <div class="buttons is-left">
+            <a href="{{ href('/roles') }}" class="button is-danger">
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fa fa-chevron-left"></i>
+                    </span>
+                    <span>Back</span>
+                </span>
+            </a>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block content %}
+    <div class="container">
+        <div class="card">
+            <header class="card-header">
+                <p class="card-header-title">Add New Role</p>
+            </header>
+            <div class="card-content">
+                {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+                <form id="addRoleForm" action="/roles" method="post"
+                      enctype="application/x-www-form-urlencoded">
+                    {{ csrf(_csrf) }}
+
+                    <div class="columns">
+                        <div class="column">
+                            <div class="field">
+                                <label class="label is-required">Role Name</label>
+                                <div class="control">
+                                        {{ textField('roleName', addRoleForm.roleName, 3, 50, true, null) }}
+                                </div>
+                                {{ printFieldErrors(getFieldErrors('addRoleForm', 'roleName')) }}
+                            </div>
+                        </div>
+
+                        <div class="column is-one-fifth">
+                            <div class="field">
+                                <label class="label is-required">Active</label>
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                        {{ selectField('active', options, addRoleForm.active, true) }}
+                                    </div>
+                                </div>
+                                {{ printFieldErrors(getFieldErrors('addRoleForm', 'active')) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="buttons is-right">
+                        <button class="button is-primary">Add Role</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endblock %}

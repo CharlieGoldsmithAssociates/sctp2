@@ -1,0 +1,22 @@
+    {% extends "base" %}
+    {% block content %}
+    <div class="container">
+        <div class="card">
+            <header class="card-header">
+                <p class="card-header-title">System Information</p>
+            </header>
+            <div class="card-content">
+                <div class="content">
+                    <dl class="definition">
+                        <dt>Application Name</dt>
+                        <dd>{{ info.name }}</dd>
+                        <dt>Version</dt>
+                        <dd>{{ info.version }}</dd>
+                        <dt>Build Timestamp</dt>
+                        <dd>{{ info.buildTimestamp }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}

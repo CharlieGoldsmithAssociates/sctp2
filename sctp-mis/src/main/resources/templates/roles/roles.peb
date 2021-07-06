@@ -1,0 +1,68 @@
+    {% import "../utils/form" %}
+    {% extends "base" %}
+
+    {% set canModifyRoles = hasAuthority('WRITE_ROLES') %}
+
+    {% block contextMenu %}
+        {% if canModifyRoles %}
+        <div class="container context-nav-container">
+            <div class="buttons is-right">
+                <a href="{{ href('/roles/new') }}" class="button is-primary">Create New Role</a>
+            </div>
+        </div>
+        {% endif %}
+    {% endblock %}
+
+    {% block content %}
+    <div class="container">
+        <div class="card">
+            <header class="card-header">
+                <p class="card-header-title">User Roles</p>
+            </header>
+            <div class="card-content">
+                <div class="content">
+                    {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+                    <table class="table dataTable is-narrow is-striped is-hoverable">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Active</th>
+                            <th data-sortable="false" width="20%">Options</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for role in roles %}
+                            <tr>
+                                <td>{{ role.description }}</td>
+                                <td>{{ yesOrNo(role.active) }}</td>
+                                <td>
+                                    <div class="dropdown is-hoverable">
+                                        <div class="dropdown-trigger">
+                                            <button class="button button is-info is-inverted is-options"
+                                                    aria-haspopup="true" aria-controls="dropdown-menu2">
+                                                <span>Options</span>
+                                                <span class="icon is-small">
+                                                <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                            </span>
+                                            </button>
+                                        </div>
+                                        <div class="dropdown-menu" id="dropdown-menu2" role="menu">
+                                            <div class="dropdown-content">
+                                                <a href="/roles/{{ role.id }}" class="dropdown-item">View Role Permissions</a>
+                                                {% if canModifyRoles and not role.systemRole %}
+                                                <a href="/roles/{{ role.id }}/edit" class="dropdown-item">Edit Role</a>
+                                                <a href="/roles/{{ role.id }}/permissions" class="dropdown-item">Edit Role Permissions</a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}

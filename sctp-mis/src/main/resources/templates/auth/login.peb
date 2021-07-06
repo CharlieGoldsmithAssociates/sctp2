@@ -1,0 +1,59 @@
+    {% extends "../unsecured-base" %}
+    {% import "../utils/form" %}
+
+        {% block title %}{{ parent() }} - Login{% endblock %}
+
+    {% block body %}
+    <section class="hero">
+        <div class="hero-body">
+            <div class="container has-text-centered">
+                <div class="column is-4 is-offset-4">
+                    <h3 class="title has-text-black">SCTP IMS</h3>
+                    <p class="subtitle has-text-black">Please login to proceed.</p>
+                    <div class="box">
+                        <figure class="avatar">
+                            <img id="coa" src="/assets/img/coa-mw.svg"/>
+                        </figure>
+                        {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+                        <form name="loginForm"
+                              method="post"
+                              enctype="application/x-www-form-urlencoded"
+                              action="/login">
+                            <input name="{{ _csrf.parameterName }}" value="{{ _csrf.token }}" type="hidden"/>
+                            <div class="field">
+                                <div class="control">
+                                    <input class="input is-medium"
+                                           name="username"
+                                           value="{{ loginForm.username }}"
+                                           minlength="3"
+                                           maxlength="20"
+                                           required="required"
+                                           autocomplete="off"
+                                           type="text" placeholder="Username"/>
+                                </div>
+                                {{ printFieldErrors(getFieldErrors('loginForm', 'username')) }}
+                            </div>
+                            <div class="field">
+                                <div class="control">
+                                    <input class="input is-medium"
+                                           name="password"
+                                           minlength="8"
+                                           maxlength="15"
+                                           required="required"
+                                           autocomplete="off"
+                                           type="password" placeholder="Password"/>
+                                </div>
+                                {{ printFieldErrors(getFieldErrors('loginForm', 'password')) }}
+                            </div>
+                            <button class="button is-block is-medium is-info is-fullwidth">Login</button>
+                        </form>
+                    </div>
+                    <p class="has-text-grey">
+                        <a href="/auth/register">Sign Up</a> &nbsp;·&nbsp;
+                        <a href="/auth/reset">Forgot Password</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endblock %}

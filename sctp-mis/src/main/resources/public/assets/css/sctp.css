@@ -1,0 +1,111 @@
+@import url('fonts.css');
+
+.navbar-shadow {
+    -webkit-box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+ }
+
+html {
+    background-color: #dedede !important;
+}
+.site-title {
+    color: #fff;
+    font-weight: 900;
+    font-family: 'Ubuntu';
+}
+.context-nav-container {
+    padding: 16px 0;
+}
+
+.dropdown.is-active .dropdown-menu, .dropdown.is-hoverable:hover .dropdown-menu {
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-top: none;
+}
+
+.profile-menu > .navbar-link {
+    color: #fff !important;
+}
+
+.profile-menu > .navbar-link:hover,
+.profile-menu > .navbar-link:focus,
+.profile-menu > .navbar-link:focus-within {
+    color: #fff !important;
+    background-color: transparent !important;
+}
+
+.profile-menu.has-dropdown.is-active .navbar-link,
+.profile-menu.has-dropdown:focus .navbar-link,
+.profile-menu.has-dropdown:hover .navbar-link {
+    background-color: transparent !important;
+}
+
+#coa {
+    max-width: 60% !important;
+    padding-bottom: 20px;
+}
+
+nav.top-nav {
+    background-color: #34495e;
+}
+
+nav.bottom-nav {
+    z-index: 1;
+    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16), 0 2px 10px 0 rgba(0,0,0,0.12);
+}
+
+.message.no-border.is-primary .message-body {
+    border: 1px solid var(--primary);
+}
+
+.message.no-border.is-danger .message-body {
+    border: 1px solid var(--danger);
+}
+
+.message.no-border.is-info .message-body {
+    border: 1px solid var(--info);
+}
+
+.message.no-border.is-warning .message-body {
+    border: 1px solid var(--warning);
+}
+
+.message.no-border.is-success .message-body {
+    border: 1px solid var(--success);
+}
+
+dl.definition dt {
+  font-weight: 500;
+  display: inline-block;
+}
+dl.definition dt {
+  margin-top: 1rem;
+}
+
+dl.definition dt:first-child {
+  margin-top: 0;
+}
+
+.label.is-required::after {
+    color: #f00;
+    font-weight: bold;
+    content: " *";
+}
+
+.is-invalid {
+  border-color: #f14668;
+}
+
+.input.is-locked {
+  background-color: #f5f5f5;
+  color: #7a7a7a;
+}
+
+input[type="checkbox"].is-medium {
+  transform: scale(1.5);
+}
+
+.button.is-options {
+    height: inherit;
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
