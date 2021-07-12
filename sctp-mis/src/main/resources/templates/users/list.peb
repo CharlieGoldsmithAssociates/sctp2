@@ -45,7 +45,7 @@
                                 <td>
                                     {% if not user.systemUser %}
                                         {{ optionsMenu(
-                                                {"Edit": "/users/" ~ user.id },
+                                                {"Edit": "/users/" ~ user.id ~ "/edit" },
                                                 {"Change Password": "/users/" ~ user.id ~ "/password" }
                                            ) | raw
                                         }}

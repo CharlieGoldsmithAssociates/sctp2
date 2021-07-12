@@ -67,8 +67,6 @@
                           </span>
                         </a>
                         <div class="navbar-dropdown">
-                            {% if hasAuthority('READ_PERMISSIONS') %}<a href="/permissions" class="navbar-item">Access Permissions</a>{% endif %}
-                            {% if hasAuthority('READ_ROLES') %}<a href="/roles" class="navbar-item">User Roles</a>{% endif %}
                             <a href="/users" class="navbar-item">System Users</a>
                             <a href="/logs" class="navbar-item">Audit Log</a>
                             <a href="/system/version" class="navbar-item">Version Information</a>

@@ -34,15 +34,15 @@ package org.cga.sctp.mis.user;
 
 import javax.validation.constraints.NotNull;
 
-public class AddUserForm extends UserForm {
-    @NotNull(message = "This field is required.")
-    private PasswordOption passwordOption;
+public class UserEditForm extends UserForm {
+    @NotNull
+    private Long id;
 
-    public PasswordOption getPasswordOption() {
-        return passwordOption;
+    public Long getId() {
+        return id;
     }
 
-    public void setPasswordOption(PasswordOption passwordOption) {
-        this.passwordOption = passwordOption;
+    public void setId(Long id) {
+        this.id = id;
     }
 }

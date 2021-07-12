@@ -34,6 +34,7 @@ package org.cga.sctp.user;
 
 import org.cga.sctp.audit.AuditEvent;
 import org.cga.sctp.audit.EventType;
+import org.springframework.context.ApplicationEvent;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -43,11 +44,23 @@ public class UserAuditEvent extends AuditEvent {
         super(EventType.user, source);
     }
 
-    public static UserAuditEvent created(String creator, String newUser, String ipAddress) {
+    private static UserAuditEvent create(String message, Object... args) {
         UserAuditEvent event;
         Map<String, String> logData = new LinkedHashMap<>();
         event = new UserAuditEvent(logData);
-        logData.put("what", event.format("%s added user %s, from IP %s", creator, newUser, ipAddress));
+        logData.put("what", event.format(message, args));
         return event;
+    }
+
+    public static UserAuditEvent created(String creator, String newUser, String ipAddress) {
+        return create("%s added user %s, from IP %s", creator, newUser, ipAddress);
+    }
+
+    public static UserAuditEvent modified(String principal, String username, String ipAddress) {
+        return create("%s modified user %s, from IP %s", principal, username, ipAddress);
+    }
+
+    public static ApplicationEvent password(String principal, String username, String ipAddress) {
+        return create("%s changed %s's password from IP %s", principal, username, ipAddress);
     }
 }

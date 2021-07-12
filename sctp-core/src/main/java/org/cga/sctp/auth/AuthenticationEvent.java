@@ -85,7 +85,7 @@ public class AuthenticationEvent extends AuditEvent {
     }
 
     public static AuthenticationEvent authenticated(String ipAddress, User user) {
-        return create(ipAddress, user, "Authenticated");
+        return create(ipAddress, user, "Authenticated as " + user.getRole().label);
     }
 
     public static AuthenticationEvent accountLocked(String ipAddress, User user) {

@@ -1,0 +1,103 @@
+    {% extends "base" %}
+        {% import "../utils/form" %}
+
+        {% block contextMenu %}
+        <div class="container context-nav-container">
+            <div class="buttons is-left">
+                <a href="{{ href('/users') }}" class="button is-danger">
+                    <span class="icon-text">
+                        <span class="icon">
+                            <i class="fa fa-chevron-left"></i>
+                        </span>
+                        <span>Back</span>
+                    </span>
+                </a>
+            </div>
+        </div>
+        {% endblock %}
+
+    {% block content %}
+    <div class="container">
+    <div class="card">
+        <header class="card-header">
+            <p class="card-header-title">Edit User</p>
+        </header>
+        <div class="card-content">
+            {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+            <form id="addRoleForm" action="/users/update" method="post"
+                  enctype="application/x-www-form-urlencoded">
+                {{ csrf(_csrf) }}
+                {{ hiddenField('id', editForm.id) }}
+                <div class="columns">
+                    <div class="column">
+                        <div class="field">
+                            <label class="label is-required">First Name</label>
+                            <div class="control">
+                                    {{ textField('firstName', editForm.firstName, 3, 30, true, null) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('editForm', 'firstName')) }}
+                        </div>
+                    </div>
+
+                    <div class="column">
+                        <div class="field">
+                            <label class="label is-required">Last Name</label>
+                            <div class="control">
+                                    {{ textField('lastName', editForm.lastName, 3, 30, true, null) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('editForm', 'lastName')) }}
+                        </div>
+                    </div>
+
+                    <div class="column">
+                        <div class="field">
+                            <label class="label is-required">E-mail Address</label>
+                            <div class="control">
+                                    {{ emailField('email', editForm.email, 3, 50, true, null) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('editForm', 'email')) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="columns">
+                    <div class="column">
+                        <div class="field">
+                            <label class="label">Username</label>
+                            <div class="control">
+                                    {{ readOnlyTextField('username', editForm.username) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('editForm', 'username')) }}
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="field">
+                            <label class="label is-required">System Role</label>
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                        {{ selectField('role', roles, editForm.role, true) }}
+                                </div>
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('editForm', 'role')) }}
+                        </div>
+                    </div>
+                    <div class="column is-one-quarter">
+                        <div class="field">
+                            <label class="label is-required">Active</label>
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                        {{ selectField('active', booleans, editForm.active, true) }}
+                                </div>
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('editForm', 'active')) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="buttons is-right">
+                    <button class="button is-primary">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </div>
+    {% endblock %}
+

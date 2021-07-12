@@ -46,10 +46,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -59,6 +56,7 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/users")
+@Secured({"ROLE_SYSTEM_ADMIN", "ROLE_ADMINISTRATOR"})
 public class UserController extends BaseController {
 
     @Autowired
@@ -74,7 +72,6 @@ public class UserController extends BaseController {
     private LocationService locationService;
 
     @GetMapping
-    @Secured({"ROLE_SYSTEM_ADMIN", "ROLE_ADMINISTRATOR"})
     ModelAndView getIndex() {
         final List<User> userList = userService.getUsers();
         return view("/users/list")
@@ -82,9 +79,7 @@ public class UserController extends BaseController {
     }
 
     @GetMapping("/new")
-    @Secured({"ROLE_SYSTEM_ADMIN", "ROLE_ADMINISTRATOR"})
     ModelAndView addUserForm(@ModelAttribute AddUserForm addUserForm) {
-        List<UserRole> userRoles = accessControlService.getActiveUserRoles();
         return view("/users/new")
                 .addObject("booleans", Booleans.VALUES)
                 .addObject("passwordOptions", PasswordOption.VALUES)
@@ -92,7 +87,6 @@ public class UserController extends BaseController {
     }
 
     @PostMapping
-    @Secured({"ROLE_SYSTEM_ADMIN", "ROLE_ADMINISTRATOR"})
     ModelAndView addUser(
             HttpServletRequest request,
             @AuthenticationPrincipal String username,
@@ -156,6 +150,138 @@ public class UserController extends BaseController {
         }
 
         setSuccessFlashMessage("User added to the system successfully!", attributes);
+        return redirect("/users");
+    }
+
+    @PostMapping("/update")
+    ModelAndView updateUser(
+            HttpServletRequest request,
+            @AuthenticationPrincipal String username,
+            @Validated @ModelAttribute("editForm") UserEditForm editForm,
+            BindingResult result,
+            RedirectAttributes attributes) {
+
+        User user;
+
+        if (result.hasErrors()) {
+            return view("/users/edit")
+                    .addObject(editForm)
+                    .addObject("booleans", Booleans.VALUES)
+                    .addObject("roles", SystemRole.ROLES);
+        }
+
+        if (editForm.getRole().isRestricted) {
+            return withDangerMessage("/users/edit", "Selected role cannot be assigned at the moment. Please select another role.")
+                    .addObject(editForm)
+                    .addObject("booleans", Booleans.VALUES)
+                    .addObject("roles", SystemRole.ROLES);
+        }
+
+        user = userService.findById(editForm.getId());
+        if (user == null || user.isDeleted()) {
+            setDangerFlashMessage("Selected user does not exist.", attributes);
+            return redirect("/users");
+        }
+        if (user.getRole().isRestricted || user.isSystemUser()) {
+            setDangerFlashMessage("Selected user cannot be edited at the moment.", attributes);
+            return redirect("/users");
+        }
+
+        // Is email changing?
+        if (!user.getEmail().equalsIgnoreCase(editForm.getEmail())) {
+            if (userService.emailExists(editForm.getEmail())) {
+                return withDangerMessage("/users/edit", "Email address is already in use.")
+                        //.addObject(editForm)
+                        .addObject("booleans", Booleans.VALUES)
+                        .addObject("roles", SystemRole.ROLES);
+            }
+            user.setEmail(editForm.getEmail());
+        }
+
+        user.setRole(editForm.getRole());
+        user.setModifiedAt(LocalDateTime.now());
+        user.setLastName(editForm.getLastName());
+        user.setFirstName(editForm.getFirstName());
+        user.setActive(editForm.getActive().value);
+        userService.saveUser(user);
+
+        publishEvent(UserAuditEvent.modified(username, user.getUsername(), request.getRemoteAddr()));
+
+        setSuccessFlashMessage("User updated successfully!", attributes);
+        return redirect("/users");
+    }
+
+    @GetMapping("/{user-id}/edit")
+    ModelAndView editUser(@PathVariable("user-id") Long userId, @ModelAttribute("editForm") UserEditForm editForm, RedirectAttributes attributes) {
+        User user = userService.findById(userId);
+        if (user == null || user.isDeleted()) {
+            setDangerFlashMessage("Selected user does not exist.", attributes);
+            return redirect("/users");
+        }
+        if (user.getRole().isRestricted || user.isSystemUser()) {
+            setDangerFlashMessage("Selected user cannot be edited at the moment.", attributes);
+            return redirect("/users");
+        }
+        editForm.setId(user.getId());
+        editForm.setRole(user.getRole());
+        editForm.setEmail(user.getEmail());
+        editForm.setLastName(user.getLastName());
+        editForm.setFirstName(user.getFirstName());
+        editForm.setUsername(user.getUsername());
+        editForm.setActive(Booleans.of(user.isActive()));
+        return view("/users/edit")
+                .addObject("booleans", Booleans.VALUES)
+                .addObject("roles", SystemRole.ROLES);
+    }
+
+    @GetMapping("/{user-id}/password")
+    ModelAndView editPassword(@PathVariable("user-id") Long userId,
+                              @ModelAttribute("passwordForm") UserPasswordForm passwordForm,
+                              RedirectAttributes attributes) {
+        User user = userService.findById(userId);
+        if (user == null || user.isDeleted()) {
+            setDangerFlashMessage("Selected user does not exist.", attributes);
+            return redirect("/users");
+        }
+        if (user.getRole().isRestricted || user.isSystemUser()) {
+            setDangerFlashMessage("Selected user cannot be edited at the moment.", attributes);
+            return redirect("/users");
+        }
+        passwordForm.setId(user.getId());
+        return view("/users/password");
+    }
+
+    @PostMapping("/update-password")
+    ModelAndView updateUserPassword(
+            HttpServletRequest request,
+            @AuthenticationPrincipal String username,
+            @Validated @ModelAttribute UserPasswordForm passwordForm,
+            BindingResult result,
+            RedirectAttributes attributes) {
+
+        User user;
+
+        if (result.hasErrors()) {
+            return view("/users/password")
+                    .addObject(passwordForm);
+        }
+
+        user = userService.findById(passwordForm.getId());
+        if (user == null || user.isDeleted()) {
+            setDangerFlashMessage("Selected user does not exist.", attributes);
+            return redirect("/users");
+        }
+        if (user.getRole().isRestricted || user.isSystemUser()) {
+            setDangerFlashMessage("Selected user cannot be edited at the moment.", attributes);
+            return redirect("/users");
+        }
+
+        user.setPassword(authService.hashPassword(passwordForm.getPassword()));
+        userService.saveUser(user);
+
+        publishEvent(UserAuditEvent.password(username, user.getUsername(), request.getRemoteAddr()));
+
+        setSuccessFlashMessage("User password changed successfully!", attributes);
         return redirect("/users");
     }
 }

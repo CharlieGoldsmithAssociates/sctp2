@@ -32,17 +32,78 @@
 
 package org.cga.sctp.mis.user;
 
+import org.cga.sctp.mis.core.templating.Booleans;
+import org.cga.sctp.user.SystemRole;
+import org.cga.sctp.validation.EmailAddress;
+import org.cga.sctp.validation.SimpleName;
+import org.cga.sctp.validation.UserName;
+
 import javax.validation.constraints.NotNull;
 
-public class AddUserForm extends UserForm {
-    @NotNull(message = "This field is required.")
-    private PasswordOption passwordOption;
+public abstract class UserForm {
+    @NotNull(message = "Role is required.")
+    private SystemRole role;
 
-    public PasswordOption getPasswordOption() {
-        return passwordOption;
+    @EmailAddress
+    private String email;
+
+    @NotNull(message = "Active status is required")
+    private Booleans active;
+
+    @UserName
+    private String username;
+
+    @SimpleName
+    private String lastName;
+
+    @SimpleName
+    private String firstName;
+
+    public SystemRole getRole() {
+        return role;
     }
 
-    public void setPasswordOption(PasswordOption passwordOption) {
-        this.passwordOption = passwordOption;
+    public void setRole(SystemRole role) {
+        this.role = role;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Booleans getActive() {
+        return active;
+    }
+
+    public void setActive(Booleans active) {
+        this.active = active;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 }
