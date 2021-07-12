@@ -33,11 +33,27 @@
  * For more information please see http://opensource.org/licenses/BSD-3-Clause
  */
 
-package org.cga.sctp.audit;
+package org.cga.sctp.location;
 
-public enum EventType {
-    authentication,
-    general,
-    security,
-    user
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
+
+public interface LocationRepository extends PagingAndSortingRepository<Location, Long> {
+
+    @Query(value = "SELECT * FROM locations WHERE active = :active", nativeQuery = true)
+    Page<Location> getByStatus(@Param("page") Pageable pageable, @Param("active") boolean active);
+
+    @Query(value = "select * FROM locations where active = true", nativeQuery = true)
+    List<Location> findAllActive();
+
+    @Query(nativeQuery = true, value = "select * from locations where active = true and id = :id")
+    Location findActiveLocationById(@Param("id") Long locationId);
+
+    @Query(nativeQuery = true, value = "select * from locations where active = true and location_type = :type")
+    List<Location> findActiveLocationsByType(@Param("type") String type);
 }

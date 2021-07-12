@@ -41,6 +41,7 @@ import org.springframework.context.ApplicationEvent;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class AuditEvent extends ApplicationEvent {
@@ -76,5 +77,9 @@ public class AuditEvent extends ApplicationEvent {
     @SuppressWarnings("unchecked")
     public Map<String, Object> getLogData(Gson gson) {
         return gson.fromJson(gson.toJson(source), Map.class);
+    }
+
+    protected final String format(String format, Object... args) {
+        return String.format(Locale.US, format, args);
     }
 }

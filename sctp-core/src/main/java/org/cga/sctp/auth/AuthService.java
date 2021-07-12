@@ -36,8 +36,10 @@ import org.cga.sctp.core.BaseService;
 import org.cga.sctp.persistence.StatusCode;
 import org.cga.sctp.security.AccessControlService;
 import org.cga.sctp.user.AuthenticatedUser;
+import org.cga.sctp.user.SystemRole;
 import org.cga.sctp.user.User;
 import org.cga.sctp.user.UserService;
+import org.cga.sctp.utils.CryptoUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
@@ -48,6 +50,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -108,11 +111,6 @@ public class AuthService extends BaseService implements AuthenticationProvider {
             throw new LockedException(AuthenticationResult.InactiveAccount.message);
         }
 
-        if (!user.getRole().isActive()) {
-            publishEvent(AuthenticationEvent.inactiveRole(ipAddress, user));
-            throw new DisabledException(AuthenticationResult.InactiveAccount.message);
-        }
-
         user.setIpAddress(ipAddress);
         user.setLastAuthAttemptAt(LocalDateTime.now());
 
@@ -132,10 +130,7 @@ public class AuthService extends BaseService implements AuthenticationProvider {
             token = new UsernamePasswordAuthenticationToken(
                     username,
                     null,
-                    accessControlService.getRolePermissions(user.getRole())
-                            .stream()
-                            .map(userPermission -> new SimpleGrantedAuthority(userPermission.getName()))
-                            .collect(Collectors.toList())
+                    List.of(new SimpleGrantedAuthority(user.getRole().name()))
             );
             token.setDetails(new AuthenticatedUser(user));
             result = AuthenticationResult.Authenticated;
@@ -169,5 +164,13 @@ public class AuthService extends BaseService implements AuthenticationProvider {
 
     public String hashPassword(String newPassword) {
         return passwordEncoder.encode(newPassword);
+    }
+
+    public String generateRandomString(int count) {
+        return CryptoUtils.genRandomString(count);
+    }
+
+    public String generatePassword() {
+        return passwordEncoder.encode(generateRandomString(15));
     }
 }

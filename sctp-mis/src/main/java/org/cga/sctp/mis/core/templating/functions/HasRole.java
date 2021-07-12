@@ -39,24 +39,30 @@ import org.cga.sctp.mis.utils.SpringUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
 
-public class HasAuthority extends PebbleFunctionImpl {
-    public HasAuthority() {
-        super("hasAuthority", List.of("authority"));
+public class HasRole extends PebbleFunctionImpl {
+    public HasRole() {
+        super("hasRole", null);
     }
 
     @Override
     public Object execute(Map<String, Object> args, PebbleTemplate self, EvaluationContext context, int lineNumber) {
-        String authority = (String) Objects.requireNonNull(args.get("authority"), "Authority is required.");
+        Collection<Object> roles = extractArgs(args, true);
         if (SpringUtils.isPrincipalAuthenticated()) {
             Authentication authentication = SpringUtils.getAuthentication();
-            return authentication.getAuthorities()
-                    .stream()
-                    .anyMatch((Predicate<GrantedAuthority>) grantedAuthority -> grantedAuthority.getAuthority().equals(authority));
+            Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+            for (Object role : roles) {
+                for (GrantedAuthority g : authorities) {
+                    if (g.getAuthority().equals("ROLE_" + role)) {
+                        return true;
+                    }
+                }
+            }
         }
         return false;
     }

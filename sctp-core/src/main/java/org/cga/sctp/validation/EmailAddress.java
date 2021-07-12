@@ -30,34 +30,27 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.mis.core.templating.functions;
+package org.cga.sctp.validation;
 
-import com.mitchellbosecke.pebble.template.EvaluationContext;
-import com.mitchellbosecke.pebble.template.PebbleTemplate;
-import org.cga.sctp.mis.core.templating.PebbleFunctionImpl;
-import org.cga.sctp.mis.utils.SpringUtils;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
+import javax.validation.Constraint;
+import javax.validation.Payload;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+import java.lang.annotation.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Predicate;
+@Documented
+@Constraint(validatedBy = {})
+@NotNull(message = "Email address is required.")
+@Size(min = 3, max = 50, message = "Email address must have {min} to {max} characters.")
+@Email(message = "Invalid email address.")
+@Target({ElementType.PARAMETER, ElementType.FIELD})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface EmailAddress {
+    String message() default "Invalid email address format";
 
-public class HasAuthority extends PebbleFunctionImpl {
-    public HasAuthority() {
-        super("hasAuthority", List.of("authority"));
-    }
+    Class<?>[] groups() default {};
 
-    @Override
-    public Object execute(Map<String, Object> args, PebbleTemplate self, EvaluationContext context, int lineNumber) {
-        String authority = (String) Objects.requireNonNull(args.get("authority"), "Authority is required.");
-        if (SpringUtils.isPrincipalAuthenticated()) {
-            Authentication authentication = SpringUtils.getAuthentication();
-            return authentication.getAuthorities()
-                    .stream()
-                    .anyMatch((Predicate<GrantedAuthority>) grantedAuthority -> grantedAuthority.getAuthority().equals(authority));
-        }
-        return false;
-    }
+    Class<? extends Payload>[] payload() default {};
 }

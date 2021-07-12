@@ -47,12 +47,12 @@ import javax.validation.constraints.NotNull;
  * @param role      The effective role of the user as it appeared at the time the user was authenticated.
  */
 public record AuthenticatedUser(@NonNull Long id, @NonNull String username, @NonNull String firstName,
-                                @NonNull String lastName, @NonNull UserRole role) {
+                                @NonNull String lastName, @NonNull String role) {
     /**
      * @param user The user
      */
     public AuthenticatedUser(@NonNull User user) {
-        this(user.getId(), user.getUserName(), user.getFirstName(), user.getLastName(), user.getRole());
+        this(user.getId(), user.getUserName(), user.getFirstName(), user.getLastName(), user.getRole().name());
     }
 
     @Override

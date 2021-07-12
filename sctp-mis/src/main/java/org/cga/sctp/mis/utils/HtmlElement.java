@@ -32,31 +32,37 @@
 
 package org.cga.sctp.mis.utils;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.StringJoiner;
+import java.util.*;
 
 public class HtmlElement {
     private String text;
     private final String tagName;
     private final boolean singleTag;
     private boolean textBeforeChildren;
-    private final Map<String, Object> attributes;
     private ArrayList<HtmlElement> children;
+    private Object literalValue;
+    private final boolean isLiteralValue;
+    private final Map<String, Object> attributes;
 
-    public HtmlElement(String tagName, boolean singleTag) {
+    public HtmlElement(String tagName, boolean singleTag, boolean isLiteral, Object value) {
         this.tagName = tagName;
+        this.literalValue = value;
         this.singleTag = singleTag;
         this.textBeforeChildren = true;
+        this.isLiteralValue = isLiteral;
         this.attributes = new LinkedHashMap<>();
     }
 
+    public HtmlElement(String tagName, boolean singleTag) {
+        this(tagName, singleTag, false, null);
+    }
+
     public HtmlElement(String tagName) {
-        this(tagName, false);
+        this(tagName, false, false, null);
     }
 
     public <E extends HtmlElement> E classes(String... names) {
+        assertNotLiteralNode();
         StringJoiner joiner = new StringJoiner(" ");
         for (String name : names) {
             joiner.add(name);
@@ -66,6 +72,7 @@ public class HtmlElement {
     }
 
     public <E extends HtmlElement> E addClass(String className) {
+        assertNotLiteralNode();
         String classList = null;
         if (attributes.containsKey("class")) {
             classList = (String) attributes.get("class");
@@ -82,6 +89,7 @@ public class HtmlElement {
     }
 
     public <E extends HtmlElement> E addClasses(String... classNames) {
+        assertNotLiteralNode();
         if (classNames.length > 0) {
             for (String cls : classNames) {
                 addClass(cls);
@@ -103,11 +111,13 @@ public class HtmlElement {
     }
 
     public <E extends HtmlElement> E attribute(String name, Object value) {
+        assertNotLiteralNode();
         this.attributes.put(name, String.valueOf(value));
         return (E) this;
     }
 
     public <E extends HtmlElement> E addChild(HtmlElement child) {
+        assertNotLiteralNode();
         if (child != this) {
             if (this.children == null) {
                 this.children = new ArrayList<>();
@@ -118,12 +128,18 @@ public class HtmlElement {
     }
 
     public <E extends HtmlElement> E text(String text) {
+        assertNotLiteralNode();
         this.text = text;
         this.textBeforeChildren = this.children == null;
         return (E) this;
     }
 
     private void build(StringBuilder builder) {
+        if (isLiteralValue) {
+            builder.append(literalValue);
+            return;
+        }
+
         builder.append('<').append(tagName);
 
         for (String attrName : attributes.keySet()) {
@@ -168,4 +184,9 @@ public class HtmlElement {
         }
     }
 
+    private void assertNotLiteralNode() {
+        if (isLiteralValue) {
+            throw new IllegalStateException("Cannot manipulate literal value elements.");
+        }
+    }
 }

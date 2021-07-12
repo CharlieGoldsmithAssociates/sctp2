@@ -33,11 +33,32 @@
  * For more information please see http://opensource.org/licenses/BSD-3-Clause
  */
 
-package org.cga.sctp.audit;
+package org.cga.sctp.location;
 
-public enum EventType {
-    authentication,
-    general,
-    security,
-    user
+/**
+ * Type of location/region
+ */
+//
+public enum LocationType {
+    COUNTRY(0, true),
+    SUBNATIONAL1(1, false),
+    SUBNATIONAL2(2, false),
+    SUBNATIONAL3(3, false),
+    SUBNATIONAL4(4, false);
+
+    LocationType(int level, boolean isRoot) {
+        this.level = level;
+        this.isRoot = isRoot;
+    }
+
+    /**
+     * <p>Hierarchical level (0 being the root. The lower the number, the higher the level).
+     * All based on the following topographic relationship:
+     * <b>i.e, District &gt; TA &gt; Village Cluster &gt; Zone &gt; Village</b></p>
+     */
+    public final int level;
+    /**
+     * Marks this location as a root location.
+     */
+    public final boolean isRoot;
 }

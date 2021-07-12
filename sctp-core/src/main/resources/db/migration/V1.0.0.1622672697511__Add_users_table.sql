@@ -35,7 +35,6 @@ CREATE TABLE IF NOT EXISTS `users` (
   `first_name` varchar(50) NOT NULL,
   `last_name` varchar(50) NOT NULL,
   `created_at` timestamp NOT NULL,
-  `location` bigint NOT NULL,
   `modified_at` timestamp,
   `last_auth_attempt_at` timestamp,
   `session_id` varchar(512),
@@ -47,10 +46,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `email` varchar(50) UNIQUE NOT NULL,
   `password` varchar(512) NOT NULL,
   `role` varchar(30) NOT NULL,
-  `system_user` boolean not null,
-
-  FOREIGN KEY(location) REFERENCES locations(id),
-  FOREIGN KEY(role) REFERENCES roles(name)
+  `system_user` boolean not null
 );
 
 CREATE TABLE IF NOT EXISTS `role_permissions` (

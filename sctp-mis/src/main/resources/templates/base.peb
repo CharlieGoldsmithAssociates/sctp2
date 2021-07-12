@@ -1,4 +1,7 @@
     {% extends "unsecured-base" %}
+    {% block meta %}
+    <meta http-equiv="refresh" content="{{ session.maxInactiveInterval}};url=/auth/login"/>
+    {% endblock %}
     {% block body %}
     <div id="navbar-container">
         <nav class="navbar top-nav" role="navigation" aria-label="main navigation">
@@ -53,7 +56,7 @@
         <nav class="navbar bottom-nav" role="navigation" aria-label="main navigation">
             <div id="nav2" class="navbar-menu nav-shadow">
                 <div class="navbar-start">
-                    {% if hasAuthority('ACCESS_ADMINISTRATION') %}
+                    {% if hasRole("SYSTEM_ADMIN", "ADMINISTRATOR") %}
                     <div class="navbar-item has-dropdown is-hoverable">
                         <a class="navbar-link">
                           <span class="icon-text">
@@ -66,9 +69,9 @@
                         <div class="navbar-dropdown">
                             {% if hasAuthority('READ_PERMISSIONS') %}<a href="/permissions" class="navbar-item">Access Permissions</a>{% endif %}
                             {% if hasAuthority('READ_ROLES') %}<a href="/roles" class="navbar-item">User Roles</a>{% endif %}
-                            {% if hasAuthority('READ_USERS') %}<a href="/users" class="navbar-item">System Users</a>{% endif %}
-                            {% if hasAuthority('READ_LOGS') %}<a href="/logs" class="navbar-item">Audit Log</a>{% endif %}
-                            {% if hasAuthority('READ_VERSION') %}<a href="/system/version" class="navbar-item">Version Information</a>{% endif %}
+                            <a href="/users" class="navbar-item">System Users</a>
+                            <a href="/logs" class="navbar-item">Audit Log</a>
+                            <a href="/system/version" class="navbar-item">Version Information</a>
                         </div>
                     </div>
                     {% endif %}

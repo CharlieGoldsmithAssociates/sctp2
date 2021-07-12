@@ -30,34 +30,35 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.mis.core.templating.functions;
+package org.cga.sctp.mis.core.templating;
 
-import com.mitchellbosecke.pebble.template.EvaluationContext;
-import com.mitchellbosecke.pebble.template.PebbleTemplate;
-import org.cga.sctp.mis.core.templating.PebbleFunctionImpl;
-import org.cga.sctp.mis.utils.SpringUtils;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
+import org.cga.sctp.location.Location;
+import org.cga.sctp.security.permission.UserRole;
+import org.cga.sctp.user.AccessLevel;
+import org.cga.sctp.user.SystemRole;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Predicate;
+/**
+ * Annotate remote classes with the {@link SelectOption} annotation for use by
+ * {@link org.cga.sctp.mis.core.templating.functions.FormSelect}
+ */
+@Configuration
+public class SelectOptionConfigs {
 
-public class HasAuthority extends PebbleFunctionImpl {
-    public HasAuthority() {
-        super("hasAuthority", List.of("authority"));
+    @Bean
+    public SelectOptionEntry userRoleSelectOption() {
+        // Use UserRole.id as unique value and description as human-friendly value
+        return new SelectOptionEntry(UserRole.class, "id", "description");
     }
 
-    @Override
-    public Object execute(Map<String, Object> args, PebbleTemplate self, EvaluationContext context, int lineNumber) {
-        String authority = (String) Objects.requireNonNull(args.get("authority"), "Authority is required.");
-        if (SpringUtils.isPrincipalAuthenticated()) {
-            Authentication authentication = SpringUtils.getAuthentication();
-            return authentication.getAuthorities()
-                    .stream()
-                    .anyMatch((Predicate<GrantedAuthority>) grantedAuthority -> grantedAuthority.getAuthority().equals(authority));
-        }
-        return false;
+    @Bean
+    public SelectOptionEntry locationSelectOption() {
+        return new SelectOptionEntry(Location.class, "id", "name");
+    }
+
+    @Bean
+    public SelectOptionEntry systemRoleSelectOption() {
+        return new SelectOptionEntry(SystemRole.class, "name()", "label");
     }
 }

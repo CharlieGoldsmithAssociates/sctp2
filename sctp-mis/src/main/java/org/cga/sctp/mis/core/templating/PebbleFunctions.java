@@ -36,9 +36,11 @@ import com.mitchellbosecke.pebble.extension.Function;
 import com.mitchellbosecke.pebble.spring.extension.function.bindingresult.GetFieldErrorsFunction;
 import com.mitchellbosecke.pebble.template.EvaluationContext;
 import com.mitchellbosecke.pebble.template.PebbleTemplate;
+import org.aspectj.weaver.loadtime.Options;
 import org.cga.sctp.mis.core.templating.functions.*;
 import org.cga.sctp.mis.utils.SpringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -53,9 +55,27 @@ public class PebbleFunctions {
     @Autowired
     private MessageSource messageSource;
 
+    @Autowired
+    private ApplicationContext appContext;
+
+    @Bean
+    public SelectOptionRegistry selectOptionRegistry() {
+        return new SelectOptionRegistryImpl(appContext);
+    }
+
     @Bean
     public Function hasAuthority() {
         return new HasAuthority();
+    }
+
+    @Bean
+    public Function hasRole() {
+        return new HasRole();
+    }
+
+    @Bean
+    public Function optionsMenu() {
+        return new OptionsMenu();
     }
 
     @Bean
@@ -85,7 +105,7 @@ public class PebbleFunctions {
 
     @Bean
     public Function formSelect() {
-        return new FormSelect();
+        return new FormSelect(selectOptionRegistry());
     }
 
     @Bean

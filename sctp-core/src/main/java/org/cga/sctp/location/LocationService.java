@@ -33,11 +33,47 @@
  * For more information please see http://opensource.org/licenses/BSD-3-Clause
  */
 
-package org.cga.sctp.audit;
+package org.cga.sctp.location;
 
-public enum EventType {
-    authentication,
-    general,
-    security,
-    user
+import org.cga.sctp.core.BaseService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class LocationService extends BaseService {
+
+    @Autowired
+    private LocationRepository locationRepository;
+
+    public Page<Location> getLocations(Pageable pageable) {
+        return locationRepository.findAll(pageable);
+    }
+
+    public boolean isValidLocationHieArchyLevel(LocationType parent, LocationType child) {
+        return parent.level < child.level;
+    }
+
+    public void addLocation(Location geoLocation) {
+        locationRepository.save(geoLocation);
+    }
+
+    public Location findById(Long id) {
+        return locationRepository.findById(id).orElse(null);
+    }
+
+    public Page<Location> getLocationsByActiveStatus(Pageable pageable, boolean active) {
+        return locationRepository.getByStatus(pageable, active);
+    }
+
+    public List<Location> getActiveDistricts() {
+        return locationRepository.findActiveLocationsByType(LocationType.SUBNATIONAL1.name());
+    }
+
+    public Location findActiveLocationById(Long locationId) {
+        return locationRepository.findActiveLocationById(locationId);
+    }
 }

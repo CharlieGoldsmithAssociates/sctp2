@@ -88,10 +88,6 @@ public class AuthenticationEvent extends AuditEvent {
         return create(ipAddress, user, "Authenticated");
     }
 
-    public static AuthenticationEvent inactiveRole(String ipAddress, User user) {
-        return create(ipAddress, user, String.format(Locale.US, "Role %s is disabled.", user.getRole().getName()));
-    }
-
     public static AuthenticationEvent accountLocked(String ipAddress, User user) {
         return create(ipAddress,
                 user,

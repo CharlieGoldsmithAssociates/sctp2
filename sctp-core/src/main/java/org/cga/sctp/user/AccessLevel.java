@@ -30,34 +30,39 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.mis.core.templating.functions;
+package org.cga.sctp.user;
 
-import com.mitchellbosecke.pebble.template.EvaluationContext;
-import com.mitchellbosecke.pebble.template.PebbleTemplate;
-import org.cga.sctp.mis.core.templating.PebbleFunctionImpl;
-import org.cga.sctp.mis.utils.SpringUtils;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
+public enum AccessLevel {
+    /**
+     * Can edit everyone
+     */
+    Headquarters("Headquarters", 1),
+    /**
+     * Can only manage users at the
+     */
+    DistrictAdmin("District Admin", 2),
+    DistrictOfficer("District Officer", 3);
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Predicate;
-
-public class HasAuthority extends PebbleFunctionImpl {
-    public HasAuthority() {
-        super("hasAuthority", List.of("authority"));
+    AccessLevel(String title, int level) {
+        this.title = title;
+        this.level = level;
     }
 
-    @Override
-    public Object execute(Map<String, Object> args, PebbleTemplate self, EvaluationContext context, int lineNumber) {
-        String authority = (String) Objects.requireNonNull(args.get("authority"), "Authority is required.");
-        if (SpringUtils.isPrincipalAuthenticated()) {
-            Authentication authentication = SpringUtils.getAuthentication();
-            return authentication.getAuthorities()
-                    .stream()
-                    .anyMatch((Predicate<GrantedAuthority>) grantedAuthority -> grantedAuthority.getAuthority().equals(authority));
-        }
-        return false;
+    public final String title;
+    /**
+     * The level of access. Lower values translate to high
+     */
+    public final int level;
+
+    /**
+     * Checks if the instance of this access level is above the given access level.
+     *
+     * @param accessLevel .
+     * @return .
+     */
+    public boolean isAbove(AccessLevel accessLevel) {
+        return this.level < accessLevel.level;
     }
+
+    public static final AccessLevel[] ACCESS_LEVELS = values();
 }

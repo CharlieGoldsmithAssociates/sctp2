@@ -30,34 +30,21 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.mis.core.templating.functions;
+package org.cga.sctp.user;
 
-import com.mitchellbosecke.pebble.template.EvaluationContext;
-import com.mitchellbosecke.pebble.template.PebbleTemplate;
-import org.cga.sctp.mis.core.templating.PebbleFunctionImpl;
-import org.cga.sctp.mis.utils.SpringUtils;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Predicate;
+public enum SystemRole {
+    ROLE_SYSTEM_ADMIN("System Account", true),
+    ROLE_ADMINISTRATION("Administrator", false),
+    ROLE_STANDARD("Standard User", false);
 
-public class HasAuthority extends PebbleFunctionImpl {
-    public HasAuthority() {
-        super("hasAuthority", List.of("authority"));
+    SystemRole(String label, boolean isRestricted) {
+        this.label = label;
+        this.isRestricted = isRestricted;
     }
 
-    @Override
-    public Object execute(Map<String, Object> args, PebbleTemplate self, EvaluationContext context, int lineNumber) {
-        String authority = (String) Objects.requireNonNull(args.get("authority"), "Authority is required.");
-        if (SpringUtils.isPrincipalAuthenticated()) {
-            Authentication authentication = SpringUtils.getAuthentication();
-            return authentication.getAuthorities()
-                    .stream()
-                    .anyMatch((Predicate<GrantedAuthority>) grantedAuthority -> grantedAuthority.getAuthority().equals(authority));
-        }
-        return false;
-    }
+    public final String label;
+    public final boolean isRestricted;
+
+    public static final SystemRole[] ROLES = {ROLE_ADMINISTRATION, ROLE_STANDARD};
 }

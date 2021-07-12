@@ -33,11 +33,33 @@
  * For more information please see http://opensource.org/licenses/BSD-3-Clause
  */
 
-package org.cga.sctp.audit;
+package org.cga.sctp.utils;
 
-public enum EventType {
-    authentication,
-    general,
-    security,
-    user
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+
+public final class CryptoUtils {
+    private static final char[] TABLE = "0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._".toCharArray();
+
+    public static String genRandomString(int length) {
+        StringBuilder sb = new StringBuilder();
+        final byte[] buf = new byte[16];
+        try {
+            while (length > 0) {
+                SecureRandom.getInstanceStrong().nextBytes(buf);
+                for (int b : buf) {
+                    if (length <= 0) {
+                        break;
+                    }
+                    b &= 0x000000FF;
+                    if (b < TABLE.length) {
+                        sb.append(TABLE[b]);
+                        length--;
+                    }
+                }
+            }
+        } catch (NoSuchAlgorithmException ignore) {
+        }
+        return sb.toString();
+    }
 }

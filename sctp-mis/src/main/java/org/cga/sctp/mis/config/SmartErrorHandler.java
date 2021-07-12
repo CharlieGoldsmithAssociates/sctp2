@@ -32,7 +32,10 @@
 
 package org.cga.sctp.mis.config;
 
+import com.mitchellbosecke.pebble.error.PebbleException;
 import org.cga.sctp.mis.utils.SpringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -48,6 +51,11 @@ import java.util.Map;
 public class SmartErrorHandler implements ErrorController {
 
     private static final String ERROR_PATH = "/error";
+    private final Logger logger;
+
+    public SmartErrorHandler() {
+        logger = LoggerFactory.getLogger(getClass());
+    }
 
     private boolean isAuthenticated() {
         return SpringUtils.isPrincipalAuthenticated();
@@ -60,8 +68,18 @@ public class SmartErrorHandler implements ErrorController {
     @GetMapping(ERROR_PATH)
     ModelAndView handleError(Authentication authentication, HttpServletRequest request) {
         Object status = request.getAttribute("javax.servlet.error.status_code");
-        HttpStatus httpStatus = HttpStatus.valueOf((Integer) status);
+        Exception exception = (Exception) request.getAttribute("javax.servlet.error.exception");
+
         Map<String, Object> model = new LinkedHashMap<>();
+        HttpStatus httpStatus = HttpStatus.valueOf((Integer) status);
+
+        if (exception != null) {
+            logger.error("Found exception of {}: {}.", exception.getClass(), exception.getMessage());
+        }
+        if (httpStatus == HttpStatus.OK) {
+            logger.error("Exception was converted into an HTTP 500 error because the response code was still 200 OK");
+            httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
         model.put("status", httpStatus.value());
         model.put("error", httpStatus.getReasonPhrase());
         return switch (httpStatus) {

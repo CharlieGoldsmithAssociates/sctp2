@@ -35,6 +35,7 @@ package org.cga.sctp.mis.audit;
 import org.cga.sctp.audit.AuditService;
 import org.cga.sctp.mis.core.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -56,14 +57,14 @@ public class AuditController extends BaseController {
     private AuditService auditService;
 
     @RequestMapping
-    @PreAuthorize("hasAuthority('READ_LOGS')")
+    @Secured({"ROLE_SYSTEM_ADMIN", "ROLE_ADMINISTRATOR"})
     public ModelAndView getLogs() {
         return view("/logs/list")
                 .addObject("logs", auditService.getLogs());
     }
 
     @PostMapping("/archive")
-    @PreAuthorize("hasAuthority('ARCHIVE_LOGS')")
+    @Secured({"ROLE_SYSTEM_ADMIN", "ROLE_ADMINISTRATOR"})
     public ModelAndView archiveLogs(
             HttpServletRequest request,
             @AuthenticationPrincipal String username, @Validated @ModelAttribute ArchiveForm archiveForm, BindingResult result, RedirectAttributes attributes) {

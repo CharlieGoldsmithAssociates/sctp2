@@ -30,34 +30,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.mis.core.templating.functions;
+package org.cga.sctp.mis.user;
 
-import com.mitchellbosecke.pebble.template.EvaluationContext;
-import com.mitchellbosecke.pebble.template.PebbleTemplate;
-import org.cga.sctp.mis.core.templating.PebbleFunctionImpl;
-import org.cga.sctp.mis.utils.SpringUtils;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
+import org.cga.sctp.mis.core.templating.SelectOption;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Predicate;
+@SelectOption(value = "name()", text = "label")
+public enum PasswordOption {
+    Provided("User will setup on their own"),
+    Manual("Let me enter the password for them");
 
-public class HasAuthority extends PebbleFunctionImpl {
-    public HasAuthority() {
-        super("hasAuthority", List.of("authority"));
+    PasswordOption(String label) {
+        this.label = label;
     }
 
-    @Override
-    public Object execute(Map<String, Object> args, PebbleTemplate self, EvaluationContext context, int lineNumber) {
-        String authority = (String) Objects.requireNonNull(args.get("authority"), "Authority is required.");
-        if (SpringUtils.isPrincipalAuthenticated()) {
-            Authentication authentication = SpringUtils.getAuthentication();
-            return authentication.getAuthorities()
-                    .stream()
-                    .anyMatch((Predicate<GrantedAuthority>) grantedAuthority -> grantedAuthority.getAuthority().equals(authority));
-        }
-        return false;
-    }
+    public final String label;
+
+    public static final PasswordOption[] VALUES = values();
 }
