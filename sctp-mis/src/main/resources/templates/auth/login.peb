@@ -1,5 +1,8 @@
     {% extends "../unsecured-base" %}
     {% import "../utils/form" %}
+        {% block meta %}
+        <meta http-equiv="refresh" content="{{ session.maxInactiveInterval}};"/>
+        {% endblock %}
 
         {% block title %}{{ parent() }} - Login{% endblock %}
 

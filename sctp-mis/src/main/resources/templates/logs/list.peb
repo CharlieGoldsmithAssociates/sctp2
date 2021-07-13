@@ -2,7 +2,7 @@
     {% extends "../base" %}
 
     {% block contextMenu %}
-        {% set canArchiveLogs = hasAuthority('ARCHIVE_LOGS') %}
+        {% set canArchiveLogs = true %}
         {% if canArchiveLogs %}
         <div class="container context-nav-container">
             <div class="buttons is-right">

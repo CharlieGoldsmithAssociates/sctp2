@@ -27,6 +27,10 @@ spring:
     username:
     password:
     url: jdbc:mysql://
+  flyway:
+    locations: classpath:db/migration,classpath:db/callback
+    out-of-order: true
+    baselineOnMigrate: true
 
 # Pebble configuration
 pebble:

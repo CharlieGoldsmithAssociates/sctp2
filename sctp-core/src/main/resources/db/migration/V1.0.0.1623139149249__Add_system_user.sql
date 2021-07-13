@@ -22,7 +22,6 @@ INSERT INTO `users`(
  first_name
 ,last_name
 ,created_at
-,location
 ,modified_at
 ,`status`
 ,auth_attempts
@@ -35,7 +34,6 @@ INSERT INTO `users`(
 	'System'
    ,'Administrator'
    ,CURRENT_TIMESTAMP
-   ,1
    ,CURRENT_TIMESTAMP
    ,1
    ,0

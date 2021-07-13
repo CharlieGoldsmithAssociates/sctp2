@@ -33,14 +33,12 @@
 package org.cga.sctp.mis.core.templating;
 
 import com.mitchellbosecke.pebble.PebbleEngine;
+import com.mitchellbosecke.pebble.error.PebbleException;
 import com.mitchellbosecke.pebble.extension.Function;
 import com.mitchellbosecke.pebble.extension.escaper.EscapingStrategy;
 import org.unbescape.html.HtmlEscape;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 public abstract class PebbleFunctionImpl implements Function {
     private final String name;
@@ -94,6 +92,20 @@ public abstract class PebbleFunctionImpl implements Function {
             return defaultValue;
         }
         return (T) object;
+    }
+
+    protected final Collection<Object> extractArgs(Map<String, Object> args, boolean throwIfEmpty) {
+        if (args.isEmpty()) {
+            if (throwIfEmpty) {
+                throw new IllegalArgumentException("Function requires arguments but none were specified.");
+            }
+            return List.of();
+        }
+        return args.values();
+    }
+
+    protected final Collection<Object> extractArgs(Map<String, Object> args) {
+        return extractArgs(args, false);
     }
 
     @Override

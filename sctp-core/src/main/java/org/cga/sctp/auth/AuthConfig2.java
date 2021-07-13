@@ -36,6 +36,7 @@ import org.cga.sctp.audit.AuditEventLog;
 import org.cga.sctp.audit.DefaultLogMessagePrinter;
 import org.cga.sctp.audit.EventType;
 import org.cga.sctp.audit.LogMessagePrinter;
+import org.cga.sctp.user.UserAuditEventLogMessagePrinter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -46,8 +47,8 @@ import java.util.function.Function;
 public class AuthConfig2 {
 
     @Bean
-    public LogMessagePrinter generalLogMessagePrinter(){
-        return new DefaultLogMessagePrinter(EventType.general){
+    public LogMessagePrinter generalLogMessagePrinter() {
+        return new DefaultLogMessagePrinter(EventType.general) {
             @Override
             public String printAuditEventLog(AuditEventLog eventLog) {
                 Map<String, Object> logData = eventLog.getLogData();
@@ -66,6 +67,11 @@ public class AuthConfig2 {
                 return "n/a";
             }
         };
+    }
+
+    @Bean
+    LogMessagePrinter userAuditEventPrinter() {
+        return new UserAuditEventLogMessagePrinter();
     }
 
     @Bean

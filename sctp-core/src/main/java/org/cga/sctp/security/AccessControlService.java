@@ -149,4 +149,8 @@ public class AccessControlService extends TransactionalService {
     public List<RolePermissionDetails> getRolePermissionsForDisplay(UserRole userRole) {
         return permissionRepository.getRolePermissionsForDisplay(userRole.getName());
     }
+
+    public List<UserRole> getActiveUserRoles() {
+        return roleRepository.getActiveRoles();
+    }
 }

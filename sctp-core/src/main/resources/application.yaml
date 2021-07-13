@@ -75,5 +75,3 @@ spring:
     locations: classpath:db/migration,classpath:db/callback
     out-of-order: true
     baselineOnMigrate: true
-  profiles:
-    active: prod

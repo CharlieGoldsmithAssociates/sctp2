@@ -34,9 +34,7 @@ package org.cga.sctp.mis.core.templating.functions;
 
 import com.mitchellbosecke.pebble.template.EvaluationContext;
 import com.mitchellbosecke.pebble.template.PebbleTemplate;
-import org.cga.sctp.mis.core.templating.PebbleFunctionImpl;
-import org.cga.sctp.mis.core.templating.SelectOption;
-import org.cga.sctp.mis.core.templating.SkipOption;
+import org.cga.sctp.mis.core.templating.*;
 import org.cga.sctp.mis.utils.HtmlElement;
 import org.cga.sctp.mis.utils.ReflectionUtils;
 
@@ -45,6 +43,8 @@ import java.util.Map;
 import java.util.Objects;
 
 public class FormSelect extends PebbleFunctionImpl {
+
+    private final SelectOptionRegistry selectOptionRegistry;
 
     private SelectOption getSelectionAnnotation(Object object) {
         return object.getClass().getAnnotation(SelectOption.class);
@@ -87,7 +87,12 @@ public class FormSelect extends PebbleFunctionImpl {
         if (selectedItem != null) {
             selectedItemOption = getSelectionAnnotation(selectedItem);
             if (selectedItemOption == null) {
-                selectedValue = null;
+                final SelectOptionEntry entry = selectOptionRegistry.getForObject(selectedItem);
+                if (entry != null) {
+                    selectedValue = getItemValue(entry.selectOption(), selectedItem);
+                } else {
+                    selectedValue = selectedItem;
+                }
             } else {
                 selectedValue = getItemValue(selectedItemOption, selectedItem);
             }
@@ -96,14 +101,28 @@ public class FormSelect extends PebbleFunctionImpl {
         }
 
         for (Object item : iterable) {
-            final SelectOption selectOption = getSelectionAnnotation(item);
+            boolean skipOption = false;
+            boolean fromRegistry = false;
+            SelectOption selectOption = getSelectionAnnotation(item);
 
             if (selectOption == null) {
-                return selectWithError(id, "List Item: @SelectOption missing");
+                final SelectOptionEntry entry = selectOptionRegistry.getForObject(item);
+                if (entry == null) {
+                    return selectWithError(id, "List Item: @SelectOption missing and not found in registry.");
+                }
+                fromRegistry = true;
+                skipOption = entry.skip();
+                selectOption = entry.selectOption();
             }
 
-            if (shouldSkip(item)) {
-                continue;
+            if (fromRegistry) {
+                if (skipOption) {
+                    continue;
+                }
+            } else {
+                if (shouldSkip(item)) {
+                    continue;
+                }
             }
 
             final Object value = getItemValue(selectOption, item);
@@ -167,8 +186,9 @@ public class FormSelect extends PebbleFunctionImpl {
                 ).build();
     }
 
-    public FormSelect() {
+    public FormSelect(SelectOptionRegistry registry) {
         super("formSelect", List.of("id", "values", "selected", "required"));
+        this.selectOptionRegistry = registry;
     }
 
     @Override

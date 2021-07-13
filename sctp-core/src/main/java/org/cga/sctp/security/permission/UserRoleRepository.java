@@ -34,10 +34,11 @@ package org.cga.sctp.security.permission;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
 public interface UserRoleRepository extends JpaRepository<UserRole, Long> {
 
+    @Query(nativeQuery = true, value = "select * from roles where active = 1 and is_system_role = false")
+    List<UserRole> getActiveRoles();
 }

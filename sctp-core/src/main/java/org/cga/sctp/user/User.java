@@ -32,16 +32,13 @@
 
 package org.cga.sctp.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.cga.sctp.location.Location;
 import org.cga.sctp.persistence.DatabaseRecord;
 import org.cga.sctp.security.permission.UserRole;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -68,13 +65,8 @@ public class User extends DatabaseRecord {
     private LocalDateTime lastAuthAttemptAt;
     private boolean systemUser;
 
-    // Store value as string
-    @OneToOne
-    @JoinColumn(name = "role", referencedColumnName = "name")
-    private UserRole role;
-
-    @Transient
-    private List<GrantedAuthority> authorities;
+    @Enumerated(EnumType.STRING)
+    private SystemRole role;
 
     public int getAuthAttempts() {
         return authAttempts;
@@ -152,11 +144,11 @@ public class User extends DatabaseRecord {
         this.sessionId = sessionId;
     }
 
-    public UserRole getRole() {
+    public SystemRole getRole() {
         return role;
     }
 
-    public void setRole(UserRole role) {
+    public void setRole(SystemRole role) {
         this.role = role;
     }
 
@@ -175,6 +167,14 @@ public class User extends DatabaseRecord {
     public String getUsername() {
         return userName;
     }
+
+    /*public AccessLevel getAccessLevel() {
+        return accessLevel;
+    }
+
+    public void setAccessLevel(AccessLevel accessLevel) {
+        this.accessLevel = accessLevel;
+    }*/
 
     @Override
     public String toString() {

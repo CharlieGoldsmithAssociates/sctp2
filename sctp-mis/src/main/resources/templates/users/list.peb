@@ -1,0 +1,62 @@
+    {% import "../utils/form" %}
+    {% extends "base" %}
+
+    {% set canModifyUsers = true %}
+
+    {% block contextMenu %}
+        {% if canModifyUsers %}
+        <div class="container context-nav-container">
+            <div class="buttons is-right">
+                <a href="{{ href('/users/new') }}" class="button is-primary">Add New User</a>
+            </div>
+        </div>
+        {% endif %}
+    {% endblock %}
+
+    {% block content %}
+    <div class="container">
+        <div class="card">
+            <header class="card-header">
+                <p class="card-header-title">System Users</p>
+            </header>
+            <div class="card-content">
+                <div class="content">
+                    {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+                    <table class="table dataTable is-narrow is-striped is-hoverable">
+                        <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>System Role</th>
+                            <th>Status</th>
+                            <th data-sortable="false">Options</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% set myRole = principalDetails().role %}
+                        {% for user in users %}
+                            <tr>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.firstName | title }} {{ user.lastName | title }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.role.label }}</td>
+                                <td>{{ user.status }}</td>
+                                <td>
+                                    {% if not user.systemUser %}
+                                        {{ optionsMenu(
+                                                {"Edit": "/users/" ~ user.id ~ "/edit" },
+                                                {"Change Password": "/users/" ~ user.id ~ "/password" }
+                                           ) | raw
+                                        }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}

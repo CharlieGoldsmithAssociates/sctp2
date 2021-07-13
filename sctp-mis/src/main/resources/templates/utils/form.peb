@@ -5,6 +5,10 @@
     <input name="{{ _csrf.parameterName }}" value="{{ _csrf.token }}" type="hidden"/>
 {% endmacro %}
 
+{% macro hiddenField(name, value) %}
+    <input id="{{ name }}" name="{{ name }}" value="{{ value }}" type="hidden"/>
+{% endmacro %}
+
 {% macro printFieldErrors(_field_errors_) %}
     {% if not isEmpty(_field_errors_) %}
         {% for error in _field_errors_ %}
@@ -26,6 +30,16 @@
 
     {% macro emailField(id, value, min, max, required, classes) %}
         {{ inputField('email', id, value, min, max, required, classes) }}
+    {% endmacro %}
+
+    {% macro readOnlyTextField(id, value) %}
+    <input id="{{ id }}"
+           name="{{ id }}"
+           type="text"
+           autocomplete="off"
+           value="{{ value }}"
+           readonly="readonly"
+           class="input is-locked"/>
     {% endmacro %}
 
     {% macro textField(id, value, min, max, required, classes) %}

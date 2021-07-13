@@ -32,10 +32,13 @@
 
 package org.cga.sctp.user;
 
+import org.cga.sctp.persistence.StatusCode;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -67,4 +70,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @return true if email exists otherwise false
      */
     boolean existsUserByUserName(String userName);
+
+    @Query(nativeQuery = true, value = "select * from users where status != :status")
+    List<User> getNotByStatus(@Param("status") StatusCode deleted);
+
+    @Query(nativeQuery = true, value = "CALL lookupUsernameAndEmail(:username, :email)")
+    UserNameEmailLookUp lookupUserNameAndEmail(@Param("username") String username, @Param("email") String email);
 }
