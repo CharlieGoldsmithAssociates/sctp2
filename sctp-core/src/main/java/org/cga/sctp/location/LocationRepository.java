@@ -56,4 +56,9 @@ public interface LocationRepository extends PagingAndSortingRepository<Location,
 
     @Query(nativeQuery = true, value = "select * from locations where active = true and location_type = :type")
     List<Location> findActiveLocationsByType(@Param("type") String type);
+
+    List<Location> findByLocationType(LocationType type);
+
+    @Query(nativeQuery = true, value = "select * from locations where parent_id = :parent")
+    List<Location> getByParentId(@Param("parent") Long parentId);
 }

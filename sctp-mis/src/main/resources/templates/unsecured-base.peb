@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="/assets/css/vendor/bulma/social.min.css"/>
     <link rel="stylesheet" href="/assets/css/vendor/fontawesome/all.min.css"/>
     <link rel="stylesheet" href="/assets/css/vendor/fiduswriter/simple-datatables.min.css"/>
+    <style>.card.no-overlap{ overflow: unset !important; }</style>
     <style>{% block headerStyles %}{% endblock %}</style>
     {% block headerScripts %}{% endblock %}
 </head>

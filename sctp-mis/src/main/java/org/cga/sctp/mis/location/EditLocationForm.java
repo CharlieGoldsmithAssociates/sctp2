@@ -30,23 +30,19 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.user;
+package org.cga.sctp.mis.location;
 
+import javax.validation.constraints.NotNull;
 
-public enum SystemRole {
-    ROLE_SYSTEM_ADMIN("System Account", true),
-    ROLE_ADMINISTRATOR("Administrator", false),
-    // This will be automatically assigned to self-registered users.
-    ROLE_GUEST("Guest User", false),
-    ROLE_STANDARD("Standard User", false);
+public class EditLocationForm extends NewLocationForm {
+    @NotNull(message = "ID is required")
+    private Long id;
 
-    SystemRole(String label, boolean isRestricted) {
-        this.label = label;
-        this.isRestricted = isRestricted;
+    public Long getId() {
+        return id;
     }
 
-    public final String label;
-    public final boolean isRestricted;
-
-    public static final SystemRole[] ROLES = {ROLE_ADMINISTRATOR, ROLE_STANDARD};
+    public void setId(Long id) {
+        this.id = id;
+    }
 }
