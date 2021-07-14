@@ -30,23 +30,58 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.user;
+package org.cga.sctp.mis.location;
 
+import org.cga.sctp.location.LocationType;
+import org.cga.sctp.mis.core.templating.Booleans;
 
-public enum SystemRole {
-    ROLE_SYSTEM_ADMIN("System Account", true),
-    ROLE_ADMINISTRATOR("Administrator", false),
-    // This will be automatically assigned to self-registered users.
-    ROLE_GUEST("Guest User", false),
-    ROLE_STANDARD("Standard User", false);
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
-    SystemRole(String label, boolean isRestricted) {
-        this.label = label;
-        this.isRestricted = isRestricted;
+public class NewLocationForm {
+
+    @NotNull(message = "Location type is required")
+    private LocationType type;
+
+    private Long parent;
+
+    @NotBlank(message = "This field is required.")
+    @Size(min = 1, max = 60, message = "Must have {min} to {max} characters.")
+    private String name;
+
+    @NotNull(message = "Active status is required.")
+    private Booleans active;
+
+    public Booleans getActive() {
+        return active;
     }
 
-    public final String label;
-    public final boolean isRestricted;
+    public void setActive(Booleans active) {
+        this.active = active;
+    }
 
-    public static final SystemRole[] ROLES = {ROLE_ADMINISTRATOR, ROLE_STANDARD};
+    public Long getParent() {
+        return parent;
+    }
+
+    public void setParent(Long parent) {
+        this.parent = parent;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public LocationType getType() {
+        return type;
+    }
+
+    public void setType(LocationType type) {
+        this.type = type;
+    }
 }

@@ -39,7 +39,6 @@ package org.cga.sctp.location;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Locale;
 
 /**
  * Class to represent regions in a recursive manner.

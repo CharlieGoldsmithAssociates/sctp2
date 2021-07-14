@@ -40,19 +40,22 @@ package org.cga.sctp.location;
  */
 //
 public enum LocationType {
-    COUNTRY(0, true),
-    SUBNATIONAL1(1, false),
-    SUBNATIONAL2(2, false),
-    SUBNATIONAL3(3, false),
-    SUBNATIONAL4(4, false);
+    COUNTRY(0, true, false, "Country", null),
+    SUBNATIONAL1(1, false, false, "Subnational 1", COUNTRY),
+    SUBNATIONAL2(2, false, false, "Subnational 2", SUBNATIONAL1),
+    SUBNATIONAL3(3, false, false, "Subnational 3", SUBNATIONAL2),
+    SUBNATIONAL4(4, false, true, "Subnational 4", SUBNATIONAL3);
 
-    LocationType(int level, boolean isRoot) {
+    LocationType(int level, boolean isRoot, boolean isLast, String description, LocationType parent) {
         this.level = level;
         this.isRoot = isRoot;
+        this.isLast = isLast;
+        this.description = description;
+        this.parent = parent;
     }
 
     /**
-     * <p>Hierarchical level (0 being the root. The lower the number, the higher the level).
+     * <p>Hierarchical level (0 being the root. The lower the number, the higher the logical level).
      * All based on the following topographic relationship:
      * <b>i.e, District &gt; TA &gt; Village Cluster &gt; Zone &gt; Village</b></p>
      */
@@ -61,4 +64,11 @@ public enum LocationType {
      * Marks this location as a root location.
      */
     public final boolean isRoot;
+    public final boolean isLast;
+    public final String description;
+    public final LocationType parent;
+
+    public boolean isImmediateChildOf(LocationType parent) {
+        return this.parent == parent;
+    }
 }

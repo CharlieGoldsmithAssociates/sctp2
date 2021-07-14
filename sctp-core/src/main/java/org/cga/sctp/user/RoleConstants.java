@@ -32,21 +32,9 @@
 
 package org.cga.sctp.user;
 
-
-public enum SystemRole {
-    ROLE_SYSTEM_ADMIN("System Account", true),
-    ROLE_ADMINISTRATOR("Administrator", false),
-    // This will be automatically assigned to self-registered users.
-    ROLE_GUEST("Guest User", false),
-    ROLE_STANDARD("Standard User", false);
-
-    SystemRole(String label, boolean isRestricted) {
-        this.label = label;
-        this.isRestricted = isRestricted;
-    }
-
-    public final String label;
-    public final boolean isRestricted;
-
-    public static final SystemRole[] ROLES = {ROLE_ADMINISTRATOR, ROLE_STANDARD};
+public interface RoleConstants {
+    String ROLE_ADMINISTRATOR = "ROLE_ADMINISTRATOR";
+    String ROLE_STANDARD = "ROLE_STANDARD";
+    String ROLE_GUEST_USER = "ROLE_GUEST_USER";
+    String ROLE_SYS_ADMIN = "ROLE_SYS_ADMIN";
 }

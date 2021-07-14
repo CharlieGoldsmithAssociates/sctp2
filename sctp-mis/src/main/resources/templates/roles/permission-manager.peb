@@ -21,7 +21,7 @@
     {% endblock %}
 
     {% block content %}
-    <div class="card">
+    <div class="card no-overlap">
     <header class="card-header">
         <p class="card-header-title">Edit Permissions For Role: {{ role.description }}</p>
     </header>

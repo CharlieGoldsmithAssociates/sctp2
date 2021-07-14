@@ -1,0 +1,122 @@
+    {% extends "/locations/base" %}
+
+    {% set canModify = hasRole("ADMINISTRATOR") %}
+    {% set canGoBack = returnUrl != null %}
+    {% block contextMenu %}
+        {% if canModify %}
+            <div class="container context-nav-container">
+                <div class="buttons {{ canGoBack ? 'level' : 'is-right' }}">
+                    {% if canGoBack %}
+                        <a href="{{ returnUrl }}" class="button is-danger">
+                                <span class="icon-text">
+                                    <span class="icon">
+                                        <i class="fa fa-chevron-left"></i>
+                                    </span>
+                                    <span>Back</span>
+                                </span>
+                        </a>
+                       {# {% if parentId != null %}
+                            <a href="{{ href('/locations/' ~ parentId ~ '/sublocations') }}" class="button is-danger">
+                                <span class="icon-text">
+                                    <span class="icon">
+                                        <i class="fa fa-chevron-left"></i>
+                                    </span>
+                                    <span>Back</span>
+                                </span>
+                            </a>
+                        {% else %}
+                            <a href="{{ href('/locations' ~ canGoBack ? '?type=' ~ parent.locationType : '' ) }}" class="button is-danger">
+                                <span class="icon-text">
+                                    <span class="icon">
+                                        <i class="fa fa-chevron-left"></i>
+                                    </span>
+                                    <span>Back</span>
+                                </span>
+                            </a>
+                        {% endif %} #}
+                    {% endif %}
+                    <div class="dropdown is-hoverable">
+                        <div class="dropdown-trigger">
+                            <button class="button button is-info"
+                                    aria-haspopup="true" aria-controls="dropdown-menu2">
+                                <span>Add New Location</span>
+                                <span class="icon is-small">
+                                    <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                </span>
+                            </button>
+                        </div>
+                        <div class="dropdown-menu" id="dropdown-menu2" role="menu">
+                            <div class="dropdown-content">
+                                <a href="{{ href('/locations/new?type=COUNTRY') }}" class="dropdown-item">Country</a>
+                                <a href="{{ href('/locations/new?type=SUBNATIONAL1') }}" class="dropdown-item">Subnational 1</a>
+                                <a href="{{ href('/locations/new?type=SUBNATIONAL2') }}" class="dropdown-item">Subnational 2</a>
+                                <a href="{{ href('/locations/new?type=SUBNATIONAL3') }}" class="dropdown-item">Subnational 3</a>
+                                <a href="{{ href('/locations/new?type=SUBNATIONAL4') }}" class="dropdown-item">Subnational 4</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% endblock %}
+
+    {% block content %}
+    <div class="container">
+        <div class="card no-overlap">
+            <header class="card-header">
+                {% if not isEmpty(parent) %}
+                    <p class="card-header-title">{{ parent.name }}/Sublocations</p>
+                {% else %}
+                    <p class="card-header-title">Locations</p>
+                {% endif %}
+            </header>
+            <div class="card-content">
+                {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+                <div class="content">
+                    <table class="table dataTable is-narrow is-striped is-hoverable">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Active</th>
+                            <th data-sortable="false" width="20%">Options</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {% for location in locations %}
+                                <tr>
+                                    <td>{{ location.name }}</td>
+                                    <td>{{ location.locationType }}</td>
+                                    <td>{{ yesOrNo(location.active) }}</td>
+                                    <td>
+                                        <div class="dropdown is-hoverable">
+                                            <div class="dropdown-trigger">
+                                                <button class="button button is-info is-inverted is-options"
+                                                        aria-haspopup="true" aria-controls="dropdown-menu2">
+                                                    <span>Options</span>
+                                                    <span class="icon is-small">
+                                                        <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                                    </span>
+                                                </button>
+                                            </div>
+                                            <div class="dropdown-menu" id="dropdown-menu2" role="menu">
+                                                <div class="dropdown-content">
+                                                    {% if not location.locationType.isLast %}
+                                                        <a href="/locations/{{ location.id }}/sublocations" class="dropdown-item">View Sublocations</a>
+                                                    {% endif %}
+                                                    {% if canModify %}
+                                                        <a href="/locations/{{ location.id }}/edit" class="dropdown-item">Edit Location</a>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
