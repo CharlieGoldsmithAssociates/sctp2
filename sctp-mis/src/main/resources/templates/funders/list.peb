@@ -1,0 +1,67 @@
+    {% extends "/funders/base" %}
+
+    {% set canModify = hasRole("ADMINISTRATOR") %}
+
+    {% block contextMenu %}
+        {% if canModify %}
+        <div class="container context-nav-container">
+            <div class="buttons is-right">
+                <a href="{{ href("/funders/new") }}" class="button is-info">Add New</a>
+            </div>
+        </div>
+        {% endif %}
+    {% endblock %}
+
+    {% block content %}
+    <div class="container">
+        <div class="card no-overlap">
+        <header class="card-header">
+            <p class="card-header-title">Funders</p>
+        </header>
+        <div class="card-content">
+            {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+            <div class="content">
+                <table class="table dataTable is-narrow is-striped is-hoverable">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Created On</th>
+                        <th width="10%">Active</th>
+                        <th data-sortable="false" width="20%">Options</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        {% for funder in funders %}
+                        <tr>
+                            <td>{{ funder.name }}</td>
+                            <td>{{ printDate(funder.createdAt) }}</td>
+                            <td>{{ yesOrNo(funder.active) }}</td>
+                            <td>
+                                {% if canModify %}
+                                    <div class="dropdown is-hoverable">
+                                        <div class="dropdown-trigger">
+                                            <button class="button button is-info is-inverted is-options"
+                                                    aria-haspopup="true" aria-controls="dropdown-menu2">
+                                                <span>Options</span>
+                                                <span class="icon is-small">
+                                                <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                            </span>
+                                            </button>
+                                        </div>
+                                        <div class="dropdown-menu" id="dropdown-menu2" role="menu">
+                                            <div class="dropdown-content">
+                                                <a href="/funders/{{ funder.id }}/edit" class="dropdown-item">Edit Location</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
+    {% endblock %}

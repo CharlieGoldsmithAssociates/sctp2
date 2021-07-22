@@ -32,6 +32,15 @@
         {{ inputField('email', id, value, min, max, required, classes) }}
     {% endmacro %}
 
+    {% macro dateField(id, value, required) %}
+    <input id="{{ id }}"
+           name="{{ id }}" {{ required ? 'required="required"' : '' }}
+           type="date"
+           autocomplete="off"
+           class="input"
+           value="{{ value }}"/>
+    {% endmacro %}
+
     {% macro readOnlyTextField(id, value) %}
     <input id="{{ id }}"
            name="{{ id }}"

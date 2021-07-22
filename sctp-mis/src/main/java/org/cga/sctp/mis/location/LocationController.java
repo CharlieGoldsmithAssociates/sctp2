@@ -1,0 +1,261 @@
+/*
+ * BSD 3-Clause License
+ *
+ * Copyright (c) 2021, CGATechnologies
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+package org.cga.sctp.mis.location;
+
+
+import org.cga.sctp.location.Location;
+import org.cga.sctp.location.LocationService;
+import org.cga.sctp.location.LocationType;
+import org.cga.sctp.mis.core.BaseController;
+import org.cga.sctp.mis.core.templating.Booleans;
+import org.cga.sctp.user.RoleConstants;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Controller
+@RequestMapping("/locations")
+public class LocationController extends BaseController {
+
+    @Autowired
+    private LocationService locationService;
+
+    private List<Location> getActiveParentLocationsForType(LocationType type) {
+        return type.isRoot ? List.of() : locationService.getActiveByType(type.parent);
+    }
+
+    @GetMapping
+    @Secured({RoleConstants.ROLE_ADMINISTRATOR, RoleConstants.ROLE_STANDARD})
+    ModelAndView getAllLocations(@RequestParam(value = "type", defaultValue = "COUNTRY", required = false) LocationType type) {
+        return view("/locations/list")
+                .addObject("type", type)
+                .addObject("locations", locationService.getByType(type));
+    }
+
+    @GetMapping("/{location-id}/sublocations")
+    @Secured({RoleConstants.ROLE_ADMINISTRATOR, RoleConstants.ROLE_STANDARD})
+    ModelAndView getAllLocations(@PathVariable("location-id") Long locationId, RedirectAttributes attributes) {
+        final Location location = locationService.findById(locationId);
+        String returnUrl;
+        if (location == null) {
+            setDangerFlashMessage("Location does not exist", attributes);
+            return redirect("/locations");
+        }
+        List<Location> locations = locationService.getByParent(location);
+        if (location.getLocationType().isRoot) {
+            returnUrl = "/locations";
+        } else {
+            returnUrl = format("/locations/%d/sublocations", location.getParentId());
+        }
+        return view("/locations/list")
+                .addObject("parent", location)
+                .addObject("locations", locations)
+                .addObject("returnUrl", returnUrl)
+                .addObject("type", location.getLocationType());
+    }
+
+    @GetMapping("/new")
+    @Secured({RoleConstants.ROLE_ADMINISTRATOR, RoleConstants.ROLE_STANDARD})
+    ModelAndView newLocation(@RequestParam("type") LocationType type, @ModelAttribute("locationForm") NewLocationForm locationForm) {
+        locationForm.setType(type);
+        return view("/locations/new")
+                .addObject("parents", getActiveParentLocationsForType(type))
+                .addObject("booleans", Booleans.VALUES);
+    }
+
+    @PostMapping
+    @Secured({RoleConstants.ROLE_ADMINISTRATOR, RoleConstants.ROLE_STANDARD})
+    ModelAndView addLocation(
+            @Validated @ModelAttribute("locationForm") NewLocationForm locationForm,
+            BindingResult result,
+            RedirectAttributes attributes) {
+
+        if (result.hasErrors()) {
+            return view("/locations/new")
+                    .addObject("parents", getActiveParentLocationsForType(locationForm.getType()))
+                    .addObject("booleans", Booleans.VALUES);
+        }
+
+        if (locationForm.getParent() != null) {
+            if (!locationForm.getType().isRoot) {
+                Location parentLocation = locationService.findActiveLocationById(locationForm.getParent());
+                if (parentLocation == null) {
+                    setDangerFlashMessage(format("Selected %s is not currently active.",
+                            locationForm.getType().parent.description), attributes);
+                    return view("/locations/new")
+                            .addObject("parents", getActiveParentLocationsForType(locationForm.getType()))
+                            .addObject("booleans", Booleans.VALUES);
+                }
+                if (!locationForm.getType().isImmediateChildOf(parentLocation.getLocationType())) {
+                    setDangerFlashMessage(
+                            format(
+                                    "Invalid location selection. %s must be directly under %s.",
+                                    locationForm.getType().description,
+                                    locationForm.getType().parent.description
+                            ),
+                            attributes
+                    );
+                    return view("/locations/new")
+                            .addObject("parents", getActiveParentLocationsForType(locationForm.getType()))
+                            .addObject("booleans", Booleans.VALUES);
+                }
+            }
+        } else {
+            if (!locationForm.getType().isRoot) {
+                result.addError(new FieldError("locationForm", "parent", format("%s is required.",
+                        locationForm.getType().parent.description)));
+                return view("/locations/new")
+                        .addObject("parents", getActiveParentLocationsForType(locationForm.getType()))
+                        .addObject("booleans", Booleans.VALUES);
+            }
+        }
+
+        Location location = new Location();
+        location.setLatitude(BigDecimal.ZERO);
+        location.setLongitude(BigDecimal.ONE);
+        location.setName(locationForm.getName());
+        location.setCreatedAt(LocalDateTime.now());
+        location.setParentId(locationForm.getParent());
+        location.setLocationType(locationForm.getType());
+        location.setActive(locationForm.getActive().value);
+        location.setCode("L" + Long.toHexString(System.currentTimeMillis()));
+
+        locationService.save(location);
+
+        setSuccessFlashMessage("Location successfully added", attributes);
+
+        if (location.getLocationType().isRoot) {
+            return redirect("/locations");
+        } else {
+            return redirect(format("/locations/%d/sublocations", location.getParentId()));
+        }
+    }
+
+    @PostMapping("/update")
+    @Secured({RoleConstants.ROLE_ADMINISTRATOR, RoleConstants.ROLE_STANDARD})
+    ModelAndView updateLocation(
+            @Validated @ModelAttribute("locationForm") EditLocationForm editForm,
+            BindingResult result,
+            RedirectAttributes attributes) {
+
+        if (result.hasErrors()) {
+            return view("/locations/edit")
+                    .addObject("parents", getActiveParentLocationsForType(editForm.getType()))
+                    .addObject("booleans", Booleans.VALUES);
+        }
+
+        Location location = locationService.findById(editForm.getId());
+        if (location == null) {
+            setDangerFlashMessage("Location does not exist", attributes);
+            return redirect("/locations");
+        }
+
+        if (editForm.getParent() != null) {
+            if (!editForm.getType().isRoot) {
+                Location parentLocation = locationService.findActiveLocationById(editForm.getParent());
+                if (parentLocation == null) {
+                    setDangerFlashMessage(format("Selected %s is not currently active.",
+                            editForm.getType().parent.description), attributes);
+                    return view("/locations/edit")
+                            .addObject("parents", getActiveParentLocationsForType(editForm.getType()))
+                            .addObject("booleans", Booleans.VALUES);
+                }
+                if (!editForm.getType().isImmediateChildOf(parentLocation.getLocationType())) {
+                    setDangerFlashMessage(
+                            format(
+                                    "Invalid location selection. %s must be directly under %s.",
+                                    editForm.getType().description,
+                                    editForm.getType().parent.description
+                            ),
+                            attributes
+                    );
+                    return view("/locations/edit")
+                            .addObject("parents", getActiveParentLocationsForType(editForm.getType()))
+                            .addObject("booleans", Booleans.VALUES);
+                }
+            }
+        } else {
+            if (!editForm.getType().isRoot) {
+                result.addError(new FieldError("locationForm", "parent", format("%s is required.",
+                        editForm.getType().parent.description)));
+                return view("/locations/edit")
+                        .addObject("parents", getActiveParentLocationsForType(editForm.getType()))
+                        .addObject("booleans", Booleans.VALUES);
+            }
+        }
+
+        location.setName(editForm.getName());
+        location.setParentId(editForm.getParent());
+        location.setActive(editForm.getActive().value);
+
+        locationService.save(location);
+
+        setSuccessFlashMessage("Location successfully updated", attributes);
+
+        if (location.getLocationType().isRoot) {
+            return redirect("/locations");
+        } else {
+            return redirect(format("/locations/%d/sublocations", location.getParentId()));
+        }
+    }
+
+    @GetMapping("/{location-id}/edit")
+    @Secured({RoleConstants.ROLE_ADMINISTRATOR, RoleConstants.ROLE_STANDARD})
+    ModelAndView editLocation(@PathVariable("location-id") Long locationId,
+                              @ModelAttribute("locationForm") EditLocationForm locationForm,
+                              RedirectAttributes attributes) {
+        Location location = locationService.findById(locationId);
+        if (location == null) {
+            setDangerFlashMessage("Location does not exist", attributes);
+            return redirect("/locations");
+        }
+        locationForm.setId(locationId);
+        locationForm.setName(location.getName());
+        locationForm.setParent(location.getParentId());
+        locationForm.setType(location.getLocationType());
+        locationForm.setActive(Booleans.of(location.isActive()));
+        return view("/locations/edit")
+                .addObject("booleans", Booleans.VALUES)
+                .addObject("parents", getActiveParentLocationsForType(location.getLocationType()));
+    }
+}

@@ -33,6 +33,8 @@
 package org.cga.sctp.mis.core.templating;
 
 import org.cga.sctp.location.Location;
+import org.cga.sctp.program.ProgramUser;
+import org.cga.sctp.program.ProgramUserCandidate;
 import org.cga.sctp.security.permission.UserRole;
 import org.cga.sctp.user.AccessLevel;
 import org.cga.sctp.user.SystemRole;
@@ -60,5 +62,20 @@ public class SelectOptionConfigs {
     @Bean
     public SelectOptionEntry systemRoleSelectOption() {
         return new SelectOptionEntry(SystemRole.class, "name()", "label");
+    }
+
+    @Bean
+    public SelectOptionEntry accessLevelSelectOption() {
+        return new SelectOptionEntry(AccessLevel.class, "name()", "title");
+    }
+
+    @Bean
+    public SelectOptionEntry programUserCandidateSelectOption() {
+        return new SelectOptionEntry(ProgramUserCandidate.class, "userId", "fullName");
+    }
+
+    @Bean
+    public SelectOptionEntry programUserSelectOption() {
+        return new SelectOptionEntry(ProgramUser.class, "userId", "fullName");
     }
 }

@@ -1,0 +1,99 @@
+    {% extends "/programs/base" %}
+    {% block title %}{{ parent() }} | {{ program.name | title }} Programme's Users {% endblock %}
+
+    {% block contextMenu %}
+    <div class="container context-nav-container">
+        <div class="buttons level">
+            <a href="{{ href('/programs') }}" class="button is-danger">
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fa fa-chevron-left"></i>
+                    </span>
+                    <span>Back To Programmes</span>
+                </span>
+            </a>
+            <div class="buttons is-right">
+                <a href="/programs/{{ program.id }}/users/new" class="button is-primary">Add Programme User</a>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block content %}
+    {{ hiddenField('program-name', program.name) }}
+    <div class="container">
+        <div class="card no-overlap">
+            <header class="card-header">
+                <p class="card-header-title">Viewing {{ program.name | title }} Programme's Users</p>
+            </header>
+            <div class="card-content">
+                {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+                <div class="content">
+                    <table class="table dataTable is-narrow is-striped is-hoverable">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Access Level</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th data-sortable="false">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for user in users %}
+                            <tr>
+                                <td id="full-name-{{ user.userId }}">{{ user.fullName }}</td>
+                                <td>{{ user.accessLevel.title }}</td>
+                                <td>{{ printDate(user.startDate) }}</td>
+                                <td>{{ printDate(user.endDate) }}</td>
+                                <td>
+                                    <a href="javascript:void(0)"
+                                       onclick="removeUser({{ user.userId }})">Remove</a>
+                                    <form id="form{{ user.userId }}"
+                                          method="post"
+                                          enctype="application/x-www-form-urlencoded"
+                                          action="/programs/{{ program.id }}/users/remove">
+                                        {{ csrf(_csrf) }}
+                                        {{ hiddenField('userId', user.userId) }}
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="removeModal" class="modal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">Remove User From Programme</p>
+                <button class="delete" aria-label="close" onclick="closeModal()"></button>
+            </header>
+            <section class="modal-card-body">
+                <p id="dialogMessage">&nbsp;</p>
+            </section>
+            <footer class="modal-card-foot">
+                <button id="removeButton" class="button is-danger">Remove User</button>
+                <button class="button" onclick="closeModal()">Cancel</button>
+            </footer>
+        </div>
+    </div>
+    {% endblock %}
+    {% block footerScripts %}
+    <script>
+        (function(){
+            const programName = query('#program-name').value;
+            window.closeModal = function(){ removeModal.classList.remove('is-active'); }
+            window.removeUser = function(id){
+                var fullName = query('#full-name-' + id).textContent;
+                var msg = `Are you sure you want to remove ${fullName} from the ${programName} programme?`;
+                dialogMessage.textContent = msg;
+                removeButton.onclick = function(){ query('#form'+id).submit(); };
+                removeModal.classList.toggle('is-active');
+            }
+        })();
+    </script>
+    {% endblock %}

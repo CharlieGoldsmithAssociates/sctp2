@@ -1,0 +1,94 @@
+    {% extends "/programs/base" %}
+
+    {% block contextMenu %}
+    <div class="container context-nav-container">
+        <div class="buttons is-left">
+            <a href="/programs/{{ program.id  }}/users" class="button is-danger">
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fa fa-chevron-left"></i>
+                    </span>
+                    <span>Back To Users</span>
+                </span>
+            </a>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block content %}
+    <div class="container">
+    <div class="card no-overlap">
+        <header class="card-header">
+            <p class="card-header-title">Add User To {{ program.name | title }} Programme</p>
+        </header>
+        <div class="card-content">
+            {{ showMessages(
+                    successMessage,
+                    program.name ~ " programme start date is " ~ printDate(program.startDate),
+                    dangerMessage,
+                    warningMessage
+               )
+            }}
+            <form action="/programs/{{ program.id }}/users"
+                  method="post" enctype="application/x-www-form-urlencoded">
+                {{ csrf(_csrf) }}
+
+                <div class="columns">
+                    <div class="column">
+                        <div class="field">
+                            <label class="label is-required">Select User</label>
+                            <div class="control">
+                                <div class="is-fullwidth">
+                                        {{ selectField('userId', users, userForm.userId, true) }}
+                                </div>
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('addUserForm', 'firstName')) }}
+                        </div>
+                    </div>
+
+                    <div class="column">
+                        <div class="field">
+                            <label class="label is-required">Access Level</label>
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                        {{ selectField('accessLevel', accessLevels, userForm.accessLevel, true) }}
+                                </div>
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('userForm', 'location')) }}
+                        </div>
+                    </div>
+
+                    <div class="column is-one-fifth">
+                        <div class="field">
+                            <label class="label is-required">Start Date</label>
+                            <div class="control">
+                                    {{ dateField('startDate', userForm.startDate, true) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('userForm', 'startDate')) }}
+                        </div>
+                    </div>
+                    <div class="column is-one-fifth">
+                        <div class="field">
+                            <label class="label is-required">End Date</label>
+                            <div class="control">
+                                    {{ dateField('endDate', userForm.endDate, true) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('userForm', 'endDate')) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="buttons is-right">
+                    <button class="button is-primary">Add User To Program</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </div>
+    {% endblock %}
+    {% block footerScripts %}
+    <script>
+        (function(){
+            const userIdSelector = new Selectr('#userId');
+        })();
+    </script>
+    {% endblock %}

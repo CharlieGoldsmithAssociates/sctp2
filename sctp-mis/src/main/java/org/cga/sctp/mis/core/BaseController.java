@@ -23,8 +23,13 @@ public class BaseController extends BaseComponent {
         logger = LoggerFactory.getLogger(getClass());
     }
 
+    /*
     public final void publishGeneralEvent(String what) {
         publishEvent(new GeneralAuditEvent(what));
+    }*/
+
+    public final void publishGeneralEvent(String format, Object... args) {
+        publishEvent(new GeneralAuditEvent(format(format, args)));
     }
 
     @SuppressWarnings("unchecked")

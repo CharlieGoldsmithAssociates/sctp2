@@ -1,0 +1,91 @@
+    {% extends "/programs/base" %}
+
+    {% block contextMenu %}
+    <div class="container context-nav-container">
+        <div class="buttons is-left">
+            <a href="{{ href('/programs') }}" class="button is-danger">
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fa fa-chevron-left"></i>
+                    </span>
+                    <span>Back</span>
+                </span>
+            </a>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block content %}
+    <div class="container">
+    <div class="card no-overlap">
+        <header class="card-header">
+            <p class="card-header-title">Edit Programme</p>
+        </header>
+        <div class="card-content">
+            {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+            <form action="/programs/update" method="post"
+                  enctype="application/x-www-form-urlencoded">
+                {{ csrf(_csrf) }}
+                {{ hiddenField('id', editForm.id) }}
+                <div class="columns">
+                    <div class="column">
+                        <div class="field">
+                            <label class="label is-required">Name</label>
+                            <div class="control">
+                                 {{ textField('name', editForm.name, 1, 100, true, null) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('editForm', 'name')) }}
+                        </div>
+                    </div>
+                    <div class="column is-one-quarter">
+                        <div class="field">
+                            <label class="label is-required">Start Date</label>
+                            <div class="control">
+                                    {{ dateField('startDate', editForm.startDate, true) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('editForm', 'startDate')) }}
+                        </div>
+                    </div>
+                    <div class="column is-one-quarter">
+                        <div class="field">
+                            <label class="label">End Date</label>
+                            <div class="control">
+                                    {{ dateField('endDate', editForm.endDate, false) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('editForm', 'endDate')) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="columns">
+                    <div class="column">
+                        <div class="field">
+                            <label class="label is-required">Location</label>
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                        {{ selectField('location', locations, editForm.location, true) }}
+                                </div>
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('editForm', 'location')) }}
+                        </div>
+                    </div>
+                    <div class="column is-one-quarter">
+                        <div class="field">
+                            <label class="label is-required">Active</label>
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                        {{ selectField('active', booleans, editForm.active, true) }}
+                                </div>
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('editForm', 'active')) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="buttons is-right">
+                    <button class="button is-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </div>
+    {% endblock %}
+

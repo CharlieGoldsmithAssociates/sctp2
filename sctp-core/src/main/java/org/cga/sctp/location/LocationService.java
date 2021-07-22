@@ -76,4 +76,28 @@ public class LocationService extends BaseService {
     public Location findActiveLocationById(Long locationId) {
         return locationRepository.findActiveLocationById(locationId);
     }
+
+    public void save(Location location) {
+        locationRepository.save(location);
+    }
+
+    public List<Location> getByType(LocationType type) {
+        return locationRepository.findByLocationType(type);
+    }
+
+    public List<Location> getCountries() {
+        return getByType(LocationType.COUNTRY);
+    }
+
+    public List<Location> getActiveCountries() {
+        return getActiveByType(LocationType.COUNTRY);
+    }
+
+    public List<Location> getByParent(Location location) {
+        return locationRepository.getByParentId(location.getId());
+    }
+
+    public List<Location> getActiveByType(LocationType type) {
+        return locationRepository.findActiveLocationsByType(type.name());
+    }
 }

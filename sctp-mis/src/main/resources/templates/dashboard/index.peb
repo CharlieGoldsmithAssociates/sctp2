@@ -67,7 +67,7 @@
                     </div>
                 </div>
                 <div class="column is-6">
-                    <div class="card">
+                    <div class="card no-overlap">
                         <header class="card-header">
                             <p class="card-header-title">Chart #2</p>
                         </header>
@@ -99,7 +99,7 @@
                     </div>
                 </div>
                 <div class="column is-6">
-                    <div class="card">
+                    <div class="card no-overlap">
                         <header class="card-header">
                             <p class="card-header-title">Even more charts</p>
                         </header>

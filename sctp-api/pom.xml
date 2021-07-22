@@ -17,7 +17,6 @@
         <dependency>
             <groupId>org.cga.sctp</groupId>
             <artifactId>sctp-core</artifactId>
-            <version>1.0.0</version>
         </dependency>
     </dependencies>
 

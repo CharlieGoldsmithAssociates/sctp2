@@ -1,11 +1,7 @@
     {% extends "../unsecured-base" %}
     {% import "../utils/form" %}
-        {% block meta %}
-        <meta http-equiv="refresh" content="{{ session.maxInactiveInterval}};"/>
-        {% endblock %}
-
-        {% block title %}{{ parent() }} - Login{% endblock %}
-
+    {% block meta %}<meta http-equiv="refresh" content="{{ session.maxInactiveInterval}};url=/auth/login"/>{% endblock %}
+    {% block title %}{{ parent() }} - Login{% endblock %}
     {% block body %}
     <section class="hero">
         <div class="hero-body">

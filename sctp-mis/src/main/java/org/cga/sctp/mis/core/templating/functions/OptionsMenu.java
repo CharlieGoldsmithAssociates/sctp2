@@ -84,7 +84,6 @@ public class OptionsMenu extends PebbleFunctionImpl {
         for (Object option : args.values()) {
             if (option instanceof Map<?, ?> links) {
                 for (Object label : links.keySet()) {
-                    // <a href="/roles/{{ role.id }}" class="dropdown-item">View Role Permissions</a>
                     linkContainer.addChild(
                             new HtmlElement("a")
                                     .attribute("href", links.get(label))

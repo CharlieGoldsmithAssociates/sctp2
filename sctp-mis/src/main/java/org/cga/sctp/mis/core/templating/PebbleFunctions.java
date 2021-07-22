@@ -59,6 +59,11 @@ public class PebbleFunctions {
     private ApplicationContext appContext;
 
     @Bean
+    Function printDate() {
+        return new PrintDate();
+    }
+
+    @Bean
     public SelectOptionRegistry selectOptionRegistry() {
         return new SelectOptionRegistryImpl(appContext);
     }
