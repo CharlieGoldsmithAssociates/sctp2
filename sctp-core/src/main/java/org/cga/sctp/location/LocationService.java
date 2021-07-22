@@ -89,6 +89,10 @@ public class LocationService extends BaseService {
         return getByType(LocationType.COUNTRY);
     }
 
+    public List<Location> getActiveCountries() {
+        return getActiveByType(LocationType.COUNTRY);
+    }
+
     public List<Location> getByParent(Location location) {
         return locationRepository.getByParentId(location.getId());
     }

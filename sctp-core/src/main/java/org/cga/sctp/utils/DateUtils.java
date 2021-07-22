@@ -35,12 +35,21 @@
 
 package org.cga.sctp.utils;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 public final class DateUtils {
-
     public static String formatDateAsIsoString(LocalDateTime time) {
         return DateTimeFormatter.ISO_DATE_TIME.format(time);
+    }
+
+    public static String formatDateAsIsoString(LocalDate date) {
+        return DateTimeFormatter.ofPattern("E, LLL d yyyy").withLocale(Locale.US).format(date);
+    }
+
+    public static boolean isDateAfter(LocalDate startDate, LocalDate endDate) {
+        return startDate.isAfter(endDate);
     }
 }

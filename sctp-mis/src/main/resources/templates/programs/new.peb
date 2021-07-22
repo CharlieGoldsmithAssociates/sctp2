@@ -1,78 +1,90 @@
-    {% extends "base" %}
+    {% extends "/programs/base" %}
 
-        {% block contextMenu %}
-        <div class="container context-nav-container">
-            <div class="buttons is-left">
-                <a href="{{ href('/donors') }}" class="button is-danger">
-                    <span class="icon-text">
-                        <span class="icon">
-                            <i class="fa fa-chevron-left"></i>
-                        </span>
-                        <span>Back</span>
+    {% block contextMenu %}
+    <div class="container context-nav-container">
+        <div class="buttons is-left">
+            <a href="{{ href('/programs') }}" class="button is-danger">
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fa fa-chevron-left"></i>
                     </span>
-                </a>
-            </div>
+                    <span>Back</span>
+                </span>
+            </a>
         </div>
-        {% endblock %}
+    </div>
+    {% endblock %}
 
     {% block content %}
     <div class="container">
-        <div class="card no-overlap">
-            <header class="card-header">
-                <p class="card-header-title">New Program</p>
-            </header>
-            <div class="card-content">
-                <div class="content">
-                    <div class="field is-horizontal">
-                        <div class="field-label is-normal">
-                            <label class="label">Program Name</label>
-                        </div>
-                        <div class="field-body">
-                            <div class="field">
-                                <div class="control">
-                                    <input type="text" minlength="1" maxlength="50" class="input"/>
-                                </div>
+    <div class="card no-overlap">
+        <header class="card-header">
+            <p class="card-header-title">Add New Programme</p>
+        </header>
+        <div class="card-content">
+            {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+            <form action="/programs" method="post"
+                  enctype="application/x-www-form-urlencoded">
+                {{ csrf(_csrf) }}
+                <div class="columns">
+                    <div class="column">
+                        <div class="field">
+                            <label class="label is-required">Name</label>
+                            <div class="control">
+                                 {{ textField('name', programForm.name, 1, 100, true, null) }}
                             </div>
+                            {{ printFieldErrors(getFieldErrors('programForm', 'name')) }}
                         </div>
                     </div>
-
-                    <div class="field is-horizontal">
-                        <div class="field-label is-normal">
-                            <label class="label">Program Donor</label>
-                        </div>
-                        <div class="field-body">
-                            <div class="field">
-                                <div class="control">
-                                    <div class="select is-fullwidth">
-                                        <select>
-                                            <option>DFID</option>
-                                            <option>UNICEF</option>
-                                            <option>UNHCR</option>
-                                            <option>USAID</option>
-                                        </select>
-                                    </div>
-                                </div>
+                    <div class="column is-one-quarter">
+                        <div class="field">
+                            <label class="label is-required">Start Date</label>
+                            <div class="control">
+                                    {{ dateField('startDate', programForm.startDate, true) }}
                             </div>
+                            {{ printFieldErrors(getFieldErrors('programForm', 'startDate')) }}
                         </div>
                     </div>
-
-                    <div class="field is-horizontal">
-                        <div class="field-label">
-                            <!-- Left empty for spacing -->
-                        </div>
-                        <div class="field-body">
-                            <div class="field">
-                                <div class="control">
-                                    <div class="buttons is-right">
-                                        <a href="/programs" class="button is-primary">Save</a>
-                                    </div>
-                                </div>
+                    <div class="column is-one-quarter">
+                        <div class="field">
+                            <label class="label">End Date</label>
+                            <div class="control">
+                                    {{ dateField('endDate', programForm.endDate, false) }}
                             </div>
+                            {{ printFieldErrors(getFieldErrors('programForm', 'endDate')) }}
                         </div>
                     </div>
                 </div>
-            </div>
+                <div class="columns">
+                    <div class="column">
+                        <div class="field">
+                            <label class="label is-required">Location</label>
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                        {{ selectField('location', locations, programForm.location, true) }}
+                                </div>
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('programForm', 'location')) }}
+                        </div>
+                    </div>
+                    <div class="column is-one-quarter">
+                        <div class="field">
+                            <label class="label is-required">Active</label>
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                        {{ selectField('active', booleans, programForm.active, true) }}
+                                </div>
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('programForm', 'active')) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="buttons is-right">
+                    <button class="button is-primary">Add</button>
+                </div>
+            </form>
         </div>
+    </div>
     </div>
     {% endblock %}
 

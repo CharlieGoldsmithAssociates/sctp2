@@ -1,0 +1,157 @@
+    {% extends "/programs/base" %}
+
+    {% block contextMenu %}
+    <div class="container context-nav-container">
+        <div class="buttons is-left">
+            <a href="{{ href('/programs') }}" class="button is-danger">
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fa fa-chevron-left"></i>
+                    </span>
+                    <span>Back</span>
+                </span>
+            </a>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block content %}
+    <div class="container">
+    <div class="card no-overlap">
+        <header class="card-header">
+            <p class="card-header-title">Editing {{ program.name | title }}'s Funders</p>
+        </header>
+        <div class="card-content">
+            {{ showMessages(successMessage, null, dangerMessage, warningMessage) }}
+
+            <div class="columns">
+
+                <div class="column">
+                    {{ showMessages(null, 'Funders already added to the programme', null, null) }}
+                    <form action="/programs/{{ program.id }}/funders/remove"
+                          id="addedForm"
+                          method="post"
+                          enctype="application/x-www-form-urlencoded">
+                    {{ csrf(_csrf) }}
+                        <div class="columns">
+                        <div class="column">
+                            <table class="table added-list is-narrow is-striped is-hoverable">
+                                <thead>
+                                <tr>
+                                    <th width="6%" data-sortable="false">
+                                        <label class="checkbox">
+                                            <input type="checkbox"
+                                                   class="is-medium"
+                                                   onclick="toggleSelection('.added')" />&nbsp;&nbsp;
+                                        </label>
+                                    </th>
+                                    <th>Funder Name</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    {% for funder in funders %}
+                                    <tr>
+                                        <td>
+                                            <label class="checkbox">
+                                                <input
+                                                        id="funder{{ funder.funderId }}"
+                                                        name="funderIds[]"
+                                                        value="{{ funder.funderId }}"
+                                                        class="is-medium added"
+                                                        type="checkbox" />
+                                            </label>
+                                        </td>
+                                        <td>{{ funder.funderName }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    </form>
+                    <div class="columns">
+                        <div class="column">
+                            <div class="buttons is-right">
+                                <button onclick="removeFunders()"
+                                        class="button is-danger">Remove Selected Funders</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column">
+                    {{ showMessages(null, 'Available funders that can be added to the programme', null, null) }}
+                    <form action="/programs/{{ program.id }}/funders/add"
+                          id="availableForm"
+                          method="post"
+                          enctype="application/x-www-form-urlencoded">
+                        {{ csrf(_csrf) }}
+                        <div class="columns">
+                            <div class="column">
+                                <table class="table available-list is-narrow is-striped is-hoverable">
+                                    <thead>
+                                    <tr>
+                                        <th width="6%" data-sortable="false">
+                                            <label class="checkbox">
+                                                <input type="checkbox"
+                                                       class="is-medium"
+                                                       onclick="toggleSelection('.available')" />&nbsp;&nbsp;
+                                            </label>
+                                        </th>
+                                        <th>Funder Name</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for funder in available %}
+                                        <tr>
+                                            <td>
+                                                <label class="checkbox">
+                                                    <input
+                                                            id="funder{{ funder.funderId }}"
+                                                            name="funderIds[]"
+                                                            value="{{ funder.funderId }}"
+                                                            class="is-medium available"
+                                                            type="checkbox" />
+                                                </label>
+                                            </td>
+                                            <td>{{ funder.funderName }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="columns">
+                        <div class="column">
+                            <div class="buttons is-right">
+                                <button onclick="addFunders()"
+                                        class="button is-success">Add Selected Funders</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    {% endblock %}
+    {% block footerScripts %}
+    <script>
+    (function(){
+        setupDataTables('.added-list', '.available-list');
+        window.toggleSelection = function(cls){
+            queryAll(cls).forEach(function(el){ el.checked = !el.checked;})
+        };
+        window.addFunders = function(){
+            if(queryAll('.available:checked').length > 0){
+                availableForm.submit();
+            }
+        }
+        window.removeFunders = function(){
+            if(queryAll('.added:checked').length > 0){
+                addedForm.submit();
+            }
+        }
+    })();
+    </script>
+    {% endblock %}

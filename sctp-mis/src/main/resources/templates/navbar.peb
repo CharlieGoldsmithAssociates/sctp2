@@ -22,35 +22,20 @@
             {% if hasRole("ADMINISTRATOR", "STANDARD") %}
             <div class="navbar-item has-dropdown is-hoverable">
                 <a class="navbar-link">
-                          <span class="icon-text">
-                            <span class="icon">
-                                <i class="fas fa-map-marker-alt">&nbsp;</i>
-                            </span>
-                            <span>Location Management</span>
-                          </span>
-                </a>
-                <div class="navbar-dropdown">
-                    <a href="/locations" class="navbar-item">Locations</a>
-                </div>
-            </div>
-            {% endif %}
-            {#
-            <div class="navbar-item has-dropdown is-hoverable">
-                <a class="navbar-link">
               <span class="icon-text">
                 <span class="icon">
                   <i class="fas fa-hands-helping">&nbsp;</i>
                 </span>
-                <span>Programmes &amp; Funders</span>
+                <span>Programmes And Funders</span>
               </span>
                 </a>
                 <div class="navbar-dropdown">
-                    <a class="navbar-item" href="/donors">Funders</a>
+                    <a class="navbar-item" href="/funders">Funders</a>
+                    <a class="navbar-item" href="/locations">Geolocation Areas</a>
                     <a class="navbar-item" href="/programs">Programmes</a>
                 </div>
             </div>
-             #}
-
+            {% endif %}
             {#
             <div class="navbar-item has-dropdown is-hoverable">
                 <a class="navbar-link">

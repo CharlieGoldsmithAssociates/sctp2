@@ -35,13 +35,8 @@ package org.cga.sctp.user;
 import org.cga.sctp.core.BaseService;
 import org.cga.sctp.persistence.StatusCode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
@@ -84,5 +79,9 @@ public class UserService extends BaseService {
 
     public UserNameEmailLookUp lookupUserNameAndEmail(String username, String email) {
         return userRepository.lookupUserNameAndEmail(username, email);
+    }
+
+    public String getUsernameById(Long userId) {
+        return userRepository.findUsernameById(userId);
     }
 }

@@ -76,4 +76,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(nativeQuery = true, value = "CALL lookupUsernameAndEmail(:username, :email)")
     UserNameEmailLookUp lookupUserNameAndEmail(@Param("username") String username, @Param("email") String email);
+
+    @Query(nativeQuery = true, value = "select user_name from users where id = :id")
+    String findUsernameById(@Param("id") Long userId);
 }
