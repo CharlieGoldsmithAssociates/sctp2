@@ -120,7 +120,7 @@ public class AccountController extends BaseController {
 
         if (result.hasErrors()) {
             model.addAttribute(settingsForm);
-            return "/account/settings";
+            return "account/settings";
         }
 
         details = getAuthenticationDetails(authentication);
@@ -131,7 +131,7 @@ public class AccountController extends BaseController {
         if (!settingsForm.getEmail().equalsIgnoreCase(user.getEmail())) {
             if (userService.emailExists(settingsForm.getEmail())) {
                 setDangerMessage(model, "The email address that you entered is already in use.");
-                return "/account/settings";
+                return "account/settings";
             }
             user.setEmail(settingsForm.getEmail());
         }

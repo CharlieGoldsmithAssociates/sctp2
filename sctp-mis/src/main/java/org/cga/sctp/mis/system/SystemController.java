@@ -49,6 +49,6 @@ public class SystemController extends BaseController {
     @GetMapping("/version")
     public String getSystemVersion(Model model) {
         model.addAttribute("info", systemService.getSystemInformation());
-        return "/system/info";
+        return "system/info";
     }
 }

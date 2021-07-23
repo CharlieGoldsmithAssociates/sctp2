@@ -51,14 +51,14 @@ public class AuthController extends BaseController {
 
         if (result.hasErrors()) {
             model.addAttribute(loginForm);
-            return "/auth/login";
+            return "auth/login";
         }
 
         String errorMessage = (String) request.getAttribute(CustomAccessDeniedHandler.ERROR_MESSAGE);
         if (errorMessage != null) {
             model.addAttribute(loginForm);
             setDangerMessage(model, errorMessage);
-            return "/auth/login";
+            return "auth/login";
         }
 
         try {
@@ -70,13 +70,13 @@ public class AuthController extends BaseController {
             if (authenticationResult == null) {
                 logger.warn("Failed to find provider for authentication type {}", token.getClass());
                 setDangerMessage(model, "Cannot login at the moment, please contact website administrator.");
-                return "/auth/login";
+                return "auth/login";
             } else {
                 SecurityContextHolder.getContext().setAuthentication(authenticationResult);
             }
         } catch (AuthenticationException exception) {
             setDangerMessage(model, exception.getMessage());
-            return "/auth/login";
+            return "auth/login";
         }
 
         return "redirect:/";
