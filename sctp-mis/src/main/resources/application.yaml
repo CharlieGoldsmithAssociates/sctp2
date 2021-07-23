@@ -13,7 +13,7 @@ auth:
 logging:
   level:
     org:
-      cga: INFO
+      cga: WARN
     root: ERROR
 
 spring:
