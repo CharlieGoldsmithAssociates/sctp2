@@ -17,6 +17,10 @@ logging:
     root: ERROR
 
 spring:
+  resources:
+    cache:
+      cachecontrol:
+        max-age: 365d
   application:
     name: "SCTP MIS"
     version: @project.version@
