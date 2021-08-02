@@ -1,4 +1,4 @@
-    {% extends "/funders/base" %}
+    {% extends "funders/base" %}
 
     {% set canModify = hasRole("ADMINISTRATOR") %}
 

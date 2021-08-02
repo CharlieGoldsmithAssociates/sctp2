@@ -1,4 +1,4 @@
-    {% extends "/programs/base" %}
+    {% extends "programs/base" %}
 
     {% set canModify = hasRole('ADMINISTRATOR') %}
     {% block contextMenu %}

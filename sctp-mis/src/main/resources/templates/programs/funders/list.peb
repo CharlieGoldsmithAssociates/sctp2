@@ -1,4 +1,4 @@
-    {% extends "/programs/base" %}
+    {% extends "programs/base" %}
 
     {% block contextMenu %}
     <div class="container context-nav-container">

@@ -1,4 +1,4 @@
-    {% extends "/locations/base" %}
+    {% extends "locations/base" %}
 
     {% block contextMenu %}
     <div class="container context-nav-container">

@@ -1,4 +1,4 @@
-    {% extends "/locations/base" %}
+    {% extends "locations/base" %}
 
     {% set canModify = hasRole("ADMINISTRATOR") %}
     {% set canGoBack = returnUrl != null %}

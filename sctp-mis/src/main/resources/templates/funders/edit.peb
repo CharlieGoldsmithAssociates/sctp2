@@ -1,5 +1,5 @@
     {% import "../utils/form" %}
-    {% extends "/funders/base" %}
+    {% extends "funders/base" %}
 
     {% block title %}
     {{ parent() }} - Edit Funder
