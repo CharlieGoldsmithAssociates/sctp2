@@ -1,9 +1,9 @@
     {% extends "/programs/base" %}
-
+    {% set isProject = program.programmeType != "PROGRAMME" %}
     {% block contextMenu %}
     <div class="container context-nav-container">
         <div class="buttons is-left">
-            <a href="{{ href('/programs') }}" class="button is-danger">
+            <a href="{{ href('/programs'~(isProject ? "/"~program.id ~"/projects" : "") ) }}" class="button is-danger">
                 <span class="icon-text">
                     <span class="icon">
                         <i class="fa fa-chevron-left"></i>
@@ -27,7 +27,7 @@
             <div class="columns">
 
                 <div class="column">
-                    {{ showMessages(null, 'Funders already added to the programme', null, null) }}
+                    {{ showMessages(null, 'Funders already added to the '~ (isProject ? 'Project' : 'Programme') , null, null) }}
                     <form action="/programs/{{ program.id }}/funders/remove"
                           id="addedForm"
                           method="post"
@@ -79,7 +79,7 @@
                     </div>
                 </div>
                 <div class="column">
-                    {{ showMessages(null, 'Available funders that can be added to the programme', null, null) }}
+                    {{ showMessages(null, 'Available funders that can be added to the '~(isProject ? 'Project': 'Programme'), null, null) }}
                     <form action="/programs/{{ program.id }}/funders/add"
                           id="availableForm"
                           method="post"

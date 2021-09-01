@@ -1,9 +1,9 @@
     {% extends "/programs/base" %}
-
+    {% set canGoBack = returnUrl != null %}
     {% block contextMenu %}
     <div class="container context-nav-container">
         <div class="buttons is-left">
-            <a href="{{ href('/programs') }}" class="button is-danger">
+            <a href="{{ href( canGoBack ? ''~ returnUrl : '/programs') }}" class="button is-danger">
                 <span class="icon-text">
                     <span class="icon">
                         <i class="fa fa-chevron-left"></i>
@@ -19,11 +19,15 @@
     <div class="container">
     <div class="card no-overlap">
         <header class="card-header">
-            <p class="card-header-title">Add New Programme</p>
+            {% if not isEmpty(parent) %}
+                <p class="card-header-title">Add New {{ parent.name }} Project</p>
+            {% else %}
+                <p class="card-header-title">Add New Programme</p>
+            {% endif %}
         </header>
         <div class="card-content">
             {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
-            <form action="/programs" method="post"
+            <form action="{{ isEmpty(parent) ? '/programs' : '/programs/'~ parent.id ~'/projects' }}" method="post"
                   enctype="application/x-www-form-urlencoded">
                 {{ csrf(_csrf) }}
                 <div class="columns">

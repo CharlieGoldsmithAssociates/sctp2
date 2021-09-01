@@ -51,6 +51,7 @@ public class Location {
     private Long id;
     private String code;
     private String name;
+    private Long parentId;
     /**
      * <p>Non-constrained recursive foreign key to the parent of this location. The relationship here is determined
      * by {@link LocationType#level}.</p>
@@ -58,13 +59,13 @@ public class Location {
      *
      * @see LocationType
      */
-    private Long parentId;
     @Enumerated(EnumType.STRING)
     private LocationType locationType;
     private LocalDateTime createdAt;
     private BigDecimal latitude;
     private BigDecimal longitude;
     private boolean active;
+
 
     public Long getId() {
         return id;
@@ -137,6 +138,7 @@ public class Location {
     public void setActive(boolean active) {
         this.active = active;
     }
+
 
     @Override
     public String toString() {

@@ -44,7 +44,8 @@ public enum LocationType {
     SUBNATIONAL1(1, false, false, "Subnational 1", COUNTRY),
     SUBNATIONAL2(2, false, false, "Subnational 2", SUBNATIONAL1),
     SUBNATIONAL3(3, false, false, "Subnational 3", SUBNATIONAL2),
-    SUBNATIONAL4(4, false, true, "Subnational 4", SUBNATIONAL3);
+    SUBNATIONAL4(4, false, false, "Subnational 4", SUBNATIONAL3),
+    SUBNATIONAL5(5, false, true, "Subnational 5", SUBNATIONAL4);
 
     LocationType(int level, boolean isRoot, boolean isLast, String description, LocationType parent) {
         this.level = level;

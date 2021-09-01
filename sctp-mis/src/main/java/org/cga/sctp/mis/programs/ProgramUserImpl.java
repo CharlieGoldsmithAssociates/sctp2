@@ -34,6 +34,7 @@ package org.cga.sctp.mis.programs;
 
 import org.cga.sctp.program.ProgramUser;
 import org.cga.sctp.user.AccessLevel;
+import org.cga.sctp.user.Permission;
 
 import java.time.LocalDate;
 
@@ -48,11 +49,14 @@ public class ProgramUserImpl extends ProgramUserCandidateImpl implements Program
 
     private AccessLevel accessLevel;
 
+    private Permission permission;
+
     public ProgramUserImpl(ProgramUser ifc) {
         super(ifc);
         this.endDate = ifc.getEndDate();
         this.startDate = ifc.getStartDate();
         this.accessLevel = ifc.getAccessLevel();
+        this.permission = ifc.getPermission();
     }
 
     @Override
@@ -80,5 +84,14 @@ public class ProgramUserImpl extends ProgramUserCandidateImpl implements Program
 
     public void setAccessLevel(AccessLevel accessLevel) {
         this.accessLevel = accessLevel;
+    }
+
+    @Override
+    public Permission getPermission() {
+        return permission;
+    }
+
+    public void setPermission(Permission permission) {
+        this.permission = permission;
     }
 }

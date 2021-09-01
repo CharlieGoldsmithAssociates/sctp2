@@ -1,19 +1,20 @@
     {% extends "/programs/base" %}
+    {% set isProject = program.programmeType != "PROGRAMME" %}
     {% block title %}{{ parent() }} | {{ program.name | title }} Programme's Users {% endblock %}
 
     {% block contextMenu %}
     <div class="container context-nav-container">
         <div class="buttons level">
-            <a href="{{ href('/programs') }}" class="button is-danger">
+            <a href="{{ href( isProject ? '/programs/'~program.parentId~'/projects': '/programs') }}" class="button is-danger">
                 <span class="icon-text">
                     <span class="icon">
                         <i class="fa fa-chevron-left"></i>
                     </span>
-                    <span>Back To Programmes</span>
+                    <span>Back To {{ isProject ? "Projects " : "Programmes" }} </span>
                 </span>
             </a>
             <div class="buttons is-right">
-                <a href="/programs/{{ program.id }}/users/new" class="button is-primary">Add Programme User</a>
+                <a href="/programs/{{ program.id }}/users/new" class="button is-primary">Add {{ isProject ? "Project" : "Programme" }} User</a>
             </div>
         </div>
     </div>
@@ -24,7 +25,7 @@
     <div class="container">
         <div class="card no-overlap">
             <header class="card-header">
-                <p class="card-header-title">Viewing {{ program.name | title }} Programme's Users</p>
+                <p class="card-header-title">Viewing {{ program.name | title }} {{ isProject ? "Project" : "Programme's" }} Users</p>
             </header>
             <div class="card-content">
                 {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
@@ -34,6 +35,7 @@
                         <tr>
                             <th>Name</th>
                             <th>Access Level</th>
+                            <th>Permission</th>
                             <th>Start Date</th>
                             <th>End Date</th>
                             <th data-sortable="false">Action</th>
@@ -44,6 +46,7 @@
                             <tr>
                                 <td id="full-name-{{ user.userId }}">{{ user.fullName }}</td>
                                 <td>{{ user.accessLevel.title }}</td>
+                                <td>{{ user.permission.title }}</td>
                                 <td>{{ printDate(user.startDate) }}</td>
                                 <td>{{ printDate(user.endDate) }}</td>
                                 <td>

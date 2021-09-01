@@ -50,6 +50,9 @@ public class Program {
     private LocalDate endDate;
     private LocalDate startDate;
     private LocalDateTime createdAt;
+    private Long parentId;
+    @Enumerated(EnumType.STRING)
+    private ProgrammeType programmeType;
 
     public String getName() {
         return name;
@@ -114,4 +117,12 @@ public class Program {
     public void setLocation(Long locationId) {
         this.location = locationId;
     }
+
+    public Long getParentId() { return parentId; }
+
+    public void setParentId(Long parentId) { this.parentId = parentId; }
+
+    public ProgrammeType getProgrammeType() { return programmeType; }
+
+    public void setProgrammeType(ProgrammeType programmeType) { this.programmeType = programmeType; }
 }

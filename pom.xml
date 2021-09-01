@@ -18,6 +18,8 @@
 
     <properties>
         <java.version>16</java.version>
+        <sjm.version>6.6.1</sjm.version>
+        <jjwt.version>0.11.2</jjwt.version>
     </properties>
 
     <build>
@@ -45,6 +47,33 @@
                 <groupId>org.cga.sctp</groupId>
                 <artifactId>sctp-core</artifactId>
                 <version>1.1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.simplejavamail</groupId>
+                <artifactId>simple-java-mail</artifactId>
+                <version>${sjm.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.simplejavamail</groupId>
+                <artifactId>batch-module</artifactId>
+                <version>${sjm.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-api</artifactId>
+                <version>${jjwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-impl</artifactId>
+                <version>${jjwt.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-jackson</artifactId> <!-- or jjwt-gson if Gson is preferred -->
+                <version>${jjwt.version}</version>
+                <scope>runtime</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

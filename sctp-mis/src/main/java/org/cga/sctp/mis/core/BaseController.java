@@ -2,8 +2,6 @@ package org.cga.sctp.mis.core;
 
 import org.cga.sctp.audit.GeneralAuditEvent;
 import org.cga.sctp.core.BaseComponent;
-import org.cga.sctp.mis.utils.SpringUtils;
-import org.cga.sctp.user.AuthenticatedUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -23,11 +21,6 @@ public class BaseController extends BaseComponent {
         logger = LoggerFactory.getLogger(getClass());
     }
 
-    /*
-    public final void publishGeneralEvent(String what) {
-        publishEvent(new GeneralAuditEvent(what));
-    }*/
-
     public final void publishGeneralEvent(String format, Object... args) {
         publishEvent(new GeneralAuditEvent(format(format, args)));
     }
@@ -38,6 +31,10 @@ public class BaseController extends BaseComponent {
     }
 
     protected final ModelAndView view(String viewName) {
+        // Fixes error during view resolution. This has been observed to occur primarily on Amazon Corretto JVM
+        if (viewName.startsWith("/")) {
+            viewName = viewName.substring(1);
+        }
         return new ModelAndView(viewName);
     }
 
@@ -81,16 +78,20 @@ public class BaseController extends BaseComponent {
         model.addAttribute(name, message);
     }
 
-    protected final void setMessage(ModelAndView modelAndView, String name, String message) {
-        modelAndView.addObject(name, message);
+    protected final ModelAndView setMessage(ModelAndView modelAndView, String name, String message) {
+        return modelAndView.addObject(name, message);
     }
 
     protected final void setDangerMessage(Model model, String message) {
         setMessage(model, MESSAGE_DANGER, message);
     }
 
-    protected final void setDangerMessage(ModelAndView modelAndView, String message) {
-        setMessage(modelAndView, MESSAGE_DANGER, message);
+    protected final ModelAndView setDangerMessage(ModelAndView modelAndView, String message) {
+        return setMessage(modelAndView, MESSAGE_DANGER, message);
+    }
+
+    protected final ModelAndView setSuccessMessage(ModelAndView modelAndView, String message) {
+        return setMessage(modelAndView, MESSAGE_SUCCESS, message);
     }
 
     protected final String redirectWithSuccessMessage(String url, String message, RedirectAttributes attributes) {

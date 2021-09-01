@@ -62,7 +62,7 @@ public class SmartErrorHandler implements ErrorController {
     }
 
     private ModelAndView view(String name) {
-        return new ModelAndView("/error/" + name);
+        return new ModelAndView("error/" + name);
     }
 
     @GetMapping(ERROR_PATH)

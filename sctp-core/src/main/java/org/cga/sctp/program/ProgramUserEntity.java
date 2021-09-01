@@ -33,6 +33,7 @@
 package org.cga.sctp.program;
 
 import org.cga.sctp.user.AccessLevel;
+import org.cga.sctp.user.Permission;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -96,6 +97,10 @@ public class ProgramUserEntity {
     private AccessLevel accessLevel;
     private LocalDateTime createdAt;
 
+    @Enumerated(value = EnumType.STRING)
+    private Permission permission;
+
+
     public ProgramUserId getId() {
         return id;
     }
@@ -135,4 +140,8 @@ public class ProgramUserEntity {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    public Permission getPermission() { return permission; }
+
+    public void setPermission(Permission permission) { this.permission = permission; }
 }

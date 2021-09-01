@@ -33,9 +33,8 @@
 package org.cga.sctp.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.cga.sctp.location.Location;
 import org.cga.sctp.persistence.DatabaseRecord;
-import org.cga.sctp.security.permission.UserRole;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -184,5 +183,10 @@ public class User extends DatabaseRecord {
                 ", userName='" + userName + '\'' +
                 ", role=" + role +
                 '}';
+    }
+
+    @Transient
+    public String makeFullName() {
+        return StringUtils.capitalize(getFirstName()) + " " + StringUtils.capitalize(getLastName());
     }
 }

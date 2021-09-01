@@ -1,0 +1,73 @@
+{% extends "terminologies/base" %}
+{% import "../utils/form" %}
+
+{% block title %}
+    {{ parent() }} - Geographical Areas
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card no-overlap">
+        <header class="card-header">
+            <p class="card-header-title">Edit Geographical Area Terminologies</p>
+        </header>
+        <div class="card-content">
+            {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+            <form action="/terminologies/update" method="post"
+                  enctype="application/x-www-form-urlencoded">
+                {{ csrf(_csrf) }}
+                <div class="columns">
+                    <div class="column">
+                        <div class="field">
+                            <label class="label is-required">Subnational 1</label>
+                            <div class="control">
+                                    {{ textField('subnational1', terminology.subnational1, 1, 50, true, null) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('terminologyForm', 'subnational1')) }}
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="field">
+                            <label class="label is-required">Subnational 2</label>
+                            <div class="control">
+                                    {{ textField('subnational2', terminology.subnational2, 1, 50, true, null) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('terminologyForm', 'subnational2')) }}
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="field">
+                            <label class="label is-required">Subnational 3</label>
+                            <div class="control">
+                                    {{ textField('subnational3', terminology.subnational3, 1, 50, true, null) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('terminologyForm', 'subnational3')) }}
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="field">
+                            <label class="label is-required">Subnational 4</label>
+                            <div class="control">
+                                    {{ textField('subnational4', terminology.subnational4, 1, 50, true, null) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('terminologyForm', 'subnational4')) }}
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="field">
+                            <label class="label is-required">Subnational 5</label>
+                            <div class="control">
+                                    {{ textField('subnational5', terminology.subnational5, 1, 50, true, null) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('terminologyForm', 'subnational5')) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="buttons is-right">
+                    <button class="button is-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

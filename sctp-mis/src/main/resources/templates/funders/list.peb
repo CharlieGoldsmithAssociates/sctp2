@@ -1,4 +1,4 @@
-    {% extends "/funders/base" %}
+    {% extends "funders/base" %}
 
     {% set canModify = hasRole("ADMINISTRATOR") %}
 
@@ -50,7 +50,7 @@
                                         </div>
                                         <div class="dropdown-menu" id="dropdown-menu2" role="menu">
                                             <div class="dropdown-content">
-                                                <a href="/funders/{{ funder.id }}/edit" class="dropdown-item">Edit Location</a>
+                                                <a href="/funders/{{ funder.id }}/edit" class="dropdown-item">Edit Funder</a>
                                             </div>
                                         </div>
                                     </div>

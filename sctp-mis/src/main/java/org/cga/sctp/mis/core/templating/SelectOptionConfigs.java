@@ -37,6 +37,7 @@ import org.cga.sctp.program.ProgramUser;
 import org.cga.sctp.program.ProgramUserCandidate;
 import org.cga.sctp.security.permission.UserRole;
 import org.cga.sctp.user.AccessLevel;
+import org.cga.sctp.user.Permission;
 import org.cga.sctp.user.SystemRole;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -77,5 +78,10 @@ public class SelectOptionConfigs {
     @Bean
     public SelectOptionEntry programUserSelectOption() {
         return new SelectOptionEntry(ProgramUser.class, "userId", "fullName");
+    }
+
+    @Bean
+    public SelectOptionEntry userPermissionSelectOption() {
+        return new SelectOptionEntry(Permission.class, "name()", "title");
     }
 }

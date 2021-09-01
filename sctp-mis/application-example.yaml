@@ -3,7 +3,7 @@ logging:
   level:
     org:
       cga: INFO
-    root: INFO
+    root: ERROR
 
 auth:
   max_attempts: 3
@@ -13,3 +13,13 @@ spring:
     username:
     password:
     url: jdbc:mysql://localhost/sctp
+
+
+# Email/SMTP settings
+simplejavamail:
+  fromAddress: no-reply@sctp.localhost.com
+  smtp:
+    host: localhost
+    port: 25
+    password:
+    username:

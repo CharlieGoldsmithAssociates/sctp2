@@ -43,8 +43,8 @@ import java.util.List;
 @Repository
 interface ProgramRepository extends JpaRepository<Program, Long> {
 
-    @Query(nativeQuery = true, value = "select * from program_info_v")
-    List<ProgramInfo> getProgramInfo();
+    @Query(nativeQuery = true, value = "select * from program_info_v where programme_type = :type")
+    List<ProgramInfo> getProgramInfo(@Param("type") String type);
 
     @Query(nativeQuery = true, value = "call getProgramFunders(:programId)")
     List<ProgramFunder> getProgramFunders(@Param("programId") Long programId);
@@ -72,4 +72,7 @@ interface ProgramRepository extends JpaRepository<Program, Long> {
     @Modifying
     @Query(nativeQuery = true, value = "call removeProgramUser(:programId, :userId)")
     void removeProgramUser(@Param("programId") Long programId, @Param("userId") Long userId);
+
+    @Query(nativeQuery = true, value = "select * from program_info_v where parent_id = :parent AND programme_type = :type ")
+    List<ProgramInfo> getByProgramProjects(@Param("parent") Long parentId, @Param("type") String type);
 }

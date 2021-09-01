@@ -6,6 +6,7 @@ import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.mis.core.templating.Booleans;
 import org.cga.sctp.program.Program;
 import org.cga.sctp.program.ProgramService;
+import org.cga.sctp.program.ProgrammeType;
 import org.cga.sctp.user.RoleConstants;
 import org.cga.sctp.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,6 +113,7 @@ public class ProgramsController extends BaseController {
         program.setActive(programForm.getActive().value);
         program.setStartDate(programForm.getStartDate());
         program.setCode(format("PG%X", System.currentTimeMillis()));
+        program.setProgrammeType(ProgrammeType.PROGRAMME);
 
         programService.save(program);
 
@@ -172,4 +174,6 @@ public class ProgramsController extends BaseController {
         setSuccessFlashMessage("Program successfully updated!", attributes);
         return redirect("/programs");
     }
+
+
 }

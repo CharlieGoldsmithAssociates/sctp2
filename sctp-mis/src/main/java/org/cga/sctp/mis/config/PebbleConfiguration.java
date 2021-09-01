@@ -1,8 +1,6 @@
 package org.cga.sctp.mis.config;
 
-import com.mitchellbosecke.pebble.PebbleEngine;
 import com.mitchellbosecke.pebble.extension.Extension;
-import com.mitchellbosecke.pebble.loader.FileLoader;
 import org.cga.sctp.audit.LogMessagePrinterManager;
 import org.cga.sctp.mis.core.templating.PebbleExtension;
 import org.springframework.beans.factory.annotation.Autowired;
