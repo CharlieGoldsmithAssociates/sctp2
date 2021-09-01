@@ -1,0 +1,26 @@
+{% extends "../unsecured-base" %}
+{% import "../utils/form" %}
+{% block title %}{{ parent() }} - Account Registration{% endblock %}
+
+{% block body %}
+<section class="hero">
+    <div class="hero-body">
+        <div class="container has-text-centered">
+            <div class="column is-4 is-offset-4">
+                <p class="subtitle has-text-black">Account Created</p>
+                <div class="box">
+                    {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+                    <div class="container"><p class="label">Redirecting to login page shortly...</p></div>
+                    <hr />
+                    <div class="container">
+                        <a class="button is-primary" href="/auth/login">Login Now</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+{% block footerScripts %}
+    <script>(function(){setTimeout(function(){ window.location.href = '/auth/login'; }, 5000);})();</script>
+{% endblock %}

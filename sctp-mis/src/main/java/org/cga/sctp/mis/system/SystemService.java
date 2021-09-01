@@ -33,8 +33,11 @@
 package org.cga.sctp.mis.system;
 
 import org.cga.sctp.core.BaseService;
+import org.cga.sctp.mis.config.ServerConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 @Service
 public class SystemService extends BaseService {
@@ -42,7 +45,43 @@ public class SystemService extends BaseService {
     @Autowired
     private SystemInformation systemInformation;
 
+    @Autowired
+    private ServerConfiguration serverConfig;
+
     public SystemInformation getSystemInformation() {
         return systemInformation;
+    }
+
+    public void setSystemInformation(SystemInformation systemInformation) {
+        this.systemInformation = systemInformation;
+    }
+
+    public ServerConfiguration getServerConfig() {
+        return serverConfig;
+    }
+
+    public void setServerConfig(ServerConfiguration serverConfig) {
+        this.serverConfig = serverConfig;
+    }
+
+    public String makeUrl(Object... paths) {
+        StringBuilder builder = new StringBuilder();
+        if (getServerConfig().isSslEnabled()) {
+            builder.append("https://");
+        } else {
+            builder.append("http://");
+        }
+        builder.append(serverConfig.getHost());
+        if (!serverConfig.isStandardPort()) {
+            builder.append(":").append(serverConfig.getPort());
+        }
+        for (Object pathObject : paths) {
+            String path = Objects.toString(pathObject);
+            if (!path.startsWith("/")) {
+                builder.append('/');
+            }
+            builder.append(path);
+        }
+        return builder.toString();
     }
 }

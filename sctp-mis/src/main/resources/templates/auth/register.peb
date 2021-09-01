@@ -1,0 +1,89 @@
+{% extends "../unsecured-base" %}
+{% import "../utils/form" %}
+{% block title %}{{ parent() }} - Account Registration{% endblock %}
+
+{% block body %}
+<section class="hero">
+    <div class="hero-body">
+        <div class="container has-text-centered">
+            <div class="column is-4 is-offset-4">
+                <p class="subtitle has-text-black">Register Account</p>
+                <div class="container context-nav-container">
+                    <div class="buttons is-left">
+                        <a href="/auth/login" class="button is-white">
+                            <span class="icon-text">
+                                <span class="icon">
+                                    <i class="fa fa-chevron-left"></i>
+                                </span>
+                                <span>Back To Login Page</span>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+                <div class="box">
+                    {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+                    <form method="post"
+                          enctype="application/x-www-form-urlencoded"
+                          action="/auth/register">
+                        {{ csrf(_csrf) }}
+
+                        <div class="field has-text-left">
+                            <label class="label" for="firstName">First name</label>
+                            <div class="control">
+                                    {{ textField('firstName', form.firstName, 3, 30, true, null) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('form', 'firstName')) }}
+                        </div>
+
+                        <div class="field has-text-left">
+                            <label class="label" for="lastName">Last name</label>
+                            <div class="control">
+                                    {{ textField('lastName', form.lastName, 3, 30, true, null) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('form', 'lastName')) }}
+                        </div>
+
+                        <div class="field has-text-left">
+                            <label class="label" for="email">Username</label>
+                            <div class="control">
+                                    {{ textField('username', form.username, 3, 20, true, null) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('form', 'username')) }}
+                        </div>
+
+                        <div class="field has-text-left">
+                            <label class="label" for="email">Email</label>
+                            <div class="control">
+                                    {{ emailField('email', form.email, 3, 50, true, null) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('form', 'email')) }}
+                        </div>
+
+                        <div class="field has-text-left">
+                            <label class="label" for="captchaImage">Captcha</label>
+                            <div class="control">
+                                <img id="captchaImage" src="#" />
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <div class="control">
+                                    {{ textField('captcha', form.captcha, 5, 5, true, null) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('form', 'captcha')) }}
+                        </div>
+                        <button class="button is-block is-medium is-info is-fullwidth">Register</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+{% block footerScripts %}
+    <script>
+        (function(){
+            captchaImage.src = '/auth/captcha';
+        })();
+    </script>
+{% endblock %}

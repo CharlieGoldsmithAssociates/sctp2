@@ -33,6 +33,7 @@
 package org.cga.sctp.mis.programs;
 
 import org.cga.sctp.user.AccessLevel;
+import org.cga.sctp.user.Permission;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotNull;
@@ -44,6 +45,9 @@ public class NewProgramUserForm {
 
     @NotNull(message = "Access level is required")
     private AccessLevel accessLevel;
+
+    @NotNull(message = "Permission is required")
+    private Permission permission;
 
     @NotNull(message = "Start date is required")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -84,4 +88,8 @@ public class NewProgramUserForm {
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
+
+    public Permission getPermission() { return permission; }
+
+    public void setPermission(Permission permission) { this.permission = permission; }
 }

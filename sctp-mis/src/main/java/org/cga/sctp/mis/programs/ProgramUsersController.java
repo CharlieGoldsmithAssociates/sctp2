@@ -34,10 +34,7 @@ package org.cga.sctp.mis.programs;
 
 import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.program.*;
-import org.cga.sctp.user.AccessLevel;
-import org.cga.sctp.user.RoleConstants;
-import org.cga.sctp.user.User;
-import org.cga.sctp.user.UserService;
+import org.cga.sctp.user.*;
 import org.cga.sctp.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
@@ -78,6 +75,10 @@ public class ProgramUsersController extends BaseController {
 
     private ModelAndView redirectToProgramUsers(Long programId) {
         return redirect(format("/programs/%d/users", programId));
+    }
+
+    private ModelAndView redirectToProjectUsers(Long programId) {
+        return redirect(format("/programs/%d/projects/users", programId));
     }
 
     private List<ProgramUserImpl> mapProgramUserInterfaceToPojo(List<ProgramUser> programUsers) {
@@ -136,7 +137,7 @@ public class ProgramUsersController extends BaseController {
                 setDangerFlashMessage("Selected user was not found under this programme.", attributes);
             }
         }
-        return redirectToProgramUsers(programId);
+        return ( program.getProgrammeType() == ProgrammeType.PROGRAMME) ? redirectToProgramUsers(programId) : redirectToProjectUsers(programId) ;
     }
 
     @PostMapping
@@ -159,6 +160,7 @@ public class ProgramUsersController extends BaseController {
             return view("/programs/users/new")
                     .addObject("program", program)
                     .addObject("accessLevels", AccessLevel.ACCESS_LEVELS)
+                    //.addObject("permissions", Permission.PERMISSIONS)
                     .addObject("users", mapProgramUserCandidateInterfaceToPojo(programService.getProgramUserCandidates(program)));
         }
 
@@ -167,6 +169,7 @@ public class ProgramUsersController extends BaseController {
                     "Selected user does not exist or cannot be added to the program at this time.")
                     .addObject("program", program)
                     .addObject("accessLevels", AccessLevel.ACCESS_LEVELS)
+                    .addObject("permissions", Permission.PERMISSIONS)
                     .addObject("users", mapProgramUserCandidateInterfaceToPojo(programService.getProgramUserCandidates(program)));
         }
 
@@ -175,6 +178,7 @@ public class ProgramUsersController extends BaseController {
                     "Selected user is already part of this program.")
                     .addObject("program", program)
                     .addObject("accessLevels", AccessLevel.ACCESS_LEVELS)
+                    .addObject("permissions", Permission.PERMISSIONS)
                     .addObject("users", mapProgramUserCandidateInterfaceToPojo(programService.getProgramUserCandidates(program)));
         }
 
@@ -184,6 +188,7 @@ public class ProgramUsersController extends BaseController {
                             DateUtils.formatDateAsIsoString(program.getStartDate()))
             ).addObject("program", program)
                     .addObject("accessLevels", AccessLevel.ACCESS_LEVELS)
+                    .addObject("permissions", Permission.PERMISSIONS)
                     .addObject("users", mapProgramUserCandidateInterfaceToPojo(programService.getProgramUserCandidates(program)));
         }
 
@@ -192,17 +197,29 @@ public class ProgramUsersController extends BaseController {
                     "End date must be after start date.")
                     .addObject("program", program)
                     .addObject("accessLevels", AccessLevel.ACCESS_LEVELS)
+                    .addObject("permissions", Permission.PERMISSIONS)
                     .addObject("users", mapProgramUserCandidateInterfaceToPojo(programService.getProgramUserCandidates(program)));
         }
 
-        programService.addProgramUser(program, form.getUserId(), form.getAccessLevel(), form.getStartDate(), form.getEndDate());
+        programService.addProgramUser(program, form.getUserId(), form.getAccessLevel(),form.getPermission(), form.getStartDate(), form.getEndDate());
 
-        publishGeneralEvent("%s added %s to %s programme from IP %s",
-                username, user.getUsername(), program.getName(), request.getRemoteAddr()
-        );
+        if(program.getProgrammeType() == ProgrammeType.PROGRAMME){
 
-        setSuccessFlashMessage("User added to program successfully!", attributes);
-        return redirectToProgramUsers(programId);
+            publishGeneralEvent("%s added %s to %s programme from IP %s",
+                    username, user.getUsername(), program.getName(), request.getRemoteAddr()
+            );
+
+            setSuccessFlashMessage("User added to program successfully!", attributes);
+        }else{
+
+            publishGeneralEvent("%s added %s to %s project from IP %s",
+                    username, user.getUsername(), program.getName(), request.getRemoteAddr()
+            );
+
+            setSuccessFlashMessage("User added to project successfully!", attributes);
+        }
+
+        return ( program.getProgrammeType() == ProgrammeType.PROGRAMME) ? redirectToProgramUsers(programId) : redirectToProjectUsers(programId) ;
     }
 
     @GetMapping("/new")
@@ -217,6 +234,7 @@ public class ProgramUsersController extends BaseController {
         return view("/programs/users/new")
                 .addObject("program", program)
                 .addObject("accessLevels", AccessLevel.ACCESS_LEVELS)
+                .addObject("permissions", Permission.PERMISSIONS )
                 .addObject("users", mapProgramUserCandidateInterfaceToPojo(programService.getProgramUserCandidates(program)));
     }
 }

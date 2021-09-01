@@ -65,7 +65,7 @@ public class LocationService extends BaseService {
         return locationRepository.findById(id).orElse(null);
     }
 
-    public Page<Location> getLocationsByActiveStatus(Pageable pageable, boolean active) {
+    public Page<LocationInfo> getLocationsByActiveStatus(Pageable pageable, boolean active) {
         return locationRepository.getByStatus(pageable, active);
     }
 
@@ -81,11 +81,15 @@ public class LocationService extends BaseService {
         locationRepository.save(location);
     }
 
-    public List<Location> getByType(LocationType type) {
-        return locationRepository.findByLocationType(type);
+    public List<LocationInfo> getByType(LocationType type) {
+        return locationRepository.findByLocationType(type.name());
     }
 
-    public List<Location> getCountries() {
+    public LocationInfo getByTypeFirst(LocationType type) {
+        return locationRepository.findByLocationTypeFirst(type.name());
+    }
+
+    public List<LocationInfo> getCountries() {
         return getByType(LocationType.COUNTRY);
     }
 
@@ -93,7 +97,7 @@ public class LocationService extends BaseService {
         return getActiveByType(LocationType.COUNTRY);
     }
 
-    public List<Location> getByParent(Location location) {
+    public List<LocationInfo> getByParent(Location location) {
         return locationRepository.getByParentId(location.getId());
     }
 

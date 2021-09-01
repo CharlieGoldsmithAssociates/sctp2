@@ -32,26 +32,36 @@
 
 package org.cga.sctp.auth;
 
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import org.cga.sctp.core.BaseService;
 import org.cga.sctp.persistence.StatusCode;
 import org.cga.sctp.security.AccessControlService;
 import org.cga.sctp.user.AuthenticatedUser;
-import org.cga.sctp.user.SystemRole;
 import org.cga.sctp.user.User;
 import org.cga.sctp.user.UserService;
 import org.cga.sctp.utils.CryptoUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.LockedException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class AuthService extends BaseService implements AuthenticationProvider {
@@ -67,6 +77,13 @@ public class AuthService extends BaseService implements AuthenticationProvider {
 
     @Autowired
     private AuthConfiguration authConfiguration;
+
+    @Value("${auth.jwt.iss}")
+    private String jwtIssuer;
+
+    public AuthService() {
+        jwtIssuer = "";
+    }
 
     /**
      * Authenticate a principal
@@ -172,5 +189,40 @@ public class AuthService extends BaseService implements AuthenticationProvider {
 
     public String generatePassword() {
         return passwordEncoder.encode(generateRandomString(15));
+    }
+
+    public String createPasswordResetToken(Key key) {
+        Date now = new Date();
+        Date expiration = Date.from(now.toInstant().plus(5, ChronoUnit.MINUTES));
+
+        return Jwts.builder()
+                .claim("nonce", BCrypt.gensalt())
+                .setIssuer(jwtIssuer)
+                .setIssuedAt(now)
+                .setExpiration(expiration)
+                .signWith(key)
+                .compact();
+    }
+
+    public String createPasswordResetToken(String key) {
+        return createPasswordResetToken(Keys.hmacShaKeyFor(key.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    public boolean isValidToken(String token, String key) {
+        return isValidToken(token, Keys.hmacShaKeyFor(key.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    public boolean isValidToken(String token, Key key) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .requireIssuer(jwtIssuer)
+                    .build()
+                    .parseClaimsJws(token);
+            return true;
+        } catch (JwtException e) {
+            LOG.error("Failure parsing jwt.", e);
+        }
+        return false;
     }
 }

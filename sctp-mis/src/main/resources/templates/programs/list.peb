@@ -1,11 +1,22 @@
     {% extends "programs/base" %}
 
     {% set canModify = hasRole('ADMINISTRATOR') %}
+    {% set canGoBack = returnUrl != null %}
     {% block contextMenu %}
         {% if canModify %}
             <div class="container context-nav-container">
-                <div class="buttons is-right">
-                    <a href="{{ href('/programs/new') }}" class="button is-primary">Add New Programme</a>
+                <div class="buttons {{ canGoBack ? 'level' : 'is-right' }}">
+                    {% if canGoBack %}
+                    <a href="{{ returnUrl }}" class="button is-danger">
+                                        <span class="icon-text">
+                                            <span class="icon">
+                                                <i class="fa fa-chevron-left"></i>
+                                            </span>
+                                            <span>Back</span>
+                                        </span>
+                    </a>
+                    {% endif %}
+                    <a href="{{ href( isEmpty(parent) ? '/programs/new' : '/programs/'~ parent.id ~'/projects/new') }}" class="button is-primary">{{ isEmpty(parent) ? 'Add New Programme' : 'Add New Project' }}</a>
                 </div>
             </div>
         {% endif %}
@@ -15,7 +26,11 @@
     <div class="container">
         <div class="card no-overlap">
             <header class="card-header">
-                <p class="card-header-title">Programmes</p>
+              {% if not isEmpty(parent) %}
+                <p class="card-header-title">{{ parent.name }} Projects</p>
+              {% else %}
+                    <p class="card-header-title">Programmes</p>
+              {% endif %}
             </header>
             <div class="card-content">
                 {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
@@ -23,7 +38,7 @@
                     <table class="table dataTable is-narrow is-striped is-hoverable">
                         <thead>
                         <tr>
-                            <th>Programme Name</th>
+                            <th> {{ isEmpty(parent) ? 'Programme' : 'Project'}} Name</th>
                             <th>Location</th>
                             <th>Start Date</th>
                             <th>End Date</th>
@@ -39,7 +54,7 @@
                                 <td>{{ program.name }}</td>
                                 <td>{{ program.location }}</td>
                                 <td>{{ printDate(program.startDate) }}</td>
-                                <td>{{ printDate(program.startEnd) }}</td>
+                                <td>{{ printDate(program.endDate) }}</td>
                                 <td>{{ program.userCount | numberformat }}</td>
                                 <td>{{ program.funderCount | numberformat }}</td>
                                 <td>{{ yesOrNo(program.active) }}</td>
@@ -57,11 +72,14 @@
                                         <div class="dropdown-menu" id="dropdown-menu2" role="menu">
                                             <div class="dropdown-content">
                                                 {% if canModify %}
-                                                    <a href="/programs/{{ program.id }}/edit" class="dropdown-item">Edit</a>
-                                                    <a href="/programs/{{ program.id }}/users" class="dropdown-item">Programme Users</a>
-                                                    <a href="/programs/{{ program.id }}/funders/edit" class="dropdown-item">Edit Programme Funders</a>
+                                                    <a href="{{  href( isEmpty(parent) ? '/programs/'~ program.id ~ '/edit' : '/programs/'~ program.id ~'/projects/edit') }}" class="dropdown-item">Edit</a>
+                                                    <a href="{{  href( isEmpty(parent) ? '/programs/'~ program.id ~ '/users' : '/programs/'~ program.id ~'/projects/users') }}" class="dropdown-item">{{ isEmpty(parent) ? 'Programme' : 'Project'}} Users</a>
+                                                    {% if isEmpty(parent)  %}
+                                                        <a href="/programs/{{ program.id }}/projects" class="dropdown-item">Programme Projects</a>
+                                                    {% endif %}
+                                                    <a href="{{  href( isEmpty(parent) ? '/programs/'~ program.id ~ '/funders/edit' : '/programs/'~ program.id ~'/projects/funders/edit') }}" class="dropdown-item">Edit {{ isEmpty(parent) ? 'Programme' : 'Project'}} Funders</a>
                                                 {% endif %}
-                                                <a href="/programs/{{ program.id }}/funders" class="dropdown-item">View Programme Funders</a>
+                                                <a href="{{  href( isEmpty(parent) ? '/programs/'~ program.id ~ '/funders' : '/programs/'~ program.id ~'/projects/funders') }}" class="dropdown-item">View {{ isEmpty(parent) ? 'Programme' : 'Project'}} Funders</a>
                                             </div>
                                         </div>
                                     </div>

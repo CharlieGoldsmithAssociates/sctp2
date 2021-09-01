@@ -45,11 +45,11 @@ import java.util.List;
 
 public interface LocationRepository extends PagingAndSortingRepository<Location, Long> {
 
-    @Query(value = "SELECT * FROM locations WHERE active = :active", nativeQuery = true)
-    Page<Location> getByStatus(@Param("page") Pageable pageable, @Param("active") boolean active);
+    @Query(value = "SELECT * FROM locations_info_v WHERE active = :active", nativeQuery = true)
+    Page<LocationInfo> getByStatus(@Param("page") Pageable pageable, @Param("active") boolean active);
 
-    @Query(value = "select * FROM locations where active = true", nativeQuery = true)
-    List<Location> findAllActive();
+    @Query(value = "select * FROM locations_info_v where active = true", nativeQuery = true)
+    List<LocationInfo> findAllActive();
 
     @Query(nativeQuery = true, value = "select * from locations where active = true and id = :id")
     Location findActiveLocationById(@Param("id") Long locationId);
@@ -57,8 +57,12 @@ public interface LocationRepository extends PagingAndSortingRepository<Location,
     @Query(nativeQuery = true, value = "select * from locations where active = true and location_type = :type")
     List<Location> findActiveLocationsByType(@Param("type") String type);
 
-    List<Location> findByLocationType(LocationType type);
+    @Query(nativeQuery = true, value = "select * from locations_info_v where locationType = :type")
+    List<LocationInfo> findByLocationType(@Param("type") String type);
 
-    @Query(nativeQuery = true, value = "select * from locations where parent_id = :parent")
-    List<Location> getByParentId(@Param("parent") Long parentId);
+    @Query(nativeQuery = true, value = "select * from locations_info_v where locationType = :type limit 1")
+    LocationInfo findByLocationTypeFirst(@Param("type") String type);
+
+    @Query(nativeQuery = true, value = "select * from locations_info_v where parentId = :parent")
+    List<LocationInfo> getByParentId(@Param("parent") Long parentId);
 }

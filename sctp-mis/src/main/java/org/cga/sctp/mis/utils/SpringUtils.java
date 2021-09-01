@@ -37,6 +37,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import javax.servlet.http.HttpServletRequest;
+
 public final class SpringUtils {
     public static boolean isPrincipalAuthenticated() {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -48,5 +50,9 @@ public final class SpringUtils {
 
     public static Authentication getAuthentication() {
         return SecurityContextHolder.getContext().getAuthentication();
+    }
+
+    public static String getIpAddress(HttpServletRequest request){
+        return request.getRemoteAddr();
     }
 }

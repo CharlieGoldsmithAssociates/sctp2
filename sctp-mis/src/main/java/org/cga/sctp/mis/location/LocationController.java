@@ -34,10 +34,12 @@ package org.cga.sctp.mis.location;
 
 
 import org.cga.sctp.location.Location;
+import org.cga.sctp.location.LocationInfo;
 import org.cga.sctp.location.LocationService;
 import org.cga.sctp.location.LocationType;
 import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.mis.core.templating.Booleans;
+import org.cga.sctp.terminology.TerminologyService;
 import org.cga.sctp.user.RoleConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
@@ -60,15 +62,24 @@ public class LocationController extends BaseController {
     @Autowired
     private LocationService locationService;
 
+    @Autowired
+    private TerminologyService terminologyService;
+
     private List<Location> getActiveParentLocationsForType(LocationType type) {
         return type.isRoot ? List.of() : locationService.getActiveByType(type.parent);
+    }
+
+    private String getLocationParentType(LocationType type) {
+        return type.isRoot ? "Country" : terminologyService.getTerminologyByName(type.parent.name()).getDescription();
     }
 
     @GetMapping
     @Secured({RoleConstants.ROLE_ADMINISTRATOR, RoleConstants.ROLE_STANDARD})
     ModelAndView getAllLocations(@RequestParam(value = "type", defaultValue = "COUNTRY", required = false) LocationType type) {
+
         return view("/locations/list")
                 .addObject("type", type)
+                .addObject("terminologies", terminologyService.getAllTerminologies())
                 .addObject("locations", locationService.getByType(type));
     }
 
@@ -81,7 +92,7 @@ public class LocationController extends BaseController {
             setDangerFlashMessage("Location does not exist", attributes);
             return redirect("/locations");
         }
-        List<Location> locations = locationService.getByParent(location);
+        List<LocationInfo> locations = locationService.getByParent(location);
         if (location.getLocationType().isRoot) {
             returnUrl = "/locations";
         } else {
@@ -91,6 +102,7 @@ public class LocationController extends BaseController {
                 .addObject("parent", location)
                 .addObject("locations", locations)
                 .addObject("returnUrl", returnUrl)
+                .addObject("terminologies", terminologyService.getAllTerminologies())
                 .addObject("type", location.getLocationType());
     }
 
@@ -100,6 +112,8 @@ public class LocationController extends BaseController {
         locationForm.setType(type);
         return view("/locations/new")
                 .addObject("parents", getActiveParentLocationsForType(type))
+                .addObject("locationType", terminologyService.getTerminologyByName(type.name()))
+                .addObject("parentType", getLocationParentType(type))
                 .addObject("booleans", Booleans.VALUES);
     }
 
@@ -218,7 +232,7 @@ public class LocationController extends BaseController {
             if (!editForm.getType().isRoot) {
                 result.addError(new FieldError("locationForm", "parent", format("%s is required.",
                         editForm.getType().parent.description)));
-                return view("/locations/edit")
+                return view("locations/edit")
                         .addObject("parents", getActiveParentLocationsForType(editForm.getType()))
                         .addObject("booleans", Booleans.VALUES);
             }
@@ -254,8 +268,10 @@ public class LocationController extends BaseController {
         locationForm.setParent(location.getParentId());
         locationForm.setType(location.getLocationType());
         locationForm.setActive(Booleans.of(location.isActive()));
-        return view("/locations/edit")
+        return view("locations/edit")
                 .addObject("booleans", Booleans.VALUES)
+                .addObject("locationType", terminologyService.getTerminologyByName(location.getLocationType().name()))
+                .addObject("parentType", getLocationParentType(location.getLocationType()))
                 .addObject("parents", getActiveParentLocationsForType(location.getLocationType()));
     }
 }

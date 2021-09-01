@@ -33,6 +33,7 @@
 package org.cga.sctp.program;
 
 import org.cga.sctp.user.AccessLevel;
+import org.cga.sctp.user.Permission;
 
 import java.time.LocalDate;
 
@@ -42,4 +43,6 @@ public interface ProgramUser extends ProgramUserCandidate {
     LocalDate getStartDate();
 
     AccessLevel getAccessLevel();
+
+    Permission getPermission();
 }

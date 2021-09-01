@@ -1,14 +1,14 @@
-    {% extends "programs/base" %}
-
+    {% extends "/programs/base" %}
+    {% set isProject = program.programmeType != "PROGRAMME" %}
     {% block contextMenu %}
     <div class="container context-nav-container">
         <div class="buttons is-left">
-            <a href="/programs/{{ program.id  }}/users" class="button is-danger">
+            <a href="/programs/{{ program.id  }}{{ isProject ? "/projects" : "" }}/users" class="button is-danger">
                 <span class="icon-text">
                     <span class="icon">
                         <i class="fa fa-chevron-left"></i>
                     </span>
-                    <span>Back To Users</span>
+                    <span>Back To {{ isProject ? "Project" : "Programme" }} Users</span>
                 </span>
             </a>
         </div>
@@ -19,12 +19,12 @@
     <div class="container">
     <div class="card no-overlap">
         <header class="card-header">
-            <p class="card-header-title">Add User To {{ program.name | title }} Programme</p>
+            <p class="card-header-title">Add User To {{ program.name | title }} {{ isProject ? "Project" : "Programme" }}</p>
         </header>
         <div class="card-content">
             {{ showMessages(
                     successMessage,
-                    program.name ~ " programme start date is " ~ printDate(program.startDate),
+                    program.name ~ (isProject ? " Project" : " Programme") ~" start date is " ~ printDate(program.startDate),
                     dangerMessage,
                     warningMessage
                )
@@ -58,6 +58,18 @@
                         </div>
                     </div>
 
+                    <div class="column">
+                        <div class="field">
+                            <label class="label is-required">Permission</label>
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                        {{ selectField('permission', permissions, userForm.permission, true) }}
+                                </div>
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('userForm', 'permission')) }}
+                        </div>
+                    </div>
+
                     <div class="column is-one-fifth">
                         <div class="field">
                             <label class="label is-required">Start Date</label>
@@ -78,7 +90,7 @@
                     </div>
                 </div>
                 <div class="buttons is-right">
-                    <button class="button is-primary">Add User To Program</button>
+                    <button class="button is-primary">Add User To {{ isProject ? "Project" : "Programme" }}</button>
                 </div>
             </form>
         </div>

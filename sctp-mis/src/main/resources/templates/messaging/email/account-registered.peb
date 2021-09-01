@@ -1,0 +1,6 @@
+Dear {{ recipient.name }},
+<p>Find your login details below:</p>
+<p>Your login name is <b>{{ username }}</b>.<br />
+Click the following link or copy and paste it in your browser to complete the registration by setting up your
+password <a target="_blank" href="{{ passwordResetLink }}">{{ passwordResetLink }}</a>
+</p>

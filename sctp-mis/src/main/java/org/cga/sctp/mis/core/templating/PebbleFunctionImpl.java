@@ -32,13 +32,13 @@
 
 package org.cga.sctp.mis.core.templating;
 
-import com.mitchellbosecke.pebble.PebbleEngine;
-import com.mitchellbosecke.pebble.error.PebbleException;
 import com.mitchellbosecke.pebble.extension.Function;
 import com.mitchellbosecke.pebble.extension.escaper.EscapingStrategy;
 import org.unbescape.html.HtmlEscape;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 public abstract class PebbleFunctionImpl implements Function {
     private final String name;

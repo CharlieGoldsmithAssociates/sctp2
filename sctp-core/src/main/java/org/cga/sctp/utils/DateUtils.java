@@ -49,6 +49,10 @@ public final class DateUtils {
         return DateTimeFormatter.ofPattern("E, LLL d yyyy").withLocale(Locale.US).format(date);
     }
 
+    public static String format(LocalDateTime dateTime) {
+        return DateTimeFormatter.ofPattern("E, LLL d yyyy HH:mm").withLocale(Locale.US).format(dateTime);
+    }
+
     public static boolean isDateAfter(LocalDate startDate, LocalDate endDate) {
         return startDate.isAfter(endDate);
     }

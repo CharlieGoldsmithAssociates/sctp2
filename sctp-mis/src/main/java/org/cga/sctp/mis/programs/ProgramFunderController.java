@@ -35,6 +35,7 @@ package org.cga.sctp.mis.programs;
 import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.program.Program;
 import org.cga.sctp.program.ProgramService;
+import org.cga.sctp.program.ProgrammeType;
 import org.cga.sctp.user.RoleConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
@@ -67,6 +68,10 @@ public class ProgramFunderController extends BaseController {
 
     private ModelAndView redirectToProgramFundersEditor(Long id) {
         return redirect(format("/programs/%d/funders/edit", id));
+    }
+
+    private ModelAndView redirectToProjectFundersEditor(Long id) {
+        return redirect(format("/programs/%d/projects/funders/edit", id));
     }
 
     @GetMapping
@@ -115,11 +120,18 @@ public class ProgramFunderController extends BaseController {
         }
         programService.removeProgramFunders(program, programFundersForm.getFunderIds());
 
-        publishGeneralEvent("%s removed %,d funders from %s programme.",
-                username, programFundersForm.getFunderIds().size(), program.getName());
+        if (program.getProgrammeType() == ProgrammeType.PROGRAMME) {
+            publishGeneralEvent("%s removed %,d funders from %s programme.",
+                    username, programFundersForm.getFunderIds().size(), program.getName());
 
-        setSuccessFlashMessage("Successfully removed funders from programme.", attributes);
-        return redirectToProgramFundersEditor(programId);
+            setSuccessFlashMessage("Successfully removed funders from programme.", attributes);
+        } else {
+            publishGeneralEvent("%s removed %,d funders from %s project.",
+                    username, programFundersForm.getFunderIds().size(), program.getName());
+
+            setSuccessFlashMessage("Successfully removed funders from project.", attributes);
+        }
+        return (program.getProgrammeType() == ProgrammeType.PROGRAMME) ? redirectToProgramFundersEditor(programId) : redirectToProjectFundersEditor(programId);
     }
 
     @PostMapping("/add")
@@ -143,10 +155,17 @@ public class ProgramFunderController extends BaseController {
         }
         programService.addProgramFunders(program, programFundersForm.getFunderIds());
 
-        publishGeneralEvent("%s added %,d funders to %s programme.",
-                username, programFundersForm.getFunderIds().size(), program.getName());
+        if (program.getProgrammeType() == ProgrammeType.PROGRAMME) {
+            publishGeneralEvent("%s added %,d funders to %s programme.",
+                    username, programFundersForm.getFunderIds().size(), program.getName());
 
-        setSuccessFlashMessage("Successfully added funders to programme.", attributes);
-        return redirectToProgramFundersEditor(programId);
+            setSuccessFlashMessage("Successfully added funders to programme.", attributes);
+        } else {
+            publishGeneralEvent("%s added %,d funders to %s project.",
+                    username, programFundersForm.getFunderIds().size(), program.getName());
+
+            setSuccessFlashMessage("Successfully added funders to project.", attributes);
+        }
+        return (program.getProgrammeType() == ProgrammeType.PROGRAMME) ? redirectToProgramFundersEditor(programId) : redirectToProjectFundersEditor(programId);
     }
 }

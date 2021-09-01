@@ -1,0 +1,12 @@
+    {% extends "base" %}
+
+    {% block content %}
+        Test {{ name }}
+        {% for item in items %}
+        <p>{{ item }}</p>
+        {% endfor %}
+    {% endblock %}
+
+     {% block footerScripts %}
+         <script>alert(/hello/)</script>
+     {% endblock %}

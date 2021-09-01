@@ -34,6 +34,7 @@ package org.cga.sctp.program;
 
 import org.cga.sctp.core.TransactionalService;
 import org.cga.sctp.user.AccessLevel;
+import org.cga.sctp.user.Permission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -59,21 +60,17 @@ public class ProgramService extends TransactionalService {
         return repository.findById(id).orElse(null);
     }
 
-    public List<ProgramInfo> getProgramInfo() {
-        return repository.getProgramInfo();
-    }
+    public List<ProgramInfo> getProgramInfo() { return repository.getProgramInfo(ProgrammeType.PROGRAMME.name()); }
+
+    public List<ProgramInfo> getProgramProjects(Long programId) { return repository.getByProgramProjects(programId, ProgrammeType.PROJECT.name()); }
 
     public List<ProgramFunder> getProgramFunders(Long programId) {
         return repository.getProgramFunders(programId);
     }
 
-    public List<ProgramFunder> getAvailableProgramFunders(Long programId) {
-        return repository.getAvailableProgramFunders(programId);
-    }
+    public List<ProgramFunder> getAvailableProgramFunders(Long programId) { return repository.getAvailableProgramFunders(programId); }
 
-    public void removeProgramFunders(Program program, List<Long> funderIds) {
-        repository.removeProgramFunders(program.getId(), funderIds);
-    }
+    public void removeProgramFunders(Program program, List<Long> funderIds) { repository.removeProgramFunders(program.getId(), funderIds); }
 
     public void addProgramFunders(Program program, List<Long> funderIds) {
         repository.addProgramFunders(
@@ -97,11 +94,12 @@ public class ProgramService extends TransactionalService {
         return repository.canUserAccessProgram(userId, programId) == 1;
     }
 
-    public void addProgramUser(Program program, Long userId, AccessLevel accessLevel, LocalDate startDate, LocalDate endDate) {
+    public void addProgramUser(Program program, Long userId, AccessLevel accessLevel, Permission permission, LocalDate startDate, LocalDate endDate) {
         ProgramUserEntity entity = new ProgramUserEntity();
         entity.setEndDate(endDate);
         entity.setStartDate(startDate);
         entity.setAccessLevel(accessLevel);
+        entity.setPermission(permission);
         entity.setCreatedAt(LocalDateTime.now());
         entity.setId(new ProgramUserEntity.ProgramUserId(userId, program.getId()));
         userEntityRepository.save(entity);

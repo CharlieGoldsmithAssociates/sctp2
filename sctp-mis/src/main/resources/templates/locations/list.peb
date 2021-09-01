@@ -15,25 +15,6 @@
                                     <span>Back</span>
                                 </span>
                         </a>
-                       {# {% if parentId != null %}
-                            <a href="{{ href('/locations/' ~ parentId ~ '/sublocations') }}" class="button is-danger">
-                                <span class="icon-text">
-                                    <span class="icon">
-                                        <i class="fa fa-chevron-left"></i>
-                                    </span>
-                                    <span>Back</span>
-                                </span>
-                            </a>
-                        {% else %}
-                            <a href="{{ href('/locations' ~ canGoBack ? '?type=' ~ parent.locationType : '' ) }}" class="button is-danger">
-                                <span class="icon-text">
-                                    <span class="icon">
-                                        <i class="fa fa-chevron-left"></i>
-                                    </span>
-                                    <span>Back</span>
-                                </span>
-                            </a>
-                        {% endif %} #}
                     {% endif %}
                     <div class="dropdown is-hoverable">
                         <div class="dropdown-trigger">
@@ -45,13 +26,12 @@
                                 </span>
                             </button>
                         </div>
+
                         <div class="dropdown-menu" id="dropdown-menu2" role="menu">
                             <div class="dropdown-content">
-                                <a href="{{ href('/locations/new?type=COUNTRY') }}" class="dropdown-item">Country</a>
-                                <a href="{{ href('/locations/new?type=SUBNATIONAL1') }}" class="dropdown-item">Subnational 1</a>
-                                <a href="{{ href('/locations/new?type=SUBNATIONAL2') }}" class="dropdown-item">Subnational 2</a>
-                                <a href="{{ href('/locations/new?type=SUBNATIONAL3') }}" class="dropdown-item">Subnational 3</a>
-                                <a href="{{ href('/locations/new?type=SUBNATIONAL4') }}" class="dropdown-item">Subnational 4</a>
+                                {% for terminology in terminologies %}
+                                    <a href="{{ href('/locations/new?type='~ terminology.name ~'') }}" class="dropdown-item">{{terminology.description}}</a>
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
@@ -86,7 +66,8 @@
                             {% for location in locations %}
                                 <tr>
                                     <td>{{ location.name }}</td>
-                                    <td>{{ location.locationType }}</td>
+{#                                    <td>{{ location.locationType }}</td>#}
+                                    <td>{{ location.locationDescription }}</td>
                                     <td>{{ yesOrNo(location.active) }}</td>
                                     <td>
                                         <div class="dropdown is-hoverable">

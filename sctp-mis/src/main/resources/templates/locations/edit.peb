@@ -19,7 +19,7 @@
     <div class="container">
         <div class="card no-overlap">
             <header class="card-header">
-                <p class="card-header-title">Edit {{ locationForm.type.description }}</p>
+                <p class="card-header-title">Edit {{ locationType.description}}</p>
             </header>
             <div class="card-content">
                 {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
@@ -32,7 +32,7 @@
                         {% if not locationForm.type.isRoot %}
                             <div class="column">
                                 <div class="field">
-                                    <label class="label is-required">Select {{ locationForm.type.parent.description }}</label>
+                                    <label class="label is-required">Select {{ parentType }}</label>
                                     <div class="control">
                                         <div class="select is-fullwidth">
                                                 {{ selectField('parent', parents, locationForm.parent, true) }}
