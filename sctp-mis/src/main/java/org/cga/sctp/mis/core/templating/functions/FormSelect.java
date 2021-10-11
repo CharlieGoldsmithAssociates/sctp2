@@ -45,34 +45,41 @@ import java.util.Objects;
 public class FormSelect extends PebbleFunctionImpl {
 
     private final SelectOptionRegistry selectOptionRegistry;
+    private final boolean multiSelect;
+    private int level;
 
     private SelectOption getSelectionAnnotation(Object object) {
         return object.getClass().getAnnotation(SelectOption.class);
     }
 
-    String buildSelectionElement(String id, Object values, Object selectedItem, boolean required) {
+    String buildSelectionElement(String id, Object values, Object selectedItem, boolean required, Integer size) {
         if (values instanceof Iterable) {
-            return buildListFromIterable(id, (Iterable<?>) values, selectedItem, required);
+            return buildListFromIterable(id, (Iterable<?>) values, selectedItem, required, size);
         } else if (ReflectionUtils.isArray(values)) {
-            return buildListFromIterable(id, new ReflectionUtils.ArrayIterable(values), selectedItem, required);
+            return buildListFromIterable(id, new ReflectionUtils.ArrayIterable(values), selectedItem, required, size);
         } else {
             return selectWithError(id, "Not iterable/array.");
         }
     }
 
-    private String buildListFromIterable(String id, Iterable<?> iterable, Object selectedItem, boolean required) {
+    private String buildListFromIterable(String id, Iterable<?> iterable, Object selectedItem, boolean required, Integer size) {
         HtmlElement select;
         HtmlElement defaultOption;
 
         select = new HtmlElement("select")
                 .id(id)
                 .name(id)
-                .classes("input")
-                .addChild(
-                        defaultOption = new HtmlElement("option")
-                                .text("Select Option")
-                                .attribute("disabled")
-                );
+                .classes("input");
+
+        defaultOption = new HtmlElement("option")
+                .text("Select Option")
+                .attribute("disabled");
+
+        if (multiSelect) {
+            select.attribute("multiple").attribute("size", size);
+        } else {
+            select.addChild(defaultOption);
+        }
 
         if (required) {
             select.attribute("required");
@@ -186,14 +193,24 @@ public class FormSelect extends PebbleFunctionImpl {
                 ).build();
     }
 
+
     public FormSelect(SelectOptionRegistry registry) {
-        super("formSelect", List.of("id", "values", "selected", "required"));
+        this(registry, false);
+    }
+
+    private static final List<String> singleArgs = List.of("id", "values", "selected", "required");
+    private static final List<String> multiArgs = List.of("id", "values", "selected", "required", "size");
+
+    public FormSelect(SelectOptionRegistry registry, boolean multiSelect) {
+        super("formSelect", multiSelect ? multiArgs : singleArgs);
         this.selectOptionRegistry = registry;
+        this.multiSelect = multiSelect;
     }
 
     @Override
     public Object execute(Map<String, Object> args, PebbleTemplate self, EvaluationContext context, int lineNumber) {
         String id;
+        Long size;
         Object values;
         Object selected;
         Boolean required;
@@ -202,6 +219,7 @@ public class FormSelect extends PebbleFunctionImpl {
         values = getArgument(args, "values", List.of());
         selected = getArgument(args, "selected", null);
         required = getArgument(args, "required", true);
-        return buildSelectionElement(id, values, selected, required);
+        size = multiSelect ? getArgument(args, "size", -1L) : -1L;
+        return buildSelectionElement(id, values, selected, required, size.intValue());
     }
 }

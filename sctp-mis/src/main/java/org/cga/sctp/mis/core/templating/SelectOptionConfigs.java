@@ -33,6 +33,8 @@
 package org.cga.sctp.mis.core.templating;
 
 import org.cga.sctp.location.Location;
+import org.cga.sctp.location.LocationCode;
+import org.cga.sctp.program.Program;
 import org.cga.sctp.program.ProgramUser;
 import org.cga.sctp.program.ProgramUserCandidate;
 import org.cga.sctp.security.permission.UserRole;
@@ -73,6 +75,16 @@ public class SelectOptionConfigs {
     @Bean
     public SelectOptionEntry programUserCandidateSelectOption() {
         return new SelectOptionEntry(ProgramUserCandidate.class, "userId", "fullName");
+    }
+
+    @Bean
+    public SelectOptionEntry programSelectOption(){
+        return new SelectOptionEntry(Program.class, "id", "name");
+    }
+
+    @Bean
+    public SelectOptionEntry locationCodes(){
+        return new SelectOptionEntry(LocationCode.class, "code", "name");
     }
 
     @Bean

@@ -12,6 +12,31 @@ public class ReflectionUtils {
         return object.getClass().isArray();
     }
 
+    public static <T> T getFieldValue(Object instance, String fieldName) {
+        Class<?> klazz = instance.getClass();
+        Field field = null;
+        while (klazz != null) {
+            try {
+                field = klazz.getField(fieldName);
+                break;
+            } catch (NoSuchFieldException e) {
+                try {
+                    field = klazz.getDeclaredField(fieldName);
+                    break;
+                } catch (NoSuchFieldException e2) {
+                    klazz = klazz.getSuperclass();
+                }
+            }
+        }
+        try {
+            field.setAccessible(true);
+            // Suppressed unchecked
+            return (T) field.get(instance);
+        } catch (IllegalAccessException ignore) {
+        }
+        return null;
+    }
+
     public static class ArrayIterable implements Iterable<Object> {
         private final Object arrayInstance;
 

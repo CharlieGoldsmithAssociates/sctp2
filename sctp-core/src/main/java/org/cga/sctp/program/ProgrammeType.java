@@ -33,9 +33,8 @@
 package org.cga.sctp.program;
 
 public enum ProgrammeType {
-    PROGRAMME(1,"Programme"),
-    PROJECT(2,"Project");
-
+    PROGRAMME(1, "Programme"),
+    PROJECT(2, "Project");
 
     ProgrammeType(int level, String title) {
         this.level = level;
@@ -44,5 +43,4 @@ public enum ProgrammeType {
 
     public final int level;
     public final String title;
-
 }

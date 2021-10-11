@@ -25,13 +25,13 @@
                 <div class="tile is-ancestor has-text-centered">
                     <div class="tile is-parent">
                         <article class="tile is-child box">
-                            <p class="title">523k</p>
+                            <p class="title">{{ stats.beneficiaries }}</p>
                             <p class="subtitle">Beneficiaries</p>
                         </article>
                     </div>
                     <div class="tile is-parent">
                         <article class="tile is-child box">
-                            <p class="title">60k</p>
+                            <p class="title">{{ stats.households }}</p>
                             <p class="subtitle">Households</p>
                         </article>
                     </div>

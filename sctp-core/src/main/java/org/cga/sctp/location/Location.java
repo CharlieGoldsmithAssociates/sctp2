@@ -49,7 +49,7 @@ public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String code;
+    private long code;
     private String name;
     private Long parentId;
     /**
@@ -75,11 +75,11 @@ public class Location {
         this.id = id;
     }
 
-    public String getCode() {
+    public long getCode() {
         return code;
     }
 
-    public void setCode(String code) {
+    public void setCode(long code) {
         this.code = code;
     }
 

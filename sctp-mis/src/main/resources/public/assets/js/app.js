@@ -17,9 +17,9 @@
         }
         return _results;
     };
-    var _dataTable_ = query('.dataTable');
+    _dataTable_ = query('.dataTable');
     if(_dataTable_){
-        const dataTable = new simpleDatatables.DataTable(
+        window.firstDataTable = new simpleDatatables.DataTable(
             _dataTable_,
             {
                 perPage: 50,
@@ -27,5 +27,34 @@
             }
         )
     }
-
+    window.downloadTableToCsv = function(name, skipColumns){
+        var opts = {type:'csv', download: true, filename: name};
+        if(skipColumns){
+            opts['skipColumn'] = skipColumns;
+        }
+        firstDataTable.export(opts);
+    }
+    window.createResumableFile = function(file, options){
+        if("tus" in window){
+            if(!("retryDelays" in options)){
+                options["retryDelays"] = [0, 3000, 5000];
+            }
+            return new tus.Upload(file, options);
+        }else{
+            console.error('tus library not loaded.');
+            return null;
+        }
+    };
+    window.uploadResumableFile = function(tusUploadHandle, resumeHint = true){
+        if(resumeHint){
+            tusUploadHandle.findPreviousUploads().then(function (previousUploads) {
+                if (previousUploads.length) {
+                    tusUploadHandle.resumeFromPreviousUpload(previousUploads[0])
+                }
+                tusUploadHandle.start()
+            });
+        }else{
+            tusUploadHandle.start();
+        }
+    };
 })();

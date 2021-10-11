@@ -63,7 +63,7 @@
         {% block contextMenu %}{% endblock %}
     <!-- /End Context Nav -->
 
-    <div class="container">
+    <div {{ (useWideContainer ? '' : 'class="container"') }}>
         <!-- start content -->
         {% block content %}{% endblock %}
         <!-- /end content -->

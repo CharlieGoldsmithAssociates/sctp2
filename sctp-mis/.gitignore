@@ -6,3 +6,4 @@ application-prod.properties
 application-dev.yaml
 application-dev.properties
 target/
+staging/

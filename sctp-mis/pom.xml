@@ -11,7 +11,7 @@
 
     <groupId>org.cga.sctp</groupId>
     <artifactId>sctp-mis</artifactId>
-    <version>1.1.11</version>
+    <version>1.2.0</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -39,6 +39,12 @@
             <groupId>cn.apiclub.tool</groupId>
             <artifactId>simplecaptcha</artifactId>
             <version>1.2.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>me.desair.tus</groupId>
+            <artifactId>tus-java-server</artifactId>
+            <version>1.0.0-2.0</version>
         </dependency>
     </dependencies>
 

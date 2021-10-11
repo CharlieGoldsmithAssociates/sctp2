@@ -1,3 +1,5 @@
+{# Setting this flag to true will expand the root DIV that contains the content of each child view #}
+{% set useWideContainer = false %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -16,6 +18,7 @@
     <link rel="stylesheet" type="text/css" href="/assets/css/vendor/mobius1/selectr.min.css"/>
     <style>.card.no-overlap{ overflow: unset !important; }</style>
     <style>{% block headerStyles %}{% endblock %}</style>
+    {% block head %}{% endblock %}
     {% block headerScripts %}{% endblock %}
 </head>
 <body>
@@ -30,9 +33,20 @@
     </section>
     {% endblock %}
     <script src="/assets/js/vendor/fiduswriter/simple-datatables.min.js" type="text/javascript"></script>
+    <script src="/assets/js/vendor/mobius1/datatable.exportable.min.js" type="text/javascript"></script>
     <script src="/assets/js/vendor/bulma/bulma.js" type="text/javascript"></script>
     <script src="/assets/js/vendor/mobius1/selectr.min.js" type="text/javascript"></script>
     <script src="/assets/js/app.js" type="text/javascript"></script>
     {% block footerScripts %}{% endblock %}
+    {% if useWideContainer %}
+        <script>
+        (function(){
+            var el = query('.container.context-nav-container');
+            if(el !== null){
+                el.classList.remove('container');
+            }
+        })();
+        </script>
+    {% endif %}
 </body>
 </html>

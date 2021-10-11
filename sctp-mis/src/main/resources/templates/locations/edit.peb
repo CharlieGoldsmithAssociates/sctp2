@@ -53,6 +53,15 @@
                         </div>
                         <div class="column is-one-quarter">
                             <div class="field">
+                                <label class="label is-required">UBR Code</label>
+                                <div class="control">
+                                     {{ textField('code', locationForm.code, 1, 15, true, null) }}
+                                </div>
+                                {{ printFieldErrors(getFieldErrors('locationForm', 'code')) }}
+                            </div>
+                        </div>
+                        <div class="column is-one-quarter">
+                            <div class="field">
                                 <label class="label is-required">Active</label>
                                 <div class="control">
                                     <div class="select is-fullwidth">

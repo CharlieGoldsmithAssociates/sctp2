@@ -60,17 +60,25 @@ public class ProgramService extends TransactionalService {
         return repository.findById(id).orElse(null);
     }
 
-    public List<ProgramInfo> getProgramInfo() { return repository.getProgramInfo(ProgrammeType.PROGRAMME.name()); }
+    public List<ProgramInfo> getProgramInfo() {
+        return repository.getProgramInfo(ProgrammeType.PROGRAMME.name());
+    }
 
-    public List<ProgramInfo> getProgramProjects(Long programId) { return repository.getByProgramProjects(programId, ProgrammeType.PROJECT.name()); }
+    public List<ProgramInfo> getProgramProjects(Long programId) {
+        return repository.getByProgramProjects(programId, ProgrammeType.PROJECT.name());
+    }
 
     public List<ProgramFunder> getProgramFunders(Long programId) {
         return repository.getProgramFunders(programId);
     }
 
-    public List<ProgramFunder> getAvailableProgramFunders(Long programId) { return repository.getAvailableProgramFunders(programId); }
+    public List<ProgramFunder> getAvailableProgramFunders(Long programId) {
+        return repository.getAvailableProgramFunders(programId);
+    }
 
-    public void removeProgramFunders(Program program, List<Long> funderIds) { repository.removeProgramFunders(program.getId(), funderIds); }
+    public void removeProgramFunders(Program program, List<Long> funderIds) {
+        repository.removeProgramFunders(program.getId(), funderIds);
+    }
 
     public void addProgramFunders(Program program, List<Long> funderIds) {
         repository.addProgramFunders(
@@ -107,5 +115,13 @@ public class ProgramService extends TransactionalService {
 
     public void removeProgramUser(Long userId, Long programId) {
         repository.removeProgramUser(programId, userId);
+    }
+
+    public List<Program> getActivePrograms() {
+        return repository.getByActive(true);
+    }
+
+    public Program getActiveProgramById(Long program) {
+        return repository.findByActiveAndId(true, program);
     }
 }

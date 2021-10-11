@@ -34,7 +34,7 @@
               </span>
                 </a>
                 <div class="navbar-dropdown">
-                    <a href="/targeting/import" class="navbar-item">Import Data From Sources</a>
+                    <a href="/data-import" class="navbar-item">Import Data From Sources</a>
                     <a href="/targeting/criteria" class="navbar-item">Create Targeting Criteria</a>
                     <a href="/targeting/verification" class="navbar-item">Pre-Eligibility Verification</a>
                     <a href="/targeting/community" class="navbar-item">Community Based Targeting</a>
@@ -145,3 +145,12 @@
     </div>
 </nav>
 <!-- /end-bottom nav -->
+
+{% if beans.showPrototypeBanner %}
+<div class="container">
+    <article class="message is-warning">
+        <div class="message-body has-text-centered"
+             style="border-width: 0px; margin-top: 1rem;">Working prototype for discussion</div>
+    </article>
+</div>
+{% endif %}

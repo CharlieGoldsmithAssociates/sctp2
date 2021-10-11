@@ -59,6 +59,10 @@
         {{ formSelect(id, options, value, required) | raw }}
     {% endmacro %}
 
+    {% macro multiSelectField(id, options, value, required, size) %}
+        {{ formMultiSelect(id, options, value, required, size) | raw }}
+    {% endmacro %}
+
     {% macro passwordField(id, min, max, required) %}
     <input id="{{ id }}"
            name="{{ id }}" {{ required ? 'required="required"' : '' }}
