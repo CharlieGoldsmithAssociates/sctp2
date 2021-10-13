@@ -75,4 +75,8 @@ interface ProgramRepository extends JpaRepository<Program, Long> {
 
     @Query(nativeQuery = true, value = "select * from program_info_v where parent_id = :parent AND programme_type = :type ")
     List<ProgramInfo> getByProgramProjects(@Param("parent") Long parentId, @Param("type") String type);
+
+    List<Program> getByActive(boolean active);
+
+    Program findByActiveAndId(boolean active, Long id);
 }

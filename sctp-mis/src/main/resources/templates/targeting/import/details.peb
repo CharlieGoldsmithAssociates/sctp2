@@ -1,0 +1,115 @@
+    {% extends "targeting/import/base" %}
+
+    {% block head %}<link rel="stylesheet" type="text/css" href="/assets/css/info-list.css"/>{% endblock %}
+
+    {% block title %}
+        {{ parent() }} | {{ import.title }} | Details
+    {% endblock %}
+
+    {% block contextMenu %}
+    <div class="container context-nav-container">
+        <div class="buttons is-left">
+            <a href="/data-import" class="button is-danger">
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fa fa-chevron-left"></i>
+                    </span>
+                    <span>Back</span>
+                </span>
+            </a>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block content %}
+    <div class="container">
+        <div class="card no-overlap">
+            <header class="card-header">
+                <p class="card-header-title">{{ import.title }}</p>
+            </header>
+            <div class="card-content">
+                {#
+                <div class="notification">
+                    <dl class="definition">
+                        {% for _status in importStatuses %}
+                            <dt>{{ _status.title }}</dt>
+                            <dd>{{ _status.description }}</dd>
+                        {% endfor %}
+                    </dl>
+                </div>
+                <hr />
+                #}
+                <div class="columns">
+                    <div class="column">
+                        <div class="info-list">
+                            <div class="info-row">
+                                <div class="item-label">Data Import Title</div>
+                                <div class="item-value">{{ import.title }}</div>
+                            </div>
+
+                            <div class="info-row">
+                                <div class="item-label">Data Source</div>
+                                <div class="item-value">{{ import.dataSource.title }}</div>
+                            </div>
+
+                            <div class="info-row">
+                                <div class="item-label">Imported By</div>
+                                <div class="item-value">{{ import.importedBy }}</div>
+                            </div>
+
+                            <div class="info-row">
+                                <div class="item-label">Import Date</div>
+                                <div class="item-value">{{ printDate(import.importDate) }}</div>
+                            </div>
+
+                            <div class="info-row">
+                                <div class="item-label">Completion Date</div>
+                                <div class="item-value">{{ (import.completionDate == null) ? '-' : printDate(import.completionDate) }}</div>
+                            </div>
+
+                            <div class="info-row">
+                                <div class="item-label">Status</div>
+                                <div class="item-value">{{ importStatusTag(import.status) }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="column">
+                        <div class="info-list">
+                            <div class="info-row">
+                                <div class="item-label">Number Of Households</div>
+                                <div class="item-value">{{ import.households | numberformat("#,###") }}</div>
+                            </div>
+
+                            <div class="info-row">
+                                <div class="item-label">Number Of Individuals</div>
+                                <div class="item-value">{{ import.individuals | numberformat("#,###") }}</div>
+                            </div>
+
+                            <div class="info-row">
+                                <div class="item-label">Duplicates</div>
+                                <div class="item-value">{{ isEmpty(import.batchDuplicates) ? 0 : import.batchDuplicates | numberformat("#,###") }}</div>
+                            </div>
+
+                            <div class="info-row">
+                                <div class="item-label">New Households</div>
+                                <div class="item-value">{{ isEmpty(import.newHouseholds) ? 0 : import.newHouseholds | numberformat("#,###") }}</div>
+                            </div>
+
+                            <div class="info-row">
+                                <div class="item-label">Returning Households</div>
+                                <div class="item-value">{{ isEmpty(import.oldHouseholds) ? 0 : import.oldHouseholds | numberformat("#,###") }}</div>
+                            </div>
+
+                            {#
+                            <div class="info-row">
+                                <div class="item-label">Duplicates Against Population</div>
+                                <div class="item-value">{{ import.populationDuplicates }}</div>
+                            </div> #}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}

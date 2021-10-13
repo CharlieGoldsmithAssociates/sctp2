@@ -1,0 +1,18 @@
+.info-list .info-row {
+  background-color: #fff;
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.info-list .info-row .item-label {
+  font-weight: 700;
+  color: #444;
+  text-transform: uppercase;
+}
+
+div div.info-row:last-child {
+  border-bottom: none;
+}

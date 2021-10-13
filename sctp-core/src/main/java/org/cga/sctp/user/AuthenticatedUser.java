@@ -32,10 +32,7 @@
 
 package org.cga.sctp.user;
 
-import org.cga.sctp.security.permission.UserRole;
 import org.springframework.lang.NonNull;
-
-import javax.validation.constraints.NotNull;
 
 /**
  * <p>Represents a view of an authenticated {@link User}</p>

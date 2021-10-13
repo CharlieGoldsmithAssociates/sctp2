@@ -164,6 +164,14 @@ public class LocationController extends BaseController {
             }
         }
 
+        Location conflict = locationService.findByCode(locationForm.getCode());
+        if (conflict != null) {
+            ModelAndView view = view("/locations/new")
+                    .addObject("parents", getActiveParentLocationsForType(locationForm.getType()))
+                    .addObject("booleans", Booleans.VALUES);
+            return setDangerMessage(view, format("Selected code is already assigned to %s.", conflict.getName()));
+        }
+
         Location location = new Location();
         location.setLatitude(BigDecimal.ZERO);
         location.setLongitude(BigDecimal.ONE);
@@ -172,7 +180,7 @@ public class LocationController extends BaseController {
         location.setParentId(locationForm.getParent());
         location.setLocationType(locationForm.getType());
         location.setActive(locationForm.getActive().value);
-        location.setCode("L" + Long.toHexString(System.currentTimeMillis()));
+        location.setCode(locationForm.getCode());
 
         locationService.save(location);
 
@@ -238,6 +246,17 @@ public class LocationController extends BaseController {
             }
         }
 
+        if (location.getCode() != editForm.getCode()) {
+            Location conflict = locationService.findByCode(editForm.getCode());
+            if (conflict != null) {
+                ModelAndView view = view("locations/edit")
+                        .addObject("parents", getActiveParentLocationsForType(editForm.getType()))
+                        .addObject("booleans", Booleans.VALUES);
+                return setDangerMessage(view, format("Selected code is already assigned to %s.", conflict.getName()));
+            }
+            location.setCode(editForm.getCode());
+        }
+
         location.setName(editForm.getName());
         location.setParentId(editForm.getParent());
         location.setActive(editForm.getActive().value);
@@ -268,6 +287,7 @@ public class LocationController extends BaseController {
         locationForm.setParent(location.getParentId());
         locationForm.setType(location.getLocationType());
         locationForm.setActive(Booleans.of(location.isActive()));
+        locationForm.setCode(location.getCode());
         return view("locations/edit")
                 .addObject("booleans", Booleans.VALUES)
                 .addObject("locationType", terminologyService.getTerminologyByName(location.getLocationType().name()))

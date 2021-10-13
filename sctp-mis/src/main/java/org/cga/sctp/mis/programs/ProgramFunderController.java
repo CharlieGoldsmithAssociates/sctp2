@@ -120,18 +120,18 @@ public class ProgramFunderController extends BaseController {
         }
         programService.removeProgramFunders(program, programFundersForm.getFunderIds());
 
-        if (program.getProgrammeType() == ProgrammeType.PROGRAMME) {
-            publishGeneralEvent("%s removed %,d funders from %s programme.",
-                    username, programFundersForm.getFunderIds().size(), program.getName());
+        publishGeneralEvent("%s removed %,d funders from %s %s.",
+                username,
+                programFundersForm.getFunderIds().size(),
+                program.getName(),
+                program.getProgrammeType().title.toLowerCase()
+        );
 
-            setSuccessFlashMessage("Successfully removed funders from programme.", attributes);
-        } else {
-            publishGeneralEvent("%s removed %,d funders from %s project.",
-                    username, programFundersForm.getFunderIds().size(), program.getName());
+        setSuccessFlashMessage(format("Successfully removed funders from %s.",
+                program.getProgrammeType().title.toLowerCase()), attributes);
 
-            setSuccessFlashMessage("Successfully removed funders from project.", attributes);
-        }
-        return (program.getProgrammeType() == ProgrammeType.PROGRAMME) ? redirectToProgramFundersEditor(programId) : redirectToProjectFundersEditor(programId);
+        return (program.getProgrammeType() == ProgrammeType.PROGRAMME) ?
+                redirectToProgramFundersEditor(programId) : redirectToProjectFundersEditor(programId);
     }
 
     @PostMapping("/add")
@@ -153,19 +153,22 @@ public class ProgramFunderController extends BaseController {
                     .addObject("available", programService.getAvailableProgramFunders(programId))
                     .addObject("funders", programService.getProgramFunders(programId));
         }
+
         programService.addProgramFunders(program, programFundersForm.getFunderIds());
 
-        if (program.getProgrammeType() == ProgrammeType.PROGRAMME) {
-            publishGeneralEvent("%s added %,d funders to %s programme.",
-                    username, programFundersForm.getFunderIds().size(), program.getName());
+        publishGeneralEvent("%s added %,d funders to %s %s.",
+                username,
+                programFundersForm.getFunderIds().size(),
+                program.getName(),
+                program.getProgrammeType().title.toLowerCase()
+        );
 
-            setSuccessFlashMessage("Successfully added funders to programme.", attributes);
-        } else {
-            publishGeneralEvent("%s added %,d funders to %s project.",
-                    username, programFundersForm.getFunderIds().size(), program.getName());
+        setSuccessFlashMessage(
+                format("Successfully added funders to %s.", program.getProgrammeType().title.toLowerCase()),
+                attributes
+        );
 
-            setSuccessFlashMessage("Successfully added funders to project.", attributes);
-        }
-        return (program.getProgrammeType() == ProgrammeType.PROGRAMME) ? redirectToProgramFundersEditor(programId) : redirectToProjectFundersEditor(programId);
+        return (program.getProgrammeType() == ProgrammeType.PROGRAMME) ?
+                redirectToProgramFundersEditor(programId) : redirectToProjectFundersEditor(programId);
     }
 }

@@ -8,12 +8,12 @@
                 <div class="buttons {{ canGoBack ? 'level' : 'is-right' }}">
                     {% if canGoBack %}
                     <a href="{{ returnUrl }}" class="button is-danger">
-                                        <span class="icon-text">
-                                            <span class="icon">
-                                                <i class="fa fa-chevron-left"></i>
-                                            </span>
-                                            <span>Back</span>
-                                        </span>
+                        <span class="icon-text">
+                            <span class="icon">
+                                <i class="fa fa-chevron-left"></i>
+                            </span>
+                            <span>Back</span>
+                        </span>
                     </a>
                     {% endif %}
                     <a href="{{ href( isEmpty(parent) ? '/programs/new' : '/programs/'~ parent.id ~'/projects/new') }}" class="button is-primary">{{ isEmpty(parent) ? 'Add New Programme' : 'Add New Project' }}</a>
@@ -59,27 +59,32 @@
                                 <td>{{ program.funderCount | numberformat }}</td>
                                 <td>{{ yesOrNo(program.active) }}</td>
                                 <td>
-                                    <div class="dropdown is-hoverable">
+                                    <div class="dropdown is-hoverable is-right">
                                         <div class="dropdown-trigger">
-                                            <button class="button button is-info is-inverted is-options"
+                                            <button class="button is-info is-inverted is-options"
                                                     aria-haspopup="true" aria-controls="dropdown-menu2">
                                                 <span>Options</span>
                                                 <span class="icon is-small">
                                                         <i class="fas fa-angle-down" aria-hidden="true"></i>
-                                                    </span>
+                                                </span>
                                             </button>
                                         </div>
                                         <div class="dropdown-menu" id="dropdown-menu2" role="menu">
                                             <div class="dropdown-content">
                                                 {% if canModify %}
-                                                    <a href="{{  href( isEmpty(parent) ? '/programs/'~ program.id ~ '/edit' : '/programs/'~ program.id ~'/projects/edit') }}" class="dropdown-item">Edit</a>
-                                                    <a href="{{  href( isEmpty(parent) ? '/programs/'~ program.id ~ '/users' : '/programs/'~ program.id ~'/projects/users') }}" class="dropdown-item">{{ isEmpty(parent) ? 'Programme' : 'Project'}} Users</a>
+                                                    <a href="{{  href( isEmpty(parent) ? '/programs/'~ program.id ~ '/edit' : '/programs/'~ program.id ~'/projects/edit') }}"
+                                                       class="dropdown-item">Edit</a>
+                                                    <a href="{{  href( isEmpty(parent) ? '/programs/'~ program.id ~ '/users' : '/programs/'~ program.id ~'/projects/users') }}"
+                                                       class="dropdown-item">{{ isEmpty(parent) ? 'Programme' : 'Project'}} Users</a>
                                                     {% if isEmpty(parent)  %}
-                                                        <a href="/programs/{{ program.id }}/projects" class="dropdown-item">Programme Projects</a>
+                                                        <a href="/programs/{{ program.id }}/projects"
+                                                           class="dropdown-item">Programme Projects</a>
                                                     {% endif %}
-                                                    <a href="{{  href( isEmpty(parent) ? '/programs/'~ program.id ~ '/funders/edit' : '/programs/'~ program.id ~'/projects/funders/edit') }}" class="dropdown-item">Edit {{ isEmpty(parent) ? 'Programme' : 'Project'}} Funders</a>
+                                                    <a href="{{  href( isEmpty(parent) ? '/programs/'~ program.id ~ '/funders/edit' : '/programs/'~ program.id ~'/projects/funders/edit') }}"
+                                                       class="dropdown-item">Edit {{ isEmpty(parent) ? 'Programme' : 'Project'}} Funders</a>
                                                 {% endif %}
-                                                <a href="{{  href( isEmpty(parent) ? '/programs/'~ program.id ~ '/funders' : '/programs/'~ program.id ~'/projects/funders') }}" class="dropdown-item">View {{ isEmpty(parent) ? 'Programme' : 'Project'}} Funders</a>
+                                                <a href="{{  href( isEmpty(parent) ? '/programs/'~ program.id ~ '/funders' : '/programs/'~ program.id ~'/projects/funders') }}"
+                                                   class="dropdown-item">View {{ isEmpty(parent) ? 'Programme' : 'Project'}} Funders</a>
                                             </div>
                                         </div>
                                     </div>

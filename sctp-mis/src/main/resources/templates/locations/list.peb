@@ -58,16 +58,18 @@
                         <tr>
                             <th>Name</th>
                             <th>Type</th>
+                            <th>UBR Code</th>
                             <th>Active</th>
                             <th data-sortable="false" width="20%">Options</th>
                         </tr>
                         </thead>
                         <tbody>
                             {% for location in locations %}
+                                {# @pebvariable name="location" type="org.cga.sctp.location.LocationInfo" #}
                                 <tr>
                                     <td>{{ location.name }}</td>
-{#                                    <td>{{ location.locationType }}</td>#}
                                     <td>{{ location.locationDescription }}</td>
+                                    <td>{{ location.code }}</td>
                                     <td>{{ yesOrNo(location.active) }}</td>
                                     <td>
                                         <div class="dropdown is-hoverable">

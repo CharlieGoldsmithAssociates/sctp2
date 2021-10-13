@@ -57,3 +57,16 @@ simplejavamail:
     username:
   javaxmail:
     debug: false
+
+# TUS File Upload (These files are temporary)
+tus:
+  server:
+    upload:
+      limit: 200MB # Maximum upload size
+    data:
+      directory: ${java.io.tmpdir}/tus
+
+# File import staging directory
+# When a file has been uploaded, it will be moved here from the temporary directory.
+imports:
+  staging: ./staging

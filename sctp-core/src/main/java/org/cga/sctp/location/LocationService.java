@@ -104,4 +104,28 @@ public class LocationService extends BaseService {
     public List<Location> getActiveByType(LocationType type) {
         return locationRepository.findActiveLocationsByType(type.name());
     }
+
+    public List<Location> getActiveByParentId(Long parentId) {
+        return locationRepository.getByActiveAndParentId(true, parentId);
+    }
+
+    public Location findActiveLocationByIdAndType(Long id, LocationType type) {
+        return locationRepository.getByActiveAndIdAndLocationType(true, id, type);
+    }
+
+    public Location findByCode(long code) {
+        return locationRepository.findByCode(code);
+    }
+
+    public List<LocationCode> getLocationCodesByParent(Long parentCode) {
+        return locationRepository.getCodesByParentCode(parentCode);
+    }
+
+    public List<LocationCode> getActiveDistrictCodes() {
+        return locationRepository.getActiveCodesByType(LocationType.SUBNATIONAL1.name());
+    }
+
+    public Location findActiveLocationByCodeAndType(Long code, LocationType type) {
+        return locationRepository.findByActiveAndCodeAndLocationType(true, code, type);
+    }
 }

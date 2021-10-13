@@ -36,7 +36,6 @@ import com.mitchellbosecke.pebble.extension.Function;
 import com.mitchellbosecke.pebble.spring.extension.function.bindingresult.GetFieldErrorsFunction;
 import com.mitchellbosecke.pebble.template.EvaluationContext;
 import com.mitchellbosecke.pebble.template.PebbleTemplate;
-import org.aspectj.weaver.loadtime.Options;
 import org.cga.sctp.mis.core.templating.functions.*;
 import org.cga.sctp.mis.utils.SpringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,6 +98,11 @@ public class PebbleFunctions {
     }
 
     @Bean
+    public PebbleFunctionImpl age() {
+        return new Age();
+    }
+
+    @Bean
     public Function inputText() {
         return new InputText();
     }
@@ -111,6 +115,11 @@ public class PebbleFunctions {
     @Bean
     public Function formSelect() {
         return new FormSelect(selectOptionRegistry());
+    }
+
+    @Bean
+    public Function formMultiSelect() {
+        return new FormSelect(selectOptionRegistry(), true);
     }
 
     @Bean

@@ -1,0 +1,226 @@
+    {% extends "targeting/community/base" %}
+
+    {# @pebvariable name="targetingSession" type="org.cga.sctp.targeting.TargetingSessionView" #}
+    {# @pebvariable name="isSessionOpen" type="java.lang.Boolean" #}
+    {# @pebvariable name="canModify" type="java.lang.Boolean" #}
+
+    {% block contextMenu %}
+        {% set canModify = hasRole("ADMINISTRATOR") and isSessionOpen %}
+        {% set useWideContainer = true %}
+        <div class="context-nav-container">
+            <div class="level">
+                <div class="level-left">
+                    <div class="level-item">
+                        <a href="{{ href('/targeting/community') }}" class="button is-danger">
+                            <span class="icon-text">
+                                <span class="icon">
+                                    <i class="fa fa-chevron-left"></i>
+                                </span>
+                                <span>Back</span>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+                <div class="level-right">
+                    <div class="level-item">
+                        <div class="dropdown is-hoverable is-right">
+                            <div class="dropdown-trigger">
+                                <button class="button is-primary" aria-haspopup="true" aria-controls="ibd">
+                                    <span>Export Options</span>
+                                    <span class="icon is-small">
+                                        <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                    </span>
+                                </button>
+                            </div>
+                            <div class="dropdown-menu" id="ibd" role="menu">
+                                <div class="dropdown-content">
+                                    <a onclick="exportToCsv()"
+                                       class="dropdown-item">Save As CSV</a>
+                                    <a onclick="firstDataTable.print()" class="dropdown-item">Print</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% if canModify %}
+                        <div class="level-item">
+                            <form enctype="application/x-www-form-urlencoded"
+                                  method="post"
+                                  action="/targeting/community/close">
+                                {{ csrf(_csrf) }}
+                                {{ hiddenField('id', targetingSession.id) }}
+                                <button class="button is-success">Finish And Send To Enrolment</button>
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+
+    {% block content %}
+    <div>
+        <div class="card no-overlap">
+            <header class="card-header">
+                <p class="card-header-title">Community-Based Targeting - {{ targetingSession.programName }} / {{ targetingSession.districtName }}</p>
+            </header>
+            <div class="card-content">
+                {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+                <div class="content">
+                    <table class="table dataTable is-narrow is-striped is-hoverable">
+                        <thead>
+                        <tr>
+                            <th>ML Code</th>
+                            <th>Ranking</th>
+                            <th># of Members</th>
+                            <th>Head of Household</th>
+                            <th>TA</th>
+                            <th>GVH Name</th>
+                            <th>VG Cluster</th>
+                            <th>Zone</th>
+                            <th>Pre-Printed Num</th>
+                            <th>Status</th>
+                            <th>Options</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                                {% for ranking in ranks %}
+                                {# @pebvariable name="ranks" type="java.util.List<org.cga.sctp.targeting.CbtRanking>" #}
+                                {# @pebvariable name="ranking" type="org.cga.sctp.targeting.CbtRanking" #}
+                            <tr>
+                                <td>ML-{{ ranking.mlCode }}</td>
+                                <td>{{ ranking.rank }}</td>
+                                <td>{{ ranking.memberCount | numberformat("#,###") }}</td>
+                                <td>{{ ranking.householdHead }}</td>
+                                <td>{{ ranking.taName }}</td>
+                                <td>{{ ranking.villageHeadName }}</td>
+                                <td>{{ ranking.clusterName }}</td>
+                                <td>{{ ranking.zoneName }}</td>
+                                <td>{{ ranking.formNumber }}</td>
+                                <td>{{ ranking.status }}</td>
+                                <td>
+                                    <div class="dropdown is-hoverable is-right">
+                                        <div class="dropdown-trigger">
+                                            <button class="button is-info is-inverted is-options"
+                                                    aria-haspopup="true" aria-controls="dropdown-menu2">
+                                                <span>Options</span>
+                                                <span class="icon is-small">
+                                                        <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                                </span>
+                                            </button>
+                                        </div>
+                                        <div class="dropdown-menu" id="dropdown-menu2" role="menu">
+                                            <div class="dropdown-content">
+                                                <a href="/targeting/community/composition?session={{ ranking.cbtSessionId }}&amp;id={{ ranking.householdId }}"
+                                                   class="dropdown-item">View Composition</a>
+                                                {% if canModify %}
+                                                    <form method="post"
+                                                          id="rhfrm{{ ranking.householdId }}"
+                                                          action="/targeting/community/remove-household"
+                                                          enctype="application/x-www-form-urlencoded">
+                                                        {{ csrf(_csrf) }}
+                                                            {{ hiddenField('session', targetingSession.id) }}
+                                                            {{ hiddenField('household', ranking.householdId) }}
+                                                    </form>
+                                                    <form method="post"
+                                                          id="edit{{ ranking.householdId }}"
+                                                          action="/targeting/community/change-rank"
+                                                          enctype="application/x-www-form-urlencoded">
+                                                        {{ csrf(_csrf) }}
+                                                            {{ hiddenField('session', targetingSession.id) }}
+                                                            {{ hiddenField('household', ranking.householdId) }}
+                                                            {{ hiddenField('rank', ranking.rank) }}
+                                                    </form>
+                                                    <a onclick="changeRank({{ ranking.householdId }}, {{ ranking.rank }})"
+                                                       class="dropdown-item">Edit Rank</a>
+                                                    <hr class="dropdown-divider" />
+                                                    <a onclick="removeHH(rhfrm{{ ranking.householdId }})"
+                                                       class="dropdown-item">Mark As Ineligible</a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                                {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="rank-editor-dlg" class="modal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">Edit Household Rank</p>
+                <button class="delete" aria-label="close"></button>
+            </header>
+            <section class="modal-card-body">
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label">Current Rank</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <p class="control is-fullwidth">
+                                <input class="input is-static is-fullwidth" type="email" value="34" readonly>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label">New Rank</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <p class="control">
+                                <input class="input" type="email" placeholder="New Rank">
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <footer class="modal-card-foot">
+            </footer>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block footerScripts %}
+    <script>
+        window.exportToCsv = function(){
+            firstDataTable.export({type:'csv', download:true, skipColumn: [1,9]});
+        }
+        window.removeHH = function(frm){
+            if(confirm("Mark as ineligible?")){
+                frm.submit();
+            }
+        }
+        window.changeRank = function(hhid, rank){
+            var response = prompt(`Enter new rank for household ${hhid}.`, rank);
+            if(response === null){
+                return;
+            }
+            var newRank = parseInt(response);
+            if(!isNaN(newRank)){
+                var _form = query('#edit' + hhid);
+                _form.rank.value = newRank;
+                _form.submit();
+            }else{
+                alert('Invalid value entered. Input must be a number');
+            }
+        }
+        window.dlgRankEditor = Bulma('#rank-editor-dlg').modal({
+            buttons: [
+                {
+                    label: 'Save',
+                    classes: ['button', 'is-success'],
+                    onClick: function() { dlgRankEditor.close(); }
+                }
+            ]
+        });
+    </script>
+    {% endblock %}

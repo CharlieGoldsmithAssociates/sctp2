@@ -53,6 +53,9 @@ public class NewLocationForm {
     @NotNull(message = "Active status is required.")
     private Booleans active;
 
+    @NotNull(message = "Code is required")
+    private long code;
+
     public Booleans getActive() {
         return active;
     }
@@ -83,5 +86,13 @@ public class NewLocationForm {
 
     public void setType(LocationType type) {
         this.type = type;
+    }
+
+    public long getCode() {
+        return code;
+    }
+
+    public void setCode(long code) {
+        this.code = code;
     }
 }

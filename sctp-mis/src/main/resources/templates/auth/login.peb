@@ -9,6 +9,14 @@
                 <div class="column is-4 is-offset-4">
                     <h3 class="title has-text-black">SCTP IMS</h3>
                     <p class="subtitle has-text-black">Please login to proceed.</p>
+                    {% if beans.showPrototypeBanner %}
+                        <div class="container">
+                            <article class="message is-warning">
+                                <div class="message-body has-text-centered"
+                                     style="border-width: 0px; margin-bottom: 1rem;">Working prototype for discussion</div>
+                            </article>
+                        </div>
+                    {% endif %}
                     <div class="box">
                         <figure class="avatar">
                             <img id="coa" src="/assets/img/coa-mw.svg"/>
