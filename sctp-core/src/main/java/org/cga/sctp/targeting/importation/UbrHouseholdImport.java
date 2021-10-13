@@ -67,13 +67,19 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes {
         Error
     }
 
+    public UbrHouseholdImport(){
+        archived = false;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long dataImportId;
     private LocalDateTime createdAt;
 
-    @Enumerated
+    private boolean archived;
+
+    @Enumerated(value = EnumType.STRING)
     private ValidationStatus validationStatus;
 
     @Convert(converter = ListAttributeConverter.class)
@@ -154,6 +160,11 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes {
     @Parsed(field = "village_code")
     protected Integer villageCode;
 
+    @Parsed(field = "village_name")
+    protected String villageName;
+
+
+
     @Validate(validators = LocationValidators.LatitudeValidator.class)
     @Parsed(field = "gps_latitude")
     protected BigDecimal gpsLatitude;
@@ -173,6 +184,9 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes {
 
     @Parsed(field = "group_village_head_name")
     private String groupVillageHeadName;
+
+    @Parsed(field = "group_village_head_code")
+    private Long groupVillageHeadCode;
 
     @Parsed(field = "cluster_name")
     private String clusterName;
@@ -310,6 +324,14 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes {
     @Parsed(field = "livelihood_sources")
     @com.univocity.parsers.annotations.Convert(conversionClass = CollectionConversion.class, args = "Set")
     private Set<String> livelihoodSources;
+
+    public boolean isArchived() {
+        return archived;
+    }
+
+    public void setArchived(boolean archived) {
+        this.archived = archived;
+    }
 
     public Orphanhood getOrphanStatus() {
         return orphanStatus;
@@ -453,6 +475,14 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes {
 
     public void setVillageCode(Integer villageCode) {
         this.villageCode = villageCode;
+    }
+
+    public String getVillageName() {
+        return villageName;
+    }
+
+    public void setVillageName(String villageName) {
+        this.villageName = villageName;
     }
 
     public BigDecimal getGpsLatitude() {
@@ -714,6 +744,14 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes {
 
     public void setGroupVillageHeadName(String groupVillageHeadName) {
         this.groupVillageHeadName = groupVillageHeadName;
+    }
+
+    public Long getGroupVillageHeadCode() {
+        return groupVillageHeadCode;
+    }
+
+    public void setGroupVillageHeadCode(Long groupVillageHeadCode) {
+        this.groupVillageHeadCode = groupVillageHeadCode;
     }
 
     public String getClusterName() {
