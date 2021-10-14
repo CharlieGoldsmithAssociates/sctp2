@@ -1,5 +1,9 @@
     {% extends "targeting/criteria/base" %}
 
+    {% block title %}
+        {{ parent() }} | Edit - {{ form.name }}
+    {% endblock %}
+
     {% block contextMenu %}
     <div class="container context-nav-container">
         <div class="buttons is-left">
@@ -19,14 +23,15 @@
     <div class="container">
         <div class="card no-overlap">
             <header class="card-header">
-                <p class="card-header-title">New Targeting Criterion</p>
+                <p class="card-header-title">Edit Targeting Criterion</p>
             </header>
             <div class="card-content">
                 {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
-                <form action="/criteria"
+                <form action="/criteria/update"
                       method="post"
                       enctype="application/x-www-form-urlencoded">
                     {{ csrf(_csrf) }}
+                    {{ hiddenField('id', form.id) }}
 
                     <div class="field is-horizontal">
                         <div class="field-label is-normal">

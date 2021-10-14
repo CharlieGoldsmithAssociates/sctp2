@@ -33,6 +33,10 @@
 package org.cga.sctp.targeting;
 
 import org.cga.sctp.core.TransactionalService;
+import org.cga.sctp.targeting.criteria.Criterion;
+import org.cga.sctp.targeting.criteria.CriterionRepository;
+import org.cga.sctp.targeting.criteria.CriterionView;
+import org.cga.sctp.targeting.criteria.CriterionViewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -49,6 +53,12 @@ public class TargetingService extends TransactionalService {
 
     @Autowired
     private TargetingSessionViewRepository viewRepository;
+
+    @Autowired
+    private CriterionRepository criterionRepository;
+
+    @Autowired
+    private CriterionViewRepository criterionViewRepository;
 
     public void saveTargetingSession(TargetingSession targetingSession) {
         sessionRepository.save(targetingSession);
@@ -79,5 +89,25 @@ public class TargetingService extends TransactionalService {
     public void closeTargetingSession(TargetingSessionView session, Long userId) {
         sessionRepository.closeSession(session.getId(), userId, LocalDateTime.now(),
                 TargetingSessionBase.SessionStatus.Closed.name());
+    }
+
+    public void saveTargetingCriterion(Criterion criterion) {
+        criterionRepository.save(criterion);
+    }
+
+    public void deleteTargetingCriterion(Criterion criterion) {
+        criterionRepository.delete(criterion);
+    }
+
+    public List<CriterionView> getTargetingCriteria() {
+        return criterionViewRepository.findAll();
+    }
+
+    public List<CriterionView> getActiveTargetingCriteria() {
+        return criterionViewRepository.findByActive(true);
+    }
+
+    public Criterion findCriterionById(Long id) {
+        return criterionRepository.findById(id).orElse(null);
     }
 }
