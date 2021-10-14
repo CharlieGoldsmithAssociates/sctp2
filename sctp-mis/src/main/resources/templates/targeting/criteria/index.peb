@@ -58,7 +58,7 @@
                                             <a href="/criteria/edit?id={{ criterion.id }}"
                                                class="dropdown-item">Edit</a>
                                             {% endif %}
-                                            <a href="/criteria/filters?criterion={{ criterion.id }}"
+                                            <a href="/criteria/{{ criterion.id }}/filters"
                                                class="dropdown-item">Filters</a>
                                         </div>
                                     </div>
