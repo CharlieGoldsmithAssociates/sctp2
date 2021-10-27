@@ -30,48 +30,42 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.mis.core.templating;
+package org.cga.sctp.targeting.criteria;
 
-@SelectOption(value = "id", text = "text")
-public class SelectOptionItem {
-    private Long id;
-    private String text;
-    private Object extra;
+import org.hibernate.annotations.Immutable;
 
-    public SelectOptionItem(Long id, String text, Object extra) {
-        this.id = id;
-        this.text = text;
-        this.extra = extra;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "criteria_filters_view")
+@Immutable
+public class CriteriaFilterView extends CriteriaFilterObject {
+    private String label;
+    private String selectedValue;
+    private String category;
+
+    public String getCategory() {
+        return category;
     }
 
-    public SelectOptionItem(Long id, String text) {
-        this(id, text, null);
+    public void setCategory(String category) {
+        this.category = category;
     }
 
-    public SelectOptionItem() {
+    public String getLabel() {
+        return label;
     }
 
-    public Long getId() {
-        return id;
+    public void setLabel(String label) {
+        this.label = label;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public String getSelectedValue() {
+        return selectedValue;
     }
 
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public Object getExtra() {
-        return extra;
-    }
-
-    public void setExtra(Object extra) {
-        this.extra = extra;
+    public void setSelectedValue(String selectedValue) {
+        this.selectedValue = selectedValue;
     }
 }

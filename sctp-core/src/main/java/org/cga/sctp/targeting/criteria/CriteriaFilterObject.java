@@ -30,26 +30,29 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.mis.core.templating;
+package org.cga.sctp.targeting.criteria;
 
-@SelectOption(value = "id", text = "text")
-public class SelectOptionItem {
+import javax.persistence.*;
+
+@MappedSuperclass
+public class CriteriaFilterObject {
+
+    public enum Conjunction {
+        Or,
+        None,
+        And;
+
+        public static final Conjunction[] VALUES = values();
+    }
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String text;
-    private Object extra;
-
-    public SelectOptionItem(Long id, String text, Object extra) {
-        this.id = id;
-        this.text = text;
-        this.extra = extra;
-    }
-
-    public SelectOptionItem(Long id, String text) {
-        this(id, text, null);
-    }
-
-    public SelectOptionItem() {
-    }
+    private Long templateId;
+    private Long criterionId;
+    private String filterValue;
+    @Enumerated(EnumType.STRING)
+    private Conjunction conjunction;
 
     public Long getId() {
         return id;
@@ -59,19 +62,35 @@ public class SelectOptionItem {
         this.id = id;
     }
 
-    public String getText() {
-        return text;
+    public Long getTemplateId() {
+        return templateId;
     }
 
-    public void setText(String text) {
-        this.text = text;
+    public void setTemplateId(Long templateId) {
+        this.templateId = templateId;
     }
 
-    public Object getExtra() {
-        return extra;
+    public Conjunction getConjunction() {
+        return conjunction;
     }
 
-    public void setExtra(Object extra) {
-        this.extra = extra;
+    public void setConjunction(Conjunction conjunction) {
+        this.conjunction = conjunction;
+    }
+
+    public Long getCriterionId() {
+        return criterionId;
+    }
+
+    public void setCriterionId(Long criterionId) {
+        this.criterionId = criterionId;
+    }
+
+    public String getFilterValue() {
+        return filterValue;
+    }
+
+    public void setFilterValue(String filterValue) {
+        this.filterValue = filterValue;
     }
 }

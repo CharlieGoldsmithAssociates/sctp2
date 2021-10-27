@@ -109,3 +109,8 @@ input[type="checkbox"].is-medium {
     padding-top: 0px;
     padding-bottom: 0px;
 }
+
+.is-flat {
+  box-shadow: none !important;
+  border: none !important;
+}

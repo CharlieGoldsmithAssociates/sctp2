@@ -33,19 +33,34 @@
 package org.cga.sctp.targeting.importation.parameters;
 
 public enum HouseOwnership implements UbrParameterValue {
-    Owned(1),
+   /* Owned(1),
     Rented(2),
-    Leasehold(3);
+    Leasehold(3);*/
+
+    Owned(1, "Owned"),
+    BeingPurchased(2, "Being Purchased"),
+    EmployerProvides(3, "Employer Provides"),
+    FreeAuthorizedD(4, "Free, Authorized"),
+    FreeNotAuthorized(5, "Free, Not Authorized"),
+    Rented(6, "Rented");
+
 
     public final int code;
+    public final String text;
     public static final HouseOwnership[] VALUES = values();
 
-    HouseOwnership(int code) {
+    HouseOwnership(int code, String text) {
         this.code = code;
+        this.text = text;
     }
 
     @Override
     public int getCode() {
         return code;
+    }
+
+    @Override
+    public String toString() {
+        return text;
     }
 }

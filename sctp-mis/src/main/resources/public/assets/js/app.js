@@ -27,6 +27,22 @@
             }
         )
     }
+    HTMLElement.prototype.fireEvent = function(name,opts=null){ this.dispatchEvent(new Event(name, opts || {})); };
+    window.templateFromHtml = function(html, format = 'first_child'){
+        const formats = ['template', 'first_child', 'child_nodes'];
+        var tpl = document.createElement('template');
+        tpl.innerHTML = html;
+        if(format === 'template'){
+            return tpl;
+        }
+        if(format === 'first_child'){
+            return tpl.content.firstChild;
+        }
+        if(format === 'child_nodes'){
+            return tpl.content.childNodes;
+        }
+        throw 'format parameter must be one of: ' + formats.join(',');
+    };
     window.downloadTableToCsv = function(name, skipColumns){
         var opts = {type:'csv', download: true, filename: name};
         if(skipColumns){

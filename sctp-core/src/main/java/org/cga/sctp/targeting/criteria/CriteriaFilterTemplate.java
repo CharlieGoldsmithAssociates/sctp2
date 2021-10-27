@@ -30,46 +30,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.mis.targeting.criteria;
+package org.cga.sctp.targeting.criteria;
 
-/**
- * Targeting formula
- */
-public class Criteria {
-    private String name;
-    private boolean active;
-    private String formula;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
-    public Criteria() {
-    }
-
-    public Criteria(String name, String formula, boolean active) {
-        this.name = name;
-        this.formula = formula;
-        this.active = active;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
-    public String getFormula() {
-        return formula;
-    }
-
-    public void setFormula(String formula) {
-        this.formula = formula;
-    }
+@Entity
+@Table(name = "filter_templates")
+public class CriteriaFilterTemplate extends FilterTemplate {
 }

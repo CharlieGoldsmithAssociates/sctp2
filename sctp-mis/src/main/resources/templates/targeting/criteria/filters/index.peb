@@ -1,0 +1,83 @@
+    {% extends "targeting/criteria/filters/base" %}
+
+    {% block contextMenu %}
+        {% set canModify = hasRole('ADMINISTRATOR') %}
+        {# @pebvariable name="canModify" type="java.lang.Boolean" #}
+        {# @pebvariable name="criterion" type="org.cga.sctp.targeting.criteria.Criterion" #}
+        <div class="container context-nav-container">
+            <div class="buttons level">
+                <a href="/criteria" class="button is-danger is-left">
+                    <span class="icon-text">
+                        <span class="icon">
+                            <i class="fa fa-chevron-left"></i>
+                        </span>
+                        <span>Back</span>
+                    </span>
+                </a>
+                {% if canModify %}
+                    <a href="/criteria/{{ criterion.id }}/filters/new" class="button is-primary is-right">
+                        Add New Targeting Filter
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    {% endblock %}
+
+    {% block content %}
+    <div class="container">
+        <div class="card no-overlap">
+        <header class="card-header">
+            <p class="card-header-title">{{ criterion.name }} | Targeting Filters</p>
+        </header>
+        <div class="card-content">
+            {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+            <div class="content">
+               {% if isEmpty(filters) %}
+                    <h6 class="has-text-grey">There are no filters yet</h6>
+               {% else %}
+                    {# @pebvariable name="filter" type="org.cga.sctp.targeting.criteria.CriteriaFilterView" #}
+                    <article class="panel is-info is-flat" style="border: 1px solid #dedede !important;">
+                    {% set first = true %}
+                    {% for filter in filters %}
+                        <div class="panel-block">
+                            <form id="frm{{ filter.id }}" action="/criteria/{{ criterion.id }}/filters/remove" method="post">
+                                {{ csrf(_csrf) }}
+                                {{ hiddenField('filter', filter.id) }}
+                            </form>
+                            <a class="button is-small" 
+                                style="border: none;" 
+                                title="Click to remove this filter" onclick="removeFilter(frm{{ filter.id }})">
+                                <span class="icon is-small has-text-danger">
+                                    <i class="fas fa-times"></i>
+                                </span>
+                            </a>
+                            <span>
+                                {% if first %}
+                                    {% set first = false %}
+                                    Select
+                                {% else %}
+                                    <i>{{ filter.conjunction | upper}}</i> select
+                                {% endif %}
+                                <span style="font-weight: 600;">{{ filter.category == 'individuals' ? 'households with ' : '' }}{{ filter.category }}</span> {{ filter.label }}: <u>{{ filter.selectedValue }}</u>
+                            </span>
+                        </div>
+                        {% set first = false %}
+                    {% endfor %}
+                    </article>
+               {% endif %}
+            </div>
+        </div>
+    </div>
+    </div>
+    {% endblock %}
+{% block footerScripts %}
+    <script>
+        (function(){
+            window.removeFilter = function(targetForm){
+                if(confirm("Are you sure you want to remove this filter?")){
+                    targetForm.submit();
+                }
+            }
+        })();
+    </script>
+{% endblock %}

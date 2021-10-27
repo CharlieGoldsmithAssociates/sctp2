@@ -30,48 +30,18 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.mis.core.templating;
+package org.cga.sctp.targeting.criteria;
 
-@SelectOption(value = "id", text = "text")
-public class SelectOptionItem {
-    private Long id;
-    private String text;
-    private Object extra;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-    public SelectOptionItem(Long id, String text, Object extra) {
-        this.id = id;
-        this.text = text;
-        this.extra = extra;
-    }
+import java.util.List;
 
-    public SelectOptionItem(Long id, String text) {
-        this(id, text, null);
-    }
+@Repository
+public interface CriteriaFilterRepository extends JpaRepository<CriteriaFilter, Long> {
+    List<CriteriaFilter> findByCriterionId(Long criterionId);
 
-    public SelectOptionItem() {
-    }
+    CriteriaFilter findByIdAndCriterionId(Long id, Long criterionId);
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public Object getExtra() {
-        return extra;
-    }
-
-    public void setExtra(Object extra) {
-        this.extra = extra;
-    }
+    long countByCriterionId(Long id);
 }

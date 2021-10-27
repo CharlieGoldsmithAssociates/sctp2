@@ -36,7 +36,8 @@ public enum HarvestedProduceDuration implements UbrParameterValue {
     LESS_THAN_THREE_MONTHS(1, "0 < 3 months"),
     THREE_TO_FIVE_MONTHS(2, "3 - 5 months"),
     SIX_MONTHS_AND_OVER(3, "6 months and over"),
-    DID_NOT_HARVEST(4, "Did not harvest");
+    DID_NOT_HARVEST(4, "Did not harvest"),
+    NOTHING_IN_STORE(4, "Nothing in store");
 
     public final int code;
     public final String title;

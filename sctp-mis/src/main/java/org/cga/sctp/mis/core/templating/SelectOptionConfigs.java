@@ -38,6 +38,8 @@ import org.cga.sctp.program.Program;
 import org.cga.sctp.program.ProgramUser;
 import org.cga.sctp.program.ProgramUserCandidate;
 import org.cga.sctp.security.permission.UserRole;
+import org.cga.sctp.targeting.criteria.CriteriaFilterObject;
+import org.cga.sctp.targeting.criteria.CriteriaFilterTemplate;
 import org.cga.sctp.user.AccessLevel;
 import org.cga.sctp.user.Permission;
 import org.cga.sctp.user.SystemRole;
@@ -68,6 +70,16 @@ public class SelectOptionConfigs {
     }
 
     @Bean
+    public SelectOptionEntry filterTemplateSelectOption() {
+        return new SelectOptionEntry(CriteriaFilterTemplate.class, "getId()", "getLabel()");
+    }
+
+    @Bean
+    public SelectOptionEntry conjunctionSelectOption() {
+        return new SelectOptionEntry(CriteriaFilterObject.Conjunction.class, "name()", "name()");
+    }
+
+    @Bean
     public SelectOptionEntry accessLevelSelectOption() {
         return new SelectOptionEntry(AccessLevel.class, "name()", "title");
     }
@@ -78,12 +90,12 @@ public class SelectOptionConfigs {
     }
 
     @Bean
-    public SelectOptionEntry programSelectOption(){
+    public SelectOptionEntry programSelectOption() {
         return new SelectOptionEntry(Program.class, "id", "name");
     }
 
     @Bean
-    public SelectOptionEntry locationCodes(){
+    public SelectOptionEntry locationCodes() {
         return new SelectOptionEntry(LocationCode.class, "code", "name");
     }
 

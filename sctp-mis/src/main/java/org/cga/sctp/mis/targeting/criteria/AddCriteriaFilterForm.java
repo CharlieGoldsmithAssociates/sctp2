@@ -30,48 +30,46 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.mis.core.templating;
+package org.cga.sctp.mis.targeting.criteria;
 
-@SelectOption(value = "id", text = "text")
-public class SelectOptionItem {
-    private Long id;
-    private String text;
-    private Object extra;
+import org.cga.sctp.targeting.criteria.CriteriaFilterObject;
 
-    public SelectOptionItem(Long id, String text, Object extra) {
-        this.id = id;
-        this.text = text;
-        this.extra = extra;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+public class AddCriteriaFilterForm {
+    @NotBlank(message = "Field is required")
+    @Size(min = 1, max = 2048)
+    private String value;
+
+    @NotNull(message = "Conjunction is required")
+    private CriteriaFilterObject.Conjunction conjunction;
+
+    @NotNull(message = "Filter template is required")
+    private Long templateId;
+
+    public String getValue() {
+        return value;
     }
 
-    public SelectOptionItem(Long id, String text) {
-        this(id, text, null);
+    public void setValue(String value) {
+        this.value = value;
     }
 
-    public SelectOptionItem() {
+    public CriteriaFilterObject.Conjunction getConjunction() {
+        return conjunction;
     }
 
-    public Long getId() {
-        return id;
+    public void setConjunction(CriteriaFilterObject.Conjunction conjunction) {
+        this.conjunction = conjunction;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Long getTemplateId() {
+        return templateId;
     }
 
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public Object getExtra() {
-        return extra;
-    }
-
-    public void setExtra(Object extra) {
-        this.extra = extra;
+    public void setTemplateId(Long templateId) {
+        this.templateId = templateId;
     }
 }

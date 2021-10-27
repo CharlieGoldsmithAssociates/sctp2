@@ -30,26 +30,19 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.mis.core.templating;
+package org.cga.sctp.targeting.criteria;
 
-@SelectOption(value = "id", text = "text")
-public class SelectOptionItem {
+import javax.persistence.*;
+
+@Entity
+@Table(name = "filter_template_list_options")
+public class FilterTemplateListOption {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String text;
-    private Object extra;
-
-    public SelectOptionItem(Long id, String text, Object extra) {
-        this.id = id;
-        this.text = text;
-        this.extra = extra;
-    }
-
-    public SelectOptionItem(Long id, String text) {
-        this(id, text, null);
-    }
-
-    public SelectOptionItem() {
-    }
+    private Long templateId;
+    private String fieldValue;
+    private String fieldText;
 
     public Long getId() {
         return id;
@@ -59,19 +52,27 @@ public class SelectOptionItem {
         this.id = id;
     }
 
-    public String getText() {
-        return text;
+    public Long getTemplateId() {
+        return templateId;
     }
 
-    public void setText(String text) {
-        this.text = text;
+    public void setTemplateId(Long templateId) {
+        this.templateId = templateId;
     }
 
-    public Object getExtra() {
-        return extra;
+    public String getFieldValue() {
+        return fieldValue;
     }
 
-    public void setExtra(Object extra) {
-        this.extra = extra;
+    public void setFieldValue(String fieldValue) {
+        this.fieldValue = fieldValue;
+    }
+
+    public String getFieldText() {
+        return fieldText;
+    }
+
+    public void setFieldText(String fieldText) {
+        this.fieldText = fieldText;
     }
 }
