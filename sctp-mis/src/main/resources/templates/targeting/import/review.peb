@@ -10,7 +10,6 @@
 
     {% block contextMenu %}
         {% set useWideContainer = true %}
-        {% if canModify %}
         <div class="context-nav-container">
             <div class="buttons level">
                 <a href="/data-import" class="button is-danger is-left">
@@ -21,6 +20,7 @@
                         <span>Back</span>
                     </span>
                 </a>
+                {% if canModify %}
                 <div class="dropdown is-hoverable is-right">
                     <form id="mergeForm"
                           action="/data-import/from-ubr-csv/{{ importSession.id }}/review/merge"
@@ -32,9 +32,9 @@
                         Finish And Merge
                     </button>
                 </div>
+                {% endif %}
             </div>
         </div>
-        {% endif %}
     {% endblock %}
 
     {% block content %}

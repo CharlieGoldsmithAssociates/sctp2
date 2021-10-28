@@ -33,6 +33,7 @@
 package org.cga.sctp.targeting;
 
 import org.cga.sctp.core.TransactionalService;
+import org.cga.sctp.targeting.criteria.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -49,6 +50,24 @@ public class TargetingService extends TransactionalService {
 
     @Autowired
     private TargetingSessionViewRepository viewRepository;
+
+    @Autowired
+    private CriterionRepository criterionRepository;
+
+    @Autowired
+    private CriterionViewRepository criterionViewRepository;
+
+    @Autowired
+    private CriteriaFilterTemplateRepository filterTemplateRepository;
+
+    @Autowired
+    private CriteriaFilterRepository criteriaFilterRepository;
+
+    @Autowired
+    private CriteriaFilterViewRepository criteriaFilterViewRepository;
+
+    @Autowired
+    private FilterTemplateListOptionRepository filterTemplateListOptionRepository;
 
     public void saveTargetingSession(TargetingSession targetingSession) {
         sessionRepository.save(targetingSession);
@@ -79,5 +98,74 @@ public class TargetingService extends TransactionalService {
     public void closeTargetingSession(TargetingSessionView session, Long userId) {
         sessionRepository.closeSession(session.getId(), userId, LocalDateTime.now(),
                 TargetingSessionBase.SessionStatus.Closed.name());
+    }
+
+    public void saveTargetingCriterion(Criterion criterion) {
+        criterionRepository.save(criterion);
+    }
+
+    public void deleteTargetingCriterion(Criterion criterion) {
+        criterionRepository.delete(criterion);
+    }
+
+    public List<CriterionView> getTargetingCriteria() {
+        return criterionViewRepository.findAll();
+    }
+
+    public List<CriterionView> getActiveTargetingCriteria() {
+        return criterionViewRepository.findByActive(true);
+    }
+
+    public Criterion findCriterionById(Long id) {
+        return criterionRepository.findById(id).orElse(null);
+    }
+
+    public List<CriteriaFilter> getFiltersByCriterionId(Long criterionId) {
+        return criteriaFilterRepository.findByCriterionId(criterionId);
+    }
+
+    public List<CriteriaFilterTemplate> getFilterTemplates() {
+        return filterTemplateRepository.findAll();
+    }
+
+    public List<CriteriaFilterTemplate> getIndividualFilterTemplates() {
+        return filterTemplateRepository.getByTableName("individuals");
+    }
+
+    public List<CriteriaFilterTemplate> getHouseholdFilterTemplates() {
+        return filterTemplateRepository.getByTableName("households");
+    }
+
+    public CriteriaFilterTemplate findFilterTemplateById(Long templateId) {
+        return filterTemplateRepository.findById(templateId).orElse(null);
+    }
+
+    public void saveCriteriaFilter(CriteriaFilter filter) {
+        criteriaFilterRepository.save(filter);
+    }
+
+    public List<FilterTemplateListOption> getFilterTemplateListOptions(Long templateId) {
+        return filterTemplateListOptionRepository.findByTemplateId(templateId);
+    }
+
+    public List<CriteriaFilterView> getFilterViewsByCriterionId(Long criterionId) {
+        return criteriaFilterViewRepository.findByCriterionId(criterionId);
+    }
+
+    public CriteriaFilter findCriteriaFilterById(Long filter, Long criterionId) {
+        return criteriaFilterRepository.findByIdAndCriterionId(filter, criterionId);
+    }
+
+    public void deleteCriteriaFilter(CriteriaFilter filter) {
+        criteriaFilterRepository.delete(filter);
+    }
+
+    public void compileFilterQuery(Criterion criterion) {
+        // TODO Compile query in the database
+
+    }
+
+    public long getCriterionFilterCount(Criterion criterion) {
+        return criteriaFilterRepository.countByCriterionId(criterion.getId());
     }
 }

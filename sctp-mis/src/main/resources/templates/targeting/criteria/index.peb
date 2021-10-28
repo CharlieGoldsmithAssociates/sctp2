@@ -1,54 +1,75 @@
-    {% extends "base" %}
+    {% extends "targeting/criteria/base" %}
 
     {% block contextMenu %}
-    <div class="container context-nav-container">
-        <div class="buttons is-right">
-            <a href="{{ href('criteria/new') }}" class="button is-primary">Add New</a>
-        </div>
-    </div>
+        {% set canModify = hasRole('ADMINISTRATOR') %}
+        {# @pebvariable name="canModify" type="java.lang.Boolean" #}
+        {% if canModify %}
+            <div class="container context-nav-container">
+                <div class="buttons is-right">
+                    <a href="{{ href('criteria/new') }}" class="button is-primary">Create New</a>
+                </div>
+            </div>
+        {% endif %}
     {% endblock %}
 
     {% block content %}
-    <div class="columns">
-        <div class="column">
-            <div class="card" style="border-radius: 0px">
-                <header class="card-header">
-                    <p class="card-header-title">Targeting Criteria</p>
-                </header>
-                <div class="card-content">
-                    <div class="content">
-                        <table class="table is-narrow is-striped is-hoverable">
-                            <thead>
-                            <tr>
-                                <th>Criteria Name</th>
-                                <th>Formula</th>
-                                <th>Active</th>
-                                <th>Options</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                                {# @pebvariable name="criteria" type="org.cga.sctp.mis.targeting.Criteria" #}
-                                {% for criterion in criteria %}
-                                <tr>
-                                    <td>{{ criterion.name | escape }}</td>
-                                    <td>{{ criterion.formula }}</td>
-                                    <td style="width: 10%">{{ criterion.active }}</td>
-                                    <td style="width: 10%">
-                                        <div style="z-index: 9999999" class="navbar-item has-dropdown is-hoverable">
-                                            <a class="navbar-link">Options</a>
-                                            <div class="navbar-dropdown">
-                                                <a class="navbar-item">Edit</a>
-                                            </div>
+    <div class="container">
+        <div class="card no-overlap">
+        <header class="card-header">
+            <p class="card-header-title">Targeting Criteria</p>
+        </header>
+        <div class="card-content">
+            {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+            <div class="content">
+                <table class="table dataTable is-narrow is-striped is-hoverable">
+                    <thead>
+                    <tr>
+                        <th>Criteria Name</th>
+                        <th>Number of Filters</th>
+                        <th>Created By</th>
+                        <th>Created On</th>
+                        <th>Active</th>
+                        <th data-sortable="false" width="5%">Options</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        {% for criterion in criteria %}
+                        {# @pebvariable name="criterion" type="org.cga.sctp.targeting.criteria.CriterionView" #}
+                        <tr>
+                            <td>{{ criterion.name }}</td>
+                            <td>{{ criterion.filters | numberformat("#,###") }}</td>
+                            <td>{{ criterion.creatorName }}</td>
+                            <td>{{ printDate(criterion.createdAt) }}</td>
+                            <td>{{ yesOrNo(criterion.active) }}</td>
+                            <td>
+                                <div class="dropdown is-hoverable is-right">
+                                    <div class="dropdown-trigger">
+                                        <button class="button button is-info is-inverted is-options"
+                                                aria-haspopup="true" aria-controls="ddm{{ criterion.id }}">
+                                            <span>Options</span>
+                                            <span class="icon is-small">
+                                                  <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <div class="dropdown-menu" id="ddm{{ criterion.id }}" role="menu">
+                                        <div class="dropdown-content">
+                                            {% if canModify %}
+                                            <a href="/criteria/edit?id={{ criterion.id }}"
+                                               class="dropdown-item">Edit</a>
+                                            {% endif %}
+                                            <a href="/criteria/{{ criterion.id }}/filters"
+                                               class="dropdown-item">Filters</a>
                                         </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+    </div>
     {% endblock %}
-

@@ -67,7 +67,7 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes {
         Error
     }
 
-    public UbrHouseholdImport(){
+    public UbrHouseholdImport() {
         archived = false;
     }
 
@@ -99,6 +99,9 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes {
     @Parsed(field = "pmt_score")
     private BigDecimal pmtScore;
 
+    @Parsed(field = "dependency_ratio")
+    private BigDecimal dependencyRatio;
+
     @Parsed(field = "wealth_quintile")
     @Convert(converter = WealthQuintileParameterValueConverter.class)
     @EnumOptions(selectors = {EnumSelector.CUSTOM_FIELD}, customElement = "title")
@@ -111,7 +114,7 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes {
 
     @Validate
     @Parsed(field = "registration_date", applyDefaultConversion = false)
-    @com.univocity.parsers.annotations.Convert(conversionClass = DateConversion.class, args = "MM/dd/yyyy")
+    @com.univocity.parsers.annotations.Convert(conversionClass = DateConversion.class, args = {"MM/dd/yyyy", "yyyy/MM/dd", "yyyy-MM-dd", "MM-dd-yyyy"})
     protected Date registrationDate;
 
     @Parsed(field = "marital_status_code")
@@ -120,13 +123,13 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes {
     @Convert(converter = MaritalStatusParameterValueConverter.class)
     private MaritalStatus maritalStatus;
 
-    @Parsed(field = "disability_code")
+    @Parsed(field = "disability_code", defaultNullRead = "NotDisabled")
     @Validate
     @EnumOptions(selectors = EnumSelector.CUSTOM_FIELD, customElement = "code")
     @Convert(converter = DisabilityParameterValueConverter.class)
     private Disability disability;
 
-    @Parsed(field = "chronic_illness_code")
+    @Parsed(field = "chronic_illness_code", defaultNullRead = "None")
     @Validate
     @EnumOptions(selectors = EnumSelector.CUSTOM_FIELD, customElement = "code")
     @Convert(converter = ChronicIllnessParameterValueConverter.class)
@@ -162,7 +165,6 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes {
 
     @Parsed(field = "village_name")
     protected String villageName;
-
 
 
     @Validate(validators = LocationValidators.LatitudeValidator.class)
@@ -209,7 +211,7 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes {
     @Convert(converter = GenderParameterValueConverter.class)
     protected Gender gender;
 
-    @Parsed(field = "highest_education_level")
+    @Parsed(field = "highest_education_level", defaultNullRead = "None")
     @Validate
     @EnumOptions
     @Convert(converter = EducationLevelParameterValueConverter.class)
@@ -227,7 +229,7 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes {
 
     @Validate
     @Parsed(field = "date_of_birth")
-    @com.univocity.parsers.annotations.Convert(conversionClass = DateConversion.class, args = "MM/dd/yyyy")
+    @com.univocity.parsers.annotations.Convert(conversionClass = DateConversion.class, args = {"MM/dd/yyyy", "yyyy/MM/dd", "yyyy-MM-dd", "MM-dd-yyyy"})
     protected Date dateOfBirth;
 
     @Parsed(field = "relationship_code")
@@ -242,8 +244,8 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes {
     @Validate(nullable = true, matches = "^[A-Z0-9]{8}$")
     protected String nationalId;
 
-    @Validate
-    @Parsed(field = "household_member_id")
+    @Validate(nullable = true)
+    @Parsed(field = "household_member_id", defaultNullRead = "null")
     protected Long householdMemberId;
 
     @Parsed(field = "member_mobile_number")
@@ -259,7 +261,7 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes {
     protected HouseOwnership houseOwnership;
 
     @Parsed(field = "house_type")
-    @Validate
+    @Validate(nullable = true)
     @EnumOptions
     @Convert(converter = HouseTypeParameterValueConverter.class)
     protected HouseType houseType;
@@ -324,6 +326,14 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes {
     @Parsed(field = "livelihood_sources")
     @com.univocity.parsers.annotations.Convert(conversionClass = CollectionConversion.class, args = "Set")
     private Set<String> livelihoodSources;
+
+    public BigDecimal getDependencyRatio() {
+        return dependencyRatio;
+    }
+
+    public void setDependencyRatio(BigDecimal dependencyRatio) {
+        this.dependencyRatio = dependencyRatio;
+    }
 
     public boolean isArchived() {
         return archived;

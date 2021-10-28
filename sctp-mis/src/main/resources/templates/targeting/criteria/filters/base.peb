@@ -1,0 +1,6 @@
+{% extends "base" %}
+{% import "utils/form" %}
+
+{% block title %}
+    {{ parent() }} | {{ criterion.name }} | Filters
+{% endblock %}

@@ -1,70 +1,67 @@
-    {% extends "base" %}
+    {% extends "targeting/criteria/base" %}
 
-        {% block contextMenu %}
-        <div class="container context-nav-container">
-            <div class="buttons is-left">
-                <a href="{{ href('/targeting/criteria') }}" class="button is-danger">
-                    <span class="icon-text">
-                        <span class="icon">
-                            <i class="fa fa-chevron-left"></i>
-                        </span>
-                        <span>Back</span>
+    {% block contextMenu %}
+    <div class="container context-nav-container">
+        <div class="buttons is-left">
+            <a href="/criteria" class="button is-danger">
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fa fa-chevron-left"></i>
                     </span>
-                </a>
-            </div>
+                    <span>Back</span>
+                </span>
+            </a>
         </div>
-        {% endblock %}
+    </div>
+    {% endblock %}
 
     {% block content %}
     <div class="container">
         <div class="card no-overlap">
             <header class="card-header">
-                <p class="card-header-title">New Targeting Criteria</p>
+                <p class="card-header-title">New Targeting Criterion</p>
             </header>
             <div class="card-content">
-                <div class="content">
+                {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+                <form action="/criteria"
+                      method="post"
+                      enctype="application/x-www-form-urlencoded">
+                    {{ csrf(_csrf) }}
+
                     <div class="field is-horizontal">
                         <div class="field-label is-normal">
-                            <label class="label">Targeting Criteria Name</label>
+                            <label class="label is-required">Targeting Criterion Name</label>
                         </div>
                         <div class="field-body">
                             <div class="field">
                                 <div class="control">
-                                    <input type="text" minlength="1" maxlength="100" class="input" />
+                                        {{ textField('name', form.name, 1, 100, true, null) }}
                                 </div>
+                                {{ printFieldErrors(getFieldErrors('form', 'name')) }}
                             </div>
                         </div>
                     </div>
 
                     <div class="field is-horizontal">
                         <div class="field-label is-normal">
-                            <label class="label">Enter Formula</label>
+                            <label class="label is-required">Active</label>
                         </div>
                         <div class="field-body">
                             <div class="field">
                                 <div class="control">
-                                    <input type="text" minlength="1" maxlength="100" class="input"
-                                           placeholder="Formula"/>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="field is-horizontal">
-                        <div class="field-label">
-                            <!-- Left empty for spacing -->
-                        </div>
-                        <div class="field-body">
-                            <div class="field">
-                                <div class="control">
-                                    <div class="buttons is-right">
-                                        <button class="button is-primary">Save</button>
+                                    <div class="select is-multiple is-fullwidth">
+                                       {{ selectField('active', booleans, form.active, true) }}
                                     </div>
                                 </div>
+                                {{ printFieldErrors(getFieldErrors('form', 'active')) }}
                             </div>
                         </div>
                     </div>
-                </div>
+
+                    <div class="buttons is-right">
+                        <button class="button is-primary">Save</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

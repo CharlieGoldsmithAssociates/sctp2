@@ -1,0 +1,250 @@
+    {% extends "targeting/criteria/base" %}
+
+    {% block contextMenu %}
+    <div class="container context-nav-container">
+        <div class="buttons is-left">
+            <a href="/criteria/{{ criterion.id }}/filters" class="button is-danger">
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fa fa-chevron-left"></i>
+                    </span>
+                    <span>Back</span>
+                </span>
+            </a>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block content %}
+    <div class="container">
+        <div class="card no-overlap mb-6">
+            <header class="card-header">
+                <p class="card-header-title">Current Filters</p>
+                <a class="card-header-icon" 
+                    onclick="filter_container.style.display = filter_container.style.display === 'none' ? 'block' : 'none'; replaceClass(icon, 'fa-angle-down', 'fa-angle-up')" 
+                    aria-label="more options">
+                  <span class="icon"><i id="icon" data-class="fa-angle-down" class="fas fa-angle-down" aria-hidden="true"></i></span>
+                </a>
+            </header>
+            <div class="card-content" id="filter_container">
+                <div class="content" style="max-height: 300px; overflow-y: scroll;">
+                    {% if isEmpty(filters) %}
+                        <h6 class="has-text-grey">There are no filters yet</h6>
+                    {% else %}
+                        {# @pebvariable name="filter" type="org.cga.sctp.targeting.criteria.CriteriaFilterView" #}
+                        <article class="panel is-info is-flat" style="border: 1px solid #dedede !important;">
+                            {% set first = true %}
+                            {% for filter in filters %}
+                                <div class="panel-block">
+                                    <span>
+                                        {% if first %}
+                                            {% set first = false %}
+                                            Select
+                                            {% else %}
+                                            <i>{{ filter.conjunction | upper}}</i> select
+                                        {% endif %}
+                                        <span style="font-weight: 600;">{{ filter.category == 'individuals' ? 'households with ' : '' }}{{ filter.category }}</span> {{ filter.label }}: <u>{{ filter.selectedValue }}</u>
+                                    </span>
+                                </div>
+                                {% set first = false %}
+                            {% endfor %}
+                        </article>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="card no-overlap">
+            <header class="card-header">
+                <p class="card-header-title">{{ criterion.name }} | And New Filter</p>
+            </header>
+            <div class="card-content">
+                {{ showMessages(successMessage, message('targeting.criteria.filters.info'), dangerMessage, warningMessage) }}
+                <div class="columns">
+                    <div class="column">
+                        <div class="field">
+                            <label class="label">What is this filter targeting?</label>
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                    <select class="input" id="templateCategorySelector">
+                                        <option value="household" data-label="Target households...">Targeting households</option>
+                                        <option value="individual" data-label="Target individuals...">Targeting individuals</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <form action="/criteria/{{ criterion.id }}/filters"
+                      method="post"
+                      enctype="application/x-www-form-urlencoded">
+                    {{ csrf(_csrf) }}
+
+                    <div class="columns">
+                        <div class="column is-one-fifth">
+                            <div class="field">
+                                <label class="label is-required">Conjunction</label>
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                        {{ selectField('conjunction', conjunctions, form.conjunction, true) }}
+                                    </div>
+                                </div>
+                                {{ printFieldErrors(getFieldErrors('form', 'conjunction')) }}
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="field">
+                                <label id="targetUnitLabel" class="label"></label>
+                                <div class="control">
+                                    <div class="is-fullwidth">
+                                        {{ selectField('templateId', templates, form.templateId, true) }}
+                                    </div>
+                                </div>
+                                {{ printFieldErrors(getFieldErrors('form', 'templateId')) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="filter_value" class="columns"></div>
+
+                    <div class="buttons is-right">
+                        <button id="saveButton" class="button is-primary">Save Filter</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block footerScripts %}
+    <script>
+        (function(){
+            window.fieldTemplateSelect = new Selectr('#templateId');
+            window.onInputHook = function(){
+                this.value = this.value.slice(0, this.dataset.maxlength)
+                saveButton.disabled = this.value.trim().length == 0;
+            };
+            fieldTemplateSelect.on('selectr.change', function(option) {
+                
+                if(option){
+                    var field_type = option.getAttribute('data-type');
+                    var template = templateFromHtml(query('#' + field_type).innerHTML.trim());
+
+                    filter_value.replaceChildren(template);
+                    switch(field_type){
+                        case "Decimal":
+                            decimal.oninput = onInputHook;
+                        break;
+                        case "Number":
+                            number.oninput = onInputHook;
+                        break;
+                        case "ListSingle":
+                            var cb = function(promise){
+                                promise.json().then(function(items){
+                                    selector.replaceChildren();
+                                    saveButton.disabled = items.length == 0;
+                                    if(items.length){
+                                        items.forEach(function(opt){ selector.options.add(new Option(opt.extra, opt.text)); });
+                                    }
+                                });
+                            };
+                            getOptions('/criteria/{{ criterion.id }}/filters/get-template-options?template=' + option.value, cb, onLoadFailed);
+                            //var values = JSON.parse(option.getAttribute('data-values'));
+                            // values.options.forEach(function(opt){ selector.options.add(new Option(opt.text, opt.value)); });
+                        break;
+                    }
+                }
+            });
+            window.getOptions = function(url, onSuccess, onError){
+                var params = { method: 'GET' };
+                try {
+                    fetch(url, params)
+                    .then(r => onSuccess(r))
+                    .catch(e => onError(e));
+                }catch(e){
+                    onError(e);
+                }
+            };
+            window.sortTemplates = function(json){
+                var filters = [];
+                json.forEach(function(item){
+                    filters.push({
+                        'value': item.id,
+                        'text': item.text,
+                        'data-category': item.extra.category,
+                        'data-type': item.extra.type,
+                        'data-hint': item.extra.hint,
+                        'data-values': item.extra.values
+                    });
+                });
+                return filters;
+            };
+            window.onTemplatesLoaded = function(promise){
+                promise.json().then(function(items){
+                    filter_value.replaceChildren();
+                    fieldTemplateSelect.removeAll();
+                    if(items.length){
+                        fieldTemplateSelect.add(sortTemplates(items));
+                    }
+                });
+            };
+            window.onLoadFailed = function(e){
+                console.log(e);
+                alert('There was an error getting filter templates. Try reloading the page');
+            };
+            templateCategorySelector.onchange = function(){
+                saveButton.disabled = true;
+                targetUnitLabel.innerText = this.options[this.selectedIndex].getAttribute('data-label');
+                getOptions('/criteria/{{ criterion.id }}/filters/get-filter-parameters?category=' + this.options[this.selectedIndex].value, onTemplatesLoaded, onLoadFailed);
+            };
+            templateCategorySelector.fireEvent('change');
+        })();
+    </script>
+    <script id="ListSingle" type="text/template">
+        <div class="column">
+            <div class="field">
+                <div class="control">
+                    <div class="select is-fullwidth">
+                        <select class="input" id="selector" required="required" name="value"></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
+    <script id="Number" type="text/template">
+        <div class="column">
+            <div class="field">
+                <div class="control">
+                    <input class="input"
+                           id="number"
+                           type="number"
+                           placeholder="Type number"
+                           pattern="^[0-9]{1,20}$"
+                           name="value" autocomplete="off"
+                           minlength="1"
+                           data-maxlength="20"
+                           oninput="this.value=this.value.slice(0,this.dataset.maxlength)"
+                           required/>
+                </div>
+            </div>
+        </div>
+    </script>
+    <script id="Decimal" type="text/template">
+        <div class="column">
+            <div class="field">
+                <div class="control">
+                    <input class="input"
+                           id="decimal"
+                           type="number"
+                           placeholder="Enter a decimal number"
+                           pattern="^\d{1,12}(?:\.\d{1,10})?$"
+                           data-maxlength="22"
+                           step="any"
+                           oninput="this.value=this.value.slice(0,this.dataset.maxlength)"
+                           name="value" autocomplete="off" required/>
+                </div>
+            </div>
+        </div>
+    </script>
+    {% endblock %}

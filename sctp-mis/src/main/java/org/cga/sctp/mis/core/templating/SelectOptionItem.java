@@ -44,6 +44,10 @@ public class SelectOptionItem {
         this.extra = extra;
     }
 
+    public SelectOptionItem(Long id, String text) {
+        this(id, text, null);
+    }
+
     public SelectOptionItem() {
     }
 

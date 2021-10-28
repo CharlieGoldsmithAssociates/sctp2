@@ -66,18 +66,6 @@ For more Spring Boot configuration reference, see:
 
 - [Spring Boot Reference Documentation](https://docs.spring.io/spring-boot/docs/2.4.5/reference/html/index.html)
 - [Common Application properties](https://docs.spring.io/spring-boot/docs/2.4.5/reference/html/appendix-application-properties.html#common-application-properties)
-   
-
-### Updating Version
-
-Run the following Maven command to update the parent's or core's version. 
-
-Must be inside the respective/appropriate directory 
-
-```shell
-mvn versions:set -DnewVersion=<new-version> -DprocessAllModules
-mvn versions:commit -DprocessAllModules
-```
 
 # License
 

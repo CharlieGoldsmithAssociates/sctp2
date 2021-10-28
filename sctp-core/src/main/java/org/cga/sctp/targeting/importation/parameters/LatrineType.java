@@ -36,8 +36,8 @@ public enum LatrineType implements UbrParameterValue {
     NoToilet(1, "No Toilet"),
     FlushToilet(2, "Flush Toilet"),
     VipLatrine(3, "VIP Latrine"),
-    LatrineWithRoot(4, "Latrine W/Roof"),
-    LatrineWithoutRoot(5, "Latrine W/O Roof"),
+    LatrineWithRoof(4, "Latrine W/Roof"),
+    LatrineWithoutRoof(5, "Latrine W/O Roof"),
     OtherToilet(6, "Other Toilet");
 
     public final int code;
