@@ -17,7 +17,7 @@ All database migrations are handled in this component
 Flyway `out of order` option is on by default. Use the following naming convention:
 `Vmajor.minor.patch.timestampMilliseconds__Description_of_migration.sql`. The unix timestamp value can be obtained from running
 the following in *jshell* console: ``System.currentTimeMillis()``
-or by using this [HTML file](tools/dbMigrationTimestampGenerator.html).
+or by using this [HTML file](../tools/dbMigrationTimestampGenerator.html).
 
 Using timestamps prevents potential merge conflicts.
 
