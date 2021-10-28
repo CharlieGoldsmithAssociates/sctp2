@@ -77,7 +77,7 @@ public class Household extends CommonHouseholdAttributes {
     @Convert(converter = CbtStatus.Converter.class)
     private CbtStatus cbtStatus;
 
-
+    private BigDecimal dependencyRatio;
 
     @Convert(converter = FloorTypeParameterValueConverter.class)
     private FloorType floorType;
@@ -255,30 +255,38 @@ public class Household extends CommonHouseholdAttributes {
         this.receivesMonetaryAssistance = receivesMonetaryAssistance;
     }
 
+    public BigDecimal getDependencyRatio() {
+        return dependencyRatio;
+    }
+
+    public void setDependencyRatio(BigDecimal dependencyRatio) {
+        this.dependencyRatio = dependencyRatio;
+    }
+
     /*public Boolean getSignedTargetingForm() {
-        return signedTargetingForm;
-    }
+            return signedTargetingForm;
+        }
 
-    public void setSignedTargetingForm(Boolean signedTargetingForm) {
-        this.signedTargetingForm = signedTargetingForm;
-    }
+        public void setSignedTargetingForm(Boolean signedTargetingForm) {
+            this.signedTargetingForm = signedTargetingForm;
+        }
 
-    public Boolean getThumbprintOnTargetingForm() {
-        return thumbprintOnTargetingForm;
-    }
+        public Boolean getThumbprintOnTargetingForm() {
+            return thumbprintOnTargetingForm;
+        }
 
-    public void setThumbprintOnTargetingForm(Boolean thumbprintOnTargetingForm) {
-        this.thumbprintOnTargetingForm = thumbprintOnTargetingForm;
-    }
+        public void setThumbprintOnTargetingForm(Boolean thumbprintOnTargetingForm) {
+            this.thumbprintOnTargetingForm = thumbprintOnTargetingForm;
+        }
 
-    public LocalDate getDateCollected() {
-        return dateCollected;
-    }
+        public LocalDate getDateCollected() {
+            return dateCollected;
+        }
 
-    public void setDateCollected(LocalDate dateCollected) {
-        this.dateCollected = dateCollected;
-    }
-*/
+        public void setDateCollected(LocalDate dateCollected) {
+            this.dateCollected = dateCollected;
+        }
+    */
     public Integer getTaCode() {
         return taCode;
     }

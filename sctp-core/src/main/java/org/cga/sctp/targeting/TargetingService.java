@@ -162,6 +162,7 @@ public class TargetingService extends TransactionalService {
 
     public void compileFilterQuery(Criterion criterion) {
         // TODO Compile query in the database
+
     }
 
     public long getCriterionFilterCount(Criterion criterion) {

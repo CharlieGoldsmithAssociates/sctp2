@@ -99,6 +99,9 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes {
     @Parsed(field = "pmt_score")
     private BigDecimal pmtScore;
 
+    @Parsed(field = "dependency_ratio")
+    private BigDecimal dependencyRatio;
+
     @Parsed(field = "wealth_quintile")
     @Convert(converter = WealthQuintileParameterValueConverter.class)
     @EnumOptions(selectors = {EnumSelector.CUSTOM_FIELD}, customElement = "title")
@@ -323,6 +326,14 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes {
     @Parsed(field = "livelihood_sources")
     @com.univocity.parsers.annotations.Convert(conversionClass = CollectionConversion.class, args = "Set")
     private Set<String> livelihoodSources;
+
+    public BigDecimal getDependencyRatio() {
+        return dependencyRatio;
+    }
+
+    public void setDependencyRatio(BigDecimal dependencyRatio) {
+        this.dependencyRatio = dependencyRatio;
+    }
 
     public boolean isArchived() {
         return archived;
