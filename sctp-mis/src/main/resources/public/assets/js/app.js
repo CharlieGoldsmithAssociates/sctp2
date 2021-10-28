@@ -9,6 +9,15 @@
             menu.classList.toggle('is-active');
         });
     }
+    window.replaceClass = function(el, a, b){
+      if(el.dataset.class == a){
+        el.dataset.class = b;
+      }else{
+        el.dataset.class = a;
+      }
+      el.classList.remove(a, b);
+      el.classList.add(el.dataset.class);
+    }
     window.setupDataTables = function(...elements){
         var _results = [];
         var options = {perPage: 50, perPageSelect: [5, 10, 20, 25, 50, 100]};

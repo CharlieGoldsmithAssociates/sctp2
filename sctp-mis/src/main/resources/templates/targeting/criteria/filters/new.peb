@@ -17,6 +17,43 @@
 
     {% block content %}
     <div class="container">
+        <div class="card no-overlap mb-6">
+            <header class="card-header">
+                <p class="card-header-title">Current Filters</p>
+                <a class="card-header-icon" 
+                    onclick="filter_container.style.display = filter_container.style.display === 'none' ? 'block' : 'none'; replaceClass(icon, 'fa-angle-down', 'fa-angle-up')" 
+                    aria-label="more options">
+                  <span class="icon"><i id="icon" data-class="fa-angle-down" class="fas fa-angle-down" aria-hidden="true"></i></span>
+                </a>
+            </header>
+            <div class="card-content" id="filter_container">
+                <div class="content" style="max-height: 300px; overflow-y: scroll;">
+                    {% if isEmpty(filters) %}
+                        <h6 class="has-text-grey">There are no filters yet</h6>
+                    {% else %}
+                        {# @pebvariable name="filter" type="org.cga.sctp.targeting.criteria.CriteriaFilterView" #}
+                        <article class="panel is-info is-flat" style="border: 1px solid #dedede !important;">
+                            {% set first = true %}
+                            {% for filter in filters %}
+                                <div class="panel-block">
+                                    <span>
+                                        {% if first %}
+                                            {% set first = false %}
+                                            Select
+                                            {% else %}
+                                            <i>{{ filter.conjunction | upper}}</i> select
+                                        {% endif %}
+                                        <span style="font-weight: 600;">{{ filter.category == 'individuals' ? 'households with ' : '' }}{{ filter.category }}</span> {{ filter.label }}: <u>{{ filter.selectedValue }}</u>
+                                    </span>
+                                </div>
+                                {% set first = false %}
+                            {% endfor %}
+                        </article>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
         <div class="card no-overlap">
             <header class="card-header">
                 <p class="card-header-title">{{ criterion.name }} | And New Filter</p>

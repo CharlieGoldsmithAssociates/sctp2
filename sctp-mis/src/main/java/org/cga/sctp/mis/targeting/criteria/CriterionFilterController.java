@@ -97,8 +97,10 @@ public class CriterionFilterController extends BaseController {
         if (criterion == null) {
             return redirectToCriteriaList();
         }
+        List<CriteriaFilterView> filterList = targetingService.getFilterViewsByCriterionId(criterion.getId());
         return view("targeting/criteria/filters/new")
                 .addObject("criterion", criterion)
+                .addObject("filters", filterList)
                 .addObject("conjunctions", CriteriaFilterObject.Conjunction.VALUES)
                 .addObject("templates", Collections.emptyList());
     }
