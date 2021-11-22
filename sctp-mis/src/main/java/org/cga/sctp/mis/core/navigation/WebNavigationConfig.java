@@ -30,23 +30,33 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting.criteria;
+package org.cga.sctp.mis.core.navigation;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.util.List;
+@Configuration
+public class WebNavigationConfig implements WebMvcConfigurer {
 
-@Repository
-public interface CriteriaFilterRepository extends JpaRepository<CriteriaFilter, Long> {
-    List<CriteriaFilter> findByCriterionId(Long criterionId);
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(breadcrumbHandlerInterceptor());
+    }
 
-    CriteriaFilter findByIdAndCriterionId(Long id, Long criterionId);
+    /*@Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+        resolvers.add(breadcrumbChainArgumentResolver());
+    }*/
 
-    long countByCriterionId(Long id);
+    /*@Bean
+    ParentBreadcrumbArgumentResolver breadcrumbChainArgumentResolver() {
+        return new ParentBreadcrumbArgumentResolver();
+    }*/
 
-    @Query(nativeQuery = true, value = "{CALL getFilterValuesForCriterion(:criterion_id)}")
-    List<CriteriaFilterInfo> getFilterValuesForCriterion(@Param("criterion_id") Long criterionId);
+    @Bean
+    BreadcrumbHandlerInterceptor breadcrumbHandlerInterceptor() {
+        return new BreadcrumbHandlerInterceptor();
+    }
 }

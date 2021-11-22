@@ -30,23 +30,18 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting.criteria;
+package org.cga.sctp.user;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+import org.springframework.security.access.annotation.Secured;
 
-import java.util.List;
+import java.lang.annotation.*;
 
-@Repository
-public interface CriteriaFilterRepository extends JpaRepository<CriteriaFilter, Long> {
-    List<CriteriaFilter> findByCriterionId(Long criterionId);
-
-    CriteriaFilter findByIdAndCriterionId(Long id, Long criterionId);
-
-    long countByCriterionId(Long id);
-
-    @Query(nativeQuery = true, value = "{CALL getFilterValuesForCriterion(:criterion_id)}")
-    List<CriteriaFilterInfo> getFilterValuesForCriterion(@Param("criterion_id") Long criterionId);
+/**
+ * Annotation to mark a class or method for administrator and standard user access only
+ */
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD})
+@Secured({RoleConstants.ROLE_ADMINISTRATOR, RoleConstants.ROLE_STANDARD})
+public @interface AdminAndStandardAccessOnly {
 }

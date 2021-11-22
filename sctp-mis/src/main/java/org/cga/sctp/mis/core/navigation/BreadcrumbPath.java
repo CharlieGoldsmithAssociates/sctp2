@@ -30,23 +30,26 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting.criteria;
+package org.cga.sctp.mis.core.navigation;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+import java.lang.annotation.*;
 
-import java.util.List;
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD})
+public @interface BreadcrumbPath {
+    /**
+     * @return The link to the controller
+     */
+    String link();
 
-@Repository
-public interface CriteriaFilterRepository extends JpaRepository<CriteriaFilter, Long> {
-    List<CriteriaFilter> findByCriterionId(Long criterionId);
+    /**
+     * @return The title to eb displayed
+     */
+    String title();
 
-    CriteriaFilter findByIdAndCriterionId(Long id, Long criterionId);
-
-    long countByCriterionId(Long id);
-
-    @Query(nativeQuery = true, value = "{CALL getFilterValuesForCriterion(:criterion_id)}")
-    List<CriteriaFilterInfo> getFilterValuesForCriterion(@Param("criterion_id") Long criterionId);
+    /**
+     * @return Indicates whether this link can be navigated to
+     */
+    boolean navigable() default false;
 }

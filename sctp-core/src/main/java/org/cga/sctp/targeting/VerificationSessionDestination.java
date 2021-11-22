@@ -30,23 +30,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting.criteria;
+package org.cga.sctp.targeting;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
-
-import java.util.List;
-
-@Repository
-public interface CriteriaFilterRepository extends JpaRepository<CriteriaFilter, Long> {
-    List<CriteriaFilter> findByCriterionId(Long criterionId);
-
-    CriteriaFilter findByIdAndCriterionId(Long id, Long criterionId);
-
-    long countByCriterionId(Long id);
-
-    @Query(nativeQuery = true, value = "{CALL getFilterValuesForCriterion(:criterion_id)}")
-    List<CriteriaFilterInfo> getFilterValuesForCriterion(@Param("criterion_id") Long criterionId);
+public enum VerificationSessionDestination {
+    enrolment,
+    targeting
 }

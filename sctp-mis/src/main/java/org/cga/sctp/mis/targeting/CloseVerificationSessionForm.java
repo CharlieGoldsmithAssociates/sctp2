@@ -30,23 +30,33 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting.criteria;
+package org.cga.sctp.mis.targeting;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+import org.cga.sctp.targeting.VerificationSessionDestination;
 
-import java.util.List;
+import javax.validation.constraints.NotNull;
 
-@Repository
-public interface CriteriaFilterRepository extends JpaRepository<CriteriaFilter, Long> {
-    List<CriteriaFilter> findByCriterionId(Long criterionId);
+public class CloseVerificationSessionForm {
 
-    CriteriaFilter findByIdAndCriterionId(Long id, Long criterionId);
+    @NotNull(message = "Session id is required")
+    private Long id;
 
-    long countByCriterionId(Long id);
+    @NotNull(message = "Destination is required")
+    private VerificationSessionDestination destination;
 
-    @Query(nativeQuery = true, value = "{CALL getFilterValuesForCriterion(:criterion_id)}")
-    List<CriteriaFilterInfo> getFilterValuesForCriterion(@Param("criterion_id") Long criterionId);
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public VerificationSessionDestination getDestination() {
+        return destination;
+    }
+
+    public void setDestination(VerificationSessionDestination destination) {
+        this.destination = destination;
+    }
 }

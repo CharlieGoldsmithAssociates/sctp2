@@ -30,43 +30,40 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting.criteria;
+package org.cga.sctp.mis.core.navigation;
 
+import org.springframework.core.MethodParameter;
+import org.springframework.lang.NonNull;
+import org.springframework.web.bind.support.WebDataBinderFactory;
+import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.method.support.ModelAndViewContainer;
 
-import org.hibernate.annotations.Immutable;
+import javax.servlet.http.HttpServletRequest;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+class ParentBreadcrumbArgumentResolver implements HandlerMethodArgumentResolver {
+    private static final String PARENT_BREADCRUMB_KEY = "parent_breadcrumb";
 
-@Entity
-@Immutable
-@Table(name = "targeting_criteria_view")
-public class CriterionView extends CriterionObject {
-    private Long filters;
-    private String creatorName;
-    private Long verifications;
-
-    public Long getFilters() {
-        return filters;
+    @Override
+    public boolean supportsParameter(@NonNull MethodParameter parameter) {
+        return parameter.getParameterType().isAssignableFrom(ParentBreadcrumbs.class);
     }
 
-    public void setFilters(Long filters) {
-        this.filters = filters;
+    ParentBreadcrumbs getParentBreadcrumbs(HttpServletRequest request) {
+        return (ParentBreadcrumbs) request.getAttribute(PARENT_BREADCRUMB_KEY);
     }
 
-    public String getCreatorName() {
-        return creatorName;
-    }
-
-    public void setCreatorName(String creatorName) {
-        this.creatorName = creatorName;
-    }
-
-    public Long getVerifications() {
-        return verifications;
-    }
-
-    public void setVerifications(Long verifications) {
-        this.verifications = verifications;
+    @Override
+    public Object resolveArgument(@NonNull MethodParameter parameter,
+                                  ModelAndViewContainer mavContainer,
+                                  @NonNull NativeWebRequest webRequest,
+                                  WebDataBinderFactory binderFactory) throws Exception {
+        HttpServletRequest request = (HttpServletRequest) webRequest;
+        ParentBreadcrumbs parentChain = getParentBreadcrumbs(request);
+        if (parentChain == null) {
+            request.setAttribute(PARENT_BREADCRUMB_KEY,
+                    parentChain = new ParentBreadcrumbs(new BreadCrumbChain(), request));
+        }
+        return parentChain;
     }
 }

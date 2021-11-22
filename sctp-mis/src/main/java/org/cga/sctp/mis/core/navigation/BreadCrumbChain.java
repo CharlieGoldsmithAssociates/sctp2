@@ -30,23 +30,29 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting.criteria;
+package org.cga.sctp.mis.core.navigation;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
-
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
-@Repository
-public interface CriteriaFilterRepository extends JpaRepository<CriteriaFilter, Long> {
-    List<CriteriaFilter> findByCriterionId(Long criterionId);
+public class BreadCrumbChain {
+    private List<Breadcrumb> breadcrumbs;
 
-    CriteriaFilter findByIdAndCriterionId(Long id, Long criterionId);
+    public List<Breadcrumb> getBreadcrumbs() {
+        if (breadcrumbs == null) {
+            return Collections.emptyList();
+        }
+        return breadcrumbs;
+    }
 
-    long countByCriterionId(Long id);
-
-    @Query(nativeQuery = true, value = "{CALL getFilterValuesForCriterion(:criterion_id)}")
-    List<CriteriaFilterInfo> getFilterValuesForCriterion(@Param("criterion_id") Long criterionId);
+    BreadCrumbChain add(Breadcrumb breadcrumb) {
+        if (breadcrumb != null) {
+            if (breadcrumbs == null) {
+                breadcrumbs = new LinkedList<>();
+            }
+            breadcrumbs.add(breadcrumb);
+        }
+        return this;
+    }
 }
