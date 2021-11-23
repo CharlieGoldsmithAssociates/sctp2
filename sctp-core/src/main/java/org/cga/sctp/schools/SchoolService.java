@@ -30,49 +30,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting;
+package org.cga.sctp.schools;
 
-import javax.persistence.AttributeConverter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-public enum CbtStatus {
-    NonRecertified(4),
-    Selected(3),
-    Ineligible(2),
-    Eligible(1),
-    Enrolled(5);
+import java.util.List;
 
-    public final int code;
-    public static final CbtStatus[] VALUES = values();
+@Service
+public class SchoolService {
 
-    CbtStatus(int code) {
-        this.code = code;
-    }
+    @Autowired
+    SchoolRepository schoolRepository;
 
-    public static CbtStatus valueOf(int code) {
-        for (CbtStatus status : VALUES) {
-            if (status.code == code) {
-                return status;
-            }
-        }
-        throw new IllegalArgumentException("Code " + code + " not found in " + CbtStatus.class.getCanonicalName());
-    }
-
-    public static class Converter implements AttributeConverter<CbtStatus, Integer> {
-
-        @Override
-        public Integer convertToDatabaseColumn(CbtStatus attribute) {
-            if (attribute == null) {
-                return null;
-            }
-            return attribute.code;
-        }
-
-        @Override
-        public CbtStatus convertToEntityAttribute(Integer dbData) {
-            if (dbData == null) {
-                return null;
-            }
-            return CbtStatus.valueOf(dbData);
-        }
+    public List<SchoolsView> getSchools(){
+        return schoolRepository.getSchools();
     }
 }

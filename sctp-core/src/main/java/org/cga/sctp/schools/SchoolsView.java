@@ -30,49 +30,73 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting;
+package org.cga.sctp.schools;
 
-import javax.persistence.AttributeConverter;
 
-public enum CbtStatus {
-    NonRecertified(4),
-    Selected(3),
-    Ineligible(2),
-    Eligible(1),
-    Enrolled(5);
+public interface SchoolsView {
 
-    public final int code;
-    public static final CbtStatus[] VALUES = values();
+    Long getId();
 
-    CbtStatus(int code) {
-        this.code = code;
-    }
+    String getName();
 
-    public static CbtStatus valueOf(int code) {
-        for (CbtStatus status : VALUES) {
-            if (status.code == code) {
-                return status;
-            }
-        }
-        throw new IllegalArgumentException("Code " + code + " not found in " + CbtStatus.class.getCanonicalName());
-    }
+    Long getCode();
 
-    public static class Converter implements AttributeConverter<CbtStatus, Integer> {
+   // @Convert(converter = EducationLevelParameterValueConverter.class)
+   //  EducationLevel getEducationLevel();
+    Long getEducationLevel();
 
-        @Override
-        public Integer convertToDatabaseColumn(CbtStatus attribute) {
-            if (attribute == null) {
-                return null;
-            }
-            return attribute.code;
-        }
+    String getEducationZone();
 
-        @Override
-        public CbtStatus convertToEntityAttribute(Integer dbData) {
-            if (dbData == null) {
-                return null;
-            }
-            return CbtStatus.valueOf(dbData);
-        }
-    }
+    String getDistrictName();
+
+//    public int getId() {
+//        return id;
+//    }
+//
+//    public void setId(int id) {
+//        this.id = id;
+//    }
+//
+//    public String getName() {
+//        return name;
+//    }
+//
+//    public void setName(String name) {
+//        this.name = name;
+//    }
+//
+//    public long getCode() {
+//        return code;
+//    }
+//
+//    public void setCode(long code) {
+//        this.code = code;
+//    }
+//
+//    public EducationLevel getEducationLevel() {
+//        return educationLevel;
+//    }
+//
+//    public void setEducationLevel(EducationLevel educationLevel) {
+//        this.educationLevel = educationLevel;
+//    }
+//
+//    public String getEducationZone() {
+//        return educationZone;
+//    }
+//
+//    public void setEducationZone(String educationZone) {
+//        this.educationZone = educationZone;
+//    }
+//
+//    public String getDistrictName() {
+//        return districtName;
+//    }
+//
+//    public void setDistrictName(String districtName) {
+//        this.districtName = districtName;
+//    }
+
+
+
 }

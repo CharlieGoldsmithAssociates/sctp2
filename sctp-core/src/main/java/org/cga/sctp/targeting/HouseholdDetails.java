@@ -32,47 +32,38 @@
 
 package org.cga.sctp.targeting;
 
-import javax.persistence.AttributeConverter;
+import java.time.LocalDateTime;
 
-public enum CbtStatus {
-    NonRecertified(4),
-    Selected(3),
-    Ineligible(2),
-    Eligible(1),
-    Enrolled(5);
+public interface HouseholdDetails {
+    public Long getHouseholdId();
 
-    public final int code;
-    public static final CbtStatus[] VALUES = values();
+    public String getTaName();
 
-    CbtStatus(int code) {
-        this.code = code;
-    }
+    public String getClusterName();
 
-    public static CbtStatus valueOf(int code) {
-        for (CbtStatus status : VALUES) {
-            if (status.code == code) {
-                return status;
-            }
-        }
-        throw new IllegalArgumentException("Code " + code + " not found in " + CbtStatus.class.getCanonicalName());
-    }
+    public String getVillageName();
 
-    public static class Converter implements AttributeConverter<CbtStatus, Integer> {
+    public String getDistrictName();
 
-        @Override
-        public Integer convertToDatabaseColumn(CbtStatus attribute) {
-            if (attribute == null) {
-                return null;
-            }
-            return attribute.code;
-        }
+    public String getHouseholdHead();
 
-        @Override
-        public CbtStatus convertToEntityAttribute(Integer dbData) {
-            if (dbData == null) {
-                return null;
-            }
-            return CbtStatus.valueOf(dbData);
-        }
-    }
+    public LocalDateTime getCreatedAt();
+
+    public String getZoneName();
+
+    public String getFormNumber();
+
+    Long getMemberCount();
+
+    Long getTotalChildren();
+
+    Long getSecondaryChildren();
+
+    Long getPrimaryChildren();
+
+    String getVillageHeadName();
+
+    Long getMlCode();
+
+
 }

@@ -32,47 +32,21 @@
 
 package org.cga.sctp.targeting;
 
-import javax.persistence.AttributeConverter;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
-public enum CbtStatus {
-    NonRecertified(4),
-    Selected(3),
-    Ineligible(2),
-    Eligible(1),
-    Enrolled(5);
+@Repository
+public interface EnrollmentHouseholdRepository extends JpaRepository<EnrollmentHousehold, Long> {
 
-    public final int code;
-    public static final CbtStatus[] VALUES = values();
+    @Query(value = "select * FROM household_enrollment WHERE session_id = :session and household_id = :household", nativeQuery = true)
+    EnrollmentHousehold findBySessionAndHousehold(@Param("session") long session,@Param("household") long household);
 
-    CbtStatus(int code) {
-        this.code = code;
-    }
+    @Query(value = "CALL getHouseholdDetails(:household)", nativeQuery = true)
+    HouseholdDetails getEnrolledHouseholdDetails(@Param("household") Long id);
 
-    public static CbtStatus valueOf(int code) {
-        for (CbtStatus status : VALUES) {
-            if (status.code == code) {
-                return status;
-            }
-        }
-        throw new IllegalArgumentException("Code " + code + " not found in " + CbtStatus.class.getCanonicalName());
-    }
 
-    public static class Converter implements AttributeConverter<CbtStatus, Integer> {
-
-        @Override
-        public Integer convertToDatabaseColumn(CbtStatus attribute) {
-            if (attribute == null) {
-                return null;
-            }
-            return attribute.code;
-        }
-
-        @Override
-        public CbtStatus convertToEntityAttribute(Integer dbData) {
-            if (dbData == null) {
-                return null;
-            }
-            return CbtStatus.valueOf(dbData);
-        }
-    }
 }
+
+

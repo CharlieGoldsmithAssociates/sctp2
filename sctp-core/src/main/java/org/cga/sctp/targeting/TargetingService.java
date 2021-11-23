@@ -83,6 +83,9 @@ public class TargetingService extends TransactionalService {
     @Autowired
     private EntityManager entityManager;
 
+    @Autowired
+    private EnrolmentSessionRepository enrolmentRepository;
+
     public void saveTargetingSession(TargetingSession targetingSession) {
         sessionRepository.save(targetingSession);
     }
@@ -112,6 +115,9 @@ public class TargetingService extends TransactionalService {
     public void closeTargetingSession(TargetingSessionView session, Long userId) {
         sessionRepository.closeSession(session.getId(), userId, LocalDateTime.now(),
                 TargetingSessionBase.SessionStatus.Closed.name());
+
+        enrolmentRepository.sendToEnrolment(session.getId(), (long) 0, userId);
+
     }
 
     public void saveTargetingCriterion(Criterion criterion) {

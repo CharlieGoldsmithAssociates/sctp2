@@ -30,49 +30,41 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting;
+package org.cga.sctp.mis.targeting;
 
-import javax.persistence.AttributeConverter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
-public enum CbtStatus {
-    NonRecertified(4),
-    Selected(3),
-    Ineligible(2),
-    Eligible(1),
-    Enrolled(5);
+import javax.annotation.PostConstruct;
+import javax.validation.constraints.NotNull;
+import java.io.File;
 
-    public final int code;
-    public static final CbtStatus[] VALUES = values();
+@Configuration
+@ConfigurationProperties("targeting")
+public class TargetingConfig {
 
-    CbtStatus(int code) {
-        this.code = code;
+    /**
+     * Directory where to save beneficiary images
+     */
+    @Value("${pictures:beneficiary-images}")
+    @NotNull(message = "Directory for saving beneficiary images is requires.")
+    private File pictures;
+
+    @PostConstruct
+    private void initialize() throws Exception {
+        if (!pictures.exists()) {
+            if (!pictures.mkdirs()) {
+                throw new Exception("Failed to create directory for storing beneficiary images.");
+            }
+        }
     }
 
-    public static CbtStatus valueOf(int code) {
-        for (CbtStatus status : VALUES) {
-            if (status.code == code) {
-                return status;
-            }
-        }
-        throw new IllegalArgumentException("Code " + code + " not found in " + CbtStatus.class.getCanonicalName());
+    public File getPictures() {
+        return pictures;
     }
 
-    public static class Converter implements AttributeConverter<CbtStatus, Integer> {
-
-        @Override
-        public Integer convertToDatabaseColumn(CbtStatus attribute) {
-            if (attribute == null) {
-                return null;
-            }
-            return attribute.code;
-        }
-
-        @Override
-        public CbtStatus convertToEntityAttribute(Integer dbData) {
-            if (dbData == null) {
-                return null;
-            }
-            return CbtStatus.valueOf(dbData);
-        }
+    public void setPictures(File pictures) {
+        this.pictures = pictures;
     }
 }

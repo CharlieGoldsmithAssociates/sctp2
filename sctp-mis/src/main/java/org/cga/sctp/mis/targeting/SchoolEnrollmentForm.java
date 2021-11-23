@@ -30,49 +30,66 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting;
+package org.cga.sctp.mis.targeting;
 
-import javax.persistence.AttributeConverter;
+public class SchoolEnrollmentForm {
+    private long householdId;
 
-public enum CbtStatus {
-    NonRecertified(4),
-    Selected(3),
-    Ineligible(2),
-    Eligible(1),
-    Enrolled(5);
+    private long individualId;
 
-    public final int code;
-    public static final CbtStatus[] VALUES = values();
+    private long schoolId;
 
-    CbtStatus(int code) {
-        this.code = code;
+    private int educationLevel;
+
+    private int grade;
+
+    private int status;
+
+    public long getHouseholdId() {
+        return householdId;
     }
 
-    public static CbtStatus valueOf(int code) {
-        for (CbtStatus status : VALUES) {
-            if (status.code == code) {
-                return status;
-            }
-        }
-        throw new IllegalArgumentException("Code " + code + " not found in " + CbtStatus.class.getCanonicalName());
+    public void setHouseholdId(long householdId) {
+        this.householdId = householdId;
     }
 
-    public static class Converter implements AttributeConverter<CbtStatus, Integer> {
+    public long getIndividualId() {
+        return individualId;
+    }
 
-        @Override
-        public Integer convertToDatabaseColumn(CbtStatus attribute) {
-            if (attribute == null) {
-                return null;
-            }
-            return attribute.code;
-        }
+    public void setIndividualId(long individualId) {
+        this.individualId = individualId;
+    }
 
-        @Override
-        public CbtStatus convertToEntityAttribute(Integer dbData) {
-            if (dbData == null) {
-                return null;
-            }
-            return CbtStatus.valueOf(dbData);
-        }
+    public long getSchoolId() {
+        return schoolId;
+    }
+
+    public void setSchoolId(long schoolId) {
+        this.schoolId = schoolId;
+    }
+
+    public int getEducationLevel() {
+        return educationLevel;
+    }
+
+    public void setEducationLevel(int educationLevel) {
+        this.educationLevel = educationLevel;
+    }
+
+    public int getGrade() {
+        return grade;
+    }
+
+    public void setGrade(int grade) {
+        this.grade = grade;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }

@@ -70,3 +70,7 @@ tus:
 # When a file has been uploaded, it will be moved here from the temporary directory.
 imports:
   staging: ./staging
+
+# Targeting related settings
+targeting:
+  pictures: ./beneficiary-images # Where to save beneficiary pictures. If the directory does not exist, it will be created.

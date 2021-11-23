@@ -32,47 +32,62 @@
 
 package org.cga.sctp.targeting;
 
-import javax.persistence.AttributeConverter;
+import javax.persistence.*;
+import java.time.LocalDateTime;
 
-public enum CbtStatus {
-    NonRecertified(4),
-    Selected(3),
-    Ineligible(2),
-    Eligible(1),
-    Enrolled(5);
+@Entity
+@Table(name = "enrolment_sessions")
+public class EnrolmentSession {
 
-    public final int code;
-    public static final CbtStatus[] VALUES = values();
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private LocalDateTime createdAt;
+    private Long createdBy;
+    private Long targetSessionId;
+    private Long verificationSessionId;
 
-    CbtStatus(int code) {
-        this.code = code;
+
+    public Long getId() {
+        return id;
     }
 
-    public static CbtStatus valueOf(int code) {
-        for (CbtStatus status : VALUES) {
-            if (status.code == code) {
-                return status;
-            }
-        }
-        throw new IllegalArgumentException("Code " + code + " not found in " + CbtStatus.class.getCanonicalName());
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public static class Converter implements AttributeConverter<CbtStatus, Integer> {
-
-        @Override
-        public Integer convertToDatabaseColumn(CbtStatus attribute) {
-            if (attribute == null) {
-                return null;
-            }
-            return attribute.code;
-        }
-
-        @Override
-        public CbtStatus convertToEntityAttribute(Integer dbData) {
-            if (dbData == null) {
-                return null;
-            }
-            return CbtStatus.valueOf(dbData);
-        }
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Long getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Long createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public Long getTargetSessionId() {
+        return targetSessionId;
+    }
+
+    public void setTargetSessionId(Long targetSessionId) {
+        this.targetSessionId = targetSessionId;
+    }
+
+    public Long getVerificationSessionId() {
+        return verificationSessionId;
+    }
+
+    public void setVerificationSessionId(Long verificationSessionId) {
+        this.verificationSessionId = verificationSessionId;
+    }
+
+
+
 }

@@ -32,47 +32,35 @@
 
 package org.cga.sctp.targeting;
 
-import javax.persistence.AttributeConverter;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.query.Procedure;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
-public enum CbtStatus {
-    NonRecertified(4),
-    Selected(3),
-    Ineligible(2),
-    Eligible(1),
-    Enrolled(5);
+@Repository
+public interface EnrolmentSessionRepository extends JpaRepository<EnrolmentSession,Long> {
+//public interface EnrolmentSessionRepository extends StoredProcedureParameter {
 
-    public final int code;
-    public static final CbtStatus[] VALUES = values();
+    @Procedure(procedureName = "sendHouseholdToEnrolment")
+    void sendToEnrolment(
+            @Param("targeting_session_id") Long targetingId,
+            @Param("verification_session_id") Long verificationId,
+            @Param("user_id") Long userId
+    );
 
-    CbtStatus(int code) {
-        this.code = code;
-    }
+    @Query(value = "CALL getEnrolledHouseholds(:sessionId, :page, :pageSize)", nativeQuery = true)
+    Slice<CbtRanking> getEnrolledHouseholds(
+            @Param("sessionId") Long id,
+            @Param("page") int page,
+            @Param("pageSize") int pageSize
+    );
 
-    public static CbtStatus valueOf(int code) {
-        for (CbtStatus status : VALUES) {
-            if (status.code == code) {
-                return status;
-            }
-        }
-        throw new IllegalArgumentException("Code " + code + " not found in " + CbtStatus.class.getCanonicalName());
-    }
+    @Modifying
+    @Query(value = "UPDATE household_enrollment SET status = 4 WHERE household_id = :id", nativeQuery = true)
+    void setEnrolledHouseholdToEnrolled(@Param("id") Long id);
 
-    public static class Converter implements AttributeConverter<CbtStatus, Integer> {
 
-        @Override
-        public Integer convertToDatabaseColumn(CbtStatus attribute) {
-            if (attribute == null) {
-                return null;
-            }
-            return attribute.code;
-        }
-
-        @Override
-        public CbtStatus convertToEntityAttribute(Integer dbData) {
-            if (dbData == null) {
-                return null;
-            }
-            return CbtStatus.valueOf(dbData);
-        }
-    }
 }

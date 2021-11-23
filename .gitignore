@@ -96,3 +96,5 @@ application-prod.properties
 application-prod.yaml
 application-dev.properties
 application-dev.yaml
+
+beneficiary-images/

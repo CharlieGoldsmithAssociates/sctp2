@@ -65,6 +65,18 @@ public class BeneficiaryService extends TransactionalService {
         return individualRepository.findByHouseholdId(householdId, pageable);
     }
 
+    public Individual getIndividual(Long individualId){
+        return individualRepository.findById(individualId).orElse(null);
+    }
+
+    public List<Individual> findSchoolChildren(Long householdId){
+        return  individualRepository.findSchoolChildren(householdId);
+    }
+
+    public List<Individual> getEligibleRecipients(Long householdId){
+        return individualRepository.getEligibleRecipients(householdId);
+    }
+
     public Household findHouseholdById(Long householdId) {
         return householdRepository.findById(householdId).orElse(null);
     }

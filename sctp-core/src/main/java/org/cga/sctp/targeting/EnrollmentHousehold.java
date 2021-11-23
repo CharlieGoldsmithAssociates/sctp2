@@ -32,47 +32,41 @@
 
 package org.cga.sctp.targeting;
 
-import javax.persistence.AttributeConverter;
+import javax.persistence.*;
 
-public enum CbtStatus {
-    NonRecertified(4),
-    Selected(3),
-    Ineligible(2),
-    Eligible(1),
-    Enrolled(5);
+@Entity
+@Table(name = "household_enrollment")
+public class EnrollmentHousehold {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+    private long sessionId;
+    private long householdId;
 
-    public final int code;
-    public static final CbtStatus[] VALUES = values();
-
-    CbtStatus(int code) {
-        this.code = code;
+    public long getId() {
+        return id;
     }
 
-    public static CbtStatus valueOf(int code) {
-        for (CbtStatus status : VALUES) {
-            if (status.code == code) {
-                return status;
-            }
-        }
-        throw new IllegalArgumentException("Code " + code + " not found in " + CbtStatus.class.getCanonicalName());
+    public void setId(long id) {
+        this.id = id;
     }
 
-    public static class Converter implements AttributeConverter<CbtStatus, Integer> {
-
-        @Override
-        public Integer convertToDatabaseColumn(CbtStatus attribute) {
-            if (attribute == null) {
-                return null;
-            }
-            return attribute.code;
-        }
-
-        @Override
-        public CbtStatus convertToEntityAttribute(Integer dbData) {
-            if (dbData == null) {
-                return null;
-            }
-            return CbtStatus.valueOf(dbData);
-        }
+    public long getSessionId() {
+        return sessionId;
     }
+
+    public void setSessionId(long sessionId) {
+        this.sessionId = sessionId;
+    }
+
+    public long getHouseholdId() {
+        return householdId;
+    }
+
+    public void setHouseholdId(long householdId) {
+        this.householdId = householdId;
+    }
+
+
+
 }
