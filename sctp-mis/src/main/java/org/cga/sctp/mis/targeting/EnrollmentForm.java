@@ -32,6 +32,7 @@
 
 package org.cga.sctp.mis.targeting;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class EnrollmentForm {
@@ -64,9 +65,10 @@ public class EnrollmentForm {
 
     private int altGender;
 
-    private int nonHouseholdMember;
+    private long nonHouseholdMember;
 
-    private long householdId;
+    @NotNull
+    private Long householdId;
 
     private int hasAlternate;
 
@@ -156,7 +158,7 @@ public class EnrollmentForm {
         this.altGender = altGender;
     }
 
-    public int getNonHouseholdMember() {
+    public Long getNonHouseholdMember() {
         return nonHouseholdMember;
     }
 

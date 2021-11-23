@@ -49,6 +49,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
@@ -67,7 +68,7 @@ import java.util.List;
 public class EnrolmentController extends SecuredBaseController {
 
     @Autowired
-    EnrollmentService enrollmentService;
+    private EnrollmentService enrollmentService;
 
     @Autowired
     private BeneficiaryService beneficiaryService;
@@ -75,7 +76,10 @@ public class EnrolmentController extends SecuredBaseController {
     @Autowired
     private SchoolService schoolService;
 
-    private String uploadPath = "D:\\user\\Pictures\\";
+    @Autowired
+    private TargetingConfig config;
+
+    // private String uploadPath = "D:\\user\\Pictures\\";
 
     @GetMapping
     public ModelAndView index() {
@@ -131,15 +135,23 @@ public class EnrolmentController extends SecuredBaseController {
                 .addObject("individuals", individuals);
     }
 
-    public void downloadFile(MultipartFile file, String fileName) throws IOException {
+   /* public void __downloadFile(MultipartFile file, String fileName) throws IOException {
         //need to put path server path
         File convertFile = new File(uploadPath + fileName);
         convertFile.createNewFile();
         FileOutputStream fout = new FileOutputStream(convertFile);
         fout.write(file.getBytes());
         fout.close();
-    }
+    }*/
 
+    private void saveBeneficiaryPicture(MultipartFile file, String fileName) throws IOException {
+        try (FileOutputStream fos = new FileOutputStream(new File(config.getPictures(), fileName))) {
+            StreamUtils.copy(file.getInputStream(), fos);
+        } catch (IOException e) {
+            LOG.error("Failure saving beneficiary image", e);
+            throw e;
+        }
+    }
 
     @RequestMapping(value = "/enroll", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Object> uploadFile(@RequestParam(required = true, value = "file") MultipartFile file,
@@ -154,11 +166,16 @@ public class EnrolmentController extends SecuredBaseController {
 
         String mainReceiverPhotoName = "main-" + enrollmentForm.getHouseholdId() + ".jpg";
         String altReceiverPhotoName = null;
-        downloadFile(file, mainReceiverPhotoName);
+
+        //downloadFile(file, mainReceiverPhotoName);
+        saveBeneficiaryPicture(file, mainReceiverPhotoName);
 
         if (enrollmentForm.getHasAlternate() != 0) {
             altReceiverPhotoName = "alt-" + enrollmentForm.getHouseholdId() + ".jpg";
-            downloadFile(alternate, altReceiverPhotoName);
+            //downloadFile(alternate, altReceiverPhotoName);
+
+            saveBeneficiaryPicture(alternate, altReceiverPhotoName);
+
             if (enrollmentForm.getNonHouseholdMember() != 0) {
                 enrollmentService.saveHouseholdAlternateRecipient(enrollmentForm.getHouseholdId(),
                         enrollmentForm.getMainReceiver(),
