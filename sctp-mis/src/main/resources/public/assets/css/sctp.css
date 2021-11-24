@@ -114,3 +114,11 @@ input[type="checkbox"].is-medium {
   box-shadow: none !important;
   border: none !important;
 }
+
+.p4p {
+  padding: 4%;
+}
+
+.obj-fit-contain {
+    object-fit: contain;
+}

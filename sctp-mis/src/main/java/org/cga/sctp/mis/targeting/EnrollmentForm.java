@@ -68,7 +68,7 @@ public class EnrollmentForm {
     private long nonHouseholdMember;
 
     @NotNull
-    private Long householdId;
+    private long householdId;
 
     private int hasAlternate;
 

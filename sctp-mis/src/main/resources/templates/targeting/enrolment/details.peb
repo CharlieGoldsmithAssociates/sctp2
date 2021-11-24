@@ -126,7 +126,7 @@
                         <div class="column is-5">
                             <div class="card-image">
                                 <figure class="image is-4by3">
-                                    <img id="main-photo" src="/assets/img/user-svg.svg" alt="Placeholder image" />
+                                    <img id="main-photo" class="p4p obj-fit-contain" src="/assets/img/user-svg.svg" alt="Placeholder image" />
                                 </figure>
                             </div>
                         </div>
@@ -251,7 +251,7 @@
                         <div class="column is-5">
                             <div class="card-image">
                                 <figure class="image is-4by3">
-                                    <img id="alt-photo" src="/assets/img/user-svg.svg" alt="Placeholder image">
+                                    <img id="alt-photo" class="p4p obj-fit-contain" src="/assets/img/user-svg.svg" alt="Placeholder image">
                                 </figure>
                             </div>
                         </div>
