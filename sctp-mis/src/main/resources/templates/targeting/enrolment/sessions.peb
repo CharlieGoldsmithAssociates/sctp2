@@ -2,11 +2,11 @@
 
     {% block contextMenu %}
     {% set useWideContainer = true %}
-    <div class="context-nav-container">
+    {# <div class="context-nav-container">
         <div class="buttons is-right">
             <a href="{{ href('enrolment/new') }}" class="button is-primary">Perform New Enrolment</a>
         </div>
-    </div>
+    </div> #}
     {% endblock %}
 
     {% block content %}

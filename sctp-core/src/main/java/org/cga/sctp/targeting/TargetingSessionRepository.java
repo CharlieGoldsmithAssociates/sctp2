@@ -42,10 +42,21 @@ import java.time.LocalDateTime;
 @Repository
 interface TargetingSessionRepository extends JpaRepository<TargetingSession, Long> {
 
-    //@Query(name = "CALL runCommunityBasedTargetingRanking(:sessionId)", nativeQuery = true)
     @Procedure(procedureName = "runCommunityBasedTargetingRanking")
     void runCommunityBasedTargetingRanking(@Param("sessionId") Long id);
 
+    /**
+     * <p>Unlike {@link #runCommunityBasedTargetingRanking(Long)}, this method performs the ranking on pre-eligible
+     * households under the given <code>verificationSessionId</code></p>
+     *
+     * @param targetingSessionId    Community based targeting id to be linked to the resulting ranked households.
+     * @param verificationSessionId Pre-eligibility verification session id, from which to source the household set to be ranked.
+     */
+    @Procedure(procedureName = "runCommunityBasedTargetingRankingOnEligibleHouseholds")
+    void runCommunityBasedTargetingRankingOnEligibleHouseholds(
+            @Param("sessionId") Long targetingSessionId,
+            @Param("pevSessionId") Long verificationSessionId
+    );
 
     @Procedure(procedureName = "closeCommunityBasedTargetingSession")
     void closeSession(

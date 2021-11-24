@@ -350,11 +350,30 @@ public class TargetingService extends TransactionalService {
         return verificationSessionRepository.findById(id).orElse(null);
     }
 
-    public void closeVerificationSession(EligibilityVerificationSession session, VerificationSessionDestination destination) {
+    public void closeVerificationSession(EligibilityVerificationSession session,
+                                         VerificationSessionDestination destination, Long userId) {
         session.setStatus(EligibilityVerificationSessionBase.Status.Closed);
         verificationSessionRepository.save(session);
 
-        // TODO Send to next module, depending on "destination" selection
+        switch (destination) {
+            case enrolment -> enrolmentRepository.sendToEnrolment(0L, session.getId(), userId);
+            case targeting -> {
+                // 1. Create a targeting session
+                TargetingSession targetingSession = new TargetingSession();
+                targetingSession.setCreatedAt(LocalDateTime.now());
+                targetingSession.setClusters(session.getClusters());
+                targetingSession.setDistrictCode(session.getDistrictCode());
+                targetingSession.setStatus(TargetingSessionBase.SessionStatus.Review);
+                targetingSession.setTaCode(session.getTaCode());
+                targetingSession.setProgramId(session.getProgramId());
+                targetingSession.setCreatedBy(userId);
+
+                saveTargetingSession(targetingSession);
+
+                // 2. Run CBT on the households selected
+                sessionRepository.runCommunityBasedTargetingRankingOnEligibleHouseholds(targetingSession.getId(), session.getId());
+            }
+        }
     }
 
     public CriterionView findCriterionViewById(Long id) {
