@@ -34,7 +34,7 @@ package org.cga.sctp.mis.targeting;
 
 import javax.validation.constraints.NotNull;
 
-public class MergeInportsForm {
+public class MergeImportsForm {
     @NotNull
     private Long id;
 

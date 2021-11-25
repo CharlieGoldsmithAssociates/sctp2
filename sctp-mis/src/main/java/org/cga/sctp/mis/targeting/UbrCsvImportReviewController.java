@@ -88,7 +88,7 @@ public class UbrCsvImportReviewController extends SecuredBaseController {
     @PostMapping("/merge")
     ModelAndView merge(
             @AuthenticationPrincipal String username,
-            @Valid @ModelAttribute MergeInportsForm form,
+            @Valid @ModelAttribute MergeImportsForm form,
             BindingResult bindingResult,
             @PathVariable("import-id") Long id, RedirectAttributes attributes) {
         DataImportView dataImport = getImport(id, attributes);

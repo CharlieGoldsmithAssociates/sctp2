@@ -133,6 +133,9 @@ public class EligibilityVerificationSessionBase {
         this.status = status;
     }
 
+    /**
+     * @return Returns the number of households that matched the criterion used
+     */
     public Long getHouseholds() {
         return households;
     }

@@ -355,24 +355,30 @@ public class TargetingService extends TransactionalService {
         session.setStatus(EligibilityVerificationSessionBase.Status.Closed);
         verificationSessionRepository.save(session);
 
-        switch (destination) {
-            case enrolment -> enrolmentRepository.sendToEnrolment(0L, session.getId(), userId);
-            case targeting -> {
-                // 1. Create a targeting session
-                TargetingSession targetingSession = new TargetingSession();
-                targetingSession.setCreatedAt(LocalDateTime.now());
-                targetingSession.setClusters(session.getClusters());
-                targetingSession.setDistrictCode(session.getDistrictCode());
-                targetingSession.setStatus(TargetingSessionBase.SessionStatus.Review);
-                targetingSession.setTaCode(session.getTaCode());
-                targetingSession.setProgramId(session.getProgramId());
-                targetingSession.setCreatedBy(userId);
+        // Send to next module if the session did have households that matched
+        if (session.getHouseholds() > 0) {
+            switch (destination) {
+                case enrolment -> enrolmentRepository.sendToEnrolment(0L, session.getId(), userId);
+                case targeting -> {
+                    // 1. Create a targeting session
+                    TargetingSession targetingSession = new TargetingSession();
+                    targetingSession.setCreatedAt(LocalDateTime.now());
+                    targetingSession.setClusters(session.getClusters());
+                    targetingSession.setDistrictCode(session.getDistrictCode());
+                    targetingSession.setStatus(TargetingSessionBase.SessionStatus.Review);
+                    targetingSession.setTaCode(session.getTaCode());
+                    targetingSession.setProgramId(session.getProgramId());
+                    targetingSession.setCreatedBy(userId);
 
-                saveTargetingSession(targetingSession);
+                    saveTargetingSession(targetingSession);
 
-                // 2. Run CBT on the households selected
-                sessionRepository.runCommunityBasedTargetingRankingOnEligibleHouseholds(targetingSession.getId(), session.getId());
+                    // 2. Run CBT on the households selected
+                    sessionRepository.runCommunityBasedTargetingRankingOnEligibleHouseholds(targetingSession.getId(), session.getId());
+                }
             }
+        } else {
+            LOG.warn("Pre-eligibility session with id {} did not have any households to be sent to either enrolment or targeting",
+                    session.getId());
         }
     }
 
