@@ -39,6 +39,7 @@ import org.cga.sctp.targeting.criteria.*;
 import org.cga.sctp.user.AdminAccessOnly;
 import org.cga.sctp.user.AdminAndStandardAccessOnly;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -60,6 +61,13 @@ public class CriterionFilterController extends BaseController {
 
     @Autowired
     private TargetingService targetingService;
+
+    /**
+     * This is a hidden setting. Controls whether filters that have already been applied
+     * to pre-eligibility verification runs can be modified.
+     */
+    @Value("${targeting.modifyUsedFilters:false}")
+    private boolean modifyUsedFilters;
 
     private Criterion findCriterionById(Long id, RedirectAttributes attributes) {
         Criterion criterion = targetingService.findCriterionById(id);
@@ -208,16 +216,18 @@ public class CriterionFilterController extends BaseController {
                     .addObject("templates", Collections.emptyList());
         }
 
-        if ((usageCount = targetingService.getCriterionUsageCount(criterion)) >= 1) {
-            setDangerFlashMessage(
-                    format(
-                            "This targeting criteria can longer be modified because it has already been " +
-                                    "applied to %,d pre-eligibility verification run(s).",
-                            usageCount
-                    ),
-                    attributes
-            );
-            return redirectToCriteriaFilters(criterion.getId());
+        if (!modifyUsedFilters) {
+            if ((usageCount = targetingService.getCriterionUsageCount(criterion)) >= 1) {
+                setDangerFlashMessage(
+                        format(
+                                "This targeting criteria can longer be modified because it has already been " +
+                                        "applied to %,d pre-eligibility verification run(s).",
+                                usageCount
+                        ),
+                        attributes
+                );
+                return redirectToCriteriaFilters(criterion.getId());
+            }
         }
 
         if ((template = targetingService.findFilterTemplateById(form.getTemplateId())) == null) {
@@ -270,16 +280,18 @@ public class CriterionFilterController extends BaseController {
             return redirectToCriteriaFilters(id);
         }
 
-        if ((usageCount = targetingService.getCriterionUsageCount(criterion)) >= 1) {
-            setDangerFlashMessage(
-                    format(
-                            "This targeting criteria can longer be modified because it has already been " +
-                                    "applied to %,d pre-eligibility verification run(s).",
-                            usageCount
-                    ),
-                    attributes
-            );
-            return redirectToCriteriaFilters(criterion.getId());
+        if (!modifyUsedFilters) {
+            if ((usageCount = targetingService.getCriterionUsageCount(criterion)) >= 1) {
+                setDangerFlashMessage(
+                        format(
+                                "This targeting criteria can longer be modified because it has already been " +
+                                        "applied to %,d pre-eligibility verification run(s).",
+                                usageCount
+                        ),
+                        attributes
+                );
+                return redirectToCriteriaFilters(criterion.getId());
+            }
         }
 
         CriteriaFilter filter = targetingService.findCriteriaFilterById(form.getFilter(), id);

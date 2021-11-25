@@ -206,7 +206,7 @@ public class EligibilityVerificationController extends BaseController {
             return redirect("/verification");
         }
 
-        targetingService.closeVerificationSession(session, form.getDestination());
+        targetingService.closeVerificationSession(session, form.getDestination(), user.id());
 
         if (session.getHouseholds() == 0) {
             setWarningFlashMessage("Pre-Eligibility verification session closed. However, there were no households that matched the targeting criteria.", attributes);

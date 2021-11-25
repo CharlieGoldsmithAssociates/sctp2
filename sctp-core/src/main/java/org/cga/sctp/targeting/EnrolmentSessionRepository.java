@@ -41,9 +41,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface EnrolmentSessionRepository extends JpaRepository<EnrolmentSession,Long> {
-//public interface EnrolmentSessionRepository extends StoredProcedureParameter {
-
+public interface EnrolmentSessionRepository extends JpaRepository<EnrolmentSession, Long> {
     @Procedure(procedureName = "sendHouseholdToEnrolment")
     void sendToEnrolment(
             @Param("targeting_session_id") Long targetingId,
@@ -61,6 +59,4 @@ public interface EnrolmentSessionRepository extends JpaRepository<EnrolmentSessi
     @Modifying
     @Query(value = "UPDATE household_enrollment SET status = 4 WHERE household_id = :id", nativeQuery = true)
     void setEnrolledHouseholdToEnrolled(@Param("id") Long id);
-
-
 }
