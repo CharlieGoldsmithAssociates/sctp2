@@ -20,6 +20,10 @@
         <java.version>16</java.version>
         <sjm.version>6.6.1</sjm.version>
         <jjwt.version>0.11.2</jjwt.version>
+        <!-- CVE Patch -->
+        <!-- https://spring.io/blog/2021/12/10/log4j2-vulnerability-and-spring-boot -->
+        <!-- https://nvd.nist.gov/vuln/detail/CVE-2021-44228 -->
+        <log4j2.version>2.16.0</log4j2.version>
     </properties>
 
     <build>
