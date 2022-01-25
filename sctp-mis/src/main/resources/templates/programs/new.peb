@@ -1,4 +1,4 @@
-    {% extends "/programs/base" %}
+    {% extends "programs/base" %}
     {% set canGoBack = returnUrl != null %}
     {% block contextMenu %}
     <div class="container context-nav-container">
