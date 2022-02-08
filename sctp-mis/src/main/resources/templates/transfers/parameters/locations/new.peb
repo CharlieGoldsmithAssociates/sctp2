@@ -1,9 +1,9 @@
-    {% extends "base" %}
-
+    {% extends "../../base" %}
+        {% import "../../../utils/form" %}
         {% block contextMenu %}
         <div class="container context-nav-container">
             <div class="buttons is-left">
-                <a href="{{ href('/transfers/parameters') }}" class="button is-danger">
+                <a href="{{ href('/transfers/parameters/locations') }}" class="button is-danger">
                     <span class="icon-text">
                         <span class="icon">
                             <i class="fa fa-chevron-left"></i>
@@ -17,54 +17,53 @@
 
     {% block content %}
     <div class="container">
-        <div class="card no-overlap">
-            <header class="card-header">
-                <p class="card-header-title">New Transfer Parameters</p>
-            </header>
+    <div class="card no-overlap">
+        <header class="card-header">
+            <p class="card-header-title">New Location Transfer Parameter</p>
+        </header>
+        {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+        <form method="post"
+              enctype="application/x-www-form-urlencoded"
+              action="/transfers/parameters/locations/new">
+            {{ csrf(_csrf) }}
             <div class="card-content">
                 <div class="content">
                     <div class="field is-horizontal">
                         <div class="field-label is-normal">
-                            <label class="label">Parameter Name</label>
+                            <label class="label is-required">Location</label>
                         </div>
                         <div class="field-body">
-                            <div class="field">
-                                <div class="control">
-                                    <input type="text" minlength="1" maxlength="50" class="input"/>
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                        {{ selectField('locationId', locations, form.locationId, true) }}
                                 </div>
                             </div>
+                            {{ printFieldErrors(getFieldErrors('form', 'locationId')) }}
                         </div>
                     </div>
-
-                    <div class="field is-horizontal">
-                        <div class="field-label is-normal">
-                            <label class="label">Program</label>
-                        </div>
-                        <div class="field-body">
-                            <div class="field">
-                                <div class="control">
-                                    <div class="select is-fullwidth">
-                                        <select>
-                                            <option disabled selected>Select Program</option>
-                                            <option>SCTP</option>
-                                            <option>Program 2</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="field is-horizontal">
                         <div class="field-label is-normal">
                             <label class="label">Amount Per Unit</label>
                         </div>
                         <div class="field-body">
-                            <div class="field">
-                                <div class="control">
-                                    <input type="text" minlength="1" maxlength="12" class="input"/>
+                            <div class="control">
+                                    {{ textField('amount', form.amount, 1, 100, true, null) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('form', 'amount')) }}
+                        </div>
+                    </div>
+
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label is-required">Active</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                        {{ selectField('active', options, form.active, true) }}
                                 </div>
                             </div>
+                            {{ printFieldErrors(getFieldErrors('form', 'active')) }}
                         </div>
                     </div>
 
@@ -76,7 +75,7 @@
                             <div class="field">
                                 <div class="control">
                                     <div class="buttons is-right">
-                                        <a href="/transfers/parameters" class="button is-primary">Save</a>
+                                        <button>Save Parameter</button>
                                     </div>
                                 </div>
                             </div>
@@ -84,7 +83,8 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </form>
+    </div>
     </div>
     {% endblock %}
 

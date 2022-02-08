@@ -1,0 +1,76 @@
+    {% import "../../utils/form" %}
+        {% extends "../base" %}
+        {% block title %}
+        {{ parent() }} - Transfer Agency Details for {{ transferAgency.name }}
+        {% endblock %}
+
+        {% block contextMenu %}
+        <div class="container context-nav-container">
+            <div class="buttons is-left">
+                <a href="{{ href('/transfers/agencies') }}" class="button is-danger">
+            <span class="icon-text">
+                <span class="icon">
+                    <i class="fa fa-chevron-left"></i>
+                </span>
+                <span>Back</span>
+            </span>
+                </a>
+            </div>
+            <div class="buttons is-left">
+                <a href="{{ href('/transfers/agencies/' + transferAgency.id + '/edit' ) }}" class="button is-danger">
+            <span class="icon-text">
+                <span class="icon">
+                    <i class="fa fa-pencil"></i>
+                </span>
+                <span>Edit</span>
+            </span>
+                </a>
+            </div>
+        </div>
+
+        {% endblock %}
+
+    {% block content %}
+    <div class="container">
+    <div class="card no-overlap">
+        <header class="card-header">
+            <p class="card-header-title">View Transfer Agency</p>
+        </header>
+        <div class="card-content">
+            <div class="field"><label>ID</label>
+                <div>{{ transferAgency.id}}</div>
+            </div>
+            <div class="field"><label>Name</label>
+                <div>{{ transferAgency.name}}</div>
+            </div>
+            <div class="field"><label>Is Active</label>
+                <div>{{ transferAgency.active}}</div>
+            </div>
+            <div class="field"><label>Phone</label>
+                <div>{{ transferAgency.phone}}</div>
+            </div>
+            <div class="field"><label>Fax</label>
+                <div>{{ transferAgency.fax}}</div>
+            </div>
+            <div class="field"><label>Website</label>
+                <div>{{ transferAgency.website}}</div>
+            </div>
+            <div class="field"><label>Address</label>
+                <div>{{ transferAgency.address}}</div>
+            </div>
+            <div class="field"><label>Representative Name</label>
+                <div>{{ transferAgency.representativeName}}</div>
+            </div>
+            <div class="field"><label>Representative Email</label>
+                <div>{{ transferAgency.representativeEmail}}</div>
+            </div>
+            <div class="field"><label>Representative Phone</label>
+                <div>{{ transferAgency.representativePhone}}</div>
+            </div>
+            <div class="field"><label>Branch Name</label>
+                <div>{{ transferAgency.branch}}</div>
+            </div>
+        </div>
+    </div>
+    </div>
+    {% endblock %}

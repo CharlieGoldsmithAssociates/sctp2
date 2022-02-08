@@ -1,0 +1,67 @@
+    {% extends "../base" %}
+
+        {% block contextMenu %}
+        <div class="container context-nav-container">
+        </div>
+        {% endblock %}
+
+    {% block content %}
+
+    <div class="container">
+    <div class="card no-overlap">
+        <header class="card-header">
+            <p class="card-header-title">Transfer Parameters</p>
+        </header>
+        <div class="card-content">
+            <div class="columns is-mobile">
+                <div class="column">
+                    <h3 class="subtitle">Location Level Parameters</h3>
+                    <p>
+                        Parameter for how much should be disbursed per Household per Location.
+                    </p>
+                    <div class="buttons is-right">
+                        <a href="{{ href('parameters/locations') }}" class="button is-primary">View All</a>
+                        <a href="{{ href('parameters/locations/new') }}" class="button is-primary">Add New</a>
+                    </div>
+                </div>
+
+                <div class="column">
+                    <h3 class="subtitle">Household Level Parameters</h3>
+                    <p>
+                        Parameters for how much should be added to Beneficiary Households based on number of members in the household.
+                    </p>
+                    <div class="buttons is-right">
+                        <a href="{{ href('parameters/households') }}" class="button is-primary">View All</a>
+                        <a href="{{ href('parameters/households/new') }}" class="button is-primary">Add New</a>
+                    </div>
+                </div>
+            </div>
+            <div class="columns">
+                <div class="column">
+                    <h3 class="subtitle">Education Parameters</h3>
+                    <p>
+                        Parameters for how much should be added to Beneficiary Households based on School going children
+                    </p>
+                    <div class="buttons is-right">
+                        <a href="{{ href('parameters/education') }}" class="button is-primary">View All</a>
+                        <a href="{{ href('parameters/education/new') }}" class="button is-primary">Add New</a>
+                    </div>
+                </div>
+
+                <div class="column">
+                    <h3 class="subtitle">Illness and Disability Parameters</h3>
+                    <p>
+                        Parameters for how much should be added to Beneficiary Households based on members who are ill or disabled.
+                    </p>
+                    <div class="buttons is-right">
+                        <a href="{{ href('parameters/illness-disability') }}" class="button is-primary">View All</a>
+                        <a href="{{ href('parameters/illness-disability/new') }}" class="button is-primary">Add New</a>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+    </div>
+    {% endblock %}

@@ -15,6 +15,9 @@
                 <div class="navbar-dropdown">
                     <a href="/users" class="navbar-item">System Users</a>
                     <a class="navbar-item" href="/funders">Funders</a>
+                    <a class="navbar-item" href="/transfers/agencies">
+                        Transfer Agencies
+                    </a>
                     <a class="navbar-item" href="/terminologies">Terminologies</a>
                     <a class="navbar-item" href="/locations">Geolocation Areas</a>
                     <a class="navbar-item" href="/programs">Programmes</a>
@@ -60,7 +63,6 @@
             </div>
             #}
 
-            {#
             <div class="navbar-item has-dropdown is-hoverable">
                 <a class="navbar-link">
               <span class="icon-text">
@@ -80,12 +82,11 @@
                     <a class="navbar-item" href="/transfers/generation">
                         Generate Transfers
                     </a>
-                    <a class="navbar-item is-static">
+                    <a class="navbar-item is-static" href="/transfers/reconcilations">
                         Reconciliation
                     </a>
                 </div>
             </div>
-            #}
 
             {#
             <div class="navbar-item has-dropdown is-hoverable">
