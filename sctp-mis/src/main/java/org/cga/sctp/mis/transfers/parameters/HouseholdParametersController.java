@@ -34,6 +34,7 @@ package org.cga.sctp.mis.transfers.parameters;
 
 import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.mis.core.templating.Booleans;
+import org.cga.sctp.transfers.parameters.HouseholdParameterCondition;
 import org.cga.sctp.transfers.parameters.HouseholdTransferParameter;
 import org.cga.sctp.transfers.parameters.HouseholdTransferParametersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +68,7 @@ public class HouseholdParametersController extends BaseController {
     public ModelAndView viewAdd() {
         return view("/transfers/parameters/households/new")
                 .addObject("booleans", Booleans.VALUES)
-                .addObject("conditions", HouseholdTransferParameter.ParameterCondition.values());
+                .addObject("conditions", HouseholdParameterCondition.values());
     }
 
     @PostMapping("/new")
@@ -79,15 +80,19 @@ public class HouseholdParametersController extends BaseController {
             setWarningFlashMessage("Failed to Household parameter. Please fix the errors on the form", attributes);
             return view("/transfers/parameters/households/new")
                     .addObject("booleans", Booleans.VALUES)
-                    .addObject("conditions", HouseholdTransferParameter.ParameterCondition.values());
+                    .addObject("conditions", HouseholdParameterCondition.values());
         }
 
         HouseholdTransferParameter householdParameter = new HouseholdTransferParameter();
+
         // TODO: check if there is a parameter with a condition that's conflicting with the one coming in
-        householdParameter.setCondition(form.getCondition());
+
         householdParameter.setNumberOfMembers(form.getNumberOfMembers());
         householdParameter.setActive(form.isActive().value);
-        householdParameter.setModifiedAt(LocalDateTime.now());
+        householdParameter.setAmount(form.getAmount());
+        householdParameter.setCondition(form.getCondition());
+        householdParameter.setCreatedAt(LocalDateTime.now());
+        householdParameter.setModifiedAt(householdParameter.getCreatedAt());
 
         householdTransferParametersRepository.save(householdParameter);
 
@@ -118,7 +123,7 @@ public class HouseholdParametersController extends BaseController {
 
         return view("/transfers/parameters/households/new")
                 .addObject("booleans", Booleans.VALUES)
-                .addObject("conditions", HouseholdTransferParameter.ParameterCondition.values());
+                .addObject("conditions", HouseholdParameterCondition.values());
     }
 
     @PostMapping("/{parameter-id}/edit")
@@ -139,12 +144,13 @@ public class HouseholdParametersController extends BaseController {
             setWarningFlashMessage("Failed to Household parameter. Please fix the errors on the form", attributes);
             return view("/transfers/parameters/households/edit")
                     .addObject("booleans", Booleans.VALUES)
-                    .addObject("conditions", HouseholdTransferParameter.ParameterCondition.values());
+                    .addObject("conditions", HouseholdParameterCondition.values());
         }
 
         // TODO: check if there is a parameter with a condition that's conflicting with the one coming in
         householdParameter.setCondition(form.getCondition());
         householdParameter.setNumberOfMembers(form.getNumberOfMembers());
+        householdParameter.setAmount(form.getAmount());
         householdParameter.setActive(form.isActive().value);
         householdParameter.setModifiedAt(LocalDateTime.now());
 

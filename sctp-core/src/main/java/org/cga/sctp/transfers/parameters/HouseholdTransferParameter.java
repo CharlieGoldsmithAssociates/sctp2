@@ -47,7 +47,7 @@ public class HouseholdTransferParameter {
 
     @Column
     @Enumerated(EnumType.STRING)
-    private ParameterCondition condition;
+    private HouseholdParameterCondition condition;
 
     @Column
     private Long amount;
@@ -77,11 +77,11 @@ public class HouseholdTransferParameter {
         this.numberOfMembers = numberOfMembers;
     }
 
-    public ParameterCondition getCondition() {
+    public HouseholdParameterCondition getCondition() {
         return condition;
     }
 
-    public void setCondition(ParameterCondition condition) {
+    public void setCondition(HouseholdParameterCondition condition) {
         this.condition = condition;
     }
 
@@ -117,9 +117,5 @@ public class HouseholdTransferParameter {
         this.modifiedAt = modifiedAt;
     }
 
-    public enum ParameterCondition {
-        EQUALS,
-        GREATER_THAN,
-        GREATER_THAN_OR_EQUAL;
-    }
+
 }

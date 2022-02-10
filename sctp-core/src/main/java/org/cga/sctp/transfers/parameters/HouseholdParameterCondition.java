@@ -30,71 +30,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.mis.transfers.parameters;
+package org.cga.sctp.transfers.parameters;
 
-import org.cga.sctp.mis.core.templating.Booleans;
-import org.cga.sctp.transfers.parameters.HouseholdParameterCondition;
-
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-
-public class HouseholdTransferParameterForm {
-
-    private Long id;
-
-    @Min(1)
-    @Max(99)
-    private int numberOfMembers;
-
-    @NotNull
-    private HouseholdParameterCondition condition;
-    @NotNull
-
-    @Min(0)
-    @Max(1_000_000)
-    private Long amount;
-
-    @NotNull
-    private Booleans active;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public int getNumberOfMembers() {
-        return numberOfMembers;
-    }
-
-    public void setNumberOfMembers(int numberOfMembers) {
-        this.numberOfMembers = numberOfMembers;
-    }
-
-    public HouseholdParameterCondition getCondition() {
-        return condition;
-    }
-
-    public void setCondition(HouseholdParameterCondition condition) {
-        this.condition = condition;
-    }
-
-    public Long getAmount() {
-        return amount;
-    }
-
-    public void setAmount(Long amount) {
-        this.amount = amount;
-    }
-
-    public Booleans isActive() {
-        return active;
-    }
-
-    public void setActive(Booleans active) {
-        this.active = active;
-    }
+public enum HouseholdParameterCondition {
+    EQUALS,
+    GREATER_THAN,
+    GREATER_THAN_OR_EQUAL;
 }
