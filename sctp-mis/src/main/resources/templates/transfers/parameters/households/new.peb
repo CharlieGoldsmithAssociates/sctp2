@@ -1,0 +1,104 @@
+    {% extends "../../base" %}
+    {% import "../../../utils/form" %}
+    {% block contextMenu %}
+    <div class="container context-nav-container">
+        <div class="buttons is-right">
+            <a href="{{ href('/tranfers/parameters/households/new') }}" class="button is-primary">Add New</a>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block content %}
+
+    <div class="container">
+    <div class="card no-overlap">
+        <header class="card-header">
+            <p class="card-header-title">Household Transfer Parameters</p>
+        </header>
+        <div class="card-content">
+            <form method="post"
+                  enctype="application/x-www-form-urlencoded"
+                  action="/transfers/parameters/households/new">
+                {{ csrf(_csrf) }}
+            <div class="content">
+
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label is-required">When Household Members</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                        {{ selectField('condition', conditions, form.condition, true) }}
+                                </div>
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('form', 'condition')) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label is-required">Number Of Members</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                                    {{ textField('numberOfMembers', form.numberOfMembers, 1, 3, true, null) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('form', 'numberOfMembers')) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label is-required">Amount</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                                    {{ textField('amount', form.amount, 1, 1000, true, null) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('form', 'amount')) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label is-required">Active</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                        {{ selectField('active', booleans, form.active, true) }}
+                                </div>
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('form', 'active')) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field is-horizontal">
+                    <div class="field-label">
+                        <!-- Left empty for spacing -->
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                                <div class="buttons is-right">
+                                    <button class="button is-primary">Save Parameter</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            </form>
+        </div>
+    </div>
+    </div>
+    {% endblock %}
