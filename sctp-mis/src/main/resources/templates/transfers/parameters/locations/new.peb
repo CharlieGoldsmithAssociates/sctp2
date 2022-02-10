@@ -75,7 +75,7 @@
                             <div class="field">
                                 <div class="control">
                                     <div class="buttons is-right">
-                                        <button>Save Parameter</button>
+                                        <button class="button is-primary">Save Parameter</button>
                                     </div>
                                 </div>
                             </div>
