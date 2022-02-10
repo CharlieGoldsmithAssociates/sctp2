@@ -44,6 +44,8 @@ import org.cga.sctp.targeting.criteria.CriteriaFilterTemplate;
 import org.cga.sctp.targeting.criteria.Criterion;
 import org.cga.sctp.targeting.importation.parameters.EducationLevel;
 import org.cga.sctp.targeting.importation.parameters.Gender;
+import org.cga.sctp.transfers.agencies.TransferAgency;
+import org.cga.sctp.transfers.parameters.HouseholdParameterCondition;
 import org.cga.sctp.user.AccessLevel;
 import org.cga.sctp.user.Permission;
 import org.cga.sctp.user.SystemRole;
@@ -127,5 +129,20 @@ public class SelectOptionConfigs {
     @Bean
     public SelectOptionEntry criterionSelectOption() {
         return new SelectOptionEntry(Criterion.class, "getId()", "getName()");
+    }
+
+    @Bean
+    public SelectOptionEntry transferAgencySelectOption() {
+        return new SelectOptionEntry(TransferAgency.class, "getId()", "getName()");
+    }
+
+    @Bean
+    public SelectOptionEntry householdConditionLevelSelectOption() {
+        return new SelectOptionEntry(HouseholdParameterCondition.class, "name()", "name()");
+    }
+
+    @Bean
+    public SelectOptionEntry educationLevelSelectOption() {
+        return new SelectOptionEntry(EducationLevel.class, "name()", "name()");
     }
 }
