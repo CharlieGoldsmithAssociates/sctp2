@@ -32,13 +32,20 @@
 
 package org.cga.sctp.mis.transfers.parameters;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+
 public class LocationTransferParameterForm {
     private Long id;
 
+    @NotNull
     private Long locationId;
 
+    @Min(0) @Max(1_000_000)
     private Integer amount;
 
+    @NotNull
     private Boolean active;
 
     public Long getId() {
