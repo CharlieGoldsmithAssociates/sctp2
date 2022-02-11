@@ -37,6 +37,7 @@ import org.cga.sctp.mis.core.templating.Booleans;
 import org.cga.sctp.targeting.importation.parameters.EducationLevel;
 import org.cga.sctp.transfers.parameters.EducationTransferParameter;
 import org.cga.sctp.transfers.parameters.EducationTransferParameterRepository;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -76,6 +77,14 @@ public class EducationTransferParameterController extends BaseController {
                                    @Validated @ModelAttribute EducationTransferParameterForm form,
                                    BindingResult result,
                                    RedirectAttributes attributes) {
+
+        var existingParam = educationTransferParameterRepository.findDistinctByEducationLevel(form.getEducationLevel());
+        if (existingParam != null) {
+            LoggerFactory.getLogger(getClass()).info("Found the following parameter entry {}", existingParam);
+            setWarningFlashMessage(format("Education parameter with that Education level ('%s') already exists.", form.getEducationLevel()), attributes);
+            return redirect("/transfers/parameters/education");
+        }
+
         if (result.hasErrors()) {
             setWarningFlashMessage("Failed to Education parameter. Please fix the errors on the form", attributes);
             return view("/transfers/parameters/education/new")
@@ -84,9 +93,6 @@ public class EducationTransferParameterController extends BaseController {
         }
 
         EducationTransferParameter educationParameter = new EducationTransferParameter();
-
-        // TODO: check if there is a parameter with a condition that's conflicting with the one coming in
-
         educationParameter.setEducationLevel(form.getEducationLevel());
         educationParameter.setActive(form.isActive().value);
         educationParameter.setAmount(form.getAmount());
@@ -117,7 +123,7 @@ public class EducationTransferParameterController extends BaseController {
         form.setId(id);
         form.setActive(Booleans.of(educationParameter.isActive()));
         form.setAmount(educationParameter.getAmount());
-        form.setEducationLevel(educationParameter.getEducationLevel());
+        // form.setEducationLevel(educationParameter.getEducationLevel());
 
         return view("/transfers/parameters/education/new")
                 .addObject("booleans", Booleans.VALUES)

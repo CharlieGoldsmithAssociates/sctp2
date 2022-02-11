@@ -43,7 +43,9 @@ public class EducationTransferParameter {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column
+    @Enumerated(EnumType.STRING)
     private EducationLevel educationLevel;
 
     @Column
