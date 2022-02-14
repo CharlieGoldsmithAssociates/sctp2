@@ -36,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SchoolService {
@@ -45,5 +46,13 @@ public class SchoolService {
 
     public List<SchoolsView> getSchools(){
         return schoolRepository.getSchools();
+    }
+
+    public Optional<School> findById(Long id) {
+        return schoolRepository.findById(id);
+    }
+
+    public School save(School school) {
+        return schoolRepository.save(school);
     }
 }
