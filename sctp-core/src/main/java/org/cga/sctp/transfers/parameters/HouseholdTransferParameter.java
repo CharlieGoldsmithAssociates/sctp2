@@ -45,7 +45,7 @@ public class HouseholdTransferParameter {
     @Column
     private int numberOfMembers;
 
-    @Column
+    @Column(name="condition_type")
     @Enumerated(EnumType.STRING)
     private HouseholdParameterCondition condition;
 

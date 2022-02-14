@@ -36,4 +36,11 @@ public enum HouseholdParameterCondition {
     EQUALS,
     GREATER_THAN,
     GREATER_THAN_OR_EQUAL;
+
+    @Override
+    public String toString() {
+        return name();
+    }
+
+    public static final HouseholdParameterCondition[] VALUES = values();
 }

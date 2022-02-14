@@ -1,0 +1,1 @@
+ALTER TABLE transfer_households_parameters RENAME COLUMN `condition` to `condition_type`;
