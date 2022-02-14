@@ -102,7 +102,7 @@ public class EducationTransferParameterController extends BaseController {
         educationTransferParameterRepository.save(educationParameter);
 
         setSuccessFlashMessage("Education parameter saved successfully", attributes);
-        return redirect("/transfers/parameters/households");
+        return redirect("/transfers/parameters/education");
     }
 
     @GetMapping("/{parameter-id}/edit")
@@ -115,7 +115,7 @@ public class EducationTransferParameterController extends BaseController {
         Optional<EducationTransferParameter> parameterOptional = educationTransferParameterRepository.findById(id);
         if (parameterOptional.isEmpty()) {
             setDangerFlashMessage("Failed to find Education parameter", attributes);
-            return redirect("/transfers/parameters/households");
+            return redirect("/transfers/parameters/education");
         }
 
         EducationTransferParameter educationParameter = parameterOptional.get();
@@ -140,7 +140,7 @@ public class EducationTransferParameterController extends BaseController {
         Optional<EducationTransferParameter> parameterOptional = educationTransferParameterRepository.findById(id);
         if (parameterOptional.isEmpty()) {
             setDangerFlashMessage("Failed to find Education parameter", attributes);
-            return redirect("/transfers/parameters/households");
+            return redirect("/transfers/parameters/education");
         }
 
         EducationTransferParameter educationParameter = parameterOptional.get();
@@ -160,6 +160,6 @@ public class EducationTransferParameterController extends BaseController {
         educationTransferParameterRepository.save(educationParameter);
 
         setSuccessFlashMessage("Education parameter updated successfully", attributes);
-        return redirect("/transfers/parameters/households");
+        return redirect("/transfers/parameters/education");
     }
 }
