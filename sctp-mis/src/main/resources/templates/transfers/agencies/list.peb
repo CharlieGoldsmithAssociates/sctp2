@@ -33,6 +33,7 @@
                         <th>Name</th>
                         <th>Address</th>
                         <th>Representative</th>
+                        <th>Representative Phone</th>
                         <th>Active</th>
                         <th width="20%">Options</th>
                     </tr>
@@ -42,8 +43,8 @@
                         <tr>
                             <td>{{ transferAgency.name }}</td>
                             <td>{{ transferAgency.address }}</td>
-                            <td>{{ transferAgency.representativeName }}<br/>{{ transferAgency.representativePhone }}
-                            </td>
+                            <td>{{ transferAgency.representativeName }}</td>
+                            <td>{{ transferAgency.representativePhone }}</td>
                             <td>{{ yesOrNo(transferAgency.active) }}</td>
                             <td>
                                     {% if canModify %}
