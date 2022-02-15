@@ -1,0 +1,1 @@
+ALTER TABLE `schools` MODIFY COLUMN `code` varchar(50) COMMENT 'School code from the UBR or MoE';

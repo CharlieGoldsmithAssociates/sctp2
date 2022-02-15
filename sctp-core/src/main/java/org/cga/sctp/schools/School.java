@@ -43,12 +43,12 @@ import java.time.LocalDateTime;
 public class School {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     private String name;
 
-    private long code;
+    private String code;
 
     @Convert(converter = EducationLevelParameterValueConverter.class)
     private EducationLevel educationLevel;
@@ -75,11 +75,11 @@ public class School {
         this.name = name;
     }
 
-    public long getCode() {
+    public String getCode() {
         return code;
     }
 
-    public void setCode(long code) {
+    public void setCode(String code) {
         this.code = code;
     }
 
