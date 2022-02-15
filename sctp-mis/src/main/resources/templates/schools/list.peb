@@ -1,0 +1,75 @@
+    {% extends "schools/base" %}
+    {% import "../utils/form" %}
+    {% set canModify = hasRole("ADMINISTRATOR") %}
+
+    {% block contextMenu %}
+        {% if canModify %}
+        <div class="container context-nav-container">
+            <div class="buttons is-right">
+                <a href="{{ href("/schools/new") }}" class="button is-info">Add New</a>
+            </div>
+        </div>
+        {% endif %}
+    {% endblock %}
+
+    {% block content %}
+    <div class="container">
+    <div class="card no-overlap">
+        <header class="card-header">
+            <p class="card-header-title">Schools</p>
+        </header>
+        <div class="card-content">
+            {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+            <div class="content">
+                <table class="table dataTable is-narrow is-striped is-hoverable">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Code</th>
+                        <th>Education Zone</th>
+                        <th>District</th>
+                        <th>T/A</th>
+                        <th>Created On</th>
+                        <th width="10%">Active</th>
+                        <th data-sortable="false" width="20%">Options</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                            {% for school in schools %}
+                        <tr>
+                            <td>{{ school.name }}</td>
+                            <td>{{ school.code }}</td>
+                            <td>{{ school.educationZone }}</td>
+                            <td>{{ school.district }}</td>
+                            <td>{{ school.ta }}</td>
+                            <td>{{ printDate(school.createdAt) }}</td>
+                            <td>{{ yesOrNo(school.active) }}</td>
+                            <td>
+                                    {% if canModify %}
+                                    <div class="dropdown is-hoverable">
+                                        <div class="dropdown-trigger">
+                                            <button class="button button is-info is-inverted is-options"
+                                                    aria-haspopup="true" aria-controls="dropdown-menu2">
+                                                <span>Options</span>
+                                                <span class="icon is-small">
+                                                <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                            </span>
+                                            </button>
+                                        </div>
+                                        <div class="dropdown-menu" id="dropdown-menu2" role="menu">
+                                            <div class="dropdown-content">
+                                                <a href="/schools/{{ school.id }}/edit" class="dropdown-item">Edit School</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                            </td>
+                        </tr>
+                            {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
+    {% endblock %}

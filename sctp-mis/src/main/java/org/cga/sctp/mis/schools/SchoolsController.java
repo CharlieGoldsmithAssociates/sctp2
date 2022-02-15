@@ -32,10 +32,13 @@
 
 package org.cga.sctp.mis.schools;
 
+import org.cga.sctp.location.Location;
+import org.cga.sctp.location.LocationService;
 import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.mis.core.templating.Booleans;
 import org.cga.sctp.schools.School;
 import org.cga.sctp.schools.SchoolService;
+import org.cga.sctp.targeting.importation.parameters.EducationLevel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -46,6 +49,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -55,6 +59,9 @@ public class SchoolsController extends BaseController {
     @Autowired
     private SchoolService schoolsService;
 
+    @Autowired
+    private LocationService locationService;
+
     @GetMapping
     ModelAndView index() {
         return view("schools/list")
@@ -63,8 +70,11 @@ public class SchoolsController extends BaseController {
 
     @GetMapping("/new")
     ModelAndView newSchoolsForm(@ModelAttribute SchoolForm schoolForm) {
+        List<Location> districts = locationService.getActiveDistricts();
         return view("schools/new")
-                .addObject("options", Booleans.VALUES);
+                .addObject("options", Booleans.VALUES)
+                .addObject("educationLevels", EducationLevel.values())
+                .addObject("districts", districts);
     }
 
     @GetMapping("/{school-id}/edit")
@@ -93,7 +103,7 @@ public class SchoolsController extends BaseController {
             RedirectAttributes attributes) {
         if (result.hasErrors()) {
             return view("/schools/new")
-                    .addObject("options", Booleans.VALUES);
+                .addObject("options", Booleans.VALUES);
         }
 
         Optional<School> schoolOptional = schoolsService.findById(schoolForm.getId());
@@ -107,7 +117,9 @@ public class SchoolsController extends BaseController {
                 username, school.getName(), schoolForm.getName());
 
         school.setName(schoolForm.getName());
-        school.setCreatedAt(LocalDateTime.now());
+        school.setCode(schoolForm.getCode());
+        school.setEducationLevel(schoolForm.getEducationLevel());
+        school.setModifiedAt(LocalDateTime.now());
         // school.setActive(schoolForm.getActive().value);
 
         schoolsService.save(school);
@@ -116,7 +128,7 @@ public class SchoolsController extends BaseController {
         return redirect("/schools");
     }
 
-    @PostMapping
+    @PostMapping("/new")
     ModelAndView addSchool(
             @AuthenticationPrincipal String username,
             @Validated @ModelAttribute SchoolForm schoolForm,
@@ -130,7 +142,13 @@ public class SchoolsController extends BaseController {
 
         School school = new School();
         school.setName(schoolForm.getName());
+        school.setEducationLevel(schoolForm.getEducationLevel());
+        school.setCode(schoolForm.getCode());
+//        school.setEducationZone(schoolForm.getEducationZone());
+//        school.setContactName(schoolForm.getContactName());
+//        school.setContactPhone(schoolForm.getContactPhone());
         school.setCreatedAt(LocalDateTime.now());
+        school.setModifiedAt(school.getCreatedAt());
         // school.setActive(schoolForm.getActive().value);
 
         publishGeneralEvent("%s added new school %s.", username, schoolForm.getName());

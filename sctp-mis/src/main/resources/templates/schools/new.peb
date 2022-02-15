@@ -1,0 +1,134 @@
+    {% import "../utils/form" %}
+        {% extends "schools/base" %}
+
+        {% block title %}
+        {{ parent() }} - Add New School
+        {% endblock %}
+
+        {% block contextMenu %}
+        <div class="container context-nav-container">
+            <div class="buttons is-left">
+                <a href="{{ href('/schools') }}" class="button is-danger">
+            <span class="icon-text">
+                <span class="icon">
+                    <i class="fa fa-chevron-left"></i>
+                </span>
+                <span>Back</span>
+            </span>
+                </a>
+            </div>
+        </div>
+        {% endblock %}
+
+    {% block content %}
+    <div class="container">
+    <div class="card no-overlap">
+        <header class="card-header">
+            <p class="card-header-title">Add New School</p>
+        </header>
+        <div class="card-content">
+            {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+            <form id="addRoleForm" action="/schools/new" method="post"
+                  enctype="application/x-www-form-urlencoded">
+                {{ csrf(_csrf) }}
+
+                <div class="columns">
+                    <div class="column">
+                        <div class="field">
+                            <label class="label is-required">Name</label>
+                            <div class="control">
+                                    {{ textField('name', schoolForm.name, 1, 100, true, null) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('schoolForm', 'name')) }}
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="field">
+                            <label class="label is-required">Code</label>
+                            <div class="control">
+                                    {{ textField('code', schoolForm.code, 1, 100, true, null) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('schoolForm', 'code')) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="columns">
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label is-required">Education Level</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                            {{ selectField('educationLevel', educationLevels, form.educationLevel, true) }}
+                                    </div>
+                                </div>
+                                {{ printFieldErrors(getFieldErrors('form', 'educationLevel')) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="columns">
+                    <div class="column">
+                        <div class="field">
+                            <label class="label is-required">Contact Name</label>
+                            <div class="control">
+                                    {{ textField('contactName', schoolForm.contactName, 1, 100, true, null) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('schoolForm', 'contactName')) }}
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="field">
+                            <label class="label is-required">Contact Name</label>
+                            <div class="control">
+                                    {{ textField('contactPhone', schoolForm.contactPhone, 1, 100, true, null) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('schoolForm', 'contactPhone')) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="columns">
+                    <div class="column">
+                        <div class="field">
+                            <label class="label is-required">Active</label>
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                        {{ selectField('districtId', districts, schoolForm.districtId, true) }}
+                                </div>
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('schoolForm', 'districtId')) }}
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="field">
+                            <label class="label is-required">Education Zone</label>
+                            <div class="control">
+                                    {{ textField('educationZone', schoolForm.educationZone, 1, 100, true, null) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('schoolForm', 'educationZone')) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="columns">
+                    <div class="column is-one-fifth">
+                        <div class="field">
+                            <label class="label is-required">Active</label>
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                        {{ selectField('active', options, schoolForm.active, true) }}
+                                </div>
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('schoolForm', 'active')) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="buttons is-right">
+                    <button class="button is-primary">Add School</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </div>
+    {% endblock %}
