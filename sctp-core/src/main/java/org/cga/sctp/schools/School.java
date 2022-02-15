@@ -46,17 +46,28 @@ public class School {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @Column
     private String name;
 
+    @Column
     private String code;
 
     @Convert(converter = EducationLevelParameterValueConverter.class)
     private EducationLevel educationLevel;
 
+    @Column
     private long educationZone;
 
+    @Column
+    private String contactName;
+
+    @Column
+    private String contactPhone;
+
+    @Column
     private LocalDateTime createdAt;
 
+    @Column
     private LocalDateTime modifiedAt;
 
     public long getId() {
@@ -97,6 +108,22 @@ public class School {
 
     public void setEducationZone(long educationZone) {
         this.educationZone = educationZone;
+    }
+
+    public String getContactName() {
+        return contactName;
+    }
+
+    public void setContactName(String contactName) {
+        this.contactName = contactName;
+    }
+
+    public String getContactPhone() {
+        return contactPhone;
+    }
+
+    public void setContactPhone(String contactPhone) {
+        this.contactPhone = contactPhone;
     }
 
     public LocalDateTime getCreatedAt() {

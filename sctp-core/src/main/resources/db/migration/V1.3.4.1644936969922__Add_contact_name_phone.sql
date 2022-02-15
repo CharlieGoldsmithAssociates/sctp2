@@ -1,0 +1,2 @@
+ALTER TABLE `schools` ADD COLUMN `contact_name` varchar(100) not null COMMENT 'Contact Person of the School';
+ALTER TABLE `schools` ADD COLUMN `contact_phone` varchar(20) not null COMMENT 'Contact Phone number of the contact person';

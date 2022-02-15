@@ -119,6 +119,9 @@ public class SchoolsController extends BaseController {
         school.setName(schoolForm.getName());
         school.setCode(schoolForm.getCode());
         school.setEducationLevel(schoolForm.getEducationLevel());
+        //        school.setEducationZone(schoolForm.getEducationZone());
+        school.setContactName(schoolForm.getContactName());
+        school.setContactPhone(schoolForm.getContactPhone());
         school.setModifiedAt(LocalDateTime.now());
         // school.setActive(schoolForm.getActive().value);
 
@@ -142,11 +145,11 @@ public class SchoolsController extends BaseController {
 
         School school = new School();
         school.setName(schoolForm.getName());
-        school.setEducationLevel(schoolForm.getEducationLevel());
         school.setCode(schoolForm.getCode());
+        school.setEducationLevel(schoolForm.getEducationLevel());
 //        school.setEducationZone(schoolForm.getEducationZone());
-//        school.setContactName(schoolForm.getContactName());
-//        school.setContactPhone(schoolForm.getContactPhone());
+        school.setContactName(schoolForm.getContactName());
+        school.setContactPhone(schoolForm.getContactPhone());
         school.setCreatedAt(LocalDateTime.now());
         school.setModifiedAt(school.getCreatedAt());
         // school.setActive(schoolForm.getActive().value);
