@@ -44,6 +44,10 @@ public class SchoolService {
     @Autowired
     SchoolRepository schoolRepository;
 
+    public SchoolRepository getSchoolRepository() {
+        return schoolRepository;
+    }
+
     public List<SchoolsView> getSchools(){
         return schoolRepository.getSchools();
     }

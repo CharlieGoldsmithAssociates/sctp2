@@ -65,7 +65,7 @@ public class SchoolsController extends BaseController {
     @GetMapping
     ModelAndView index() {
         return view("schools/list")
-                .addObject("schools", schoolsService.getSchools());
+                .addObject("schools", schoolsService.getSchoolRepository().findAll());
     }
 
     @GetMapping("/new")
@@ -90,14 +90,25 @@ public class SchoolsController extends BaseController {
 
         schoolForm.setId(school.getId());
         schoolForm.setName(school.getName());
+        schoolForm.setCode(school.getCode());
+        // TODO: schoolForm.setEducationZone(school.getEducationZone());
+        schoolForm.setEducationLevel(school.getEducationLevel());
+        schoolForm.setContactName(school.getContactName());
+        schoolForm.setContactPhone(school.getContactPhone());
         // schoolForm.setActive(Booleans.of(school.isActive()));
+
+        List<Location> districts = locationService.getActiveDistricts();
+
         return view("/schools/edit")
-                .addObject("options", Booleans.VALUES);
+                .addObject("options", Booleans.VALUES)
+                .addObject("educationLevels", EducationLevel.values())
+                .addObject("districts", districts);
     }
 
-    @PostMapping("/update")
+    @PostMapping("/{school-id}/edit")
     ModelAndView updateSchool(
             @AuthenticationPrincipal String username,
+            @PathVariable("school-id") Long schoolId,
             @Validated @ModelAttribute SchoolForm schoolForm,
             BindingResult result,
             RedirectAttributes attributes) {
@@ -106,7 +117,7 @@ public class SchoolsController extends BaseController {
                 .addObject("options", Booleans.VALUES);
         }
 
-        Optional<School> schoolOptional = schoolsService.findById(schoolForm.getId());
+        Optional<School> schoolOptional = schoolsService.findById(schoolId);
         if (schoolOptional.isEmpty()) {
             setDangerFlashMessage("Selected school does not exist.", attributes);
             return redirect("/schools");
@@ -119,7 +130,7 @@ public class SchoolsController extends BaseController {
         school.setName(schoolForm.getName());
         school.setCode(schoolForm.getCode());
         school.setEducationLevel(schoolForm.getEducationLevel());
-        //        school.setEducationZone(schoolForm.getEducationZone());
+        // school.setEducationZone(schoolForm.getEducationZone());
         school.setContactName(schoolForm.getContactName());
         school.setContactPhone(schoolForm.getContactPhone());
         school.setModifiedAt(LocalDateTime.now());
@@ -147,7 +158,7 @@ public class SchoolsController extends BaseController {
         school.setName(schoolForm.getName());
         school.setCode(schoolForm.getCode());
         school.setEducationLevel(schoolForm.getEducationLevel());
-//        school.setEducationZone(schoolForm.getEducationZone());
+        // school.setEducationZone(schoolForm.getEducationZone());
         school.setContactName(schoolForm.getContactName());
         school.setContactPhone(schoolForm.getContactPhone());
         school.setCreatedAt(LocalDateTime.now());
