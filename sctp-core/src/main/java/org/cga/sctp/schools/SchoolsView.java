@@ -33,13 +33,15 @@
 package org.cga.sctp.schools;
 
 
+import org.cga.sctp.targeting.importation.parameters.EducationLevel;
+
 public interface SchoolsView {
 
     Long getId();
 
     String getName();
 
-    Long getCode();
+    String getCode();
 
    // @Convert(converter = EducationLevelParameterValueConverter.class)
    //  EducationLevel getEducationLevel();
@@ -96,7 +98,5 @@ public interface SchoolsView {
 //    public void setDistrictName(String districtName) {
 //        this.districtName = districtName;
 //    }
-
-
 
 }

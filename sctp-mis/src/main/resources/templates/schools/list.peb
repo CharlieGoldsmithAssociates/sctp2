@@ -26,22 +26,20 @@
                     <tr>
                         <th>Name</th>
                         <th>Code</th>
+                        <th>Education Level</th>
                         <th>Education Zone</th>
-                        <th>District</th>
-                        <th>T/A</th>
                         <th>Created On</th>
                         <th width="10%">Active</th>
                         <th data-sortable="false" width="20%">Options</th>
                     </tr>
                     </thead>
                     <tbody>
-                            {% for school in schools %}
+                        {% for school in schools %}
                         <tr>
                             <td>{{ school.name }}</td>
                             <td>{{ school.code }}</td>
+                            <td>{{ school.educationLevel }}</td>
                             <td>{{ school.educationZone }}</td>
-                            <td>{{ school.district }}</td>
-                            <td>{{ school.ta }}</td>
                             <td>{{ printDate(school.createdAt) }}</td>
                             <td>{{ yesOrNo(school.active) }}</td>
                             <td>

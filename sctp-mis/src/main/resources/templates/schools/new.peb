@@ -53,19 +53,24 @@
                     </div>
                 </div>
                 <div class="columns">
-                    <div class="field is-horizontal">
-                        <div class="field-label is-normal">
+                    <div class="column">
+                        <div class="field">
                             <label class="label is-required">Education Level</label>
-                        </div>
-                        <div class="field-body">
-                            <div class="field">
-                                <div class="control">
-                                    <div class="select is-fullwidth">
-                                            {{ selectField('educationLevel', educationLevels, form.educationLevel, true) }}
-                                    </div>
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                        {{ selectField('educationLevel', educationLevels, schoolForm.educationLevel, true) }}
                                 </div>
-                                {{ printFieldErrors(getFieldErrors('form', 'educationLevel')) }}
                             </div>
+                            {{ printFieldErrors(getFieldErrors('schoolForm', 'educationLevel')) }}
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="field">
+                            <label class="label is-required">Education Zone</label>
+                            <div class="control">
+                                    {{ textField('educationZone', schoolForm.educationZone, 1, 100, true, null) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('schoolForm', 'educationZone')) }}
                         </div>
                     </div>
                 </div>
@@ -92,22 +97,13 @@
                 <div class="columns">
                     <div class="column">
                         <div class="field">
-                            <label class="label is-required">Active</label>
+                            <label class="label is-required">District</label>
                             <div class="control">
                                 <div class="select is-fullwidth">
                                         {{ selectField('districtId', districts, schoolForm.districtId, true) }}
                                 </div>
                             </div>
                             {{ printFieldErrors(getFieldErrors('schoolForm', 'districtId')) }}
-                        </div>
-                    </div>
-                    <div class="column">
-                        <div class="field">
-                            <label class="label is-required">Education Zone</label>
-                            <div class="control">
-                                    {{ textField('educationZone', schoolForm.educationZone, 1, 100, true, null) }}
-                            </div>
-                            {{ printFieldErrors(getFieldErrors('schoolForm', 'educationZone')) }}
                         </div>
                     </div>
                 </div>
