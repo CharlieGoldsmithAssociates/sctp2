@@ -21,6 +21,7 @@
                     <a class="navbar-item" href="/terminologies">Terminologies</a>
                     <a class="navbar-item" href="/locations">Geolocation Areas</a>
                     <a class="navbar-item" href="/programs">Programmes</a>
+                    <a class="navbar-item" href="/schools">Schools</a>
                     <a href="/logs" class="navbar-item">Audit Log</a>
                     <a href="/system/version" class="navbar-item">Version Information</a>
                 </div>
