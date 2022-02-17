@@ -32,17 +32,20 @@
 
 package org.cga.sctp.transfers.parameters;
 
-import org.springframework.data.domain.Slice;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import java.time.LocalDateTime;
 
-public interface LocationTransferParametersRepository extends JpaRepository<LocationTransferParameter, Long> {
+public interface LocationTransferParameterView {
+    Long getId();
 
-    @Query(nativeQuery = true,value = """
-            SELECT l.name AS locationName, tlp.* FROM transfer_locations_parameters tlp INNER JOIN locations l ON l.id = tlp.location_id
-            ORDER BY l.id
-            LIMIT :page, :pageSize ;
-            """)
-    Slice<LocationTransferParameterView> findAllLocationsView(@Param("page") int page, @Param("pageSize") int pageSize);
+    Long getLocationId();
+
+    String getLocationName();
+
+    Integer getAmount();
+
+    Boolean getActive();
+
+    LocalDateTime getCreatedAt();
+
+    LocalDateTime getModifiedAt();
 }

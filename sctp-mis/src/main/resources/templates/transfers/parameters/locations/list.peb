@@ -1,12 +1,12 @@
     {% extends "../../base" %}
-
-        {% block contextMenu %}
+    {% set canModify = hasRole("ADMINISTRATOR") %}
+    {% block contextMenu %}
         <div class="container context-nav-container">
             <div class="buttons is-right">
                 <a href="{{ href('/transfers/parameters/locations/new') }}" class="button is-primary">Add New</a>
             </div>
         </div>
-        {% endblock %}
+    {% endblock %}
 
     {% block content %}
 
@@ -29,7 +29,7 @@
                     <tbody>
                         {% for transferParameter in transferParameters %}
                         <tr>
-                            <td>{{ transferParameter.location }}</td>
+                            <td id="{{ transferParameter.id }}">{{ transferParameter.locationName }}</td>
                             <td>MWK {{ transferParameter.amount | numberformat("#,###.##") }}</td>
                             <td>{{ yesOrNo(transferParameter.active) }}</td>
                             <td>

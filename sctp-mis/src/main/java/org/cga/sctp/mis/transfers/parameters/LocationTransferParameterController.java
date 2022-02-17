@@ -37,9 +37,13 @@ import org.cga.sctp.location.LocationService;
 import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.mis.core.templating.Booleans;
 import org.cga.sctp.transfers.parameters.LocationTransferParameter;
+import org.cga.sctp.transfers.parameters.LocationTransferParameterView;
 import org.cga.sctp.transfers.parameters.LocationTransferParametersRepository;
 import org.cga.sctp.user.RoleConstants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -66,8 +70,12 @@ public class LocationTransferParameterController extends BaseController {
     private LocationService locationService;
 
     @GetMapping
-    public ModelAndView viewIndex() {
-        List<LocationTransferParameter> transferParameters = locationTransferParametersRepository.findAll();
+    public ModelAndView viewIndex(Pageable pageable) {
+        if (pageable == null) {
+            pageable = PageRequest.of(1, 50);
+        }
+        Slice<LocationTransferParameterView> transferParameters;
+        transferParameters = locationTransferParametersRepository.findAllLocationsView(pageable.getPageNumber(), pageable.getPageSize());
         return view("transfers/parameters/locations/list")
                 .addObject("transferParameters", transferParameters);
     }
