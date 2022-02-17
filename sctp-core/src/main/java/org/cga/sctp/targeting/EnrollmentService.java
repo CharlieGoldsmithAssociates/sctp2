@@ -122,4 +122,8 @@ public class EnrollmentService extends TransactionalService {
     public void setEnrollmentHouseholdEnrolled(Long householdId) {
         enrolmentSessionRepository.setEnrolledHouseholdToEnrolled(householdId);
     }
+
+    public boolean sessionHasPendingHouseholdsToEnroll(Long enrollmentSessionId) {
+        return enrolmentSessionRepository.countUnenrolledHouseholds(enrollmentSessionId) > 0;
+    }
 }

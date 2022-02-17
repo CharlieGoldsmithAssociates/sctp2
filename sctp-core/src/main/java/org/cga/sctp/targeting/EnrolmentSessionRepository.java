@@ -59,4 +59,15 @@ public interface EnrolmentSessionRepository extends JpaRepository<EnrolmentSessi
     @Modifying
     @Query(value = "UPDATE household_enrollment SET status = 4 WHERE household_id = :id", nativeQuery = true)
     void setEnrolledHouseholdToEnrolled(@Param("id") Long id);
+
+    /**
+     * Counts the households in the enrollment session that have not yet been moved to enrolled status (i.e. are
+     * not yet Beneficiaries)
+     *
+     * @param id Enrollment Session ID
+     * @return the number of households that have not been enrolled
+     * @see CbtStatus
+     */
+    @Query(nativeQuery=true, value="SELECT count(household_id) FROM household_enrollment WHERE session_id = :id AND status = 1")
+    Long countUnenrolledHouseholds(@Param("id") Long id);
 }

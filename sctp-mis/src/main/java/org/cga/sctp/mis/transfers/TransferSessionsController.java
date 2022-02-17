@@ -46,14 +46,15 @@ import org.springframework.data.domain.Slice;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static java.util.Collections.emptyList;
 
 @Controller
 @RequestMapping("/transfers/sessions")
@@ -79,6 +80,13 @@ public class TransferSessionsController extends BaseController  {
                 "Enrollment session was not found or not active",
                 attributes);
         }
+
+        if (enrollmentService.sessionHasPendingHouseholdsToEnroll(enrollmentSessionId)) {
+            return redirectWithDangerMessage(format("/targeting/enrollments?invalidSession=%s", enrollmentSessionId),
+                    "Enrollment Session contains Households that have not been enrolled or marked ineligible",
+                    attributes);
+        }
+
         Long transferSessionId = -1L;
         TransferSession session = new TransferSession();
         session.setEnrollmentSessionId(enrollmentSessionId);
@@ -99,5 +107,23 @@ public class TransferSessionsController extends BaseController  {
         return redirectWithSuccessMessage(format("/transfers/sessions/%s/assign-agency", transferSessionId),
             "New Transfer Session initiated successfully from enrolled households",
             attributes);
+    }
+
+    @GetMapping("/{session-id}/perform-calculation")
+    public ModelAndView viewPerformCalculationPage(@PathVariable("session") Long sessionId,
+                                                   @RequestParam("p") String p, // =1  // programId
+                                                   @RequestParam("e") String e, // =2  // enrollmentSessionId
+                                                   @RequestParam("ts") String ts, // =3 // transferSessionId
+                                                   @RequestParam("ta") String ta, // =4 // optional transferAgencyId
+                                                   @RequestParam("allowchangeta") String allowchangeta, // =yes // whether to allow changing transfer agency or not
+                                                   @RequestParam("defineperiod") String defineperiod, // =yes|no|auto // whether to allow defining periods here or not
+                                                   @RequestParam("requireparams") String requireparams, // =no // whether some extra parameters are required to be calculated
+                                                   @RequestParam("performcalcinplace") String performcalcinplace, // =auto|smallset|never // how to perform calculations (in place - JS, smallset - JS, never - backend)
+                                                   @RequestParam("enablefinalcalc") String enablefinalcalc // =yes|no|never // allow users to be able to initiate final calculations or not.
+                                                   ) {
+
+        return view("/transfers/calculations/session_new")
+                .addObject("transferSession", new Object())
+                .addObject("transferAgencies", emptyList());
     }
 }
