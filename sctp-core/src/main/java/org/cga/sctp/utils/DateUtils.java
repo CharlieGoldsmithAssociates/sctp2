@@ -38,6 +38,8 @@ package org.cga.sctp.utils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.Locale;
 
 public final class DateUtils {
@@ -55,5 +57,24 @@ public final class DateUtils {
 
     public static boolean isDateAfter(LocalDate startDate, LocalDate endDate) {
         return startDate.isAfter(endDate);
+    }
+
+    public static long monthsBetweenInclusive(int startMonth, int startYear, int endMonth, int endYear) {
+        return monthsBetween(startMonth, startYear, endMonth, endYear) + 1;
+    }
+
+    public static long monthsBetween(int startMonth, int startYear, int endMonth, int endYear) {
+        LocalDate startDate = LocalDate.of(startYear, startMonth, 1),
+                    endDate = LocalDate.of(endYear, endMonth, 1);
+
+        // one year is twelve months, 0 is twelve months
+        int monthsSoFar = (endDate.getYear() - startDate.getYear()) * 12;
+        if (startYear == endYear) {
+            monthsSoFar = endDate.getMonthValue() - startDate.getMonthValue();
+        } else {
+            monthsSoFar += endDate.getMonthValue() - startDate.getMonthValue();
+        }
+
+        return monthsSoFar;
     }
 }
