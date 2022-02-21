@@ -77,7 +77,7 @@
                     <a class="navbar-item" href="/transfers/parameters">
                         Transfer Parameters
                     </a>
-                    <a class="navbar-item" href="/transfers/calculation">
+                    <a class="navbar-item" href="/transfers/sessions">
                         Calculate Cash Transfer Amounts
                     </a>
                     <a class="navbar-item" href="/transfers/generation">

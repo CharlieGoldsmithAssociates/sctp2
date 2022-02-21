@@ -21,24 +21,25 @@
                         <thead>
                         <tr>
                             <th>Program</th>
-                            <th>Transfer Parameters</th>
                             <th>Districts</th>
-                            <th>Total</th>
+                            <th>Total Households</th>
+                            <th>Total Calculated So Far</th>
                             <th>Date</th>
-                            <th>Done By</th>
+                            <th>Initiated By</th>
                             <th>Status</th>
                             <th width="20%">Options</th>
                         </tr>
                         </thead>
                         <tbody>
+                        {% for transferSession in transferSessions %}
                         <tr>
-                            <td>SCTP Household</td>
-                            <td>Household</td>
-                            <td>6</td>
-                            <td>MWK {{ 30345123.45 | numberformat("#,###.##") }}</td>
-                            <td>May 10 2021 08:45</td>
-                            <td>Chifundo Masamba</td>
-                            <td>Pending approval</td>
+                            <td>{{ transferSession.programName }}</td>
+                            <td>{{ transferSession.numOfDistricts }}</td>
+                            <td>{{ transferSession.totalHouseholds }}</td>
+                            <td>MWK {{ transferSession.totalAmountCalculated | numberformat("#,###.##")}}</td>
+                            <td>{{ transferSession.createdAt }}</td>
+                            <td>{{ transferSession.initiatedBy }}</td>
+                            <td>{{ transferSession.status }}</td>
                             <td>
                                 <div class="dropdown is-hoverable">
                                     <div class="dropdown-trigger">
@@ -52,41 +53,14 @@
                                     </div>
                                     <div class="dropdown-menu" id="dropdown-menu2" role="menu">
                                         <div class="dropdown-content">
-                                            <a class="dropdown-item">Edit</a>
-                                            <a href="/transfers/calculation/review" class="dropdown-item">Review</a>
+                                            <a href="/transfers/sessions/{{ transferSession.id }}/pre-calculation" class="dropdown-item">Perform Calculations</a>
+                                            <a href="/transfers/sessions/{{ transferSession.id }}/calculation/review" class="dropdown-item">Review</a>
                                         </div>
                                     </div>
                                 </div>
                             </td>
                         </tr>
-                        <tr>
-                            <td>SCTP Individual</td>
-                            <td>Individual</td>
-                            <td>2</td>
-                            <td>MWK {{ 300345123.45 | numberformat("#,###.##") }}</td>
-                            <td>May 10 2021 08:45</td>
-                            <td>Mathew Chimutu</td>
-                            <td>Rejected</td>
-                            <td>
-                                <div class="dropdown is-hoverable">
-                                    <div class="dropdown-trigger">
-                                        <button class="button button is-info is-inverted"
-                                                aria-haspopup="true" aria-controls="dropdown-menu2">
-                                            <span>Options</span>
-                                            <span class="icon is-small">
-                                                <i class="fas fa-angle-down" aria-hidden="true"></i>
-                                            </span>
-                                        </button>
-                                    </div>
-                                    <div class="dropdown-menu" id="dropdown-menu2" role="menu">
-                                        <div class="dropdown-content">
-                                            <a class="dropdown-item">Edit</a>
-                                            <a href="/transfers/calculation/individual-review" class="dropdown-item">Review</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
                 </div>
