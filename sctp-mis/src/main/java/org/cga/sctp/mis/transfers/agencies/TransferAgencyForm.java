@@ -33,19 +33,24 @@
 package org.cga.sctp.mis.transfers.agencies;
 
 import org.cga.sctp.mis.core.templating.Booleans;
+import org.cga.sctp.validation.SimpleName;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 public class TransferAgencyForm {
     private Long id;
+
     @NotEmpty
+    @Length(min=2, max=100)
     private String name;
 
     @NotNull(message = "Status is required")
     private Booleans active;
 
     @NotEmpty
+    @Length(min=10, max=15)
     private String phone;
 
     @NotEmpty
@@ -55,12 +60,14 @@ public class TransferAgencyForm {
     private String address;
 
     @NotEmpty
+    @SimpleName
     private String representativeName;
 
     @NotEmpty
     private String representativeEmail;
 
     @NotEmpty
+    @Length(min=10, max=15)
     private String representativePhone;
 
     @NotEmpty
@@ -83,7 +90,6 @@ public class TransferAgencyForm {
     public void setName(String name) {
         this.name = name;
     }
-
 
     public Booleans isActive() {
         return active;
