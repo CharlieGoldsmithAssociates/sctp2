@@ -32,43 +32,26 @@
 
 package org.cga.sctp.transfers;
 
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
 
-import java.util.List;
+public interface TransferSessionDetailView {
+    Long getId();
 
-@Service
-public class TransferSessionService {
+    Long getProgramId();
 
-    @Autowired
-    private TransferSessionRepository tranferSessionRepository;
+    Long getEnrolmentSessionId();
 
-    @Autowired
-    private TransferEventRepository transferRepository;
+    String getProgramName();
 
-    public TransferSessionRepository getTranferSessionRepository() {
-        return tranferSessionRepository;
-    }
+    //Long totalHouseholds();
 
-    public void initiateTransfersForHouseholds(Long transferSessionId, List<Long> householdIds, Long enrollmentSessionId) {
-        // TODO: Implement me
-        LoggerFactory.getLogger(getClass()).info("Initiating transfer session {} events for households {} in enrollment {}", transferSessionId, householdIds, enrollmentSessionId);
+    Integer getNumOfDistricts();
 
-        for(Long householdId: householdIds) {
-            TransferEvent transfer = new TransferEvent();
+    // Long totalAmountCalculated();
 
-            transfer.setHouseholdId(householdId);
-            transfer.setTransferSessionId(transferSessionId);
+    // String initiatedBy();
 
-            transferRepository.save(transfer);
-        }
-    }
+    String getStatus();
 
-    public List<TransferSessionDetailView> findAllActive(Pageable pageable) {
-        return tranferSessionRepository.findAllActiveAsView(pageable.getPageNumber(), pageable.getPageSize());
-    }
-
+    LocalDateTime getCreatedAt();
 }
-

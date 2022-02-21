@@ -33,6 +33,22 @@
 package org.cga.sctp.transfers;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
 
 public interface TransferSessionRepository extends JpaRepository<TransferSession, Long> {
+    @Query(nativeQuery = true, value = """
+            SELECT 
+              pg.name as programName,
+              es.id as enrolmentSessionId,
+              trs.* 
+            FROM transfer_sessions_1 trs
+            INNER JOIN enrollment_sessions es ON es.id = trs.enrollment_session_id
+            INNER JOIN targeting_sessions ts ON ts.id = es.target_session_id
+            INNER JOIN programs pg ON pg.id = ts.program_id
+            LIMIT :page , :pageSize ;
+            """)
+    List<TransferSessionDetailView> findAllActiveAsView(@Param("page") int page, @Param("pageSize") int pageSize);
 }

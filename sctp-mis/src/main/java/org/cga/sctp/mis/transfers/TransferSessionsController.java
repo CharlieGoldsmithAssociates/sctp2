@@ -76,13 +76,13 @@ public class TransferSessionsController extends BaseController  {
 
         EnrollmentSessionView sessionView = enrollmentService.getEnrollmentSession(enrollmentSessionId);
         if (sessionView == null) {
-            return redirectWithDangerMessage(format("/targeting/enrollments?invalidSession=%s", enrollmentSessionId),
+            return redirectWithDangerMessage(format("/targeting/enrolment?invalidSession=%s", enrollmentSessionId),
                 "Enrollment session was not found or not active",
                 attributes);
         }
 
         if (enrollmentService.sessionHasPendingHouseholdsToEnroll(enrollmentSessionId)) {
-            return redirectWithDangerMessage(format("/targeting/enrollments?invalidSession=%s", enrollmentSessionId),
+            return redirectWithDangerMessage(format("/targeting/enrolment?invalidSession=%s", enrollmentSessionId),
                     "Enrollment Session contains Households that have not been enrolled or marked ineligible",
                     attributes);
         }
