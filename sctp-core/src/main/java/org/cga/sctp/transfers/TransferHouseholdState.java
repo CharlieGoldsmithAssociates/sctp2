@@ -32,23 +32,36 @@
 
 package org.cga.sctp.transfers;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import org.cga.sctp.targeting.importation.parameters.UbrParameterValue;
 
-import java.util.List;
+public enum TransferHouseholdState implements UbrParameterValue {
+    FirstTransfer(34, "First Transfer"),
+    ArrearsUncollected(35, "Arrears Uncollected"),
+    ArrearsUntransferred(36, "Arrears Untransferred"),
+    ArrearsUpdated(37, "Arrears Updated"),
+    ToTransfer(38, "To Transfer"),
+    WithheldTransfer(39, "Withheld Transfer"),
+    OtherArrears(50, "Other Arrears"),
+    ChangesOnTransfers(95, "Changes on Transfers");
 
-public interface TransferSessionRepository extends JpaRepository<TransferSession, Long> {
-    @Query(nativeQuery = true, value = """
-            SELECT 
-              pg.name as programName,
-              es.id as enrolmentSessionId,
-              trs.* 
-            FROM transfers_sessions trs
-            INNER JOIN enrollment_sessions es ON es.id = trs.enrollment_session_id
-            INNER JOIN targeting_sessions ts ON ts.id = es.target_session_id
-            INNER JOIN programs pg ON pg.id = ts.program_id
-            LIMIT :page , :pageSize ;
-            """)
-    List<TransferSessionDetailView> findAllActiveAsView(@Param("page") int page, @Param("pageSize") int pageSize);
+    private int code;
+    private String description;
+
+    TransferHouseholdState(int id, String description) {
+        this.code = id;
+        this.description = description;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    @Override
+    public String toString() {
+        return description;
+    }
 }

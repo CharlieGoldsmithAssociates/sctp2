@@ -36,6 +36,7 @@ import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.targeting.CbtRanking;
 import org.cga.sctp.targeting.EnrollmentService;
 import org.cga.sctp.targeting.EnrollmentSessionView;
+import org.cga.sctp.targeting.EnrolmentSessionRepository;
 import org.cga.sctp.transfers.TransferSession;
 import org.cga.sctp.transfers.TransferSessionService;
 import org.cga.sctp.user.RoleConstants;
@@ -52,6 +53,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
@@ -64,7 +66,17 @@ public class TransferSessionsController extends BaseController  {
     private TransferSessionService transferSessionService;
 
     @Autowired
+    private EnrolmentSessionRepository enrolmentSessionRepository;
+
+    @Autowired
     private EnrollmentService enrollmentService;
+
+    @GetMapping
+    public ModelAndView list(Pageable pageable) {
+        var transferSessions = transferSessionService.findAllActive(pageable);
+        return view("transfers/calculation/list")
+                .addObject("transferSessions", transferSessions);
+    }
 
     @PostMapping("/initiate")
     @Secured({RoleConstants.ROLE_ADMINISTRATOR})
@@ -90,7 +102,7 @@ public class TransferSessionsController extends BaseController  {
         Long transferSessionId = -1L;
         TransferSession session = new TransferSession();
         session.setEnrollmentSessionId(enrollmentSessionId);
-        session.setClosed(false);
+        session.setProgramId(-1L); // TODO: get program id somehow...
         session.setActive(true);
         session.setCreatedAt(LocalDateTime.now());
         session.setModifiedAt(session.getCreatedAt());
@@ -104,26 +116,25 @@ public class TransferSessionsController extends BaseController  {
 
         transferSessionService.initiateTransfersForHouseholds(transferSessionId, householdIds, enrollmentSessionId);
 
-        return redirectWithSuccessMessage(format("/transfers/sessions/%s/assign-agency", transferSessionId),
+        // See {@see #viewPerformCalculationPage}
+        return redirectWithSuccessMessage(format("/transfers/sessions/%s/pre-calculation", transferSessionId),
             "New Transfer Session initiated successfully from enrolled households",
             attributes);
     }
 
-    @GetMapping("/{session-id}/perform-calculation")
-    public ModelAndView viewPerformCalculationPage(@PathVariable("session") Long sessionId,
-                                                   @RequestParam("p") String p, // =1  // programId
-                                                   @RequestParam("e") String e, // =2  // enrollmentSessionId
-                                                   @RequestParam("ts") String ts, // =3 // transferSessionId
-                                                   @RequestParam("ta") String ta, // =4 // optional transferAgencyId
-                                                   @RequestParam("allowchangeta") String allowchangeta, // =yes // whether to allow changing transfer agency or not
-                                                   @RequestParam("defineperiod") String defineperiod, // =yes|no|auto // whether to allow defining periods here or not
-                                                   @RequestParam("requireparams") String requireparams, // =no // whether some extra parameters are required to be calculated
-                                                   @RequestParam("performcalcinplace") String performcalcinplace, // =auto|smallset|never // how to perform calculations (in place - JS, smallset - JS, never - backend)
-                                                   @RequestParam("enablefinalcalc") String enablefinalcalc // =yes|no|never // allow users to be able to initiate final calculations or not.
-                                                   ) {
+    @GetMapping("/{session-id}/pre-calculation")
+    public ModelAndView viewPerformCalculationPage(@PathVariable("session-id") Long sessionId,
+                                                   RedirectAttributes attributes) {
 
-        return view("/transfers/calculations/session_new")
-                .addObject("transferSession", new Object())
+        Optional<TransferSession> sessionOptional = transferSessionService.getTranferSessionRepository().findById(sessionId);
+        if (sessionOptional.isEmpty()) {
+            setDangerFlashMessage("Transfer Session does not exist or is not valid", attributes);
+            return redirect("/transfers/sessions");
+        }
+
+        return view("/transfers/calculation/perform_precalculation")
+                .addObject("programInfo", new Object()) // TODO: Get program id somewhere
+                .addObject("transferSession", sessionOptional.get())
                 .addObject("transferAgencies", emptyList());
     }
 }

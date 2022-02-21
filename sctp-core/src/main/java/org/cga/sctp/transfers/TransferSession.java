@@ -35,20 +35,30 @@ package org.cga.sctp.transfers;
 import org.cga.sctp.persistence.DatabaseRecord;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name="transfer_sessions_1")
-public class TransferSession extends DatabaseRecord {
+@Table(name="transfers_sessions")
+public class TransferSession {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column
+    private Long programId;
+
+    @Column
     private Long enrollmentSessionId;
 
     @Column
-    private Boolean isClosed;
+    private Boolean active;
+
+    @Column
+    private LocalDateTime createdAt;
+
+    @Column
+    private LocalDateTime modifiedAt;
 
     public Long getId() {
         return id;
@@ -56,6 +66,14 @@ public class TransferSession extends DatabaseRecord {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getProgramId() {
+        return programId;
+    }
+
+    public void setProgramId(Long programId) {
+        this.programId = programId;
     }
 
     public Long getEnrollmentSessionId() {
@@ -66,11 +84,27 @@ public class TransferSession extends DatabaseRecord {
         this.enrollmentSessionId = enrollmentSessionId;
     }
 
-    public Boolean getClosed() {
-        return isClosed;
+    public Boolean getActive() {
+        return active;
     }
 
-    public void setClosed(Boolean closed) {
-        isClosed = closed;
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getModifiedAt() {
+        return modifiedAt;
+    }
+
+    public void setModifiedAt(LocalDateTime modifiedAt) {
+        this.modifiedAt = modifiedAt;
     }
 }

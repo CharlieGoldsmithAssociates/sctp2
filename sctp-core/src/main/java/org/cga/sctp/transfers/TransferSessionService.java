@@ -32,11 +32,13 @@
 
 package org.cga.sctp.transfers;
 
+import org.cga.sctp.transfers.agencies.TransferMethod;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -52,15 +54,59 @@ public class TransferSessionService {
         return tranferSessionRepository;
     }
 
+    /**
+     * Initiates Transfer Entries for households in the given session coming from a completed/closed enrollment.
+     * The Transfer entries are created with default data for amounts, etc...
+     *
+     * @param transferSessionId session under which to perform the operations
+     * @param householdIds the list of household ids assign transfers too
+     * @param enrollmentSessionId the enrollment under which the households belong.
+     */
     public void initiateTransfersForHouseholds(Long transferSessionId, List<Long> householdIds, Long enrollmentSessionId) {
-        // TODO: Implement me
         LoggerFactory.getLogger(getClass()).info("Initiating transfer session {} events for households {} in enrollment {}", transferSessionId, householdIds, enrollmentSessionId);
 
         for(Long householdId: householdIds) {
             TransferEvent transfer = new TransferEvent();
 
-            transfer.setHouseholdId(householdId);
+            transfer.setProgramId(null /* TODO */);
+            transfer.setEnrollmentSessionId(enrollmentSessionId);
             transfer.setTransferSessionId(transferSessionId);
+            transfer.setHouseholdId(householdId);
+            transfer.setRecipientId(null /* TODO */);
+            transfer.setZoneId(null /* TODO */);
+            transfer.setVillageClusterId(null /* TODO */);
+            transfer.setAccountNumber(null /* TODO */);
+            transfer.setFirstTransfer(true);
+            transfer.setCollected(false);
+            transfer.setTransferReceived(false);
+            transfer.setSuspended(false);
+            transfer.setNonRecertified(false);
+            transfer.setModality(TransferMethod.Manual); // until transfer agency is assigned that does EFT
+            transfer.setSubsidyAmount(0L);
+            transfer.setArrearsUncollectedAmount(0L);
+            transfer.setArrearsUntransferredAmount(0L);
+            transfer.setArrearsUpdatedAmount(0L);
+            transfer.setArrearsAmount(0L);
+            transfer.setTotalTransferAmount(0L);
+            transfer.setTotalMembers(0L);
+            transfer.setTotalMembersPrimary(0L);
+            transfer.setTotalMembersPrimaryIncentive(0L);
+            transfer.setTotalMembersSecondary(0L);
+            transfer.setTopup(false);
+            transfer.setTopupValue(0L);
+            transfer.setValueArrearsTopup(0L);
+            transfer.setValueArrearstopupReceive(0L);
+            transfer.setHasChangedGeolocation(false);
+            transfer.setReplaced(false);
+            transfer.setTransferFieldWork(false);
+            transfer.setDatefieldwork(null /* TODO */);
+            transfer.setFieldWorkUserID(null /* TODO */);
+            transfer.setUploadReconciliation(false);
+            transfer.setDateReconciled(null /* TODO */);
+            transfer.setTransferStatus(TransferStatus.Open);
+            transfer.setTransferHouseholdState(TransferHouseholdState.ToTransfer);
+            transfer.setCreatedAt(LocalDateTime.now());
+            transfer.setModifiedAt(transfer.getCreatedAt());
 
             transferRepository.save(transfer);
         }

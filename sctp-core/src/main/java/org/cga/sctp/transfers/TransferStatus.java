@@ -32,23 +32,31 @@
 
 package org.cga.sctp.transfers;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import org.cga.sctp.targeting.importation.parameters.UbrParameterValue;
 
-import java.util.List;
+public enum TransferStatus implements UbrParameterValue {
+    Open(19, "Open"),
+    Preclose(20, "Pre-Close"),
+    Closed(21, "Close");
 
-public interface TransferSessionRepository extends JpaRepository<TransferSession, Long> {
-    @Query(nativeQuery = true, value = """
-            SELECT 
-              pg.name as programName,
-              es.id as enrolmentSessionId,
-              trs.* 
-            FROM transfers_sessions trs
-            INNER JOIN enrollment_sessions es ON es.id = trs.enrollment_session_id
-            INNER JOIN targeting_sessions ts ON ts.id = es.target_session_id
-            INNER JOIN programs pg ON pg.id = ts.program_id
-            LIMIT :page , :pageSize ;
-            """)
-    List<TransferSessionDetailView> findAllActiveAsView(@Param("page") int page, @Param("pageSize") int pageSize);
+    private int code;
+    private String name;
+
+    TransferStatus(int code, String name) {
+        this.code = code;
+        this.name = name;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return this.name;
+    }
 }
