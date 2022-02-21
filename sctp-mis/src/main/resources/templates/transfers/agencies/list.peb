@@ -9,11 +9,7 @@
             {% if canCreate  %}
             <div class="container context-nav-container">
                 <div class="buttons is-right">
-                    <a href="{{ href('/transfers/agencies/new') }}" class="button is-primary">Register New Transfer
-                        Agency</a>
-
-                    <a href="{{ href('/transfers/agencies/assign') }}" class="button is-primary">Assign Transfer
-                        Agency</a>
+                    <a href="{{ href('/transfers/agencies/new') }}" class="button is-primary">Register New Transfer Agency</a>
                 </div>
             </div>
             {% endif %}
