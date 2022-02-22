@@ -33,6 +33,7 @@
 package org.cga.sctp.transfers;
 
 import org.cga.sctp.transfers.agencies.TransferMethod;
+import org.cga.sctp.transfers.parameters.*;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -49,6 +50,15 @@ public class TransferSessionService {
 
     @Autowired
     private TransferEventRepository transferRepository;
+
+    @Autowired
+    private HouseholdTransferParametersRepository householdTransferParametersRepository;
+
+    @Autowired
+    private LocationTransferParametersRepository locationTransferParametersRepository;
+
+    @Autowired
+    private EducationTransferParameterRepository educationTransferParameterRepository;
 
     public TransferSessionRepository getTranferSessionRepository() {
         return tranferSessionRepository;
@@ -116,5 +126,18 @@ public class TransferSessionService {
         return tranferSessionRepository.findAllActiveAsView(pageable.getPageNumber(), pageable.getPageSize());
     }
 
+    public List<TransferEventHouseholdView> findAllHouseholdsInSession(Long sessionId) {
+        return transferRepository.findAllHouseholdsByTransferSessionId(sessionId);
+    }
+
+    // TODO(zikani03) move this method to an appropriate service
+    public List<HouseholdTransferParameter> findAllActiveHouseholdParameters() {
+        return householdTransferParametersRepository.findAll();
+    }
+
+    // TODO(zikani03) move this method to an appropriate service
+    public List<EducationTransferParameter> findAllEducationTransferParameters() {
+        return educationTransferParameterRepository.findAll();
+    }
 }
 

@@ -32,13 +32,17 @@
 
 package org.cga.sctp.mis.transfers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.targeting.CbtRanking;
 import org.cga.sctp.targeting.EnrollmentService;
 import org.cga.sctp.targeting.EnrollmentSessionView;
 import org.cga.sctp.targeting.EnrolmentSessionRepository;
+import org.cga.sctp.transfers.TransferEventHouseholdView;
+import org.cga.sctp.transfers.TransferEventRepository;
 import org.cga.sctp.transfers.TransferSession;
 import org.cga.sctp.transfers.TransferSessionService;
+import org.cga.sctp.transfers.parameters.EducationTransferParameter;
 import org.cga.sctp.user.RoleConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -46,24 +50,29 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static java.util.Collections.emptyList;
 
 @Controller
 @RequestMapping("/transfers/sessions")
 public class TransferSessionsController extends BaseController  {
 
     @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
     private TransferSessionService transferSessionService;
+
+    @Autowired
+    private TransferEventRepository transferEventRepository;
 
     @Autowired
     private EnrolmentSessionRepository enrolmentSessionRepository;
@@ -131,10 +140,26 @@ public class TransferSessionsController extends BaseController  {
             setDangerFlashMessage("Transfer Session does not exist or is not valid", attributes);
             return redirect("/transfers/sessions");
         }
+        EnrollmentSessionView enrollmentSessionView = enrollmentService.getEnrollmentSession(sessionOptional.get().getEnrollmentSessionId());
+
+        List<TransferEventHouseholdView> transferEvents = transferSessionService.findAllHouseholdsInSession(sessionId);
+
+        TransferCalculationPageData pageData = new TransferCalculationPageData();
+        pageData.setProgramInfo(null); // TODO: Get program id somewhere);
+        pageData.setTransferSession(sessionOptional.get());
+        pageData.setEnrollmentSession(enrollmentSessionView);
+        pageData.setHouseholdRows(transferEvents);
+        pageData.setHouseholdParams(transferSessionService.findAllActiveHouseholdParameters());
+
+        Map<String, EducationTransferParameter> educationParamsMap = new HashMap<>();
+        transferSessionService.findAllEducationTransferParameters().forEach(entry -> {
+            educationParamsMap.put(entry.getEducationLevel().toString().toLowerCase(), entry);
+        });
+
+        pageData.setEducationParams(educationParamsMap);
 
         return view("/transfers/calculation/perform_precalculation")
-                .addObject("programInfo", new Object()) // TODO: Get program id somewhere
-                .addObject("transferSession", sessionOptional.get())
-                .addObject("transferAgencies", emptyList());
+                .addObject("pageData", pageData)
+                .addObject("objectMapper", objectMapper); // for serializing data to JSON in the template
     }
 }

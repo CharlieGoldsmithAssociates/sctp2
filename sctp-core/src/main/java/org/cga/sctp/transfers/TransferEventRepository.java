@@ -33,6 +33,49 @@
 package org.cga.sctp.transfers;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
 
 public interface TransferEventRepository extends JpaRepository<TransferEvent, Long> {
+    // TODO(zikani03): make a view with the actual data...
+    List<TransferEvent> findTransfersByTransferSessionId(Long id);
+
+    @Query(nativeQuery = true, value = """
+            SELECT
+                h.household_id householdId
+                ,h.ubr_code formNumber
+                ,l.name districtName
+                ,l2.name taName
+                ,l3.name zoneName
+                ,l4.name clusterName
+                ,l5.name villageName
+                ,h.ml_code mlCode
+                ,h.group_village_head_name villageHeadName
+                , CONCAT(i.first_name, ' ', i.last_name) householdHead
+                ,(SELECT count(id) FROM individuals i2 WHERE i2.household_id = h.household_id) AS memberCount
+                ,(select count(id) from individuals i3 where i3.household_id = h.household_id and TIMESTAMPDIFF(YEAR, i3.date_of_birth, CURDATE()) >=6 and TIMESTAMPDIFF(YEAR, i3.date_of_birth, CURDATE()) <= 15 ) as totalChildren
+                ,(select count(id) from individuals i3 where i3.household_id = h.household_id and i3.highest_education_level = 2) as primaryChildren
+                ,(select count(id) from individuals i3 where i3.household_id = h.household_id and i3.highest_education_level = 3) as secondaryChildren
+                , '' as receiverName
+                , 0 as primaryIncentive
+                , 0 as secondaryIncentive
+                , 0 as monthlyAmount
+                , 0 as numberOfMonths
+                , 0 as totalMonthlyAmount
+                , 0 as totalArrears
+                , 0 as totalAmount
+                , 0 as isFirstTransfer
+            FROM households h
+            INNER JOIN transfers_events te ON h.household_id = te.household_id
+            LEFT JOIN locations l ON l.code = h.location_code
+            LEFT JOIN locations l2 ON l2.code = h.ta_code
+            LEFT JOIN locations l3 ON l3.code = h.zone_code
+            LEFT JOIN locations l4 ON l4.code = h.cluster_code
+            LEFT JOIN locations l5 ON l5.code = h.village_code
+            LEFT JOIN individuals i ON i.household_id = h.household_id AND i.relationship_to_head = 1 
+            WHERE te.transfer_session_id = :sessionId
+            """) // TODO(zikani03): fix the values in the query from receiverName going on downwards
+    List<TransferEventHouseholdView> findAllHouseholdsByTransferSessionId(@Param("sessionId") Long id);
 }
