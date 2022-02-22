@@ -1,0 +1,1 @@
+ALTER TABLE `schools` ADD COLUMN `active` tinyint(1) not null default 1;

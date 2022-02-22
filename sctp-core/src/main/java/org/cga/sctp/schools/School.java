@@ -65,6 +65,9 @@ public class School {
     private String contactPhone;
 
     @Column
+    private Boolean active;
+
+    @Column
     private LocalDateTime createdAt;
 
     @Column
@@ -124,6 +127,14 @@ public class School {
 
     public void setContactPhone(String contactPhone) {
         this.contactPhone = contactPhone;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 
     public LocalDateTime getCreatedAt() {

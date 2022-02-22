@@ -95,7 +95,7 @@ public class SchoolsController extends BaseController {
         schoolForm.setEducationLevel(school.getEducationLevel());
         schoolForm.setContactName(school.getContactName());
         schoolForm.setContactPhone(school.getContactPhone());
-        // schoolForm.setActive(Booleans.of(school.isActive()));
+        schoolForm.setActive(Booleans.of(school.getActive()));
 
         List<Location> districts = locationService.getActiveDistricts();
 
@@ -134,7 +134,7 @@ public class SchoolsController extends BaseController {
         school.setContactName(schoolForm.getContactName());
         school.setContactPhone(schoolForm.getContactPhone());
         school.setModifiedAt(LocalDateTime.now());
-        // school.setActive(schoolForm.getActive().value);
+        school.setActive(schoolForm.getActive().value);
 
         schoolsService.save(school);
 
@@ -163,7 +163,7 @@ public class SchoolsController extends BaseController {
         school.setContactPhone(schoolForm.getContactPhone());
         school.setCreatedAt(LocalDateTime.now());
         school.setModifiedAt(school.getCreatedAt());
-        // school.setActive(schoolForm.getActive().value);
+        school.setActive(schoolForm.getActive().value);
 
         publishGeneralEvent("%s added new school %s.", username, schoolForm.getName());
 
