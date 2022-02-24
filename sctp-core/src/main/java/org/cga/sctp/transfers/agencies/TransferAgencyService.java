@@ -32,9 +32,11 @@
 
 package org.cga.sctp.transfers.agencies;
 
+import org.cga.sctp.location.Location;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -42,11 +44,31 @@ public class TransferAgencyService {
     @Autowired
     private TransferAgenciesRepository transferAgenciesRepository;
 
+    @Autowired
+    private TransferAgencyAssignmentRepository transferAgencyAssignmentRepository;
+
     public TransferAgenciesRepository getTransferAgenciesRepository() {
         return transferAgenciesRepository;
     }
 
     public List<TransferAgency> fetchAllTransferAgencies() {
         return transferAgenciesRepository.findAll();
+    }
+
+    public TransferAgency findActiveTransferAgencyById(Long transferAgencyId) {
+        return transferAgenciesRepository.getOne(transferAgencyId);
+    }
+
+    public TransferAgencyAssignment assignAgency(TransferAgency transferAgency, Location location, TransferMethod transferMethod, Long assignedBy) {
+        TransferAgencyAssignment agencyAssignment = new TransferAgencyAssignment();
+        
+        agencyAssignment.setTransferAgencyId(transferAgency.getId());
+        agencyAssignment.setLocationId(location.getId());
+        agencyAssignment.setTransferMethod(transferMethod);
+        agencyAssignment.setAssignedBy(assignedBy);
+        agencyAssignment.setCreatedAt(LocalDateTime.now());
+        agencyAssignment.setModifiedAt(agencyAssignment.getModifiedAt());
+
+        return transferAgencyAssignmentRepository.save(agencyAssignment);
     }
 }

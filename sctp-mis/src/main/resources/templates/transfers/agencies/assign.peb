@@ -1,0 +1,126 @@
+    {% import "../../utils/form" %}
+        {% extends "../base" %}
+        {% block title %}
+        {{ parent() }} - Assign Transfer Agency
+        {% endblock %}
+
+        {% block contextMenu %}
+        <div class="container context-nav-container">
+            <div class="buttons is-left">
+                <a href="{{ href('/transfers/agencies') }}" class="button is-danger">
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fa fa-chevron-left"></i>
+                    </span>
+                    <span>Back</span>
+                </span>
+                </a>
+            </div>
+        </div>
+
+        {% endblock %}
+
+    {% block content %}
+    <div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-header-title">Assign Transfer Agency</h2>
+        </div>
+        <div class="card-content">
+            {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+            <form method="post"
+                  enctype="application/x-www-form-urlencoded"
+                  action="/transfers/agencies/assign">
+                {{ csrf(_csrf) }}
+                <div class="content">
+                    <p class="notification is-info">
+                        {{ message("transfers.agencies.canOnlyAssignOnce") }}
+                    </p>
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label for="" class="label">Transfer Agency</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="select is-fullwidth">
+                                    {{ selectField('transferAgencyId', transferAgencies, form.transferAgencyId, true) }}
+                            </div>
+                        </div>
+                        {{ printFieldErrors(getFieldErrors('form', 'transferAgency')) }}
+                    </div>
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label is-required">District</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                            {{ selectField('district', districts, form.district, true) }}
+                                    </div>
+                                </div>
+                                {{ printFieldErrors(getFieldErrors('form', 'district')) }}
+                            </div>
+                            <div class="field">
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                            {{ selectField('traditionalAuthority', authorities, form.traditionalAuthority, true) }}
+                                    </div>
+                                    {{ printFieldErrors(getFieldErrors('form', 'traditionalAuthority')) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label is-required">Village T/A</label>
+                        </div>
+
+                        <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                    <div class="select is-multiple is-fullwidth">
+                                            {{ multiSelectField('traditionalAuthority', traditionalAuthority, form.traditionalAuthority, false, 4) }}
+                                    </div>
+                                </div>
+                                {{ printFieldErrors(getFieldErrors('form', 'traditionalAuthority')) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label is-required">Village Cluster</label>
+                        </div>
+
+                        <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                    <div class="select is-multiple is-fullwidth">
+                                            {{ multiSelectField('clusters', clusters, form.clusters, false, 4) }}
+                                    </div>
+                                </div>
+                                {{ printFieldErrors(getFieldErrors('form', 'clusters')) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label for="" class="label">Transfer Method</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="select is-fullwidth">
+                                    {{ selectField('transferMethod', transferMethodOptions, form.transferMethod, true) }}
+                            </div>
+                        </div>
+                        {{ printFieldErrors(getFieldErrors('form', 'transferMethod')) }}
+                    </div>
+                </div>
+                <div class="controls is-right">
+                    <button class="button is-danger">Assign Transfer Agency</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </div>
+    {% endblock %}

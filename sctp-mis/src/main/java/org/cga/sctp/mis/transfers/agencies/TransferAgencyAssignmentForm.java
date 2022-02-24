@@ -32,26 +32,31 @@
 
 package org.cga.sctp.mis.transfers.agencies;
 
-import org.cga.sctp.beneficiaries.Household;
 import org.cga.sctp.location.Location;
-import org.cga.sctp.program.Program;
 import org.cga.sctp.transfers.agencies.TransferAgency;
 import org.cga.sctp.transfers.agencies.TransferMethod;
 
+import javax.validation.constraints.NotNull;
+
 /**
- * Links enrolled {@link Household}s with a {@link TransferAgency} within a specific {@link Program}
- * via the {@link Location}s which those households are registered under.
+ * Links a {@link Location}s with a {@link TransferAgency}.
  */
 public class TransferAgencyAssignmentForm {
     private Long id;
-    private Long programId;
-    private Long enrollmentSessionId;
+
+    @NotNull
     private Long locationId;
+
+    @NotNull
     private Long transferAgencyId;
+
+    @NotNull
     private Long assignedBy;
+
     private Long reviewedBy;
+
+    @NotNull
     private TransferMethod transferMethod;
-    private Long amountPerHousehold; // TODO: REVIEW NECESSITY
 
     public Long getId() {
         return id;
@@ -59,22 +64,6 @@ public class TransferAgencyAssignmentForm {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Long getProgramId() {
-        return programId;
-    }
-
-    public void setProgramId(Long programId) {
-        this.programId = programId;
-    }
-
-    public Long getEnrollmentSessionId() {
-        return enrollmentSessionId;
-    }
-
-    public void setEnrollmentSessionId(Long enrollmentSessionId) {
-        this.enrollmentSessionId = enrollmentSessionId;
     }
 
     public Long getLocationId() {
@@ -115,13 +104,5 @@ public class TransferAgencyAssignmentForm {
 
     public void setTransferMethod(TransferMethod transferMethod) {
         this.transferMethod = transferMethod;
-    }
-
-    public Long getAmountPerHousehold() {
-        return amountPerHousehold;
-    }
-
-    public void setAmountPerHousehold(Long amountPerHousehold) {
-        this.amountPerHousehold = amountPerHousehold;
     }
 }
