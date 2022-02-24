@@ -37,6 +37,7 @@ import org.cga.sctp.mis.core.templating.Booleans;
 import org.cga.sctp.targeting.importation.parameters.EducationLevel;
 import org.cga.sctp.transfers.parameters.EducationTransferParameter;
 import org.cga.sctp.transfers.parameters.EducationTransferParameterRepository;
+import org.cga.sctp.user.AdminAccessOnly;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -66,6 +67,7 @@ public class EducationTransferParameterController extends BaseController {
     }
 
     @GetMapping("/new")
+    @AdminAccessOnly
     public ModelAndView viewAdd() {
         return view("/transfers/parameters/education/new")
                 .addObject("booleans", Booleans.VALUES)
@@ -73,6 +75,7 @@ public class EducationTransferParameterController extends BaseController {
     }
 
     @PostMapping("/new")
+    @AdminAccessOnly
     public ModelAndView processAdd(@AuthenticationPrincipal String username,
                                    @Validated @ModelAttribute EducationTransferParameterForm form,
                                    BindingResult result,
@@ -106,6 +109,7 @@ public class EducationTransferParameterController extends BaseController {
     }
 
     @GetMapping("/{parameter-id}/edit")
+    @AdminAccessOnly
     public ModelAndView viewEdit(@AuthenticationPrincipal String username,
                                  @PathVariable("parameter-id") Long id,
                                  @Validated @ModelAttribute EducationTransferParameterForm form,
@@ -131,6 +135,7 @@ public class EducationTransferParameterController extends BaseController {
     }
 
     @PostMapping("/{parameter-id}/edit")
+    @AdminAccessOnly
     public ModelAndView processEdit(@AuthenticationPrincipal String username,
                                     @PathVariable("parameter-id") Long id,
                                     @Validated @ModelAttribute EducationTransferParameterForm form,

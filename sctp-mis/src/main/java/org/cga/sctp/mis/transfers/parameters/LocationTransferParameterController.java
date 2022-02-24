@@ -39,12 +39,11 @@ import org.cga.sctp.mis.core.templating.Booleans;
 import org.cga.sctp.transfers.parameters.LocationTransferParameter;
 import org.cga.sctp.transfers.parameters.LocationTransferParameterView;
 import org.cga.sctp.transfers.parameters.LocationTransferParametersRepository;
-import org.cga.sctp.user.RoleConstants;
+import org.cga.sctp.user.AdminAccessOnly;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -81,7 +80,7 @@ public class LocationTransferParameterController extends BaseController {
     }
 
     @GetMapping("/new")
-    @Secured({RoleConstants.ROLE_ADMINISTRATOR})
+    @AdminAccessOnly
     public ModelAndView viewNew() {
         List<Location> locations = locationService.getActiveDistricts();
         return view("transfers/parameters/locations/new")
@@ -90,7 +89,7 @@ public class LocationTransferParameterController extends BaseController {
     }
 
     @PostMapping("/new")
-    @Secured({RoleConstants.ROLE_ADMINISTRATOR})
+    @AdminAccessOnly
     public ModelAndView processNew(@AuthenticationPrincipal String username,
                                    @Validated @ModelAttribute LocationTransferParameterForm form,
                                    BindingResult result,
@@ -120,7 +119,7 @@ public class LocationTransferParameterController extends BaseController {
     }
 
     @GetMapping("/{location-paramaeter-id}/edit")
-    @Secured({RoleConstants.ROLE_ADMINISTRATOR})
+    @AdminAccessOnly
     public ModelAndView viewEdit() {
         List<Location> locations = locationService.getActiveDistricts();
         return view("transfers/parameters/locations/edit")
