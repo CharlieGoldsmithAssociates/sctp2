@@ -139,5 +139,43 @@ public class TransferSessionService {
     public List<EducationTransferParameter> findAllEducationTransferParameters() {
         return educationTransferParameterRepository.findAll();
     }
+
+    /**
+     * Get the basic amount to be disbursed to the household according to it's size
+     * @param householdSize number of members in the household
+     * @return amount to give
+     */
+    public Long determineAmountByHouseholdSize(int householdSize) {
+        List<HouseholdTransferParameter> householdParams = householdTransferParametersRepository.findAll();
+        return determineAmountByHouseholdSize(householdSize, householdParams);
+    }
+
+    /**
+     * Get the basic amount to be disbursed to the household according to it's size
+     * @param householdSize size of the household
+     * @param householdParams household params
+     * @return amount
+     */
+    Long determineAmountByHouseholdSize(int householdSize, List<HouseholdTransferParameter> householdParams) {
+        for(var param : householdParams) {
+            if (param.getCondition().equals(HouseholdParameterCondition.GREATER_THAN) &&
+                    householdSize > param.getNumberOfMembers()) {
+
+                return param.getAmount();
+
+            } else if (param.getCondition().equals(HouseholdParameterCondition.GREATER_THAN_OR_EQUAL) &&
+                    householdSize >= param.getNumberOfMembers()) {
+
+                return param.getAmount();
+            } else if (param.getCondition().equals(HouseholdParameterCondition.EQUALS) &&
+                    householdSize == param.getNumberOfMembers()) {
+
+                return param.getAmount();
+            }
+        }
+
+        return -1L;
+    }
+
 }
 
