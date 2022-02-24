@@ -1,12 +1,12 @@
     {% extends "../../base" %}
-
-        {% block contextMenu %}
-        <div class="container context-nav-container">
-            <div class="buttons is-right">
-                <a href="{{ href('/transfers/parameters/households/new') }}" class="button is-primary">Add New</a>
-            </div>
+    {% set canModify = hasRole("ADMINISTRATOR") %}
+    {% block contextMenu %}
+    <div class="container context-nav-container">
+        <div class="buttons is-right">
+            <a href="{{ href('/transfers/parameters/households/new') }}" class="button is-primary">Add New</a>
         </div>
-        {% endblock %}
+    </div>
+    {% endblock %}
 
     {% block content %}
 
@@ -47,7 +47,7 @@
                                         </div>
                                         <div class="dropdown-menu" id="dropdown-menu2" role="menu">
                                             <div class="dropdown-content">
-                                                <a href="/transfer/parameters/households/{{ transferParameter.id }}/edit" class="dropdown-item">Edit</a>
+                                                <a href="/transfers/parameters/households/{{ transferParameter.id }}/edit" class="dropdown-item">Edit</a>
                                             </div>
                                         </div>
                                     </div>
