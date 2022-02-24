@@ -82,4 +82,7 @@ interface LocationRepository extends JpaRepository<Location, Long> {
     List<LocationCode> getActiveCodesByType(@Param("type") String type);
 
     Location findByActiveAndCodeAndLocationType(boolean active, Long code, LocationType type);
+
+    @Query(nativeQuery = true, value = "SELECT COUNT(l.id) FROM locations l INNER JOIN transfer_agencies_assignments taa ON taa.location_id = l.id  WHERE l.id = :id AND l.active = 1;")
+    Integer countNumberOfTransferAgenciesAssigned(@Param("id") Long locationId);
 }

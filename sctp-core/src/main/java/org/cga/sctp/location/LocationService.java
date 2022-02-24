@@ -128,4 +128,9 @@ public class LocationService extends BaseService {
     public Location findActiveLocationByCodeAndType(Long code, LocationType type) {
         return locationRepository.findByActiveAndCodeAndLocationType(true, code, type);
     }
+
+    // TODO(zikani03): Review whether this is the right place for this method...
+    public boolean locationHasTransferAgency(Location location) {
+        return locationRepository.countNumberOfTransferAgenciesAssigned(location.getId()) > 0;
+    }
 }

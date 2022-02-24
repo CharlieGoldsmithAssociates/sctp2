@@ -37,11 +37,12 @@ import org.cga.sctp.location.LocationService;
 import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.mis.core.templating.Booleans;
 import org.cga.sctp.transfers.agencies.TransferAgency;
+import org.cga.sctp.transfers.agencies.TransferAgencyAssignment;
 import org.cga.sctp.transfers.agencies.TransferAgencyService;
-import org.cga.sctp.user.RoleConstants;
+import org.cga.sctp.transfers.agencies.TransferMethod;
+import org.cga.sctp.user.AdminAccessOnly;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -69,7 +70,7 @@ public class TransferAgenciesController extends BaseController {
     }
 
     @GetMapping("/new")
-    @Secured({RoleConstants.ROLE_ADMINISTRATOR})
+    @AdminAccessOnly
     public ModelAndView createPage() {
         List<Location> locations = locationService.getActiveDistricts();
         return view("/transfers/agencies/new")
@@ -78,7 +79,7 @@ public class TransferAgenciesController extends BaseController {
     }
 
     @PostMapping("/new")
-    @Secured({RoleConstants.ROLE_ADMINISTRATOR})
+    @AdminAccessOnly
     public ModelAndView processCreatePage(@AuthenticationPrincipal String username,
                                   @Validated @ModelAttribute TransferAgencyForm form,
                                   BindingResult result,
@@ -112,7 +113,7 @@ public class TransferAgenciesController extends BaseController {
     }
 
     @GetMapping("/{transfer-agency-id}/edit")
-    @Secured({RoleConstants.ROLE_ADMINISTRATOR})
+    @AdminAccessOnly
     public ModelAndView viewEditPage(@PathVariable("transfer-agency-id") Long id,
                                      @ModelAttribute("form") TransferAgencyForm form,
                                      BindingResult result,
@@ -142,7 +143,7 @@ public class TransferAgenciesController extends BaseController {
     }
 
     @PostMapping("/{transfer-agency-id}/edit")
-    @Secured({RoleConstants.ROLE_ADMINISTRATOR})
+    @AdminAccessOnly
     public ModelAndView processEditPage(@AuthenticationPrincipal String username,
                                         @PathVariable("transfer-agency-id") Long id,
                                         @Validated @ModelAttribute TransferAgencyForm form,
@@ -183,5 +184,44 @@ public class TransferAgenciesController extends BaseController {
         TransferAgency transferAgency = transferAgencyService.getTransferAgenciesRepository().getOne(id);
         return view("/transfers/agencies/view")
                 .addObject("transferAgency", transferAgency);
+    }
+
+    @GetMapping("/assign")
+    @AdminAccessOnly
+    public ModelAndView viewAssignPage() {
+        List<TransferAgency> transferAgencies = transferAgencyService.fetchAllTransferAgencies();
+        List<Location> locations = locationService.getActiveDistricts();
+
+        return view("/transfers/agencies/assign")
+                .addObject("transferAgencies", transferAgencies)
+                .addObject("transferMethodOptions", TransferMethod.values())
+                .addObject("options", Booleans.VALUES)
+                .addObject("locations", locations);
+    }
+
+    @PostMapping("/assign")
+    @AdminAccessOnly
+    public String handleAssignPage(@Validated @RequestBody TransferAgencyAssignmentForm form,
+                                   BindingResult bindingResult,
+                                   RedirectAttributes attributes) {
+
+        if (bindingResult.hasErrors()) {
+            return redirectWithDangerMessage("/transfers/agencies/assign", "Failed to assign the agency", attributes);
+        }
+
+        Location location = locationService.findActiveLocationById(form.getLocationId());
+        TransferAgency transferAgency = transferAgencyService.findActiveTransferAgencyById(form.getTransferAgencyId());
+
+        if (locationService.locationHasTransferAgency(location)) {
+            // there is already a transfer agency assigned to this location
+            return redirectWithDangerMessage("/transfers/agencies/assign", "Cannot assign Transfer Agencies. Location already has Transfer Agency assigned.", attributes);
+        }
+
+        TransferAgencyAssignment agencyAssignment = transferAgencyService.assignAgency(transferAgency, location, form.getTransferMethod(), form.getAssignedBy());
+        if (agencyAssignment != null) {
+           return redirectWithSuccessMessage("/transfers/agencies", "Assigned Transfer Agency successfully", attributes);
+        }
+
+        return redirectWithDangerMessage("/transfers/agencies/assign", "Failed to assign the agency", attributes);
     }
 }
