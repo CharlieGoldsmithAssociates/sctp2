@@ -33,7 +33,9 @@
 package org.cga.sctp.mis.transfers.agencies;
 
 import org.cga.sctp.location.Location;
+import org.cga.sctp.location.LocationInfo;
 import org.cga.sctp.location.LocationService;
+import org.cga.sctp.location.LocationType;
 import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.mis.core.templating.Booleans;
 import org.cga.sctp.transfers.agencies.TransferAgency;
@@ -41,9 +43,12 @@ import org.cga.sctp.transfers.agencies.TransferAgencyAssignment;
 import org.cga.sctp.transfers.agencies.TransferAgencyService;
 import org.cga.sctp.transfers.agencies.TransferMethod;
 import org.cga.sctp.user.AdminAccessOnly;
+import org.cga.sctp.user.AuthenticatedUser;
+import org.cga.sctp.user.AuthenticatedUserDetails;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -53,7 +58,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDate;
 import java.util.List;
 
-@RestController
+@Controller
 @RequestMapping("/transfers/agencies")
 public class TransferAgenciesController extends BaseController {
 
@@ -190,23 +195,26 @@ public class TransferAgenciesController extends BaseController {
     @AdminAccessOnly
     public ModelAndView viewAssignPage() {
         List<TransferAgency> transferAgencies = transferAgencyService.fetchAllTransferAgencies();
-        List<Location> locations = locationService.getActiveDistricts();
+        List<Location> districts = locationService.getActiveDistricts();
+        List<LocationInfo> tas = locationService.getByType(LocationType.SUBNATIONAL2);
 
         return view("/transfers/agencies/assign")
                 .addObject("transferAgencies", transferAgencies)
                 .addObject("transferMethodOptions", TransferMethod.values())
                 .addObject("options", Booleans.VALUES)
-                .addObject("locations", locations);
+                .addObject("districts", districts)
+                .addObject("traditionalAuthorities", tas);
     }
 
     @PostMapping("/assign")
     @AdminAccessOnly
-    public String handleAssignPage(@Validated @RequestBody TransferAgencyAssignmentForm form,
+    public String handleAssignPage(@AuthenticatedUserDetails AuthenticatedUser user,
+                                   @Validated @ModelAttribute TransferAgencyAssignmentForm form,
                                    BindingResult bindingResult,
                                    RedirectAttributes attributes) {
 
         if (bindingResult.hasErrors()) {
-            return redirectWithDangerMessage("/transfers/agencies/assign", "Failed to assign the agency", attributes);
+            return redirectWithDangerMessage("/transfers/agencies/assign", "Could not save. Please fix form errors", attributes);
         }
 
         Location location = locationService.findActiveLocationById(form.getLocationId());
@@ -217,7 +225,7 @@ public class TransferAgenciesController extends BaseController {
             return redirectWithDangerMessage("/transfers/agencies/assign", "Cannot assign Transfer Agencies. Location already has Transfer Agency assigned.", attributes);
         }
 
-        TransferAgencyAssignment agencyAssignment = transferAgencyService.assignAgency(transferAgency, location, form.getTransferMethod(), form.getAssignedBy());
+        TransferAgencyAssignment agencyAssignment = transferAgencyService.assignAgency(transferAgency, location, form.getTransferMethod(), user.id());
         if (agencyAssignment != null) {
            return redirectWithSuccessMessage("/transfers/agencies", "Assigned Transfer Agency successfully", attributes);
         }

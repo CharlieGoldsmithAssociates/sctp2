@@ -34,7 +34,7 @@
                 {{ csrf(_csrf) }}
                 <div class="content">
                     <p class="notification is-info">
-                        {{ message("transfers.agencies.canOnlyAssignOnce") }}
+                        This option allows you to choose the geographical level. Remember, if you have more than one transfer agency in a District, select the TA level and do not forget to assign a Transfer Agency for each. If you choose a District, this activity is only carried out once and all beneficiaries are automatically assigned to the Transfer Agency selected.
                     </p>
                     <div class="field is-horizontal">
                         <div class="field-label is-normal">
