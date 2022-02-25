@@ -51,8 +51,12 @@
                     </div>
                     <div class="column">
                         <div class="district location">
-                            <label class="label">Enrollment Completed On</label>
-                            <span>2022-01-01</span>
+                            <label class="label">Select District</label>
+                            <div class="field select">
+                                <select name="district" id="district" class="control">
+                                    <option v-for="district in sessionDistricts" :value="district.id" v-text="district.name"></option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                     <div class="column">
