@@ -103,8 +103,7 @@ public class HouseholdParametersController extends BaseController {
     @GetMapping("/{parameter-id}/edit")
     public ModelAndView viewEdit(@AuthenticationPrincipal String username,
                                  @PathVariable("parameter-id") Long id,
-                                 @Validated @ModelAttribute HouseholdTransferParameterForm form,
-                                 BindingResult result,
+                                 @ModelAttribute("form") HouseholdTransferParameterForm form,
                                  RedirectAttributes attributes) {
 
         Optional<HouseholdTransferParameter> parameterOptional = householdTransferParametersRepository.findById(id);
@@ -121,7 +120,7 @@ public class HouseholdParametersController extends BaseController {
         form.setNumberOfMembers(householdParameter.getNumberOfMembers());
         form.setCondition(householdParameter.getCondition());
 
-        return view("/transfers/parameters/households/new")
+        return view("/transfers/parameters/households/edit")
                 .addObject("booleans", Booleans.VALUES)
                 .addObject("conditions", HouseholdParameterCondition.values());
     }
@@ -139,7 +138,6 @@ public class HouseholdParametersController extends BaseController {
             return redirect("/transfers/parameters/households");
         }
 
-        HouseholdTransferParameter householdParameter = parameterOptional.get();
         if (result.hasErrors()) {
             setWarningFlashMessage("Failed to Household parameter. Please fix the errors on the form", attributes);
             return view("/transfers/parameters/households/edit")
@@ -147,7 +145,8 @@ public class HouseholdParametersController extends BaseController {
                     .addObject("conditions", HouseholdParameterCondition.values());
         }
 
-        // TODO: check if there is a parameter with a condition that's conflicting with the one coming in
+        HouseholdTransferParameter householdParameter = parameterOptional.get();
+
         householdParameter.setCondition(form.getCondition());
         householdParameter.setNumberOfMembers(form.getNumberOfMembers());
         householdParameter.setAmount(form.getAmount());

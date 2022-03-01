@@ -26,19 +26,16 @@
             <div class="content">
                 <div class="field is-horizontal">
                     <div class="field-label is-normal">
-                        <label class="label">Program</label>
+                        <label class="label is-required">Program</label>
                     </div>
                     <div class="field-body">
                         <div class="field">
                             <div class="control">
                                 <div class="select is-fullwidth">
-                                    <select>
-                                        <option disabled selected>Select Program</option>
-                                        <option>SCTP</option>
-                                        <option>Program 2</option>
-                                    </select>
+                                        {{ selectField('programId', programs, form.programId, true) }}
                                 </div>
                             </div>
+                            {{ printFieldErrors(getFieldErrors('form', 'programId')) }}
                         </div>
                     </div>
                 </div>
@@ -60,6 +57,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="field is-horizontal">
                     <div class="field-label is-normal">
                         <label class="label">Transfer Agency</label>

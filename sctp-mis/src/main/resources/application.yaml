@@ -62,7 +62,7 @@ simplejavamail:
 tus:
   server:
     upload:
-      limit: 200MB # Maximum upload size
+      limit: 400MB # Maximum upload size
     data:
       directory: ${java.io.tmpdir}/tus
 
@@ -74,3 +74,8 @@ imports:
 # Targeting related settings
 targeting:
   pictures: ./beneficiary-images # Where to save beneficiary pictures. If the directory does not exist, it will be created.
+
+sctp:
+  transfers:
+    # Number of months in a transfer period for manual transfers, defaults to 2
+    manualTransferFrequency: 2

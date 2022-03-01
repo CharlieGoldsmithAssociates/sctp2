@@ -98,7 +98,7 @@ public class TransferSessionService {
             transfer.setArrearsUpdatedAmount(0L);
             transfer.setArrearsAmount(0L);
             transfer.setTotalTransferAmount(0L);
-            transfer.setTotalMembers(0L);
+            transfer.setTotalMembers(0);
             transfer.setTotalMembersPrimary(0L);
             transfer.setTotalMembersPrimaryIncentive(0L);
             transfer.setTotalMembersSecondary(0L);

@@ -34,27 +34,21 @@ package org.cga.sctp.transfers.agencies;
 
 import org.cga.sctp.beneficiaries.Household;
 import org.cga.sctp.location.Location;
-import org.cga.sctp.persistence.DatabaseRecord;
-import org.cga.sctp.program.Program;
+import org.cga.sctp.persistence.StatusCode;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 /**
- * Links enrolled {@link Household}s with a {@link TransferAgency} within a specific {@link Program}
+ * Links enrolled {@link Household}s with a {@link TransferAgency}
  * via the {@link Location}s which those households are registered under.
  */
 @Entity
 @Table(name="transfer_agencies_assignments")
-public class TransferAgencyAssignment extends DatabaseRecord {
+public class TransferAgencyAssignment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column
-    private Long programId;
-
-    @Column
-    private Long enrollmentSessionId;
 
     @Column
     private Long locationId;
@@ -72,28 +66,25 @@ public class TransferAgencyAssignment extends DatabaseRecord {
     @Enumerated(EnumType.STRING)
     private TransferMethod transferMethod;
 
+    @Column
+    private int frequency;
+
+    @Column(name = "status")
+    @Enumerated(EnumType.ORDINAL)
+    private StatusCode status;
+
+    @Column
+    private LocalDateTime createdAt;
+
+    @Column
+    private LocalDateTime modifiedAt;
+
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Long getProgramId() {
-        return programId;
-    }
-
-    public void setProgramId(Long programId) {
-        this.programId = programId;
-    }
-
-    public Long getEnrollmentSessionId() {
-        return enrollmentSessionId;
-    }
-
-    public void setEnrollmentSessionId(Long enrollmentSessionId) {
-        this.enrollmentSessionId = enrollmentSessionId;
     }
 
     public Long getLocationId() {
@@ -134,5 +125,37 @@ public class TransferAgencyAssignment extends DatabaseRecord {
 
     public void setTransferMethod(TransferMethod transferMethod) {
         this.transferMethod = transferMethod;
+    }
+
+    public int getFrequency() {
+        return frequency;
+    }
+
+    public void setFrequency(int frequency) {
+        this.frequency = frequency;
+    }
+
+    public StatusCode getStatus() {
+        return status;
+    }
+
+    public void setStatus(StatusCode status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getModifiedAt() {
+        return modifiedAt;
+    }
+
+    public void setModifiedAt(LocalDateTime modifiedAt) {
+        this.modifiedAt = modifiedAt;
     }
 }

@@ -51,12 +51,9 @@ public class TransferAgencyAssignmentForm {
     private Long transferAgencyId;
 
     @NotNull
-    private Long assignedBy;
-
-    private Long reviewedBy;
-
-    @NotNull
     private TransferMethod transferMethod;
+
+    private int transferFrequency;
 
     public Long getId() {
         return id;
@@ -82,27 +79,19 @@ public class TransferAgencyAssignmentForm {
         this.transferAgencyId = transferAgencyId;
     }
 
-    public Long getAssignedBy() {
-        return assignedBy;
-    }
-
-    public void setAssignedBy(Long assignedBy) {
-        this.assignedBy = assignedBy;
-    }
-
-    public Long getReviewedBy() {
-        return reviewedBy;
-    }
-
-    public void setReviewedBy(Long reviewedBy) {
-        this.reviewedBy = reviewedBy;
-    }
-
     public TransferMethod getTransferMethod() {
         return transferMethod;
     }
 
     public void setTransferMethod(TransferMethod transferMethod) {
         this.transferMethod = transferMethod;
+    }
+
+    public int getTransferFrequency() {
+        return transferFrequency;
+    }
+
+    public void setTransferFrequency(int transferFrequency) {
+        this.transferFrequency = transferFrequency;
     }
 }

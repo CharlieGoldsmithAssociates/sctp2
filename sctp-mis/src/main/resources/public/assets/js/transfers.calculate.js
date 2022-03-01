@@ -11,6 +11,8 @@ domready(() => {
         data: () => {
             return {
                 transferSession: data.transferSession || {},
+                // Each session may be attached to one or many districts...
+                sessionDistricts: [],
                 transferSessionSummary: {
                     totalHouseholds: 0,
                     totalAmountToBeDisbursed: 0,
@@ -67,7 +69,6 @@ domready(() => {
                     }
                 }
 
-                // TODO: What happens if we get here?
                 return -1;
             },
 
@@ -97,6 +98,13 @@ domready(() => {
                 // calculateArrearsAmounts()
                 // updateTotalAmounts()
             },
+
+            savePrecalculatedAmounts() {
+                axios.post(["/transfers/sessions/", this.transferSession.id, "/pre-calculation"].join(""))
+                    .then((response) => response.data)
+                    .then((data) => alert('Pre-Calculations saved!'))
+                    .catch(err => console.log(err))
+            }
         }
     })
 

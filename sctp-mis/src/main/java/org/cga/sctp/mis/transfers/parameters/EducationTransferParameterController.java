@@ -112,8 +112,7 @@ public class EducationTransferParameterController extends BaseController {
     @AdminAccessOnly
     public ModelAndView viewEdit(@AuthenticationPrincipal String username,
                                  @PathVariable("parameter-id") Long id,
-                                 @Validated @ModelAttribute EducationTransferParameterForm form,
-                                 BindingResult result,
+                                 @ModelAttribute("form") EducationTransferParameterForm form,
                                  RedirectAttributes attributes) {
 
         Optional<EducationTransferParameter> parameterOptional = educationTransferParameterRepository.findById(id);
@@ -127,9 +126,9 @@ public class EducationTransferParameterController extends BaseController {
         form.setId(id);
         form.setActive(Booleans.of(educationParameter.isActive()));
         form.setAmount(educationParameter.getAmount());
-        // form.setEducationLevel(educationParameter.getEducationLevel());
+        form.setEducationLevel(educationParameter.getEducationLevel());
 
-        return view("/transfers/parameters/education/new")
+        return view("/transfers/parameters/education/edit")
                 .addObject("booleans", Booleans.VALUES)
                 .addObject("educationLevels", EducationLevel.values());
     }

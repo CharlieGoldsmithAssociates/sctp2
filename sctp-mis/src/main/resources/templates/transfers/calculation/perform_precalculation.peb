@@ -144,7 +144,7 @@
                     <div class="action-buttons">
                         <div class="buttons are-default is-right">
                             <button @click="handlePerformPreCalculation" class="button is-warning">Run Pre-Calculations</button>
-                        <button class="button is-primary">Save Pre-Calculations</button>
+                        <button class="button is-primary" @click="savePrecalculatedAmounts">Save Pre-Calculations</button>
                         <button class="button is-danger" disabled>Run Final Calculations</button>
                     </div>
                 </div>
@@ -185,7 +185,7 @@
                             </div>
                         </div>
                         <div class="form">
-                            <label class="control label"for="">
+                            <label class="control label" for="">
                                 <input class="control" type="radio" name="showHouseholdsOrAmounts" value="all"> Show Households and Amounts
                                 <input class="control" type="radio" name="showHouseholdsOrAmounts" value="householdsOnly"> Show Only Households
                             </label>

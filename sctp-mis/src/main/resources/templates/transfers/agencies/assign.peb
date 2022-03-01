@@ -33,9 +33,6 @@
                   action="/transfers/agencies/assign">
                 {{ csrf(_csrf) }}
                 <div class="content">
-                    <p class="notification is-info">
-                        This option allows you to choose the geographical level. Remember, if you have more than one transfer agency in a District, select the TA level and do not forget to assign a Transfer Agency for each. If you choose a District, this activity is only carried out once and all beneficiaries are automatically assigned to the Transfer Agency selected.
-                    </p>
                     <div class="field is-horizontal">
                         <div class="field-label is-normal">
                             <label for="" class="label">Transfer Agency</label>
@@ -49,16 +46,42 @@
                     </div>
                     <div class="field is-horizontal">
                         <div class="field-label is-normal">
+                            <label for="" class="label">Transfer Method</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="select is-fullwidth">
+                                    {{ selectField('transferMethod', transferMethodOptions, form.transferMethod, true) }}
+                            </div>
+                        </div>
+                        {{ printFieldErrors(getFieldErrors('form', 'transferMethod')) }}
+                    </div>
+
+                    <p class="notification is-info">
+                        This option allows you to choose the geographical level. Remember, if you have more than one transfer agency in a District, select the TA level and do not forget to assign a Transfer Agency for each. If you choose a District, this activity is only carried out once and all beneficiaries are automatically assigned to the Transfer Agency selected.
+                    </p>
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label for="" class="label">Geographical Level</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="select is-fullwidth">
+                                    {{ selectField('geolocationLevels', geolocationLevels, form.geolocationLevel, true) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
                             <label class="label is-required">District</label>
                         </div>
                         <div class="field-body">
                             <div class="field">
                                 <div class="control">
                                     <div class="select is-fullwidth">
-                                            {{ selectField('district', districts, form.district, true) }}
+                                            {{ selectField('locationId', districts, form.district, true) }}
                                     </div>
                                 </div>
-                                {{ printFieldErrors(getFieldErrors('form', 'district')) }}
+                                {{ printFieldErrors(getFieldErrors('form', 'locationId')) }}
                             </div>
                             <div class="field">
                                 <div class="control">
@@ -102,18 +125,6 @@
                                 {{ printFieldErrors(getFieldErrors('form', 'clusters')) }}
                             </div>
                         </div>
-                    </div>
-
-                    <div class="field is-horizontal">
-                        <div class="field-label is-normal">
-                            <label for="" class="label">Transfer Method</label>
-                        </div>
-                        <div class="field-body">
-                            <div class="select is-fullwidth">
-                                    {{ selectField('transferMethod', transferMethodOptions, form.transferMethod, true) }}
-                            </div>
-                        </div>
-                        {{ printFieldErrors(getFieldErrors('form', 'transferMethod')) }}
                     </div>
                 </div>
                 <div class="controls is-right">

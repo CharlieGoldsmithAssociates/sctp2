@@ -113,7 +113,7 @@ public class TransferEvent {
     private Long totalTransferAmount;// valuetotaltransfer;
 
     @Column
-    private Long totalMembers;
+    private Integer totalMembers;
 
     @Column
     private Long totalMembersPrimary;
@@ -342,11 +342,11 @@ public class TransferEvent {
         this.totalTransferAmount = totalTransferAmount;
     }
 
-    public Long getTotalMembers() {
+    public Integer getTotalMembers() {
         return totalMembers;
     }
 
-    public void setTotalMembers(Long totalMembers) {
+    public void setTotalMembers(Integer totalMembers) {
         this.totalMembers = totalMembers;
     }
 

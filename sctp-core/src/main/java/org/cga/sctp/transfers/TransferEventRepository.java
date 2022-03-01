@@ -39,8 +39,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface TransferEventRepository extends JpaRepository<TransferEvent, Long> {
-    // TODO(zikani03): make a view with the actual data...
-    List<TransferEvent> findTransfersByTransferSessionId(Long id);
 
     @Query(nativeQuery = true, value = """
             SELECT
@@ -59,14 +57,14 @@ public interface TransferEventRepository extends JpaRepository<TransferEvent, Lo
                 ,(select count(id) from individuals i3 where i3.household_id = h.household_id and i3.highest_education_level = 2) as primaryChildren
                 ,(select count(id) from individuals i3 where i3.household_id = h.household_id and i3.highest_education_level = 3) as secondaryChildren
                 , '' as receiverName
-                , 0 as primaryIncentive
-                , 0 as secondaryIncentive
-                , 0 as monthlyAmount
+                , te.total_members_primary_incentive as primaryIncentive
+                , te.total_members_secondary as secondaryIncentive
+                , te.subsidy_amount as monthlyAmount
                 , 0 as numberOfMonths
-                , 0 as totalMonthlyAmount
-                , 0 as totalArrears
-                , 0 as totalAmount
-                , 0 as isFirstTransfer
+                , te.total_transfer_amount as totalMonthlyAmount
+                , te.arrears_amount as totalArrears
+                , te.total_transfer_amount as totalAmount
+                , te.first_transfer as isFirstTransfer
             FROM households h
             INNER JOIN transfers_events te ON h.household_id = te.household_id
             LEFT JOIN locations l ON l.code = h.location_code
