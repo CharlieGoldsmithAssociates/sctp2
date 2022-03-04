@@ -33,16 +33,22 @@
 package org.cga.sctp.mis.transfers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.cga.sctp.location.Location;
+import org.cga.sctp.location.LocationService;
 import org.cga.sctp.mis.core.BaseController;
+import org.cga.sctp.program.Program;
+import org.cga.sctp.program.ProgramService;
 import org.cga.sctp.targeting.CbtRanking;
 import org.cga.sctp.targeting.EnrollmentService;
 import org.cga.sctp.targeting.EnrollmentSessionView;
 import org.cga.sctp.targeting.EnrolmentSessionRepository;
 import org.cga.sctp.transfers.TransferEventHouseholdView;
-import org.cga.sctp.transfers.TransferEventRepository;
+import org.cga.sctp.transfers.TransfersRepository;
 import org.cga.sctp.transfers.TransferSession;
 import org.cga.sctp.transfers.TransferSessionService;
 import org.cga.sctp.transfers.parameters.EducationTransferParameter;
+import org.cga.sctp.user.AuthenticatedUser;
+import org.cga.sctp.user.AuthenticatedUserDetails;
 import org.cga.sctp.user.RoleConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -55,10 +61,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -69,10 +72,16 @@ public class TransferSessionsController extends BaseController  {
     private ObjectMapper objectMapper;
 
     @Autowired
+    private ProgramService programService;
+
+    @Autowired
+    private LocationService locationService;
+
+    @Autowired
     private TransferSessionService transferSessionService;
 
     @Autowired
-    private TransferEventRepository transferEventRepository;
+    private TransfersRepository transfersRepository;
 
     @Autowired
     private EnrolmentSessionRepository enrolmentSessionRepository;
@@ -89,12 +98,9 @@ public class TransferSessionsController extends BaseController  {
 
     @PostMapping("/initiate")
     @Secured({RoleConstants.ROLE_ADMINISTRATOR})
-    public String initiateNewTransferFromEnrollment(@RequestParam("enrollment") Long enrollmentSessionId,
+    public String initiateNewTransferFromEnrollment(@AuthenticatedUserDetails AuthenticatedUser user,
+                                                    @RequestParam("enrollment") Long enrollmentSessionId,
                                                     RedirectAttributes attributes) {
-        // 1. Select only the households that are marked as enrolled from the enrollment session
-        // 2. Create a new transfer_session (a session keeps track of transfer events), the transfer session may also track the periods
-        // 3. For each enrolled household create a new transfer_session_event (which calculates the amounts for each household)
-
         EnrollmentSessionView sessionView = enrollmentService.getEnrollmentSession(enrollmentSessionId);
         if (sessionView == null) {
             return redirectWithDangerMessage(format("/targeting/enrolment?invalidSession=%s", enrollmentSessionId),
@@ -108,25 +114,24 @@ public class TransferSessionsController extends BaseController  {
                     attributes);
         }
 
-        Long transferSessionId = -1L;
         TransferSession session = new TransferSession();
         session.setEnrollmentSessionId(enrollmentSessionId);
-        session.setProgramId(-1L); // TODO: get program id somehow...
+        session.setProgramId(-1L);
         session.setActive(true);
         session.setCreatedAt(LocalDateTime.now());
         session.setModifiedAt(session.getCreatedAt());
 
         transferSessionService.getTranferSessionRepository().save(session);
-
-        transferSessionId = session.getId();
-
-        Slice<CbtRanking> cbtRankingSlice = enrollmentService.getEnrolledHouseholds(sessionView, PageRequest.of(1,1000));
-        List<Long> householdIds  = cbtRankingSlice.getContent().stream().map(CbtRanking::getHouseholdId).collect(Collectors.toList());
-
-        transferSessionService.initiateTransfersForHouseholds(transferSessionId, householdIds, enrollmentSessionId);
+        transferSessionService.initiateTransfersForHouseholds(
+                session.getId(),
+                enrollmentSessionId,
+                session.getProgramId(),
+                user.id(),
+                Collections.emptyList()
+        );
 
         // See {@see #viewPerformCalculationPage}
-        return redirectWithSuccessMessage(format("/transfers/sessions/%s/pre-calculation", transferSessionId),
+        return redirectWithSuccessMessage(format("/transfers/sessions/%s/pre-calculation", session.getId()),
             "New Transfer Session initiated successfully from enrolled households",
             attributes);
     }
@@ -161,5 +166,14 @@ public class TransferSessionsController extends BaseController  {
         return view("/transfers/calculation/perform_precalculation")
                 .addObject("pageData", pageData)
                 .addObject("objectMapper", objectMapper); // for serializing data to JSON in the template
+    }
+
+    @GetMapping("/calculations/step1")
+    public ModelAndView viewCalculationStep1() {
+        List<Program> programs = programService.getActivePrograms();
+        List<Location> districts = locationService.getActiveDistricts();
+        return view("/transfers/calculation/calculations_step_1")
+                .addObject("programs", programs)
+                .addObject("districts", districts);
     }
 }

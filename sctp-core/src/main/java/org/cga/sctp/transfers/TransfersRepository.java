@@ -32,17 +32,20 @@
 
 package org.cga.sctp.transfers;
 
+import org.hibernate.annotations.SQLUpdate;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-public interface TransferEventRepository extends JpaRepository<TransferEvent, Long> {
+public interface TransfersRepository extends JpaRepository<Transfer, Long> {
 
     @Query(nativeQuery = true, value = """
             SELECT
-                h.household_id householdId
+                 h.household_id householdId
                 ,h.ubr_code formNumber
                 ,l.name districtName
                 ,l2.name taName
@@ -51,29 +54,36 @@ public interface TransferEventRepository extends JpaRepository<TransferEvent, Lo
                 ,l5.name villageName
                 ,h.ml_code mlCode
                 ,h.group_village_head_name villageHeadName
-                , CONCAT(i.first_name, ' ', i.last_name) householdHead
-                ,(SELECT count(id) FROM individuals i2 WHERE i2.household_id = h.household_id) AS memberCount
-                ,(select count(id) from individuals i3 where i3.household_id = h.household_id and TIMESTAMPDIFF(YEAR, i3.date_of_birth, CURDATE()) >=6 and TIMESTAMPDIFF(YEAR, i3.date_of_birth, CURDATE()) <= 15 ) as totalChildren
-                ,(select count(id) from individuals i3 where i3.household_id = h.household_id and i3.highest_education_level = 2) as primaryChildren
-                ,(select count(id) from individuals i3 where i3.household_id = h.household_id and i3.highest_education_level = 3) as secondaryChildren
-                , '' as receiverName
-                , te.total_members_primary_incentive as primaryIncentive
-                , te.total_members_secondary as secondaryIncentive
-                , te.subsidy_amount as monthlyAmount
-                , 0 as numberOfMonths
-                , te.total_transfer_amount as totalMonthlyAmount
-                , te.arrears_amount as totalArrears
-                , te.total_transfer_amount as totalAmount
-                , te.first_transfer as isFirstTransfer
+                ,CONCAT(i.first_name, ' ', i.last_name) householdHead
+                ,te.household_member_count as memberCount
+                ,te.children_count as childrenCount
+                ,te.primary_children_count as primaryChildren
+                ,te.secondary_children_count as secondaryChildren
+                ,CONCAT(i2.first_name, ' ', i2.last_name) as receiverName
+                ,te.primary_incentive_amount as primaryIncentive
+                ,te.secondary_incentive_amount as secondaryIncentive
+                ,te.basic_subsidy_amount as monthlyAmount
+                ,te.number_of_months as numberOfMonths
+                ,te.total_transfer_amount as totalMonthlyAmount
+                ,te.arrears_amount as totalArrears
+                ,te.total_transfer_amount as totalAmount
+                ,te.is_first_transfer as isFirstTransfer
             FROM households h
-            INNER JOIN transfers_events te ON h.household_id = te.household_id
+            INNER JOIN transfers te ON h.household_id = te.household_id
             LEFT JOIN locations l ON l.code = h.location_code
             LEFT JOIN locations l2 ON l2.code = h.ta_code
             LEFT JOIN locations l3 ON l3.code = h.zone_code
             LEFT JOIN locations l4 ON l4.code = h.cluster_code
             LEFT JOIN locations l5 ON l5.code = h.village_code
             LEFT JOIN individuals i ON i.household_id = h.household_id AND i.relationship_to_head = 1 
+            LEFT JOIN individuals i2 ON i2.id = te.receiver_id 
             WHERE te.transfer_session_id = :sessionId
-            """) // TODO(zikani03): fix the values in the query from receiverName going on downwards
+            """)
     List<TransferEventHouseholdView> findAllHouseholdsByTransferSessionId(@Param("sessionId") Long id);
+
+    @Modifying
+    @Query(nativeQuery = true, value = "CALL initiateTransfersForEnrolledHouseholdsInDistrict(:enrollmentSessionId, :transferSessionId, :userId)")
+    void initiateTransfersForEnrolledHouseholds(@Param("enrollmentSessionId") Long enrollmentSessionId,
+                                                @Param("transferSessionId") Long transferSessionId,
+                                                @Param("userId") Long userId);
 }

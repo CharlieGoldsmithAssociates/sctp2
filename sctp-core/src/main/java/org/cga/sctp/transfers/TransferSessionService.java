@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -49,7 +50,7 @@ public class TransferSessionService {
     private TransferSessionRepository tranferSessionRepository;
 
     @Autowired
-    private TransferEventRepository transferRepository;
+    private TransfersRepository transferRepository;
 
     @Autowired
     private HouseholdTransferParametersRepository householdTransferParametersRepository;
@@ -72,54 +73,33 @@ public class TransferSessionService {
      * @param householdIds the list of household ids assign transfers too
      * @param enrollmentSessionId the enrollment under which the households belong.
      */
-    public void initiateTransfersForHouseholds(Long transferSessionId, List<Long> householdIds, Long enrollmentSessionId) {
-        LoggerFactory.getLogger(getClass()).info("Initiating transfer session {} events for households {} in enrollment {}", transferSessionId, householdIds, enrollmentSessionId);
+    @Transactional
+    public void initiateTransfersForHouseholds(Long transferSessionId,
+                                               Long enrollmentSessionId,
+                                               Long programId,
+                                               Long initiatedBy,
+                                               List<Long> householdIds) {
 
-        for(Long householdId: householdIds) {
-            TransferEvent transfer = new TransferEvent();
-
-            transfer.setProgramId(null /* TODO */);
-            transfer.setEnrollmentSessionId(enrollmentSessionId);
-            transfer.setTransferSessionId(transferSessionId);
-            transfer.setHouseholdId(householdId);
-            transfer.setRecipientId(null /* TODO */);
-            transfer.setZoneId(null /* TODO */);
-            transfer.setVillageClusterId(null /* TODO */);
-            transfer.setAccountNumber(null /* TODO */);
-            transfer.setFirstTransfer(true);
-            transfer.setCollected(false);
-            transfer.setTransferReceived(false);
-            transfer.setSuspended(false);
-            transfer.setNonRecertified(false);
-            transfer.setModality(TransferMethod.Manual); // until transfer agency is assigned that does EFT
-            transfer.setSubsidyAmount(0L);
-            transfer.setArrearsUncollectedAmount(0L);
-            transfer.setArrearsUntransferredAmount(0L);
-            transfer.setArrearsUpdatedAmount(0L);
-            transfer.setArrearsAmount(0L);
-            transfer.setTotalTransferAmount(0L);
-            transfer.setTotalMembers(0);
-            transfer.setTotalMembersPrimary(0L);
-            transfer.setTotalMembersPrimaryIncentive(0L);
-            transfer.setTotalMembersSecondary(0L);
-            transfer.setTopup(false);
-            transfer.setTopupValue(0L);
-            transfer.setValueArrearsTopup(0L);
-            transfer.setValueArrearstopupReceive(0L);
-            transfer.setHasChangedGeolocation(false);
-            transfer.setReplaced(false);
-            transfer.setTransferFieldWork(false);
-            transfer.setDatefieldwork(null /* TODO */);
-            transfer.setFieldWorkUserID(null /* TODO */);
-            transfer.setUploadReconciliation(false);
-            transfer.setDateReconciled(null /* TODO */);
-            transfer.setTransferStatus(TransferStatus.Open);
-            transfer.setTransferHouseholdState(TransferHouseholdState.ToTransfer);
-            transfer.setCreatedAt(LocalDateTime.now());
-            transfer.setModifiedAt(transfer.getCreatedAt());
-
-            transferRepository.save(transfer);
-        }
+        // transferSessionId
+        transferRepository.initiateTransfersForEnrolledHouseholds(enrollmentSessionId, transferSessionId, initiatedBy);
+//        for(Long householdId: householdIds) {
+//            Transfer transfer = new Transfer();
+//
+//            transfer.setProgramId(null /* TODO */);
+//            transfer.setEnrollmentSessionId(enrollmentSessionId);
+//            transfer.setTransferSessionId(transferSessionId);
+//            transfer.setHouseholdId(householdId);
+//            transfer.setRecipientId(null /* TODO */);
+//            transfer.setZoneId(null /* TODO */);
+//            transfer.setVillageClusterId(null /* TODO */);
+//            transfer.setAccountNumber(null /* TODO */);
+//            transfer.setModality(TransferMethod.Manual); // until transfer agency is assigned that does EFT
+//
+//            transfer.setCreatedAt(LocalDateTime.now());
+//            transfer.setModifiedAt(transfer.getCreatedAt());
+//
+//            transferRepository.save(transfer);
+//        }
     }
 
     public List<TransferSessionDetailView> findAllActive(Pageable pageable) {

@@ -3,7 +3,7 @@
         {% block contextMenu %}
         <div class="container context-nav-container">
             <div class="buttons is-right">
-                <a href="{{ href('calculation/new') }}" class="button is-primary">New Cash Transfer Amount Calculation</a>
+                <a href="{{ href('sessions/calculations/step1') }}" class="button is-primary">New Cash Transfer Amount Calculation</a>
             </div>
         </div>
         {% endblock %}
@@ -21,8 +21,9 @@
                         <thead>
                         <tr>
                             <th>Program</th>
-                            <th>Districts</th>
+                            <th>District</th>
                             <th>Total Households</th>
+                            <th>No. of Transfer Agencies</th>
                             <th>Total Calculated So Far</th>
                             <th>Date</th>
                             <th>Initiated By</th>
@@ -34,8 +35,9 @@
                         {% for transferSession in transferSessions %}
                         <tr>
                             <td>{{ transferSession.programName }}</td>
-                            <td>{{ transferSession.numOfDistricts }}</td>
+                            <td>{{ transferSession.districtName }}</td>
                             <td>{{ transferSession.totalHouseholds }}</td>
+                            <td>{{ transferSession.totalTransferAgencies }}</td>
                             <td>MWK {{ transferSession.totalAmountCalculated | numberformat("#,###.##")}}</td>
                             <td>{{ transferSession.createdAt }}</td>
                             <td>{{ transferSession.initiatedBy }}</td>
