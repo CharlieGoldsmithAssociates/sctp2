@@ -38,10 +38,7 @@ import org.cga.sctp.core.BaseComponent;
 import org.cga.sctp.targeting.exchange.DataImport;
 import org.cga.sctp.targeting.exchange.DataImportObject;
 import org.cga.sctp.targeting.exchange.DataImportService;
-import org.cga.sctp.targeting.importation.BaseFileImportTask;
-import org.cga.sctp.targeting.importation.FileImportTaskView;
-import org.cga.sctp.targeting.importation.ImportTaskService;
-import org.cga.sctp.targeting.importation.UbrHouseholdImport;
+import org.cga.sctp.targeting.importation.*;
 import org.cga.sctp.utils.LocaleUtils;
 
 import java.io.File;
@@ -121,129 +118,12 @@ final class FileImportJob extends BaseComponent implements Runnable {
     }
 
     /**
-     * Returns a predicate for matching strings within a stream
-     *
-     * @param keyword
-     * @return
-     */
-    private Predicate<String> lazyMatch(String keyword) {
-        return s -> s.toLowerCase().startsWith(keyword.toLowerCase());
-    }
-
-    /**
      * Process a record: Resolve other values/fields and verify that all required values are set.
      *
      * @param record .
      */
     private void processRecord(UbrHouseholdImport record) {
-        List<String> errors = new LinkedList<>();
-
-        // Household Assets
-        record.setHasNoAssets(record.getAssets().isEmpty());
-        if (!record.getHasNoAssets()) {
-            record.setHasChair(record.getAssets().stream().anyMatch(lazyMatch("Chair")));
-            record.setHasRadio(record.getAssets().stream().anyMatch(lazyMatch("Radio")));
-            record.setHasBicycles(record.getAssets().stream().anyMatch(lazyMatch("Bicycle")));
-            record.setHasBeds(record.getAssets().stream().anyMatch(lazyMatch("Bed")));
-            record.setHasMattress(record.getAssets().stream().anyMatch(lazyMatch("Mattress")));
-            record.setHasSleepingMat(record.getAssets().stream().anyMatch(lazyMatch("Sleeping Mat")));
-            record.setHasBlankets(record.getAssets().stream().anyMatch(lazyMatch("Blanket")));
-            record.setHasWaterCan(record.getAssets().stream().anyMatch(lazyMatch("Water can")));
-            record.setHasKitchenUtensils(record.getAssets().stream().anyMatch(lazyMatch("Kitchen Utensils")));
-            record.setHasPoultry(record.getAssets().stream().anyMatch(lazyMatch("Poultry")));
-            record.setHasLivestock(record.getAssets().stream().anyMatch(lazyMatch("Livestock")));
-            record.setHasOxCart(record.getAssets().stream().anyMatch(lazyMatch("Ox Cart")));
-            record.setHasHoe(record.getAssets().stream().anyMatch(lazyMatch("Hoe")));
-            record.setHasMacheteKnife(record.getAssets().stream().anyMatch(lazyMatch("Panga Knife")));
-            record.setHasMortar(record.getAssets().stream().anyMatch(lazyMatch("Mortar")));
-            record.setHasCellphone(record.getAssets().stream().anyMatch(lazyMatch("Cellphone")));
-            record.setHasLatrine(record.getAssets().stream().anyMatch(lazyMatch("Latrine")));
-            record.setHasFlushToilet(record.getAssets().stream().anyMatch(lazyMatch("Flush Toilet")));
-            record.setHasVipLatrine(record.getAssets().stream().anyMatch(lazyMatch("Vip Latrine")));
-            record.setHasLatrineWithRoof(record.getAssets().stream().anyMatch(lazyMatch("Latrine With Roof")));
-            record.setHasOtherToiletType(record.getAssets().stream().anyMatch(lazyMatch("Other Toilet Type")));
-        }
-
-        // Livelihood sources
-        if (!record.getLivelihoodSources().isEmpty()) {
-            record.setSurvivesOnBegging(record.getLivelihoodSources().stream().anyMatch(lazyMatch("Begging")));
-            record.setSurvivesOnGanyu(record.getLivelihoodSources().stream().anyMatch(lazyMatch("Ganyu")));
-            record.setSurvivesOnPettyTrading(record.getLivelihoodSources().stream().anyMatch(lazyMatch("Petty trading")));
-            record.setSurvivesOnAgriculture(record.getLivelihoodSources().stream().anyMatch(lazyMatch("Agriculture")));
-            record.setSurvivesOnOther(record.getLivelihoodSources().stream().anyMatch(lazyMatch("Other")));
-
-            // Default to Other if none matched
-            boolean other = record.getSurvivesOnBegging()
-                    | record.getSurvivesOnGanyu()
-                    | record.getSurvivesOnPettyTrading()
-                    | record.getSurvivesOnAgriculture()
-                    | record.getSurvivesOnOther();
-            if (!other) {
-                record.setSurvivesOnOther(true);
-            }
-        } else {
-            record.setSurvivesOnOther(true);
-        }
-
-        boolean isValid = true;
-        if (record.getDateOfBirth() == null) {
-            isValid = false;
-            errors.add("Missing date of birth");
-        }
-
-        if (LocaleUtils.isStringNullOrEmpty(record.getFirstName())
-                || LocaleUtils.isStringNullOrEmpty(record.getLastName())) {
-            isValid = false;
-            errors.add("Missing first name and or surname.");
-        }
-
-        if (record.getFormNumber() == null) {
-            isValid = false;
-            errors.add("Missing form number");
-        }
-
-        if (record.getDistrictCode() == null) {
-            isValid = false;
-            errors.add("Missing district code");
-        }
-
-        if (record.getTaCode() == null) {
-            isValid = false;
-            errors.add("Missing traditional authority code");
-        }
-
-        if (record.getZoneCode() == null) {
-            isValid = false;
-            errors.add("Missing zone code");
-        }
-
-        if (record.getClusterCode() == null) {
-            isValid = false;
-            errors.add("Missing cluster code");
-        }
-
-        if (record.getVillageCode() == null) {
-            isValid = false;
-            errors.add("Missing village code");
-        }
-
-        List<String> recordErrors = record.getErrors();
-        if (isValid) {
-            if (recordErrors == null) {
-                record.setErrors(Collections.emptyList());
-            }
-        } else {
-            if (recordErrors == null) {
-                record.setErrors(errors);
-            } else {
-                recordErrors.addAll(errors);
-            }
-        }
-
-        // Set status (Only valid will be eligible for final import)
-        record.setValidationStatus(isValid
-                ? UbrHouseholdImport.ValidationStatus.Valid
-                : UbrHouseholdImport.ValidationStatus.Error);
+        UbrHouseholdImportUtil.updateAssetsLiveliHoodAndValidationErrors(record);
     }
 
     private void process(ImportTaskParameter parameter) {
