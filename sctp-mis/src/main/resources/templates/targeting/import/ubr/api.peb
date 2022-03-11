@@ -1,0 +1,109 @@
+{% extends "../base" %}
+
+    {% block title %}
+        {{ parent() }} | Import UBR Data from the API
+    {% endblock %}
+
+    {% block contextMenu %}
+    <div class="container context-nav-container">
+        <div class="buttons is-left">
+            <a href="/data-import" class="button is-danger">
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fa fa-chevron-left"></i>
+                    </span>
+                    <span>Back</span>
+                </span>
+            </a>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block content %}
+    <div class="container">
+        <div class="card no-overlap">
+        <header class="card-header">
+            <p class="card-header-title">Import UBR Data From API</p>
+        </header>
+        <div class="card-content">
+            {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+            <form action="/data-import/from-ubr-api"
+                  method="post"
+                  enctype="application/x-www-form-urlencoded">
+                {{ csrf(_csrf) }}
+
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label is-required">Title</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                                 {{ textField('title', form.title, 1, 100, true, null) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('form', 'title')) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label is-required">District</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                                 {{ textField('districtCode', form.districtCode, 1, 100, true, null) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('form', 'districtCode')) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label is-required">T / A</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                                 {{ textField('traditionalAuthorityCode', form.traditionalAuthorityCode, 1, 100, true, null) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('form', 'traditionalAuthorityCode')) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label is-required">GVH</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                                 {{ textField('groupVillageHeadCode', form.groupVillageHeadCode, 1, 100, true, null) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('form', 'groupVillageHeadCode')) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label is-required">Enrolment Status</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                                 {{ textField('enrolmentStatus', form.enrolmentStatus, 1, 100, true, null) }}
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('form', 'enrolmentStatus')) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="buttons is-right">
+                    <button class="button is-primary">Initiate Import</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </div>
+    {% endblock %}

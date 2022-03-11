@@ -1,0 +1,173 @@
+/*
+ * BSD 3-Clause License
+ *
+ * Copyright (c) 2022, CGATechnologies
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+package org.cga.sctp.targeting.importation;
+
+import org.cga.sctp.targeting.exchange.DataImport;
+import org.cga.sctp.targeting.importation.parameters.*;
+import org.cga.sctp.targeting.importation.ubrapi.data.HouseholdMember;
+import org.cga.sctp.targeting.importation.ubrapi.data.TargetingData;
+import org.cga.sctp.targeting.importation.ubrapi.data.UbrApiDataResponse;
+import org.slf4j.LoggerFactory;
+
+import java.math.BigDecimal;
+import java.sql.Date;
+import java.util.*;
+
+import static java.lang.String.format;
+
+public class UbrApiDataToHouseholdImportMapper {
+
+    public List<UbrHouseholdImport> mapFromApiData(DataImport dataImport, UbrApiDataResponse ubrApiDataResponse) {
+        List<UbrHouseholdImport> result = new ArrayList<>(ubrApiDataResponse.getData().size());
+        if (ubrApiDataResponse.isErrorOccurred()) {
+            return Collections.emptyList();
+        }
+
+        for (TargetingData entry: ubrApiDataResponse.getData()) {
+            try {
+                result.addAll(mapEntry(dataImport, entry));
+            } catch (Exception e) {
+                LoggerFactory.getLogger(getClass()).error("Failed to map entry, got exception", e);
+            }
+        }
+
+        return result;
+    }
+
+    private List<UbrHouseholdImport> mapEntry(DataImport dataImport, TargetingData targetingData) throws Exception {
+        List<UbrHouseholdImport> members = new ArrayList<>(targetingData.household_members.size());
+        Long batchNumber = Long.parseLong(format("%d%d%d",
+                dataImport.getImporterUserId(), System.currentTimeMillis(), dataImport.getId()));
+
+        UbrHouseholdImport common = new UbrHouseholdImport();
+
+        common.setBatchNumber(batchNumber);
+        common.setGpsLatitude(new BigDecimal(targetingData.gps_latitude));
+        common.setGpsLongitude(new BigDecimal(targetingData.gps_longitude));
+
+        common.setFloorType(FloorType.parseIntCode(targetingData.household_characteristic.floor.parameter_id));
+        common.setRoofType(RoofType.parseIntCode(targetingData.household_characteristic.roof.parameter_id));
+        common.setFuelSource(FuelSource.parseIntCode(targetingData.household_characteristic.fuel_source.parameter_id));
+        common.setWallType(WallType.parseIntCode(targetingData.household_characteristic.wall.parameter_id));
+        common.setHouseCondition(HouseCondition.parseIntCode(targetingData.household_characteristic.house_condition.parameter_id));
+        common.setHouseOwnership(HouseOwnership.parseIntCode(targetingData.household_characteristic.house_ownership_id));
+        common.setLatrineType(LatrineType.parseIntCode(targetingData.household_characteristic.latrine.parameter_id));
+
+        common.setHouseholdCode(targetingData.household_code);
+        common.setPmtScore(new BigDecimal(targetingData.pmt_score));
+        common.setDependencyRatio(new BigDecimal(targetingData.household_summary.dependency_ratio));
+        common.setFormNumber(Long.parseLong(targetingData.form_number));
+        common.setRegistrationDate(Date.valueOf(targetingData.registration_date));
+
+        common.setVillageCode(Long.parseLong(targetingData.village.village_code));
+        common.setVillageName(targetingData.village.village_name);
+
+        common.setZoneCode(Long.parseLong(targetingData.village.zone.zone_code));
+        common.setZoneName(targetingData.village.zone.zone_name);
+
+        common.setGroupVillageHeadCode(Long.parseLong(targetingData.village.group_village_head.group_village_head_code));
+        common.setGroupVillageHeadName(targetingData.village.group_village_head.group_village_head_name);
+
+        common.setTaCode(Long.parseLong(targetingData.village.group_village_head.traditional_authority.traditional_authority_code));
+        common.setTraditionalAuthorityName(targetingData.village.group_village_head.traditional_authority.traditional_authority_name);
+
+        common.setDistrictCode(Long.parseLong(targetingData.village.group_village_head.traditional_authority.district.district_code));
+        common.setDistrictName(targetingData.village.group_village_head.traditional_authority.district.district_name);
+
+//        common.setAssistanceReceived(/* TODO: set it! */);
+//        common.setCurrentHarvest(/* TODO: set it! */);
+//        common.setLastHarvest(/* TODO: set it! */);
+//        common.setWealthQuintile(/* TODO: set it! */);
+//        common.setMeals(/* TODO: set it! */);
+//        common.setHouseholdHeadName(/* TODO: set it! */);
+//        common.setClusterCode(/* TODO: set it! */);
+//        common.setClusterName(/* TODO: set it! */);
+
+        Set<String> assets = new HashSet<>();
+        targetingData.household_assets.forEach(asset -> {
+            assets.add(asset.general_parameter.parameter_name);
+        });
+        common.setAssets(assets);
+
+        Set<String> livelihoodSources = new HashSet<>();
+        // TODO: set livelihood sources
+
+        common.setLivelihoodSources(livelihoodSources);
+
+        for (HouseholdMember householdMember: targetingData.household_members) {
+            UbrHouseholdImport member = (UbrHouseholdImport) common.clone();
+
+            member.setHouseholdId(householdMember.household_id);
+            member.setHouseholdMemberId(householdMember.id);
+            member.setSctMemberCode(householdMember.sct_member_code);
+            member.setFirstName(householdMember.first_name);
+            member.setFitForWork(householdMember.fit_for_work > 0);
+            member.setLastName(householdMember.last_name);
+            member.setMaritalStatus(MaritalStatus.parseIntCode(householdMember.marital_status.parameter_id));
+            member.setGender(Gender.valueOf(householdMember.gender.parameter_name));
+            member.setDateOfBirth(Date.valueOf(householdMember.date_of_birth));
+            member.setMemberMobileNumber(householdMember.member_mobile_number);
+            member.setNationalId(householdMember.national_id);
+
+            member.setOrphanStatus(Orphanhood.parseIntCode(householdMember.orphan.parameter_id));
+            member.setRelationshipToHead(RelationshipToHead.parseIntCode(householdMember.relationship.parameter_id));
+            member.setHighestEducationLevel(EducationLevel.parseIntCode(householdMember.education.parameter_id));
+            //member.setDisability(householdMember);
+            // member.setChronicIllness(/* TODO: set it! */);
+
+            // system fields
+            member.setArchived(false);
+            member.setDataImportId(dataImport.getId());
+            member.setBatchNumber(batchNumber);
+            member.setCreatedAt(dataImport.getImportDate());
+            // end system fields
+            // Shared Attributes
+
+            member.setRegistrationDate(common.getRegistrationDate());
+            member.setFormNumber(common.getFormNumber());
+            member.setPmtScore(common.getPmtScore());
+            member.setGpsLatitude(common.getGpsLatitude());
+            member.setGpsLongitude(common.getGpsLongitude());
+
+            // This performs some rudimentary validation
+            member.setAssets(common.getAssets());
+            member.setLivelihoodSources(common.getLivelihoodSources());
+
+            UbrHouseholdImportUtil.updateAssetsLiveliHoodAndValidationErrors(member);
+
+            members.add(member);
+        }
+
+        return members;
+    }
+}
