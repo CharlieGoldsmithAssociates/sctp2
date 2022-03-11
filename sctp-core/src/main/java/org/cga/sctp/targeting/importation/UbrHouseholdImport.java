@@ -57,7 +57,7 @@ import java.util.Set;
 @Entity
 @Table(name = "ubr_csv_imports")
 @SuppressWarnings("unused")
-public class UbrHouseholdImport extends CommonHouseholdAttributes {
+public class UbrHouseholdImport extends CommonHouseholdAttributes implements Cloneable {
 
     /**
      * Do not re-arrange
@@ -143,25 +143,25 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes {
 
     @Validate
     @Parsed(field = "district_code")
-    protected Integer districtCode;
+    protected Long districtCode;
 
     @Validate
     @Parsed(field = "traditional_authority_code")
-    protected Integer taCode;
+    protected Long taCode;
 
     private Long batchNumber;
 
     @Validate
     @Parsed(field = "cluster_code")
-    protected Integer clusterCode;
+    protected Long clusterCode;
 
     @Validate
     @Parsed(field = "zone_code")
-    protected Integer zoneCode;
+    protected Long zoneCode;
 
     @Validate
     @Parsed(field = "village_code")
-    protected Integer villageCode;
+    protected Long villageCode;
 
     @Parsed(field = "village_name")
     protected String villageName;
@@ -218,7 +218,7 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes {
     protected EducationLevel highestEducationLevel;
 
     @Validate
-    @BooleanString(trueStrings = "YES", falseStrings = "NO")
+    @BooleanString(trueStrings = {"1","YES"}, falseStrings = {"0","NO"})
     @Parsed(field = "fit_for_work")
     protected boolean fitForWork;
 
@@ -240,8 +240,8 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes {
 
     @Parsed(field = "national_id")
     @Trim
-    @NullString(nulls = {"-", ""})
-    @Validate(nullable = true, matches = "^[A-Z0-9]{8}$")
+    //@NullString(nulls = {"-", ""})
+    //@Validate(nullable = true, matches = "^[A-Z0-9]{8}$")
     protected String nationalId;
 
     @Validate(nullable = true)
@@ -250,7 +250,7 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes {
 
     @Parsed(field = "member_mobile_number")
     @Trim
-    @NullString(nulls = {"", "-"})
+    @NullString(nulls = {"", "-", "0"})
     @Validate(nullable = true, allowBlanks = true, matches = "^0?[89][0-9]{8}$")
     protected String memberMobileNumber;
 
@@ -314,7 +314,7 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes {
 
     @Parsed(field = "assistance_received")
     @Validate
-    @BooleanString(trueStrings = "YES", falseStrings = "NO")
+    @BooleanString(trueStrings = {"2","YES"}, falseStrings = {"1","NO"})
     protected boolean assistanceReceived;
 
     @Transient
@@ -447,43 +447,43 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes {
         this.registrationDate = registrationDate;
     }
 
-    public Integer getDistrictCode() {
+    public Long getDistrictCode() {
         return districtCode;
     }
 
-    public void setDistrictCode(Integer districtCode) {
+    public void setDistrictCode(Long districtCode) {
         this.districtCode = districtCode;
     }
 
-    public Integer getTaCode() {
+    public Long getTaCode() {
         return taCode;
     }
 
-    public void setTaCode(Integer taCode) {
+    public void setTaCode(Long taCode) {
         this.taCode = taCode;
     }
 
-    public Integer getClusterCode() {
+    public Long getClusterCode() {
         return clusterCode;
     }
 
-    public void setClusterCode(Integer clusterCode) {
+    public void setClusterCode(Long clusterCode) {
         this.clusterCode = clusterCode;
     }
 
-    public Integer getZoneCode() {
+    public Long getZoneCode() {
         return zoneCode;
     }
 
-    public void setZoneCode(Integer zoneCode) {
+    public void setZoneCode(Long zoneCode) {
         this.zoneCode = zoneCode;
     }
 
-    public Integer getVillageCode() {
+    public Long getVillageCode() {
         return villageCode;
     }
 
-    public void setVillageCode(Integer villageCode) {
+    public void setVillageCode(Long villageCode) {
         this.villageCode = villageCode;
     }
 
@@ -803,5 +803,10 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes {
                 + ",UBR-ID=" + formNumber
                 + ",HH_ID=" + householdId
                 + "}";
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }
