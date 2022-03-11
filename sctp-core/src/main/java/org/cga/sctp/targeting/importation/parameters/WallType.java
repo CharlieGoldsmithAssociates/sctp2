@@ -50,6 +50,13 @@ public enum WallType implements UbrParameterValue {
     public final String title;
     public static final WallType[] VALUES = values();
 
+    public static WallType parseIntCode(int id) {
+        for(WallType e: VALUES) {
+            if (e.code == id) return e;
+        }
+        return null;
+    }
+
     @Override
     public int getCode() {
         return code;

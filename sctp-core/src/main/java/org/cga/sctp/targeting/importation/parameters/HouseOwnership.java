@@ -54,6 +54,13 @@ public enum HouseOwnership implements UbrParameterValue {
         this.text = text;
     }
 
+    public static HouseOwnership parseIntCode(int id) {
+        for(HouseOwnership e: VALUES) {
+            if (e.code == id) return e;
+        }
+        return null;
+    }
+
     @Override
     public int getCode() {
         return code;

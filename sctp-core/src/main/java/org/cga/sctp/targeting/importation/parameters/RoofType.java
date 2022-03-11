@@ -49,6 +49,13 @@ public enum RoofType implements UbrParameterValue {
 
     public static final RoofType[] VALUES = values();
 
+    public static RoofType parseIntCode(int id) {
+        for(RoofType e: VALUES) {
+            if (e.code == id) return e;
+        }
+        return null;
+    }
+
     @Override
     public int getCode() {
         return code;

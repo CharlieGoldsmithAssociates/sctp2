@@ -49,6 +49,13 @@ public enum EducationLevel implements UbrParameterValue {
         this.otherName = otherName;
     }
 
+    public static EducationLevel parseIntCode(int id) {
+        for(EducationLevel e: VALUES) {
+            if (e.code == id) return e;
+        }
+        return null;
+    }
+
     @Override
     public int getCode() {
         return code;

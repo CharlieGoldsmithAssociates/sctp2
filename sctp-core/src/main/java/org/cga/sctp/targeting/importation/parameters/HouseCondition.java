@@ -44,6 +44,13 @@ public enum HouseCondition implements UbrParameterValue {
         this.code = code;
     }
 
+    public static HouseCondition parseIntCode(int id) {
+        for(HouseCondition e: VALUES) {
+            if (e.code == id) return e;
+        }
+        return null;
+    }
+
     @Override
     public int getCode() {
         return code;

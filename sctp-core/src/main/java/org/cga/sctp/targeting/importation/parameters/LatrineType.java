@@ -49,6 +49,13 @@ public enum LatrineType implements UbrParameterValue {
         this.title = title;
     }
 
+    public static LatrineType parseIntCode(int id) {
+        for(LatrineType e: VALUES) {
+            if (e.code == id) return e;
+        }
+        return null;
+    }
+
     @Override
     public int getCode() {
         return code;

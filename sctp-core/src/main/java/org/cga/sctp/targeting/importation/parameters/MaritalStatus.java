@@ -45,6 +45,13 @@ public enum MaritalStatus implements UbrParameterValue {
         this.code = code;
     }
 
+    public static MaritalStatus parseIntCode(int id) {
+        for(MaritalStatus e: VALUES) {
+            if (e.code == id) return e;
+        }
+        return null;
+    }
+
     @Override
     public int getCode() {
         return code;

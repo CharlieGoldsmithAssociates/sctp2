@@ -51,6 +51,13 @@ public enum FuelSource implements UbrParameterValue {
     public final int code;
     public static final FuelSource[] VALUES = values();
 
+    public static FuelSource parseIntCode(int id) {
+        for(FuelSource e: VALUES) {
+            if (e.code == id) return e;
+        }
+        return null;
+    }
+
     @Override
     public int getCode() {
         return code;

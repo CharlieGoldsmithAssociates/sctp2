@@ -53,6 +53,13 @@ public enum RelationshipToHead implements UbrParameterValue {
         this.description = description;
     }
 
+    public static RelationshipToHead parseIntCode(int id) {
+        for(RelationshipToHead e: VALUES) {
+            if (e.code == id) return e;
+        }
+        return null;
+    }
+
     @Override
     public int getCode() {
         return code;
