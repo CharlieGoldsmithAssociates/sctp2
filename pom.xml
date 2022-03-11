@@ -7,7 +7,7 @@
     <groupId>org.cga</groupId>
     <artifactId>sctp</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.0</version>
+    <version>1.3.6-SNAPSHOT</version>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -56,7 +56,7 @@
             <dependency>
                 <groupId>org.cga.sctp</groupId>
                 <artifactId>sctp-core</artifactId>
-                <version>1.3.5</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.simplejavamail</groupId>
