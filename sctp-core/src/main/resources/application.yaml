@@ -75,3 +75,12 @@ spring:
     locations: classpath:db/migration,classpath:db/callback
     out-of-order: true
     baselineOnMigrate: true
+
+ubr:
+  api:
+    #baseUrl: http://81.169.255.202:8082/
+    baseUrl: http://localhost:8082/
+    #fullUrl: http://81.169.255.202:8082/api/v2/get_households_data
+    fetchHouseholdData: /api/v2/get_households_data
+    username: username
+    password: password
