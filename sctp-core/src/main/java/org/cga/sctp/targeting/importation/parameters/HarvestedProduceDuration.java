@@ -48,6 +48,17 @@ public enum HarvestedProduceDuration implements UbrParameterValue {
         this.title = title;
     }
 
+    public static HarvestedProduceDuration parseCode(String code) {
+        return parseIntCode(Integer.parseInt(code));
+    }
+
+    public static HarvestedProduceDuration parseIntCode(int id) {
+        for(HarvestedProduceDuration e: VALUES) {
+            if (e.code == id) return e;
+        }
+        return null;
+    }
+
     @Override
     public int getCode() {
         return code;

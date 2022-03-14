@@ -75,13 +75,16 @@ public class UbrApiDataToHouseholdImportMapper {
         common.setGpsLatitude(new BigDecimal(targetingData.gps_latitude));
         common.setGpsLongitude(new BigDecimal(targetingData.gps_longitude));
 
-        common.setFloorType(FloorType.parseIntCode(targetingData.household_characteristic.floor.parameter_id));
-        common.setRoofType(RoofType.parseIntCode(targetingData.household_characteristic.roof.parameter_id));
-        common.setFuelSource(FuelSource.parseIntCode(targetingData.household_characteristic.fuel_source.parameter_id));
-        common.setWallType(WallType.parseIntCode(targetingData.household_characteristic.wall.parameter_id));
-        common.setHouseCondition(HouseCondition.parseIntCode(targetingData.household_characteristic.house_condition.parameter_id));
+        common.setFloorType(FloorType.parseCode(targetingData.household_characteristic.floor.parameter_code));
+        common.setRoofType(RoofType.parseCode(targetingData.household_characteristic.roof.parameter_code));
+        common.setFuelSource(FuelSource.parseCode(targetingData.household_characteristic.fuel_source.parameter_code));
+        // TODO:
+        // common.setWaterSource(WaterSource.parseCode(targetingData.household_characteristic.water_source_other));
+        common.setWallType(WallType.parseCode(targetingData.household_characteristic.wall.parameter_code));
+        common.setHouseCondition(HouseCondition.parseCode(targetingData.household_characteristic.house_condition.parameter_code));
+        // TODO: Review if there's a code for this?
         common.setHouseOwnership(HouseOwnership.parseIntCode(targetingData.household_characteristic.house_ownership_id));
-        common.setLatrineType(LatrineType.parseIntCode(targetingData.household_characteristic.latrine.parameter_id));
+        common.setLatrineType(LatrineType.parseCode(targetingData.household_characteristic.latrine.parameter_code));
 
         common.setHouseholdCode(targetingData.household_code);
         common.setPmtScore(new BigDecimal(targetingData.pmt_score));
@@ -104,23 +107,29 @@ public class UbrApiDataToHouseholdImportMapper {
         common.setDistrictCode(Long.parseLong(targetingData.village.group_village_head.traditional_authority.district.district_code));
         common.setDistrictName(targetingData.village.group_village_head.traditional_authority.district.district_name);
 
-//        common.setAssistanceReceived(/* TODO: set it! */);
-//        common.setCurrentHarvest(/* TODO: set it! */);
-//        common.setLastHarvest(/* TODO: set it! */);
-//        common.setWealthQuintile(/* TODO: set it! */);
-//        common.setMeals(/* TODO: set it! */);
-//        common.setHouseholdHeadName(/* TODO: set it! */);
-//        common.setClusterCode(/* TODO: set it! */);
+        // TODO: What's the difference between this and the actual cluster code?
+        common.setClusterCode((long)targetingData.village.zone.cluster_id);
 //        common.setClusterName(/* TODO: set it! */);
+
+        common.setAssistanceReceived(targetingData.household_food_reserve.assistance_received != 0);
+        //        common.setHouseholdHeadName(/* TODO: set it! */);
+
+        common.setCurrentHarvest(HarvestedProduceDuration.parseCode(targetingData.household_food_reserve.current_harvest.parameter_code));
+        common.setLastHarvest(HarvestedProduceDuration.parseCode(targetingData.household_food_reserve.last_harvest.parameter_code));
+        common.setMeals(MealsPerDay.parseCode(targetingData.household_food_reserve.meals_eaten.parameter_code));
+        common.setWealthQuintile(WealthQuintile.parseString(targetingData.pmt_cut_off.wealth_quintile));
 
         Set<String> assets = new HashSet<>();
         targetingData.household_assets.forEach(asset -> {
             assets.add(asset.general_parameter.parameter_name);
         });
+
         common.setAssets(assets);
 
         Set<String> livelihoodSources = new HashSet<>();
-        // TODO: set livelihood sources
+        targetingData.household_combined_responses.forEach(response -> {
+            livelihoodSources.add(response.general_parameter.parameter_name);
+        });
 
         common.setLivelihoodSources(livelihoodSources);
 
@@ -133,15 +142,15 @@ public class UbrApiDataToHouseholdImportMapper {
             member.setFirstName(householdMember.first_name);
             member.setFitForWork(householdMember.fit_for_work > 0);
             member.setLastName(householdMember.last_name);
-            member.setMaritalStatus(MaritalStatus.parseIntCode(householdMember.marital_status.parameter_id));
+            member.setMaritalStatus(MaritalStatus.parseCode(householdMember.marital_status.parameter_code));
             member.setGender(Gender.valueOf(householdMember.gender.parameter_name));
             member.setDateOfBirth(Date.valueOf(householdMember.date_of_birth));
             member.setMemberMobileNumber(householdMember.member_mobile_number);
             member.setNationalId(householdMember.national_id);
 
-            member.setOrphanStatus(Orphanhood.parseIntCode(householdMember.orphan.parameter_id));
-            member.setRelationshipToHead(RelationshipToHead.parseIntCode(householdMember.relationship.parameter_id));
-            member.setHighestEducationLevel(EducationLevel.parseIntCode(householdMember.education.parameter_id));
+            member.setOrphanStatus(Orphanhood.parseCode(householdMember.orphan.parameter_code));
+            member.setRelationshipToHead(RelationshipToHead.parseCode(householdMember.relationship.parameter_code));
+            member.setHighestEducationLevel(EducationLevel.parseCode(householdMember.education.parameter_code));
             //member.setDisability(householdMember);
             // member.setChronicIllness(/* TODO: set it! */);
 

@@ -49,10 +49,20 @@ public enum WealthQuintile implements UbrParameterValue {
     public final int code;
     public final String title;
     public static final WealthQuintile[] VALUES = values();
-
+    private static final Converter CONVERTER = new Converter();
     @Override
     public int getCode() {
         return code;
+    }
+
+    /**
+     * Parses a wealth quintile string to an enum type if it's valid.
+     *
+     * @param wealthQuintile
+     * @return
+     */
+    public static WealthQuintile parseString(String wealthQuintile) {
+        return CONVERTER.execute((wealthQuintile + "").trim());
     }
 
     @Override

@@ -52,6 +52,10 @@ public enum Orphanhood implements UbrParameterValue {
         return null;
     }
 
+    public static Orphanhood parseCode(String code) {
+        return parseIntCode(Integer.parseInt(code));
+    }
+
     @Override
     public int getCode() {
         return code;

@@ -60,6 +60,10 @@ public enum RelationshipToHead implements UbrParameterValue {
         return null;
     }
 
+    public static RelationshipToHead parseCode(String code) {
+        return parseIntCode(Integer.parseInt(code));
+    }
+
     @Override
     public int getCode() {
         return code;

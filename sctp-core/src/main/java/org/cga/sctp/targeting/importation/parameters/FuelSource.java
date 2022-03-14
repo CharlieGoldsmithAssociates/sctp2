@@ -58,6 +58,10 @@ public enum FuelSource implements UbrParameterValue {
         return null;
     }
 
+    public static FuelSource parseCode(String code) {
+        return parseIntCode(Integer.parseInt(code));
+    }
+
     @Override
     public int getCode() {
         return code;

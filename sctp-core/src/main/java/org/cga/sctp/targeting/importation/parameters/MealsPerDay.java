@@ -47,6 +47,19 @@ public enum MealsPerDay implements UbrParameterValue {
         this.title = title;
     }
 
+    public static MealsPerDay parseCode(String code) {
+        return parseIntCode(Integer.parseInt(code));
+    }
+
+    private static MealsPerDay parseIntCode(int id) {
+        for(MealsPerDay e: values()) {
+            if (e.code == id) return e;
+        }
+
+        return null;
+    }
+
+
     @Override
     public int getCode() {
         return code;

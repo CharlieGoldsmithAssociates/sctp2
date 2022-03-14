@@ -46,6 +46,10 @@ public enum FloorType implements UbrParameterValue {
     public final int code;
     public static final FloorType[] VALUES = values();
 
+    public static FloorType parseCode(String id) {
+        return parseIntCode(Integer.parseInt(id));
+    }
+
     public static FloorType parseIntCode(int id) {
         for(FloorType e: VALUES) {
             if (e.code == id) return e;

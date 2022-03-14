@@ -56,6 +56,10 @@ public enum EducationLevel implements UbrParameterValue {
         return null;
     }
 
+    public static EducationLevel parseCode(String code) {
+        return parseIntCode(Integer.parseInt(code));
+    }
+
     @Override
     public int getCode() {
         return code;
