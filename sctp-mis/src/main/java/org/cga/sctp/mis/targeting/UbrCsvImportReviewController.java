@@ -85,33 +85,6 @@ public class UbrCsvImportReviewController extends SecuredBaseController {
                 .addObject("imports", imports);
     }
 
-    @PostMapping("/merge")
-    ModelAndView merge(
-            @AuthenticationPrincipal String username,
-            @Valid @ModelAttribute MergeImportsForm form,
-            BindingResult bindingResult,
-            @PathVariable("import-id") Long id, RedirectAttributes attributes) {
-        DataImportView dataImport = getImport(id, attributes);
-        if (dataImport == null) {
-            return redirect("/data-import");
-        }
-        if (bindingResult.hasErrors()) {
-            setDangerFlashMessage("Cannot merge data at this moment.", attributes);
-            return redirectToReview(id);
-        }
-        try {
-            dataImportService.mergeBatchIntoPopulation(dataImport);
-            setSuccessFlashMessage("Data imported successfully", attributes);
-            publishGeneralEvent("%s merged data in population from import session %s.", username, dataImport.getTitle());
-            return redirect("/data-import");
-        } catch (Exception e) {
-            setDangerFlashMessage("There was an error when importing the data.", attributes);
-            LOG.error("Exception during merge", e);
-        }
-
-        return redirectToReview(id);
-    }
-
     @PostMapping("/delete")
     ModelAndView delete(
             @AuthenticationPrincipal String username,

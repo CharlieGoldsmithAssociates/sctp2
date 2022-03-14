@@ -41,13 +41,14 @@ import org.cga.sctp.user.AuthenticatedUserDetails;
 import org.cga.sctp.user.RoleConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Controller
@@ -56,18 +57,18 @@ import java.util.List;
 public class DataImportController extends BaseController {
 
     @Autowired
-    private DataImportService importService;
+    private DataImportService dataImportService;
 
     @GetMapping
     ModelAndView list(@AuthenticatedUserDetails AuthenticatedUser user) {
-        List<DataImportView> imports = importService.getDataImports();
+        List<DataImportView> imports = dataImportService.getDataImports();
         return view("targeting/import/list")
                 .addObject("imports", imports);
     }
 
     @GetMapping("/{import-id}/details")
     ModelAndView details(@PathVariable("import-id") Long id, RedirectAttributes attributes) {
-        DataImportView importView = importService.findDataImportViewById(id);
+        DataImportView importView = dataImportService.findDataImportViewById(id);
         if (importView == null) {
             setDangerFlashMessage("Data import session does not exist.", attributes);
             return redirect("/data-import");
@@ -77,13 +78,44 @@ public class DataImportController extends BaseController {
                 .addObject("import", importView);
     }
 
-    /*@GetMapping("/from-ubr-")
-    ModelAndView newDataImport() {
-        return view("targeting/import/new");
+    private ModelAndView redirectToReview(long id) {
+        return redirect(format("/data-import/from-ubr-api/%d/review", id));
     }
 
-    @GetMapping("/review")
-    ModelAndView reviewImport() {
-        return view("targeting/import/review");
-    }*/
+    private DataImportView getImport(Long id, DataImportObject.ImportSource importSource, RedirectAttributes attributes) {
+        DataImportView dataImport = dataImportService.findImportViewByIdAndStatus(id, importSource, DataImportObject.ImportStatus.Review);
+        if (dataImport == null) {
+            setDangerFlashMessage("Cannot find this session import.", attributes);
+        }
+        return dataImport;
+    }
+
+    @PostMapping("/{import-id}/{import-source}/merge")
+    ModelAndView merge(
+            @AuthenticationPrincipal String username,
+            @Valid @ModelAttribute MergeImportsForm form,
+            BindingResult bindingResult,
+            @PathVariable("import-id") Long id,
+            @PathVariable("import-source") DataImportObject.ImportSource importSource,
+            RedirectAttributes attributes) {
+        DataImportView dataImport = getImport(id, importSource, attributes);
+        if (dataImport == null) {
+            return redirect("/data-import");
+        }
+        if (bindingResult.hasErrors()) {
+            setDangerFlashMessage("Cannot merge data at this moment.", attributes);
+            return redirectToReview(id);
+        }
+        try {
+            dataImportService.mergeBatchIntoPopulation(dataImport);
+            setSuccessFlashMessage("Data imported successfully", attributes);
+            publishGeneralEvent("%s merged data in population from import session %s.", username, dataImport.getTitle());
+            return redirect("/data-import");
+        } catch (Exception e) {
+            setDangerFlashMessage("There was an error when importing the data.", attributes);
+            LOG.error("Exception during merge", e);
+        }
+
+        return redirectToReview(id);
+    }
 }

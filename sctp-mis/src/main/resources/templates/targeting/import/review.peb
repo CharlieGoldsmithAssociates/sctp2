@@ -23,7 +23,7 @@
                 {% if canModify %}
                 <div class="dropdown is-hoverable is-right">
                     <form id="mergeForm"
-                          action="/data-import/from-ubr-csv/{{ importSession.id }}/review/merge"
+                          action="/data-import/{{ importSession.id }}/{{ importSession.dataSource }}/merge"
                           method="post">
                         {{ csrf(_csrf) }}
                         <input name="id" value="{{ importSession.id }}" type="hidden"/>
