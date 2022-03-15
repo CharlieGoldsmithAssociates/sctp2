@@ -34,33 +34,43 @@ package org.cga.sctp.mis.targeting;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.cga.sctp.location.Location;
+import org.cga.sctp.location.LocationCode;
+import org.cga.sctp.location.LocationService;
 import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.targeting.exchange.DataImport;
 import org.cga.sctp.targeting.exchange.DataImportObject;
 import org.cga.sctp.targeting.exchange.DataImportService;
+import org.cga.sctp.targeting.exchange.DataImportView;
 import org.cga.sctp.targeting.importation.ImportTaskService;
 import org.cga.sctp.targeting.importation.UbrApiDataToHouseholdImportMapper;
+import org.cga.sctp.targeting.importation.UbrHouseholdImport;
 import org.cga.sctp.targeting.importation.ubrapi.UbrApiClient;
 import org.cga.sctp.targeting.importation.ubrapi.UbrRequest;
 import org.cga.sctp.targeting.importation.ubrapi.data.UbrApiDataResponse;
 import org.cga.sctp.user.AuthenticatedUser;
 import org.cga.sctp.user.AuthenticatedUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
+import java.util.List;
+
+import static java.util.Collections.emptyList;
+import static org.cga.sctp.mis.location.LocationCodeUtil.toSelectOptions;
 
 @Controller
 @RequestMapping("/data-import/from-ubr-api")
 public class UbrApiImportController extends BaseController {
+
+    @Autowired
+    private LocationService locationService;
 
     @Autowired
     private DataImportService dataImportService;
@@ -78,7 +88,11 @@ public class UbrApiImportController extends BaseController {
     ModelAndView viewInitiatePage(@AuthenticatedUserDetails AuthenticatedUser user,
                                   RedirectAttributes attributes) {
 
-        return view("targeting/import/ubr/api");
+        List<LocationCode> districts = locationService.getActiveDistrictCodes();
+        return view("targeting/import/ubr/api")
+                .addObject("districts", toSelectOptions(districts))
+                .addObject("traditionalAuthorities", emptyList())
+                .addObject("groupVillageHeads", emptyList());
     }
 
     @PostMapping
@@ -86,6 +100,10 @@ public class UbrApiImportController extends BaseController {
                                        @Valid @ModelAttribute UbrApiImportDataForm form,
                                        BindingResult bindingResult,
                                        RedirectAttributes attributes) throws JsonProcessingException {
+
+        form.setProgrammes(UbrRequest.UBR_SCTP_PROGRAMME_CODE);
+        form.setLowerPercentileCategory(0L);
+        form.setUpperPercentileCategory(100L);
 
         DataImport dataImport = new DataImport();
         dataImport.setTitle(form.getTitle());
@@ -106,9 +124,7 @@ public class UbrApiImportController extends BaseController {
 
         dataImportService.saveDataImport(dataImport);
 
-        form.setProgrammes(UbrRequest.UBR_SCTP_PROGRAMME_CODE);
-        form.setLowerPercentileCategory(0L);
-        form.setUpperPercentileCategory(100L);
+
         publishGeneralEvent("User:%s initiated Import from UBR API with parameters: %s", user.username(), requestJson);
 
         dataImport.setStatus(DataImportObject.ImportStatus.Processing);
@@ -129,6 +145,27 @@ public class UbrApiImportController extends BaseController {
 
         publishGeneralEvent("Data Import Complete from UBR API with parameters: %s, initiated by User:%s", requestJson, user.username());
 
-        return redirect(String.format("/data-import/from-ubr-csv/%s/review", dataImport.getId()));
+        return redirect(String.format("/data-import/%s/details", dataImport.getId()));
+    }
+
+    private DataImportView getImport(Long id, RedirectAttributes attributes) {
+        DataImportView dataImport = dataImportService.findImportViewByIdAndStatus(id,
+                DataImportObject.ImportSource.UBR_API, DataImportObject.ImportStatus.Review);
+        if (dataImport == null) {
+            setDangerFlashMessage("Cannot find this session import.", attributes);
+        }
+        return dataImport;
+    }
+
+    @GetMapping("/{import-id}/review")
+    ModelAndView index(@PathVariable("import-id") Long id, RedirectAttributes attributes, Pageable pageable) {
+        DataImportView dataImport = getImport(id, attributes);
+        if (dataImport == null) {
+            return redirect("/data-import");
+        }
+        List<UbrHouseholdImport> imports = importTaskService.getImportsBySessionIdForReview(dataImport.getId(), pageable);
+        return view("targeting/import/review")
+                .addObject("importSession", dataImport)
+                .addObject("imports", imports);
     }
 }

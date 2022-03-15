@@ -33,6 +33,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.cga.sctp.mis.location.LocationCodeUtil.toSelectOptions;
+
 @Controller
 @RequestMapping("/targeting/community")
 public class CommunityBasedTargetingController extends BaseController {
@@ -48,13 +50,6 @@ public class CommunityBasedTargetingController extends BaseController {
 
     @Autowired
     private BeneficiaryService beneficiaryService;
-
-    private List<SelectOptionItem> toSelectOptions(List<LocationCode> codes) {
-        return codes.stream()
-                .map(locationCode -> new SelectOptionItem(locationCode.getCode(),
-                        locationCode.getName(), locationCode.getCode()))
-                .collect(Collectors.toList());
-    }
 
     @AdminAccessOnly
     @GetMapping("/new")
