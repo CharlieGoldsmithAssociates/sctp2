@@ -34,6 +34,7 @@ package org.cga.sctp.targeting.importation;
 
 import org.cga.sctp.targeting.exchange.DataImport;
 import org.cga.sctp.targeting.importation.parameters.*;
+import org.cga.sctp.targeting.importation.ubrapi.data.Cluster;
 import org.cga.sctp.targeting.importation.ubrapi.data.HouseholdMember;
 import org.cga.sctp.targeting.importation.ubrapi.data.TargetingData;
 import org.cga.sctp.targeting.importation.ubrapi.data.UbrApiDataResponse;
@@ -46,6 +47,9 @@ import java.util.*;
 import static java.lang.String.format;
 
 public class UbrApiDataToHouseholdImportMapper {
+
+    private static final int UBR_DISABILITY_PARAMETER_ID = 6;
+    private static final int UBR_CHRONIC_ILLNESS_PARAMETER_ID = 7;
 
     public List<UbrHouseholdImport> mapFromApiData(DataImport dataImport, UbrApiDataResponse ubrApiDataResponse) {
         List<UbrHouseholdImport> result = new ArrayList<>(ubrApiDataResponse.getData().size());
@@ -107,9 +111,15 @@ public class UbrApiDataToHouseholdImportMapper {
         common.setDistrictCode(Long.parseLong(targetingData.village.group_village_head.traditional_authority.district.district_code));
         common.setDistrictName(targetingData.village.group_village_head.traditional_authority.district.district_name);
 
-        // TODO: What's the difference between this and the actual cluster code?
-        common.setClusterCode((long)targetingData.village.zone.cluster_id);
-//        common.setClusterName(/* TODO: set it! */);
+        List<Cluster> taClusters =  targetingData.village.group_village_head.traditional_authority.clusters;
+        if (taClusters.size() > 1) {
+            LoggerFactory.getLogger(getClass()).warn("Found more than one cluster");
+        }
+        Optional<Cluster> cluster = taClusters.stream().filter(c -> c.id == targetingData.village.zone.cluster_id).findFirst();
+        if (cluster.isPresent()) {
+            common.setClusterCode(Long.parseLong(cluster.get().cluster_code));
+            common.setClusterName(cluster.get().cluster_name);
+        }
 
         common.setAssistanceReceived(targetingData.household_food_reserve.assistance_received != 0);
         //        common.setHouseholdHeadName(/* TODO: set it! */);
@@ -127,6 +137,9 @@ public class UbrApiDataToHouseholdImportMapper {
         common.setAssets(assets);
 
         Set<String> livelihoodSources = new HashSet<>();
+
+        /* We don't filter the livelihood sources since we remove/filter them in
+         * {@link UbrHouseholdImportUtil#updateAssetsLiveliHoodAndValidationErrors(UbrHouseholdImport)} */
         targetingData.household_combined_responses.forEach(response -> {
             livelihoodSources.add(response.general_parameter.parameter_name);
         });
@@ -151,8 +164,15 @@ public class UbrApiDataToHouseholdImportMapper {
             member.setOrphanStatus(Orphanhood.parseCode(householdMember.orphan.parameter_code));
             member.setRelationshipToHead(RelationshipToHead.parseCode(householdMember.relationship.parameter_code));
             member.setHighestEducationLevel(EducationLevel.parseCode(householdMember.education.parameter_code));
-            //member.setDisability(householdMember);
-            // member.setChronicIllness(/* TODO: set it! */);
+            householdMember.household_member_combined_responses.forEach(response -> {
+                if (response.general_parameter.parameter_id == UBR_DISABILITY_PARAMETER_ID) {
+                    member.setDisability(Disability.parseCode(response.general_parameter.parameter_code));
+                }
+
+                if (response.general_parameter.parameter_id == UBR_CHRONIC_ILLNESS_PARAMETER_ID) {
+                    member.setChronicIllness(ChronicIllness.parseCode(response.general_parameter.parameter_code));
+                }
+            });
 
             // system fields
             member.setArchived(false);

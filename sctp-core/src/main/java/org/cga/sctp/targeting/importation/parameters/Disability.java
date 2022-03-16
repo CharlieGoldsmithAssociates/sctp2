@@ -61,4 +61,16 @@ public enum Disability implements UbrParameterValue {
     }
 
     public static final Disability[] VALUES = values();
+
+    public static Disability parseCode(String code) {
+        return parseIntCode(Integer.parseInt(code));
+    }
+
+    private static Disability parseIntCode(int code) {
+        for(Disability e: values()) {
+            if (e.code == code) return e;
+        }
+
+        return null;
+    }
 }

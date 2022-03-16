@@ -60,4 +60,16 @@ public enum ChronicIllness implements UbrParameterValue {
     public final int code;
     public final String text;
     public static final ChronicIllness[] VALUES = values();
+
+    public static ChronicIllness parseCode(String code) {
+        return parseIntCode(Integer.parseInt(code));
+    }
+
+    private static ChronicIllness parseIntCode(int code) {
+        for(ChronicIllness e: values()) {
+            if (e.code == code) return e;
+        }
+
+        return null;
+    }
 }
