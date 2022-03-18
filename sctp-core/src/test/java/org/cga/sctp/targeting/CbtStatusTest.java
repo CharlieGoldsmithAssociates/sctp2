@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,48 +32,21 @@
 
 package org.cga.sctp.targeting;
 
-import javax.persistence.AttributeConverter;
+import org.junit.jupiter.api.Test;
 
-public enum CbtStatus {
-    NonRecertified(4),
-    Selected(3),
-    Ineligible(2),
-    Eligible(1),
-    Enrolled(5),
-    PreEligible(6);
+import static org.junit.jupiter.api.Assertions.*;
 
-    public final int code;
-    public static final CbtStatus[] VALUES = values();
+class CbtStatusTest {
 
-    CbtStatus(int code) {
-        this.code = code;
-    }
+    @Test
+    void testCanConvertValuesFromIntegerCode() {
+        CbtStatus.Converter converter = new CbtStatus.Converter();
 
-    public static CbtStatus valueOf(int code) {
-        for (CbtStatus status : VALUES) {
-            if (status.code == code) {
-                return status;
-            }
-        }
-        throw new IllegalArgumentException("Code " + code + " not found in " + CbtStatus.class.getCanonicalName());
-    }
-
-    public static class Converter implements AttributeConverter<CbtStatus, Integer> {
-
-        @Override
-        public Integer convertToDatabaseColumn(CbtStatus attribute) {
-            if (attribute == null) {
-                return null;
-            }
-            return attribute.code;
-        }
-
-        @Override
-        public CbtStatus convertToEntityAttribute(Integer dbData) {
-            if (dbData == null) {
-                return null;
-            }
-            return CbtStatus.valueOf(dbData);
-        }
+        assertEquals(CbtStatus.Eligible, converter.convertToEntityAttribute(1));
+        assertEquals(CbtStatus.Ineligible, converter.convertToEntityAttribute(2));
+        assertEquals(CbtStatus.Selected, converter.convertToEntityAttribute(3));
+        assertEquals(CbtStatus.NonRecertified, converter.convertToEntityAttribute(4));
+        assertEquals(CbtStatus.Enrolled, converter.convertToEntityAttribute(5));
+        assertEquals(CbtStatus.PreEligible, converter.convertToEntityAttribute(6));
     }
 }
