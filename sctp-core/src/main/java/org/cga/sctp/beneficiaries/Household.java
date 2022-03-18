@@ -53,10 +53,10 @@ public class Household extends CommonHouseholdAttributes {
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
     private String locationCode;
-    private Integer taCode;
-    private Integer clusterCode;
-    private Integer zoneCode;
-    private Integer villageCode;
+    private Long taCode;
+    private Long clusterCode;
+    private Long zoneCode;
+    private Long villageCode;
     private String villageName;
     private Long groupVillageHeadCode;
     private String groupVillageHeadName;
@@ -287,35 +287,35 @@ public class Household extends CommonHouseholdAttributes {
             this.dateCollected = dateCollected;
         }
     */
-    public Integer getTaCode() {
+    public Long getTaCode() {
         return taCode;
     }
 
-    public void setTaCode(Integer taCode) {
+    public void setTaCode(Long taCode) {
         this.taCode = taCode;
     }
 
-    public Integer getClusterCode() {
+    public Long getClusterCode() {
         return clusterCode;
     }
 
-    public void setClusterCode(Integer clusterCode) {
+    public void setClusterCode(Long clusterCode) {
         this.clusterCode = clusterCode;
     }
 
-    public Integer getZoneCode() {
+    public Long getZoneCode() {
         return zoneCode;
     }
 
-    public void setZoneCode(Integer zoneCode) {
+    public void setZoneCode(Long zoneCode) {
         this.zoneCode = zoneCode;
     }
 
-    public Integer getVillageCode() {
+    public Long getVillageCode() {
         return villageCode;
     }
 
-    public void setVillageCode(Integer villageCode) {
+    public void setVillageCode(Long villageCode) {
         this.villageCode = villageCode;
     }
 

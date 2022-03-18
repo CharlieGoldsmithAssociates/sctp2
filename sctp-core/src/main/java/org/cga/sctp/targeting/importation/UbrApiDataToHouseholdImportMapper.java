@@ -164,6 +164,11 @@ public class UbrApiDataToHouseholdImportMapper {
             member.setOrphanStatus(Orphanhood.parseCode(householdMember.orphan.parameter_code));
             member.setRelationshipToHead(RelationshipToHead.parseCode(householdMember.relationship.parameter_code));
             member.setHighestEducationLevel(EducationLevel.parseCode(householdMember.education.parameter_code));
+
+            // We set this in-case the data is not available under household_member_combined_responses
+            member.setChronicIllness(ChronicIllness.None);
+            member.setDisability(Disability.NotDisabled);
+
             householdMember.household_member_combined_responses.forEach(response -> {
                 if (response.general_parameter.parameter_id == UBR_DISABILITY_PARAMETER_ID) {
                     member.setDisability(Disability.parseCode(response.general_parameter.parameter_code));
