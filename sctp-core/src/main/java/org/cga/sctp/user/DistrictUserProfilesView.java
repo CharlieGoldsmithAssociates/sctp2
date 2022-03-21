@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,45 +32,58 @@
 
 package org.cga.sctp.user;
 
-import org.cga.sctp.audit.AuditEvent;
-import org.cga.sctp.audit.EventType;
-import org.springframework.context.ApplicationEvent;
+import org.hibernate.annotations.Immutable;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
-public class UserAuditEvent extends AuditEvent {
-    public UserAuditEvent(Object source) {
-        super(EventType.user, source);
+@Entity
+@Immutable
+@Table(name = "district_user_profiles_view")
+public class DistrictUserProfilesView extends DistrictUserProfileEntity {
+
+    @Column(name = "user_name", nullable = false, length = 20)
+    private String userName;
+
+    @Column(name = "email", nullable = false, length = 50)
+    private String email;
+
+    @Column(name = "fullname", length = 101)
+    private String fullname;
+
+    @Column(name = "district_name", length = 100)
+    private String districtName;
+
+    public String getUserName() {
+        return userName;
     }
 
-    private static UserAuditEvent create(String message, Object... args) {
-        UserAuditEvent event;
-        Map<String, String> logData = new LinkedHashMap<>();
-        event = new UserAuditEvent(logData);
-        logData.put("what", event.format(message, args));
-        return event;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
-    public static UserAuditEvent created(String creator, String newUser, String ipAddress) {
-        return create("%s added user %s, from IP %s", creator, newUser, ipAddress);
+    public String getEmail() {
+        return email;
     }
 
-    public static UserAuditEvent modified(String principal, String username, String ipAddress) {
-        return create("%s modified user %s, from IP %s", principal, username, ipAddress);
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public static ApplicationEvent password(String principal, String username, String ipAddress) {
-        return create("%s changed %s's password from IP %s", principal, username, ipAddress);
+    public String getFullname() {
+        return fullname;
     }
 
-    public static ApplicationEvent removedFromDistrictProfiles(String principal, DistrictUserProfilesView profile) {
-        return create(
-                "%s removed %s's (%s) profile from %s district.",
-                principal,
-                profile.getUserName(),
-                profile.getFullname(),
-                profile.getDistrictName()
-        );
+    public void setFullname(String fullname) {
+        this.fullname = fullname;
+    }
+
+    public String getDistrictName() {
+        return districtName;
+    }
+
+    public void setDistrictName(String districtName) {
+        this.districtName = districtName;
     }
 }

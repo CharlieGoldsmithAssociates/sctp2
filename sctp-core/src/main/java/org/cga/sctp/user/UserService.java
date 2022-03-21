@@ -45,6 +45,12 @@ public class UserService extends BaseService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private DistrictUserProfileRepository districtUserProfileRepository;
+
+    @Autowired
+    private DistrictUserProfilesViewRepository districtUserProfilesViewRepository;
+
     public void saveUser(User user) {
         userRepository.save(user);
     }
@@ -83,5 +89,17 @@ public class UserService extends BaseService {
 
     public String getUsernameById(Long userId) {
         return userRepository.findUsernameById(userId);
+    }
+
+    public List<DistrictUserProfilesView> getDistrictUsers() {
+        return districtUserProfilesViewRepository.findAll();
+    }
+
+    public DistrictUserProfilesView getDistrictUserProfileView(Long id) {
+        return districtUserProfilesViewRepository.findById(id).orElse(null);
+    }
+
+    public void deleteDistrictUserProfileById(Long id) {
+        districtUserProfileRepository.deleteById(id);
     }
 }

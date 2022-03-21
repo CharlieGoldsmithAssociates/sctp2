@@ -79,3 +79,12 @@ sctp:
   transfers:
     # Number of months in a transfer period for manual transfers, defaults to 2
     manualTransferFrequency: 2
+
+ubr:
+  api:
+    #baseUrl: http://81.169.255.202:8082/
+    baseUrl: http://localhost:8082/
+    #fullUrl: http://81.169.255.202:8082/api/v2/get_households_data
+    fetchHouseholdData: /api/v2/get_households_data
+    username: username
+    password: password

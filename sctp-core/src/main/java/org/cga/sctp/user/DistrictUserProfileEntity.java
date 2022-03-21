@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,45 +32,65 @@
 
 package org.cga.sctp.user;
 
-import org.cga.sctp.audit.AuditEvent;
-import org.cga.sctp.audit.EventType;
-import org.springframework.context.ApplicationEvent;
+import javax.persistence.*;
+import java.time.Instant;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+@MappedSuperclass
+public class DistrictUserProfileEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Long id;
 
-public class UserAuditEvent extends AuditEvent {
-    public UserAuditEvent(Object source) {
-        super(EventType.user, source);
+    @Column(name = "user_id")
+    private Long userId;
+
+    @Column(name = "district_id")
+    private Long districtId;
+
+    @Column(name = "created_at", nullable = false)
+    private Instant createdAt;
+
+    @Column(name = "active", nullable = false)
+    private Boolean active = false;
+
+    public Boolean getActive() {
+        return active;
     }
 
-    private static UserAuditEvent create(String message, Object... args) {
-        UserAuditEvent event;
-        Map<String, String> logData = new LinkedHashMap<>();
-        event = new UserAuditEvent(logData);
-        logData.put("what", event.format(message, args));
-        return event;
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 
-    public static UserAuditEvent created(String creator, String newUser, String ipAddress) {
-        return create("%s added user %s, from IP %s", creator, newUser, ipAddress);
+    public Instant getCreatedAt() {
+        return createdAt;
     }
 
-    public static UserAuditEvent modified(String principal, String username, String ipAddress) {
-        return create("%s modified user %s, from IP %s", principal, username, ipAddress);
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
     }
 
-    public static ApplicationEvent password(String principal, String username, String ipAddress) {
-        return create("%s changed %s's password from IP %s", principal, username, ipAddress);
+    public Long getDistrictId() {
+        return districtId;
     }
 
-    public static ApplicationEvent removedFromDistrictProfiles(String principal, DistrictUserProfilesView profile) {
-        return create(
-                "%s removed %s's (%s) profile from %s district.",
-                principal,
-                profile.getUserName(),
-                profile.getFullname(),
-                profile.getDistrictName()
-        );
+    public void setDistrictId(Long districtId) {
+        this.districtId = districtId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }
