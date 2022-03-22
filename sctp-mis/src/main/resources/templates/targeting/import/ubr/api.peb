@@ -92,7 +92,7 @@
                 </div>
                 <div class="field is-horizontal">
                     <div class="field-label is-normal">
-                        <label class="label is-required">Enrolment Status</label>
+                        <label class="label is-required">Household Status</label>
                     </div>
                     <div class="field-body">
                         <div class="control">
