@@ -4,7 +4,7 @@
     {% block contextMenu %}
     <div class="container context-nav-container">
         <div class="buttons is-right">
-            <a href="/district-users/new" class="button is-primary">Add New User</a>
+            <a href="/district-users/new" class="button is-primary">Add New Profile</a>
         </div>
     </div>
     {% endblock %}
@@ -25,7 +25,7 @@
                             <th>Name</th>
                             <th>Email</th>
                             <th>District</th>
-                            <th>Active</th>
+                            <th>Status</th>
                             <th data-sortable="false">Options</th>
                         </tr>
                         </thead>
@@ -36,7 +36,9 @@
                                 <td>{{ user.fullname }}</td>
                                 <td>{{ user.email }}</td>
                                 <td>{{ user.districtName }}</td>
-                                <td>{{ yesOrNo(user.active) }}</td>
+                                <td class="{{ user.active ? 'has-text-success-dark has-background-success-light' : 'has-text-danger-dark has-background-danger-light' }}" >
+                                    {{ user.active ? 'Active' : 'Deactivated' }}
+                                </td>
                                 <td>
                                     <div class="dropdown is-hoverable is-right">
                                         <div class="dropdown-trigger">
@@ -50,8 +52,8 @@
                                         </div>
                                         <div class="dropdown-menu" id="ddm{{ user.id }}" role="menu">
                                             <div class="dropdown-content">
-                                                <a href="/district-users/edit?={{ user.id }}"
-                                                   class="dropdown-item">Edit</a>
+                                                <a href="/district-users/edit?id={{ user.id }}"
+                                                   class="dropdown-item">Edit District</a>
                                                 <form id="deactivate{{ user.id }}Form"
                                                       method="post"
                                                       action="/district-users/{{ user.active ? 'deactivate' : 'activate' }}?id={{ user.id }}">
@@ -64,9 +66,10 @@
                                                 </form>
                                                 <a href="javascript:void(0)"
                                                    class="dropdown-item"
-                                                   data-prompt="{{ user.active ? 'Deactivate' : 'Activate' }} user?"
+                                                   data-prompt="{{ user.active ? 'Deactivate' : 'Activate' }} profile?"
                                                    data-form="#deactivate{{ user.id }}Form"
                                                    onclick="submitForm(this)">{{ user.active ? 'Deactivate' : 'Activate' }}</a>
+                                                <hr class="dropdown-divider" />
                                                 <a href="javascript:void(0)"
                                                    class="dropdown-item has-text-danger"
                                                    data-prompt="Remove user profile from district?"

@@ -1,0 +1,55 @@
+    {% extends "users/district/base" %}
+    {% block contextMenu %}
+    <div class="container context-nav-container">
+        <div class="buttons is-left">
+            <a href="/district-users" class="button is-danger">
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fa fa-chevron-left"></i>
+                    </span>
+                    <span>Back</span>
+                </span>
+            </a>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block content %}
+    <div class="container">
+    <div class="card no-overlap">
+        <header class="card-header">
+            <p class="card-header-title">Edit {{ profile.getFullName() }}'s District User Profile</p>
+        </header>
+        <div class="card-content">
+            {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+            <form action="/district-users/update?profile={{ profile.id }}"
+                  method="post" enctype="application/x-www-form-urlencoded">
+                {{ csrf(_csrf) }}
+                <div class="columns">
+                    <div class="column">
+                        <div class="field">
+                            <label class="label is-required">District</label>
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                        {{ selectField('districtId', districts, form.districtId, true) }}
+                                </div>
+                            </div>
+                            {{ printFieldErrors(getFieldErrors('form', 'districtId')) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="buttons is-right">
+                    <button class="button is-primary">Update Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </div>
+    {% endblock %}
+    {% block footerScripts %}
+    <script>
+        (function(){
+            const userIdSelector = new Selectr('#userId');
+        })();
+    </script>
+    {% endblock %}

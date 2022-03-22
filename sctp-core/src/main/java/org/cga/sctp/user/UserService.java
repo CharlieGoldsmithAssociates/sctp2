@@ -32,7 +32,8 @@
 
 package org.cga.sctp.user;
 
-import org.cga.sctp.core.BaseService;
+import org.cga.sctp.core.TransactionalService;
+import org.cga.sctp.location.Location;
 import org.cga.sctp.persistence.StatusCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,7 +41,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class UserService extends BaseService {
+public class UserService extends TransactionalService {
 
     @Autowired
     private UserRepository userRepository;
@@ -101,5 +102,24 @@ public class UserService extends BaseService {
 
     public void deleteDistrictUserProfileById(Long id) {
         districtUserProfileRepository.deleteById(id);
+    }
+
+    public void saveDistrictUserProfile(DistrictUserProfile profile) {
+        districtUserProfileRepository.save(profile);
+    }
+
+    /**
+     * @return Returns users to be added to the district user profiles.
+     */
+    public List<DistrictUserProfileProspect> getDistrictUserProspects() {
+        return districtUserProfileRepository.getDistrictUserProspects();
+    }
+
+    public void setDistrictUserProfileActive(Long profileId, boolean active) {
+        districtUserProfileRepository.setActive(profileId, active);
+    }
+
+    public void setDistrictUserProfileDistrict(DistrictUserProfilesView profile, Location location) {
+        districtUserProfileRepository.setDistrict(profile.getId(), location.getId());
     }
 }

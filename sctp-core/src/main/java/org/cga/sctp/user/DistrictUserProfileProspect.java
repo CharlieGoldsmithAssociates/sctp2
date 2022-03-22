@@ -32,28 +32,11 @@
 
 package org.cga.sctp.user;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+import javax.persistence.Id;
 
-import java.util.List;
-
-@Repository
-interface DistrictUserProfileRepository extends JpaRepository<DistrictUserProfile, Long> {
-
-    @Query(nativeQuery = true, value = "select * from district_user_profiles_view")
-    List<DistrictUserProfilesView> getAll();
-
-    @Query(nativeQuery = true, value = "select * from district_user_profile_prospects_v")
-    List<DistrictUserProfileProspect> getDistrictUserProspects();
-
-    @Modifying
-    @Query(nativeQuery = true, value = "update district_user_profiles set active = :active where id = :id")
-    void setActive(@Param("id") Long profileId, @Param("active") boolean active);
-
-    @Modifying
-    @Query(nativeQuery = true, value = "update district_user_profiles set district_id = :districtId where id = :id")
-    void setDistrict(@Param("id") Long profileId, @Param("districtId") Long districtId);
+public interface DistrictUserProfileProspect {
+    @Id
+    Long getId();
+    String getFullName();
+    String getUserName();
 }
