@@ -46,6 +46,7 @@ public class User extends DatabaseRecord {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonIgnore
     private Long id;
+    private String guid;
     private String email;
     private String lastName;
     @JsonIgnore
@@ -81,6 +82,14 @@ public class User extends DatabaseRecord {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getGuid() {
+        return guid;
+    }
+
+    public void setGuid(String guid) {
+        this.guid = guid;
     }
 
     public String getEmail() {
@@ -179,6 +188,7 @@ public class User extends DatabaseRecord {
     public String toString() {
         return "User{" +
                 "id=" + id +
+                "guid=" + guid +
                 ",status=" + getStatus() +
                 ", userName='" + userName + '\'' +
                 ", role=" + role +
