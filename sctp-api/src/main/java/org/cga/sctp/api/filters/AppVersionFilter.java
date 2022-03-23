@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,29 +30,42 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.user;
+package org.cga.sctp.api.filters;
 
+import org.cga.sctp.mobile.AppVersion;
+import org.springframework.web.filter.GenericFilterBean;
 
-public enum SystemRole {
-    ROLE_SYSTEM_ADMIN("System Account", true),
-    ROLE_ADMINISTRATOR("Administrator", false),
-    // This will be automatically assigned to self-registered users.
-    ROLE_GUEST("Guest User", false),
-    ROLE_STANDARD("Standard User", false);
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
-    SystemRole(String label, boolean isRestricted) {
-        this.label = label;
-        this.isRestricted = isRestricted;
+/**
+ * <p>Filter to add application version headers to responses</p>
+ */
+public class AppVersionFilter extends GenericFilterBean {
+
+    private AppVersion appVersion;
+
+    @Override
+    public void doFilter(
+            ServletRequest servletRequest,
+            ServletResponse servletResponse,
+            FilterChain filterChain) throws IOException, ServletException {
+
+        HttpServletRequest request = (HttpServletRequest) servletRequest;
+        HttpServletResponse response = (HttpServletResponse) servletResponse;
+
+        response.addHeader("X-APP-VERSION-CODE", appVersion == null ? "0" : appVersion.getVersionCode().toString());
+        response.addHeader("X-APP-VERSION-CODE", appVersion == null ? "0" : appVersion.getVersionCode().toString());
+
+        filterChain.doFilter(servletRequest, servletResponse);
     }
 
-    public final String label;
-    /**
-     * Restricted roles cannot be assigned to any accounts
-     */
-    public final boolean isRestricted;
+    public void setLatestApplicationVersion(){
 
-    /**
-     * List of roles that can manually be assigned
-     */
-    public static final SystemRole[] ROLES = {ROLE_ADMINISTRATOR, ROLE_STANDARD};
+    }
 }

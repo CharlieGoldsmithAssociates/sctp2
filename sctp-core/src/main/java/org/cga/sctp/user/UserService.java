@@ -122,4 +122,8 @@ public class UserService extends TransactionalService {
     public void setDistrictUserProfileDistrict(DistrictUserProfilesView profile, Location location) {
         districtUserProfileRepository.setDistrict(profile.getId(), location.getId());
     }
+
+    public DistrictUserProfilesView findDistrictUserProfileByUsername(String userName) {
+        return districtUserProfilesViewRepository.findByUserName(userName);
+    }
 }

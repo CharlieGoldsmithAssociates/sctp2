@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,29 +30,25 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.user;
+package org.cga.sctp.api.core.io.serialization;
 
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 
-public enum SystemRole {
-    ROLE_SYSTEM_ADMIN("System Account", true),
-    ROLE_ADMINISTRATOR("Administrator", false),
-    // This will be automatically assigned to self-registered users.
-    ROLE_GUEST("Guest User", false),
-    ROLE_STANDARD("Standard User", false);
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
-    SystemRole(String label, boolean isRestricted) {
-        this.label = label;
-        this.isRestricted = isRestricted;
+public class LocalDateTimeAdapter extends TypeAdapter<LocalDateTime> {
+
+    @Override
+    public void write(JsonWriter out, LocalDateTime value) throws IOException {
+        out.value(value.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
     }
 
-    public final String label;
-    /**
-     * Restricted roles cannot be assigned to any accounts
-     */
-    public final boolean isRestricted;
-
-    /**
-     * List of roles that can manually be assigned
-     */
-    public static final SystemRole[] ROLES = {ROLE_ADMINISTRATOR, ROLE_STANDARD};
+    @Override
+    public LocalDateTime read(JsonReader in) throws IOException {
+        return LocalDateTime.parse(in.nextString());
+    }
 }

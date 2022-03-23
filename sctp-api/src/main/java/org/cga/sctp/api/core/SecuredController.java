@@ -33,25 +33,14 @@
  * For more information please see http://opensource.org/licenses/BSD-3-Clause
  */
 
+package org.cga.sctp.api.core;
 
-import org.cga.sctp.core.BaseComponent;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.scheduling.annotation.EnableAsync;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
-import java.util.TimeZone;
-
-@SpringBootApplication
-@EnableAsync
-@EnableConfigurationProperties
-@ComponentScan(basePackages = "org.cga")
-public class ApiApplication extends BaseComponent {
-
-    public static void main(String[] args) {
-        TimeZone tz = TimeZone.getTimeZone("UTC");
-        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-        SpringApplication.run(ApiApplication.class, args);
-    }
+/**
+ * This base class is only used for documentation purposes to indicate that the controller requires authentication
+ * to interact with.
+ */
+@SecurityRequirement(name = AppConstants.API_SECURITY_REQUIREMENT_NAME)
+public class SecuredController extends BaseController {
 }

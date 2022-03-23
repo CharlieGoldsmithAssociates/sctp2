@@ -30,22 +30,82 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.user;
+package org.cga.sctp.api.security.access_control;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-@Repository
-interface DistrictUserProfilesViewRepository extends JpaRepository<DistrictUserProfilesView, Long> {
-    @Query(
-            nativeQuery = true,
-            value = """
-                    select dup.*
-                     from district_user_profiles_view dup
-                     join users u on u.id = dup.user_id
-                     where lower(u.user_name) = lower(:userName)"""
-    )
-    DistrictUserProfilesView findByUserName(@Param("userName") String userName);
+import javax.persistence.*;
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
+/**
+ * User role types
+ */
+@Entity
+@Table(name = "roles")
+public class UserRole implements Serializable {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String name;
+    private boolean active;
+    private String description;
+    private LocalDateTime createdAt;
+    @JsonIgnore
+    private boolean isSystemRole;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public boolean isSystemRole() {
+        return isSystemRole;
+    }
+
+    public void setSystemRole(boolean systemRole) {
+        isSystemRole = systemRole;
+    }
+
+    @Override
+    public String toString() {
+        return "UserRole{" +
+                "name='" + name + '\'' +
+                '}';
+    }
 }

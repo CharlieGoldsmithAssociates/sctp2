@@ -1,6 +1,5 @@
 package org.cga.sctp.mis.core;
 
-import org.cga.sctp.audit.GeneralAuditEvent;
 import org.cga.sctp.core.BaseComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,10 +18,6 @@ public class BaseController extends BaseComponent {
 
     protected BaseController() {
         logger = LoggerFactory.getLogger(getClass());
-    }
-
-    public final void publishGeneralEvent(String format, Object... args) {
-        publishEvent(new GeneralAuditEvent(format(format, args)));
     }
 
     @SuppressWarnings("unchecked")

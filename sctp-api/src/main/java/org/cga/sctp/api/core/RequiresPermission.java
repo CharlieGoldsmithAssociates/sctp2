@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,29 +30,21 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.user;
+package org.cga.sctp.api.core;
 
 
-public enum SystemRole {
-    ROLE_SYSTEM_ADMIN("System Account", true),
-    ROLE_ADMINISTRATOR("Administrator", false),
-    // This will be automatically assigned to self-registered users.
-    ROLE_GUEST("Guest User", false),
-    ROLE_STANDARD("Standard User", false);
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
-    SystemRole(String label, boolean isRestricted) {
-        this.label = label;
-        this.isRestricted = isRestricted;
-    }
+import java.lang.annotation.*;
 
-    public final String label;
-    /**
-     * Restricted roles cannot be assigned to any accounts
-     */
-    public final boolean isRestricted;
-
-    /**
-     * List of roles that can manually be assigned
-     */
-    public static final SystemRole[] ROLES = {ROLE_ADMINISTRATOR, ROLE_STANDARD};
+/**
+ * Marks a controller endpoint as requiring permissions to invoke.
+ * A {@link javax.servlet.http.HttpServletResponse#SC_FORBIDDEN 403} response code will be attached for documentation.
+ */
+@Documented
+@Target({ElementType.METHOD, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@ApiResponse(responseCode = "403", description = "Principal does not have the right permissions to perform this action.", content = @Content)
+public @interface RequiresPermission {
 }

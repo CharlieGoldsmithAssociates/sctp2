@@ -33,25 +33,36 @@
  * For more information please see http://opensource.org/licenses/BSD-3-Clause
  */
 
+package org.cga.sctp.api.core;
 
-import org.cga.sctp.core.BaseComponent;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.util.TimeZone;
+import java.util.List;
 
-@SpringBootApplication
-@EnableAsync
-@EnableConfigurationProperties
-@ComponentScan(basePackages = "org.cga")
-public class ApiApplication extends BaseComponent {
+public class BaseController extends BaseComponent {
 
-    public static void main(String[] args) {
-        TimeZone tz = TimeZone.getTimeZone("UTC");
-        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-        SpringApplication.run(ApiApplication.class, args);
+    /**
+     * Converts bad request messages into a JSON response
+     *
+     * @param ex .
+     * @return .
+     */
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public final ResponseEntity<ApiErrors> handleExceptions(MethodArgumentNotValidException ex) {
+        final List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors();
+
+        ApiErrors apiErrors = null;
+
+        for (FieldError fieldError : fieldErrors) {
+            apiErrors = ApiErrors.addFieldError(apiErrors, fieldError.getField(), fieldError.getDefaultMessage());
+        }
+
+        return ResponseEntity.badRequest().body(apiErrors);
     }
 }

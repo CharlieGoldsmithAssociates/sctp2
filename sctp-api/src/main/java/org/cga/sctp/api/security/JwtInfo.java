@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,29 +30,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.user;
+package org.cga.sctp.api.security;
 
+public final class JwtInfo {
+    private final String jti;
+    private final String token;
 
-public enum SystemRole {
-    ROLE_SYSTEM_ADMIN("System Account", true),
-    ROLE_ADMINISTRATOR("Administrator", false),
-    // This will be automatically assigned to self-registered users.
-    ROLE_GUEST("Guest User", false),
-    ROLE_STANDARD("Standard User", false);
-
-    SystemRole(String label, boolean isRestricted) {
-        this.label = label;
-        this.isRestricted = isRestricted;
+    public JwtInfo(String jti, String token) {
+        this.jti = jti;
+        this.token = token;
     }
 
-    public final String label;
-    /**
-     * Restricted roles cannot be assigned to any accounts
-     */
-    public final boolean isRestricted;
+    public String getJti() {
+        return jti;
+    }
 
-    /**
-     * List of roles that can manually be assigned
-     */
-    public static final SystemRole[] ROLES = {ROLE_ADMINISTRATOR, ROLE_STANDARD};
+    public String getToken() {
+        return token;
+    }
 }

@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,29 +30,63 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.user;
+package org.cga.sctp.api.config;
 
+import org.hibernate.validator.constraints.Length;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.validation.annotation.Validated;
 
-public enum SystemRole {
-    ROLE_SYSTEM_ADMIN("System Account", true),
-    ROLE_ADMINISTRATOR("Administrator", false),
-    // This will be automatically assigned to self-registered users.
-    ROLE_GUEST("Guest User", false),
-    ROLE_STANDARD("Standard User", false);
+import javax.validation.constraints.*;
 
-    SystemRole(String label, boolean isRestricted) {
-        this.label = label;
-        this.isRestricted = isRestricted;
+@Validated
+@Configuration
+@ConfigurationProperties(prefix = "jwt")
+public class JwtConfiguration {
+
+    private static final int MAX_TTL_MINUTES = 60 * 24;
+
+    /**
+     * Name of entity issuing JWTs
+     */
+    @NotBlank(message = "Issuer is required")
+    private String issuer;
+
+    /**
+     * Shared key used for signing JWTs
+     */
+    @NotBlank(message = "Secret key is required")
+    @Length(min = 32, message = "Secret key must be at least 32 bytes")
+    private String secret;
+
+    /**
+     * Lifespan of JWT access tokens
+     */
+    @Min(value = 5, message = "Minimum JWT expiration time must be at least {value} minutes.")
+    @Max(value = MAX_TTL_MINUTES, message = "Maximum JWT expiration time must not exceed {value} minutes.")
+    private long expiration;
+
+    public String getIssuer() {
+        return issuer;
     }
 
-    public final String label;
-    /**
-     * Restricted roles cannot be assigned to any accounts
-     */
-    public final boolean isRestricted;
+    public String getSecret() {
+        return secret;
+    }
 
-    /**
-     * List of roles that can manually be assigned
-     */
-    public static final SystemRole[] ROLES = {ROLE_ADMINISTRATOR, ROLE_STANDARD};
+    public long getExpiration() {
+        return expiration;
+    }
+
+    public void setIssuer(String issuer) {
+        this.issuer = issuer;
+    }
+
+    public void setSecret(String secret) {
+        this.secret = secret;
+    }
+
+    public void setExpiration(long expiration) {
+        this.expiration = expiration;
+    }
 }

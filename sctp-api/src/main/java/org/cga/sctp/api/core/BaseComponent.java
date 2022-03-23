@@ -33,25 +33,51 @@
  * For more information please see http://opensource.org/licenses/BSD-3-Clause
  */
 
+package org.cga.sctp.api.core;
 
-import org.cga.sctp.core.BaseComponent;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.scheduling.annotation.EnableAsync;
 
-import java.util.TimeZone;
+import org.cga.sctp.audit.GeneralAuditEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationEventPublisher;
 
-@SpringBootApplication
-@EnableAsync
-@EnableConfigurationProperties
-@ComponentScan(basePackages = "org.cga")
-public class ApiApplication extends BaseComponent {
+import javax.validation.constraints.NotNull;
+import java.util.Locale;
 
-    public static void main(String[] args) {
-        TimeZone tz = TimeZone.getTimeZone("UTC");
-        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-        SpringApplication.run(ApiApplication.class, args);
+/**
+ * <p>Base component class containing logger and other facilities. This assumes that the class will be extended by a bean component.</p>
+ * <p>Extend as needed</p>
+ */
+public class BaseComponent {
+
+    /**
+     * Used to facilitate event publishing
+     */
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
+
+    protected final Logger LOG;
+
+    protected BaseComponent() {
+        LOG = LoggerFactory.getLogger(getClass());
+    }
+
+    protected final String format(String format, Object... args) {
+        return String.format(Locale.US, format, args);
+    }
+
+    /**
+     * Publish an application event to subscribers/listeners
+     *
+     * @param event Event to publish
+     */
+    protected final void publishEvent(@NotNull ApplicationEvent event) {
+        eventPublisher.publishEvent(event);
+    }
+
+    public final void publishGeneralEvent(String format, Object... args) {
+        publishEvent(new GeneralAuditEvent(format(format, args)));
     }
 }

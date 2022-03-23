@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,29 +30,60 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.user;
+package org.cga.sctp.api.core.pagination;
 
+import org.springframework.data.domain.Page;
 
-public enum SystemRole {
-    ROLE_SYSTEM_ADMIN("System Account", true),
-    ROLE_ADMINISTRATOR("Administrator", false),
-    // This will be automatically assigned to self-registered users.
-    ROLE_GUEST("Guest User", false),
-    ROLE_STANDARD("Standard User", false);
+import java.util.Collection;
 
-    SystemRole(String label, boolean isRestricted) {
-        this.label = label;
-        this.isRestricted = isRestricted;
+public class ItemPage<T> {
+    private long totalItems;
+    private int totalPages;
+    private int pageNumber;
+    private Collection<T> items;
+
+    public long getTotalItems() {
+        return totalItems;
     }
 
-    public final String label;
-    /**
-     * Restricted roles cannot be assigned to any accounts
-     */
-    public final boolean isRestricted;
+    public void setTotalItems(long totalItems) {
+        this.totalItems = totalItems;
+    }
 
-    /**
-     * List of roles that can manually be assigned
-     */
-    public static final SystemRole[] ROLES = {ROLE_ADMINISTRATOR, ROLE_STANDARD};
+    public int getTotalPages() {
+        return totalPages;
+    }
+
+    public void setTotalPages(int totalPages) {
+        this.totalPages = totalPages;
+    }
+
+    public int getPageNumber() {
+        return pageNumber;
+    }
+
+    public void setPageNumber(int pageNumber) {
+        this.pageNumber = pageNumber;
+    }
+
+    public Collection<T> getItems() {
+        return items;
+    }
+
+    public void setItems(Collection<T> items) {
+        this.items = items;
+    }
+
+    public static <T> ItemPage<T> of(Page<T> page) {
+        return of(page.toList(), page.getNumber(), page.getTotalPages(), page.getTotalElements());
+    }
+
+    public static <T> ItemPage<T> of(Collection<T> items, int pageNumber, int totalPages, long totalItems) {
+        return new ItemPage<>() {{
+            setItems(items);
+            setPageNumber(pageNumber);
+            setTotalPages(totalPages);
+            setTotalItems(totalItems);
+        }};
+    }
 }
