@@ -34,13 +34,21 @@ package org.cga.sctp.targeting;
 
 import javax.persistence.AttributeConverter;
 
+/**
+ * TODO: Review the conversion, at the time of writing Hibernate is using the ORDINAL value
+ * when mapping to the database. So I (zikani03) have applied a sick sick hack of just re-ordering
+ * the enum values so that they correspond to some of the stored procedures.
+ *
+ *
+ *
+ */
 public enum CbtStatus {
     NonRecertified(4),
-    Selected(3),
+    PreEligible(6),
     Ineligible(2),
-    Eligible(1),
-    Enrolled(5),
-    PreEligible(6);
+    Eligible(   1),
+    Selected(3),
+    Enrolled(5);
 
     public final int code;
     public static final CbtStatus[] VALUES = values();
@@ -58,6 +66,7 @@ public enum CbtStatus {
         throw new IllegalArgumentException("Code " + code + " not found in " + CbtStatus.class.getCanonicalName());
     }
 
+    @javax.persistence.Converter
     public static class Converter implements AttributeConverter<CbtStatus, Integer> {
 
         @Override
