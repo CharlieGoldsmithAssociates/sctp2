@@ -15,7 +15,7 @@
         <div class="card-content">
             <div class="columns is-mobile">
                 <div class="column">
-                    <h3 class="subtitle"><i class="fa fa-house"></i>&nbsp;Household Level Parameters</h3>
+                    <h3 class="subtitle"><i class="fa fa-house"></i>&nbsp;Base Household Transfer</h3>
                     <p>
                         Parameters for how much should be added to Beneficiary Households based on number of members in the household.
                     </p>
@@ -25,7 +25,7 @@
                     </div>
                 </div>
                 <div class="column">
-                    <h3 class="subtitle"><i class="fa fa-books"></i>&nbsp;Education Parameters</h3>
+                    <h3 class="subtitle"><i class="fa fa-books"></i>&nbsp;Education Bonus</h3>
                     <p>
                         Parameters for how much should be added to Beneficiary Households based on School going children
                     </p>
@@ -36,29 +36,6 @@
                 </div>
             </div>
             <div class="columns">
-{#                TODO(zikani03): Discuss on Location parameters which don't have explanation in requirements docs. #}
-{#                <div class="column">#}
-{#                    <h3 class="subtitle"><i class="fa fa-location-pin"></i>&nbsp;Location Level Parameters</h3>#}
-{#                    <p>#}
-{#                        Parameter for how much should be disbursed per Household per Location.#}
-{#                    </p>#}
-{#                    <div class="buttons is-right">#}
-{#                        <a href="{{ href('parameters/locations') }}" class="button is-primary">View All</a>#}
-{#                        <a href="{{ href('parameters/locations/new') }}" class="button is-primary">Add New</a>#}
-{#                    </div>#}
-{#                </div>#}
-{#                 TODO(zikani03): Understand the illness and disability parameters better first! #}
-{#                <div class="column">#}
-{#                    <h3 class="subtitle">Illness and Disability Parameters</h3>#}
-{#                    <p>#}
-{#                        Parameters for how much should be added to Beneficiary Households based on members who are ill or disabled.#}
-{#                    </p>#}
-{#                    <div class="buttons is-right">#}
-{#                        <a href="{{ href('parameters/illness-disability') }}" class="button is-primary">View All</a>#}
-{#                        <a href="{{ href('parameters/illness-disability/new') }}" class="button is-primary">Add New</a>#}
-{#                    </div>#}
-
-                </div>
             </div>
         </div>
     </div>
