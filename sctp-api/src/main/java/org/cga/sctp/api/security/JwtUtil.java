@@ -38,6 +38,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.gson.Gson;
+import org.apache.commons.lang3.time.DateUtils;
 import org.cga.sctp.api.auth.AccessTokenClaims;
 import org.cga.sctp.api.config.JwtConfiguration;
 import org.cga.sctp.api.core.AppConstants;
@@ -48,7 +49,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.UUID;
 
@@ -65,7 +65,7 @@ public final class JwtUtil extends BaseComponent {
         this.jwtConfiguration = jwtConfiguration;
         this.algorithm = Algorithm.HMAC256(jwtConfiguration.getSecret());
         this.jwtVerifier = JWT.require(algorithm)
-                .withIssuer(jwtConfiguration.getIssuer())
+                .withIssuer(jwtConfiguration.getIss())
                 .withClaimPresence(AppConstants.JWT_ACCESS_TOKEN_CLAIM)
                 .build();
     }
@@ -77,19 +77,24 @@ public final class JwtUtil extends BaseComponent {
      * @return A signed JWT
      */
     public JwtInfo generateJwt(User user, DistrictUserProfilesView profile) {
-        final Instant now;
+        final Instant now, exp;
         final String jti;
 
-        now = Instant.now();
+        final Date issueDate;
+        final Date expiryDate;
+
+        issueDate = new Date();
+        expiryDate = DateUtils.addMinutes(issueDate, (int) jwtConfiguration.getExpiration());
+
         jti = UUID.randomUUID().toString();
         return new JwtInfo(
                 jti,
                 JWT.create()
                         .withJWTId(jti)
-                        .withIssuedAt(Date.from(now))
+                        .withIssuedAt(issueDate)
                         .withSubject(user.getUserName())
-                        .withIssuer(jwtConfiguration.getIssuer())
-                        .withExpiresAt(Date.from(now.plus(jwtConfiguration.getExpiration(), ChronoUnit.MINUTES)))
+                        .withIssuer(jwtConfiguration.getIss())
+                        .withExpiresAt(expiryDate)
                         .withClaim(AppConstants.JWT_ACCESS_TOKEN_CLAIM, gson.toJson(new AccessTokenClaims(user, profile)))
                         .sign(algorithm)
         );

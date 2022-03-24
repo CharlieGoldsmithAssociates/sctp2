@@ -54,15 +54,18 @@ public class BaseController extends BaseComponent {
      */
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public final ResponseEntity<ApiErrors> handleExceptions(MethodArgumentNotValidException ex) {
+    public final ResponseEntity<ErrorResponse> handleExceptions(MethodArgumentNotValidException ex) {
         final List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors();
 
-        ApiErrors apiErrors = null;
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase()
+        );
 
         for (FieldError fieldError : fieldErrors) {
-            apiErrors = ApiErrors.addFieldError(apiErrors, fieldError.getField(), fieldError.getDefaultMessage());
+            errorResponse.addFieldError(fieldError.getField(), fieldError.getDefaultMessage());
         }
 
-        return ResponseEntity.badRequest().body(apiErrors);
+        return ResponseEntity.badRequest().body(errorResponse);
     }
 }

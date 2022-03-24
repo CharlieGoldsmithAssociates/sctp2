@@ -41,6 +41,7 @@ import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.security.SecuritySchemes;
 import org.cga.sctp.api.core.AppConstants;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
@@ -66,4 +67,14 @@ import org.springframework.context.annotation.Configuration;
         )
 })
 public class OpenApiDocConfiguration {
+    @Value("${springdoc.api-docs.enabled}")
+    private Boolean enabled;
+
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
 }

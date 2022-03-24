@@ -32,7 +32,13 @@
 
 package org.cga.sctp.api.filters;
 
+import com.google.gson.Gson;
+import org.cga.sctp.api.core.AppConstants;
+import org.cga.sctp.api.core.ErrorResponse;
 import org.cga.sctp.mobile.AppVersion;
+import org.cga.sctp.mobile.MobileApplicationService;
+import org.springframework.http.MediaType;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.filter.GenericFilterBean;
 
 import javax.servlet.FilterChain;
@@ -42,13 +48,42 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * <p>Filter to add application version headers to responses</p>
  */
 public class AppVersionFilter extends GenericFilterBean {
 
-    private AppVersion appVersion;
+    private final Gson gson;
+    private final AtomicReference<AppVersion> appVersion;
+    private final List<AntPathRequestMatcher> ignoredPathMatchers;
+    private final MobileApplicationService mobileApplicationService;
+
+    public AppVersionFilter(MobileApplicationService mobileApplicationService, Gson gson, String... ignoredPaths) {
+        this.gson = gson;
+        this.appVersion = new AtomicReference<>();
+        this.ignoredPathMatchers = new LinkedList<>();
+        this.mobileApplicationService = mobileApplicationService;
+        if (ignoredPaths.length > 0) {
+            for (String pathPattern : ignoredPaths) {
+                this.ignoredPathMatchers.add(new AntPathRequestMatcher(pathPattern));
+            }
+        }
+        this.refreshVersion();
+    }
+
+    private boolean ignorePath(HttpServletRequest request) {
+        for (AntPathRequestMatcher requestMatcher : ignoredPathMatchers) {
+            if (requestMatcher.matches(request)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     @Override
     public void doFilter(
@@ -56,16 +91,67 @@ public class AppVersionFilter extends GenericFilterBean {
             ServletResponse servletResponse,
             FilterChain filterChain) throws IOException, ServletException {
 
+        int applicationVersionCode = -1;
+        AppVersion version = appVersion.get();
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-        response.addHeader("X-APP-VERSION-CODE", appVersion == null ? "0" : appVersion.getVersionCode().toString());
-        response.addHeader("X-APP-VERSION-CODE", appVersion == null ? "0" : appVersion.getVersionCode().toString());
+        if (ignorePath(request)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        try {
+            applicationVersionCode = request.getIntHeader(AppConstants.APP_VERSION_CODE_HEADER);
+        } catch (Exception e) {
+            logger.error("Failed to parse application version code", e);
+        }
+
+        final Boolean updateAvailable;
+        final boolean validApplicationCode;
+
+        if (applicationVersionCode >= 1) {
+            if (version != null) {
+                validApplicationCode = applicationVersionCode <= version.getVersionCode();
+            } else {
+                validApplicationCode = false;
+            }
+        } else {
+            validApplicationCode = false;
+        }
+
+        if (!validApplicationCode) {
+            String error = "Unsupported application version.";
+            sendErrorResponse(response, HttpServletResponse.SC_PRECONDITION_FAILED, error);
+            return;
+        }
+
+        updateAvailable = applicationVersionCode < version.getVersionCode();
+
+        response.addHeader(AppConstants.APP_VERSION_CODE_HEADER, version.getVersionCode().toString());
+        response.addHeader(AppConstants.APP_VERSION_UPDATE_TIME_HEADER, version.getUpdatedAt().toString());
+        response.addHeader(AppConstants.APP_VERSION_UPDATE_AVAILABLE_HEADER, updateAvailable.toString());
+        response.addHeader(AppConstants.APP_VERSION_UPDATE_MANDATORY, version.getMandatoryUpdate().toString());
+
+        if (updateAvailable && version.getMandatoryUpdate()) {
+            String error = "Application is out of date. Please update. This is a mandatory update";
+            sendErrorResponse(response, HttpServletResponse.SC_PRECONDITION_FAILED, error);
+            return;
+        }
 
         filterChain.doFilter(servletRequest, servletResponse);
     }
 
-    public void setLatestApplicationVersion(){
+    private void sendErrorResponse(HttpServletResponse response, int code, String message) throws IOException {
+        ErrorResponse errorResponse = new ErrorResponse(code, message);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setStatus(code);
+        PrintWriter printWriter = response.getWriter();
+        printWriter.write(gson.toJson(errorResponse));
+        printWriter.flush();
+    }
 
+    public void refreshVersion() {
+        this.appVersion.set(mobileApplicationService.getLatestVersion());
     }
 }

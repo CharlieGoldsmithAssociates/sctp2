@@ -34,9 +34,11 @@ package org.cga.sctp.api.auth;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.cga.sctp.api.core.AppConstants;
 import org.cga.sctp.api.core.BaseController;
 import org.cga.sctp.api.core.IncludeGeneralResponses;
 import org.cga.sctp.api.security.JwtInfo;
@@ -49,10 +51,7 @@ import org.cga.sctp.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -72,14 +71,19 @@ public class AuthController extends BaseController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    @PostMapping("/authenticate")
+    @PostMapping(AppConstants.AUTHENTICATION_PATH)
     @Operation(description = "Authenticates the user using username and password.")
     @ApiResponses({
+            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = AuthenticationResponse.class))),
             @ApiResponse(responseCode = "401", description = "Authentication failed. Invalid username or password.", content = @Content),
             @ApiResponse(responseCode = "403", description = "Authentication failed. Inactive district user profile or user account.", content = @Content)
     })
     @IncludeGeneralResponses
-    public ResponseEntity<AuthenticationResponse> authenticateUser(@Valid @RequestBody AuthenticationRequest request, HttpServletRequest httpRequest) {
+    public ResponseEntity<AuthenticationResponse> authenticateUser(
+            @RequestHeader(AppConstants.APP_VERSION_CODE_HEADER) Integer appVersionCode,
+            @Valid @RequestBody AuthenticationRequest request,
+            HttpServletRequest httpRequest
+    ) {
         final User user;
         final JwtInfo jwtInfo;
         final DistrictUserProfilesView profile;
@@ -126,6 +130,8 @@ public class AuthController extends BaseController {
         user.setSessionId(jwtInfo.getJti());
 
         userService.saveUser(user);
+
+        publishEvent(AuthenticationEvent.authenticatedFromMobileApp(ipAddress, user, appVersionCode));
 
         return ResponseEntity.ok(new AuthenticationResponse(jwtInfo.getToken()));
     }

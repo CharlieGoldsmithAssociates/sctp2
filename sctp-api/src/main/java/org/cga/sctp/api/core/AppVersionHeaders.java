@@ -30,11 +30,38 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.api.security.access_control;
+package org.cga.sctp.api.core;
+
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
+import java.lang.annotation.*;
 
 /**
- * Permissions corresponding to permissions in the database.
+ * <p>Annotation for endpoints returning application version headers.</p>
+ * <p></p>
+ * <p>TODO: Create a bean instead using {@link  org.springdoc.core.customizers.OperationCustomizer} to complement {@link IncludeGeneralResponses}</p>
  */
-public interface UserPermissions {
-    String READ_LOCATIONS = "READ_LOCATIONS";
+@Documented
+@Target({ElementType.METHOD, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@ApiResponses(
+        @ApiResponse(headers = {
+                @Header(name = AppConstants.APP_VERSION_CODE_HEADER
+                        , description = "Current application version code"
+                        , schema = @Schema(type = "int")),
+                @Header(name = AppConstants.APP_VERSION_UPDATE_AVAILABLE_HEADER
+                        , description = "Whether an update is available"
+                        , schema = @Schema(type = "boolean")),
+                @Header(name = AppConstants.APP_VERSION_UPDATE_TIME_HEADER
+                        , description = "Timestamp when the new application became available"
+                        , schema = @Schema(type = "DateTime")),
+                @Header(name = AppConstants.APP_VERSION_UPDATE_MANDATORY
+                        , description = "Whether the update is mandatory or not"
+                        , schema = @Schema(type = "boolean"))
+        })
+)
+public @interface AppVersionHeaders {
 }

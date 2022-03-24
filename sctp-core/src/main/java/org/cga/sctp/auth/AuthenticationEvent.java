@@ -60,8 +60,8 @@ public class AuthenticationEvent extends AuditEvent {
         return new AuthenticationEvent(data);
     }
 
-    private static AuthenticationEvent create(String ipAddress, User user, String status) {
-        return create(ipAddress, user.getUserName(), status);
+    private static AuthenticationEvent create(String ipAddress, User user, String status, Object... args) {
+        return create(ipAddress, user.getUserName(), String.format(Locale.US, status, args));
     }
 
     private static AuthenticationEvent create(String ipAddress, String username, String status) {
@@ -101,5 +101,9 @@ public class AuthenticationEvent extends AuditEvent {
     public static ApplicationEvent inactiveDistrictUserProfile(DistrictUserProfilesView profile, String ipAddress) {
         return create(ipAddress, profile.getUserName(),
                 "Attempt to authenticate through app failed. District user profile is deactivated.");
+    }
+
+    public static ApplicationEvent authenticatedFromMobileApp(String ipAddress, User user, Integer versionCode) {
+        return create(ipAddress, user, "Authenticated from mobile device using version code %d.", versionCode);
     }
 }

@@ -38,4 +38,10 @@ public interface AppConstants {
     String API_SECURITY_REQUIREMENT_NAME = "bearerToken";
     String AUTHENTICATION_PATH = "/authenticate";
     String SYSTEM_ADMIN_ROLE = "ROLE_SYSTEM_ADMIN";
+
+
+    String APP_VERSION_CODE_HEADER = "X-App-Version-Code";
+    String APP_VERSION_UPDATE_TIME_HEADER = "X-App-Version-Updated-At";
+    String APP_VERSION_UPDATE_AVAILABLE_HEADER = "X-App-Version-Update-Available";
+    String APP_VERSION_UPDATE_MANDATORY = "X-App-Version-Update-Mandatory";
 }

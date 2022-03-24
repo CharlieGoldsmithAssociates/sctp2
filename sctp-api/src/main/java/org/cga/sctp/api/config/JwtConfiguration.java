@@ -37,20 +37,23 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 
 @Validated
 @Configuration
-@ConfigurationProperties(prefix = "jwt")
+@ConfigurationProperties(prefix = "auth.jwt")
 public class JwtConfiguration {
 
-    private static final int MAX_TTL_MINUTES = 60 * 24;
+    private static final long MINUTES_PER_DAY = 1440;
+    private static final long MAX_TTL_MINUTES = MINUTES_PER_DAY * 90L;
 
     /**
      * Name of entity issuing JWTs
      */
     @NotBlank(message = "Issuer is required")
-    private String issuer;
+    private String iss;
 
     /**
      * Shared key used for signing JWTs
@@ -66,8 +69,8 @@ public class JwtConfiguration {
     @Max(value = MAX_TTL_MINUTES, message = "Maximum JWT expiration time must not exceed {value} minutes.")
     private long expiration;
 
-    public String getIssuer() {
-        return issuer;
+    public String getIss() {
+        return iss;
     }
 
     public String getSecret() {
@@ -78,8 +81,8 @@ public class JwtConfiguration {
         return expiration;
     }
 
-    public void setIssuer(String issuer) {
-        this.issuer = issuer;
+    public void setIss(String iss) {
+        this.iss = iss;
     }
 
     public void setSecret(String secret) {

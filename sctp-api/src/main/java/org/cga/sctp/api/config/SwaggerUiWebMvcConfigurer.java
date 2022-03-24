@@ -48,6 +48,9 @@ public class SwaggerUiWebMvcConfigurer implements WebMvcConfigurer {
     private final String baseUrl;
 
     @Autowired
+    private OpenApiDocConfiguration configuration;
+
+    @Autowired
     public SwaggerUiWebMvcConfigurer(AppConfiguration appConfiguration) {
         this(appConfiguration.getContextPath());
     }
@@ -58,16 +61,20 @@ public class SwaggerUiWebMvcConfigurer implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        String baseUrl = StringUtils.trimTrailingCharacter(this.baseUrl, '/');
-        registry.
-                addResourceHandler(baseUrl + "/swagger-ui/**")
-                .addResourceLocations("classpath:/META-INF/resources/webjars/springfox-swagger-ui/")
-                .resourceChain(false);
+        if (configuration.getEnabled()) {
+            String baseUrl = StringUtils.trimTrailingCharacter(this.baseUrl, '/');
+            registry.
+                    addResourceHandler("/swagger-ui/**")
+                    .addResourceLocations("classpath:/META-INF/resources/webjars/springfox-swagger-ui/")
+                    .resourceChain(false);
+        }
     }
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController(baseUrl + "/swagger-ui/")
-                .setViewName("forward:" + baseUrl + "/swagger-ui/index.html");
+        if (configuration.getEnabled()) {
+            registry.addViewController("/swagger-ui/")
+                    .setViewName("forward:/swagger-ui/index.html");
+        }
     }
 }

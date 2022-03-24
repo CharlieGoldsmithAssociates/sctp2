@@ -30,68 +30,49 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.api.security.access_control;
+package org.cga.sctp.api.core;
 
-import javax.persistence.*;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
-@Entity
-@Table(name = "permissions")
-public class UserPermission {
+public class ErrorResponse {
+    private int code;
+    private String message;
+    private Map<String, List<String>> fieldErrors;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String name;
-    private String group;
-    private boolean active;
-    private String description;
-    private boolean systemPermission;
-
-    public Long getId() {
-        return id;
+    public ErrorResponse(int code) {
+        this(code, "n/a");
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public ErrorResponse(int code, String message) {
+        this.code = code;
+        this.message = message;
+        this.fieldErrors = new LinkedHashMap<>();
     }
 
-    public String getName() {
-        return name;
+    public int getCode() {
+        return code;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setCode(int code) {
+        this.code = code;
     }
 
-    public String getDescription() {
-        return description;
+    public String getMessage() {
+        return message;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setMessage(String message) {
+        this.message = message;
     }
 
-    public boolean isSystemPermission() {
-        return systemPermission;
+    public Map<String, List<String>> getFieldErrors() {
+        return fieldErrors;
     }
 
-    public void setSystemPermission(boolean systemPermission) {
-        this.systemPermission = systemPermission;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
-    public String getGroup() {
-        return group;
-    }
-
-    public void setGroup(String group) {
-        this.group = group;
+    public void addFieldError(String field, String error){
+        fieldErrors.computeIfAbsent(field, s -> new LinkedList<>()).add(error);
     }
 }

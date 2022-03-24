@@ -32,43 +32,40 @@
 
 package org.cga.sctp.api.user;
 
-import org.cga.sctp.api.core.persistence.StatusCode;
-import org.cga.sctp.api.security.access_control.UserRole;
-
-import java.time.LocalDateTime;
+import org.cga.sctp.api.auth.AccessTokenClaims;
+import org.cga.sctp.user.User;
 
 public class ApiUserDetails {
-    private String email;
+    private String guid;
+    private Long userId;
     private String userName;
-    private String lastName;
-    private String firstName;
-    private UserRole role;
-    private StatusCode status;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
+    private AccessTokenClaims accessTokenClaims;
 
-    public LocalDateTime getModifiedAt() {
-        return modifiedAt;
+    private ApiUserDetails(){}
+
+    public static ApiUserDetails of(User user, AccessTokenClaims accessTokenClaims) {
+        ApiUserDetails details = new ApiUserDetails();
+        details.guid = user.getGuid();
+        details.userId = user.getId();
+        details.userName = user.getUserName();
+        details.accessTokenClaims = accessTokenClaims;
+        return details;
     }
 
-    public void setModifiedAt(LocalDateTime modifiedAt) {
-        this.modifiedAt = modifiedAt;
+    public String getGuid() {
+        return guid;
     }
 
-    public StatusCode getStatus() {
-        return status;
+    public void setGuid(String guid) {
+        this.guid = guid;
     }
 
-    public void setStatus(StatusCode status) {
-        this.status = status;
+    public Long getUserId() {
+        return userId;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getUserName() {
@@ -79,48 +76,11 @@ public class ApiUserDetails {
         this.userName = userName;
     }
 
-    public String getLastName() {
-        return lastName;
+    public AccessTokenClaims getAccessTokenClaims() {
+        return accessTokenClaims;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public UserRole getRole() {
-        return role;
-    }
-
-    public void setRole(UserRole role) {
-        this.role = role;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public static ApiUserDetails of(ApiUser apiUser) {
-        ApiUserDetails details = new ApiUserDetails();
-        details.setRole(apiUser.getRole());
-        details.setEmail(apiUser.getEmail());
-        details.setStatus(apiUser.getStatus());
-        details.setLastName(apiUser.getLastName());
-        details.setUserName(apiUser.getUserName());
-        details.setFirstName(apiUser.getFirstName());
-        details.setCreatedAt(apiUser.getCreatedAt());
-        details.setModifiedAt(apiUser.getModifiedAt());
-        return details;
+    public void setAccessTokenClaims(AccessTokenClaims accessTokenClaims) {
+        this.accessTokenClaims = accessTokenClaims;
     }
 }

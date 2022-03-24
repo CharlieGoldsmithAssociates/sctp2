@@ -35,20 +35,17 @@ package org.cga.sctp.api.security;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.cga.sctp.api.auth.AccessTokenClaims;
 import org.cga.sctp.api.core.AppConstants;
-import org.cga.sctp.api.security.access_control.UserPermission;
-import org.cga.sctp.api.user.ApiUser;
-import org.cga.sctp.api.user.ApiUserService;
-import org.cga.sctp.api.utils.LocaleUtils;
+import org.cga.sctp.api.user.ApiUserDetails;
+import org.cga.sctp.user.User;
 import org.cga.sctp.user.UserService;
+import org.cga.sctp.utils.LocaleUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.filter.GenericFilterBean;
 
 import javax.servlet.FilterChain;
@@ -56,29 +53,40 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * This filter checks for a JTW token in every authenticated request.
  */
-@Component
 public class JwtAuthorizationFilterFilter extends GenericFilterBean {
 
-    @Autowired
-    private JwtUtil jwtUtil;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private SecurityService securityService;
-
     private final Logger logger;
+    private final JwtUtil jwtUtil;
+    private final UserService userService;
+    private final List<AntPathRequestMatcher> ignoredPathMatchers;
 
-    public JwtAuthorizationFilterFilter() {
-        logger = LoggerFactory.getLogger(getClass());
+    public JwtAuthorizationFilterFilter(UserService userService, JwtUtil jwtUtil, String... ignoredPaths) {
+        this.jwtUtil = jwtUtil;
+        this.userService = userService;
+        this.ignoredPathMatchers = new LinkedList<>();
+        this.logger = LoggerFactory.getLogger(getClass());
+        if (ignoredPaths.length > 0) {
+            for (String pathPattern : ignoredPaths) {
+                this.ignoredPathMatchers.add(new AntPathRequestMatcher(pathPattern));
+            }
+        }
+    }
+
+    private boolean ignorePath(HttpServletRequest request) {
+        for (AntPathRequestMatcher requestMatcher : ignoredPathMatchers) {
+            if (requestMatcher.matches(request)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -89,8 +97,12 @@ public class JwtAuthorizationFilterFilter extends GenericFilterBean {
 
         request = ((HttpServletRequest) servletRequest);
 
-        if (getRequestUri(request).equalsIgnoreCase(AppConstants.AUTHENTICATION_PATH)) {
-            SecurityContextHolder.clearContext();
+        if (AppConstants.AUTHENTICATION_PATH.equalsIgnoreCase(request.getRequestURI())) {
+            chain.doFilter(servletRequest, servletResponse);
+            return;
+        }
+
+        if (ignorePath(request)) {
             chain.doFilter(servletRequest, servletResponse);
             return;
         }
@@ -109,13 +121,15 @@ public class JwtAuthorizationFilterFilter extends GenericFilterBean {
             }
         }
 
-        SecurityContextHolder.clearContext();
-        chain.doFilter(servletRequest, servletResponse);
+        ((HttpServletResponse) servletResponse).sendError(HttpServletResponse.SC_UNAUTHORIZED);
+
+        //SecurityContextHolder.clearContext();
+        //chain.doFilter(servletRequest, servletResponse);
     }
 
     private Authentication getAuthenticationDetailsFromToken(String token) {
         DecodedJWT jwt;
-        ApiUser apiUser;
+        User user;
         AccessTokenClaims claims;
 
         if ((jwt = jwtUtil.parseJwt(token)) == null) {
@@ -123,26 +137,23 @@ public class JwtAuthorizationFilterFilter extends GenericFilterBean {
         }
 
         claims = jwtUtil.getAccessTokenClaims(jwt);
-        if ((apiUser = userService.findByUserNameAndSessionId(claims.getUserName(), jwt.getId())) == null) {
+        if ((user = userService.findByUserNameAndSessionId(claims.getUserName(), jwt.getId())) == null) {
             logger.warn("Invalid username and session pair for {}: Most likely a revoked session.", claims.getUserName());
             return null;
         }
 
-        if (!apiUser.isActive() || apiUser.isDeleted() || !apiUser.getRole().isActive()) {
+        // In case user status changed
+        if (!user.isActive() || user.isDeleted()) {
             return null;
         }
 
         // manually load permissions
-        apiUser.setAuthorities(
-                securityService.getRolePermissions(apiUser.getRole())
-                        .stream()
-                        .map((Function<UserPermission, GrantedAuthority>) userPermission -> new SimpleGrantedAuthority(userPermission.getName()))
-                        .collect(Collectors.toList())
-        );
-
         UsernamePasswordAuthenticationToken upat
-                = new UsernamePasswordAuthenticationToken(apiUser.getUserName(), null, apiUser.getAuthorities());
-        upat.setDetails(apiUser);
+                = new UsernamePasswordAuthenticationToken(user.getUserName(), null, new LinkedList<>() {{
+            add(new SimpleGrantedAuthority(user.getRole().name()));
+        }});
+
+        upat.setDetails(ApiUserDetails.of(user, claims));
 
         return upat;
     }

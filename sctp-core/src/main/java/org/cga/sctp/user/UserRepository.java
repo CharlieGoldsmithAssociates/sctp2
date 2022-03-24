@@ -41,7 +41,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(value = "select * FROM active_users WHERE email = :email", nativeQuery = true)
     User findByEmail(@Param("email") String email);
@@ -52,7 +52,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query(value = "select * FROM users WHERE user_name = :userName", nativeQuery = true)
     User findByUserNameEx(@Param("userName") String userName);
 
-    @Query(value = "select * FROM active_users WHERE user_name = :userName AND session_id = :sessionId", nativeQuery = true)
+    @Query(value = "select * FROM users WHERE user_name = :userName AND session_id = :sessionId", nativeQuery = true)
     User findByUserNameAndSessionId(@Param("userName") String userName, @Param("sessionId") String sessionId);
 
     /**

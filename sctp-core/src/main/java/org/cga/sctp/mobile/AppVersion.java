@@ -105,4 +105,16 @@ public class AppVersion {
     public void setId(Integer id) {
         this.id = id;
     }
+
+    @Override
+    public String toString() {
+        return "AppVersion{" +
+                "id=" + id +
+                ", versionCode=" + versionCode +
+                ", versionName='" + versionName + '\'' +
+                ", updatedAt=" + updatedAt +
+                ", mandatoryUpdate=" + mandatoryUpdate +
+                ", fileHash='" + fileHash + '\'' +
+                '}';
+    }
 }
