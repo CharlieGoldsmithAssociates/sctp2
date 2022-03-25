@@ -110,7 +110,7 @@ public class AuthController extends BaseController {
 
         if (!authService.verifyPassword(request.getPassword(), user.getPassword())) {
             user.setAuthAttempts(user.getAuthAttempts() + 1);
-            user.setActive(user.getAuthAttempts() >= authService.getMaxAuthAttempts());
+            user.setActive(user.getAuthAttempts() < authService.getMaxAuthAttempts());
 
             if (!user.isActive()) {
                 publishEvent(AuthenticationEvent.accountLocked(ipAddress, user));
