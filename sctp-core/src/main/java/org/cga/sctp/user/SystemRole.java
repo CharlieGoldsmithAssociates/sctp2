@@ -46,7 +46,13 @@ public enum SystemRole {
     }
 
     public final String label;
+    /**
+     * Restricted roles cannot be assigned to any accounts
+     */
     public final boolean isRestricted;
 
+    /**
+     * List of roles that can manually be assigned
+     */
     public static final SystemRole[] ROLES = {ROLE_ADMINISTRATOR, ROLE_STANDARD};
 }

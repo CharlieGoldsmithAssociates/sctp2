@@ -34,30 +34,26 @@
  */
 
 
+import org.cga.sctp.core.BaseComponent;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.cga.sctp.core.BaseComponent;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication
 @EnableAsync
 @EnableConfigurationProperties
+@EnableJpaRepositories("org.cga.*")
 @ComponentScan(basePackages = "org.cga")
+@EntityScan("org.cga.*")
+@EnableTransactionManagement
 public class ApiApplication extends BaseComponent {
 
-    /* @Autowired
-     private AppConfiguration appConfig;
- */
     public static void main(String[] args) {
         SpringApplication.run(ApiApplication.class, args);
     }
-
-/*    @PostConstruct
-    public void printVersionInfo() {
-        LOG.info("---");
-        LOG.info("{} (v{}, {})", appConfig.getApplicationName(), appConfig.getVersion(), appConfig.getBuildTime());
-        LOG.info("---");
-    }*/
 }

@@ -33,6 +33,7 @@
 package org.cga.sctp.core;
 
 
+import org.cga.sctp.audit.GeneralAuditEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,5 +72,9 @@ public class BaseComponent {
      */
     protected final void publishEvent(@NotNull ApplicationEvent event) {
         eventPublisher.publishEvent(event);
+    }
+
+    public final void publishGeneralEvent(String format, Object... args) {
+        publishEvent(new GeneralAuditEvent(format(format, args)));
     }
 }

@@ -32,14 +32,13 @@
 
 package org.cga.sctp.auth;
 
-import com.google.gson.Gson;
 import org.cga.sctp.audit.AuditEvent;
 import org.cga.sctp.audit.EventType;
 import org.cga.sctp.user.AuthenticatedUser;
+import org.cga.sctp.user.DistrictUserProfilesView;
 import org.cga.sctp.user.User;
 import org.springframework.context.ApplicationEvent;
 
-import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -61,8 +60,8 @@ public class AuthenticationEvent extends AuditEvent {
         return new AuthenticationEvent(data);
     }
 
-    private static AuthenticationEvent create(String ipAddress, User user, String status) {
-        return create(ipAddress, user.getUserName(), status);
+    private static AuthenticationEvent create(String ipAddress, User user, String status, Object... args) {
+        return create(ipAddress, user.getUserName(), String.format(Locale.US, status, args));
     }
 
     private static AuthenticationEvent create(String ipAddress, String username, String status) {
@@ -97,5 +96,14 @@ public class AuthenticationEvent extends AuditEvent {
 
     public static AuthenticationEvent loggedOut(String ipAddress, AuthenticatedUser user) {
         return create(ipAddress, user.username(), "Logged out");
+    }
+
+    public static ApplicationEvent inactiveDistrictUserProfile(DistrictUserProfilesView profile, String ipAddress) {
+        return create(ipAddress, profile.getUserName(),
+                "Attempt to authenticate through app failed. District user profile is deactivated.");
+    }
+
+    public static ApplicationEvent authenticatedFromMobileApp(String ipAddress, User user, Integer versionCode) {
+        return create(ipAddress, user, "Authenticated from mobile device using version code %d.", versionCode);
     }
 }

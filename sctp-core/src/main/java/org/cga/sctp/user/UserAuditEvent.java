@@ -34,6 +34,7 @@ package org.cga.sctp.user;
 
 import org.cga.sctp.audit.AuditEvent;
 import org.cga.sctp.audit.EventType;
+import org.cga.sctp.location.Location;
 import org.springframework.context.ApplicationEvent;
 
 import java.util.LinkedHashMap;
@@ -62,5 +63,65 @@ public class UserAuditEvent extends AuditEvent {
 
     public static ApplicationEvent password(String principal, String username, String ipAddress) {
         return create("%s changed %s's password from IP %s", principal, username, ipAddress);
+    }
+
+    public static ApplicationEvent removedFromDistrictProfiles(String principal, DistrictUserProfilesView profile, String ipAddress) {
+        return create(
+                "%s removed %s's (%s) profile from %s district from IP address %.",
+                principal,
+                profile.getUserName(),
+                profile.getFullname(),
+                profile.getDistrictName(),
+                ipAddress
+        );
+    }
+
+    public static ApplicationEvent districtProfileAdded(String principal, User user, Location location, String ipAddress) {
+        return create(
+                "%s created district user profile for %s(%s) for district %s from IP address %s.",
+                principal,
+                user.getUserName(),
+                user.makeFullName(),
+                location.getName(),
+                ipAddress
+        );
+    }
+
+    public static ApplicationEvent districtProfileDeactivated(String principal, DistrictUserProfilesView profile, String ipAddress) {
+        return create(
+                "%s deactivated %s's (%s) %s district user profile from IP address %s.",
+                principal,
+                profile.getUserName(),
+                profile.getFullname(),
+                profile.getDistrictName(),
+                ipAddress
+        );
+    }
+
+    public static ApplicationEvent districtProfileActivated(String principal, DistrictUserProfilesView profile, String ipAddress) {
+        return create(
+                "%s activated %s's (%s) %s district user profile from IP address %s.",
+                principal,
+                profile.getUserName(),
+                profile.getFullname(),
+                profile.getDistrictName(),
+                ipAddress
+        );
+    }
+
+    public static ApplicationEvent districtProfileDistrictChanged(
+            String principal,
+            DistrictUserProfilesView profile,
+            Location newDistrict,
+            String ipAddress) {
+        return create(
+                "%s moved %s'(%s) district user profile from %s to %s. Source ip address %s.",
+                principal,
+                profile.getFullname(),
+                profile.getUserName(),
+                profile.getDistrictName(),
+                newDistrict.getName(),
+                ipAddress
+        );
     }
 }

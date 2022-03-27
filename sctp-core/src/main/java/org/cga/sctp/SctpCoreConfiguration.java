@@ -36,10 +36,13 @@ import org.cga.sctp.audit.DefaultLogMessagePrinterManager;
 import org.cga.sctp.audit.LogMessagePrinterManager;
 import org.cga.sctp.auth.AuthConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * <p>Configuration file for the core module.</p>
@@ -55,5 +58,16 @@ public class SctpCoreConfiguration {
     @Bean
     public LogMessagePrinterManager logMessagePrinterManager() {
         return new DefaultLogMessagePrinterManager(appContext);
+    }
+
+    /**
+     * Default encoder
+     *
+     * @return .
+     */
+    @Bean
+    @ConditionalOnMissingBean(PasswordEncoder.class)
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
