@@ -32,7 +32,6 @@
 
 package org.cga.sctp.mis.config;
 
-import com.mitchellbosecke.pebble.error.PebbleException;
 import org.cga.sctp.mis.utils.SpringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,7 +89,7 @@ public class SmartErrorHandler implements ErrorController {
         };
     }
 
-    @Override
+    //@Override
     public String getErrorPath() {
         return ERROR_PATH;
     }

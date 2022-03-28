@@ -14,12 +14,15 @@
                 </a>
                 <div class="navbar-dropdown">
                     <a href="/users" class="navbar-item">System Users</a>
+                    {% if hasRole("ADMINISTRATOR") %}
+                        <a href="/district-users" class="navbar-item">District User Profiles</a>
+                    {% endif %}
                     <a class="navbar-item" href="/funders">Funders</a>
-                    <a class="navbar-item" href="/transfers/agencies">
-                        Transfer Agencies
-                    </a>
+                    <a class="navbar-item" href="/transfers/agencies">Transfer Agencies</a>
                     <a class="navbar-item" href="/terminologies">Terminologies</a>
+                    {% if hasRole("ADMINISTRATOR") %}
                     <a class="navbar-item" href="/locations">Geolocation Areas</a>
+                    {% endif %}
                     <a class="navbar-item" href="/programs">Programmes</a>
                     <a class="navbar-item" href="/schools">Schools</a>
                     <a href="/logs" class="navbar-item">Audit Log</a>
@@ -64,6 +67,7 @@
             </div>
             #}
 
+            {% if hasRole("ADMINISTRATOR", "STANDARD") %}
             <div class="navbar-item has-dropdown is-hoverable">
                 <a class="navbar-link">
               <span class="icon-text">
@@ -88,6 +92,7 @@
                     </a>
                 </div>
             </div>
+            {% endif %}
 
             {#
             <div class="navbar-item has-dropdown is-hoverable">

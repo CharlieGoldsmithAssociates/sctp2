@@ -1,0 +1,67 @@
+# Core configuration file. Import this file in the MIS and API configuration files using the following
+# The import must be the first thing in the file
+#
+#spring:
+#  config:
+#import: classpath:sctp-common.yaml
+#
+#
+
+auth:
+  max_attempts: 3
+  jwt:
+    iss: sctp
+
+spring:
+  resources:
+    cache:
+      cachecontrol:
+        max-age: 365d
+  application:
+    name: "SCTP"
+    version: @project.version@
+    build_timestamp: '@maven.build.timestamp@'
+  mvc:
+    logResolvedException: false
+  datasource:
+    username:
+    password:
+    url: jdbc:mysql://
+  flyway:
+    locations: classpath:db/migration,classpath:db/callback
+    out-of-order: true
+    baselineOnMigrate: true
+
+# Email/SMTP settings
+simplejavamail:
+  transportstrategy: SMTP
+  fromName: SCTP MIS
+  fromAddress: no-reply@sctp.localhost.com
+  smtp:
+    host: localhost
+    port: 25
+    password:
+    username:
+  javaxmail:
+    debug: false
+
+imports:
+  staging: ./staging
+
+# Targeting related settings
+targeting:
+  pictures: ./beneficiary-images # Where to save beneficiary pictures. If the directory does not exist, it will be created.
+
+sctp:
+  transfers:
+    # Number of months in a transfer period for manual transfers, defaults to 2
+    manualTransferFrequency: 2
+
+ubr:
+  api:
+    #baseUrl: http://81.169.255.202:8082/
+    baseUrl: http://localhost:8082/
+    #fullUrl: http://81.169.255.202:8082/api/v2/get_households_data
+    fetchHouseholdData: /api/v2/get_households_data
+    username: username
+    password: password

@@ -225,4 +225,8 @@ public class AuthService extends BaseService implements AuthenticationProvider {
         }
         return false;
     }
+
+    public int getMaxAuthAttempts() {
+        return authConfiguration.maxAttempts();
+    }
 }
