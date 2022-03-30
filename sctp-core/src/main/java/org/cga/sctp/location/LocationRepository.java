@@ -48,25 +48,25 @@ import java.util.List;
 interface LocationRepository extends JpaRepository<Location, Long> {
 
 
-    @Query(value = "SELECT * FROM locations_info_v WHERE active = :active", nativeQuery = true)
+    @Query(value = "SELECT * FROM locations_info_v WHERE active = :active ORDER BY id", nativeQuery = true)
     Page<LocationInfo> getByStatus(@Param("page") Pageable pageable, @Param("active") boolean active);
 
-    @Query(value = "select * FROM locations_info_v where active = true", nativeQuery = true)
+    @Query(value = "select * FROM locations_info_v where active = true ORDER BY name, code", nativeQuery = true)
     List<LocationInfo> findAllActive();
 
     @Query(nativeQuery = true, value = "select * from locations where active = true and id = :id")
     Location findActiveLocationById(@Param("id") Long locationId);
 
-    @Query(nativeQuery = true, value = "select * from locations where active = true and location_type = :type")
+    @Query(nativeQuery = true, value = "select * from locations where active = true and location_type = :type ORDER BY name, code")
     List<Location> findActiveLocationsByType(@Param("type") String type);
 
-    @Query(nativeQuery = true, value = "select * from locations_info_v where locationType = :type")
+    @Query(nativeQuery = true, value = "select * from locations_info_v where locationType = :type ORDER BY name, code")
     List<LocationInfo> findByLocationType(@Param("type") String type);
 
     @Query(nativeQuery = true, value = "select * from locations_info_v where locationType = :type limit 1")
     LocationInfo findByLocationTypeFirst(@Param("type") String type);
 
-    @Query(nativeQuery = true, value = "select * from locations_info_v where parentId = :parent")
+    @Query(nativeQuery = true, value = "select * from locations_info_v where parentId = :parent ORDER BY name, code")
     List<LocationInfo> getByParentId(@Param("parent") Long parentId);
 
     List<Location> getByActiveAndParentId(boolean active, Long parentId);
@@ -75,10 +75,10 @@ interface LocationRepository extends JpaRepository<Location, Long> {
 
     Location findByCode(long code);
 
-    @Query(nativeQuery = true, value = "select id, name, code from location_by_codes_v where parentCode = :code")
+    @Query(nativeQuery = true, value = "select id, name, code from location_by_codes_v where parentCode = :code ORDER BY name, code")
     List<LocationCode> getCodesByParentCode(@Param("code") Long code);
 
-    @Query(nativeQuery = true, value = "select id, name, code from location_by_codes_v where location_type = :type")
+    @Query(nativeQuery = true, value = "select id, name, code from location_by_codes_v where location_type = :type ORDER BY name, code")
     List<LocationCode> getActiveCodesByType(@Param("type") String type);
 
     Location findByActiveAndCodeAndLocationType(boolean active, Long code, LocationType type);
