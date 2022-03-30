@@ -33,40 +33,48 @@
 package org.cga.sctp.api.locations;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.cga.sctp.location.LocationCode;
 
-import java.util.Map;
-
-public class LocationDetailResponse {
+public class GeoLocationResponse implements LocationCode {
     @JsonProperty
-    private Long locationCode;
-
-    @JsonProperty
-    private String locationName;
+    private Long id;
 
     @JsonProperty
-    private Map<Long, String> sublocations;
+    private Long code;
 
-    public Long getLocationCode() {
-        return locationCode;
+    @JsonProperty
+    private String name;
+
+    public GeoLocationResponse() {
     }
 
-    public void setLocationCode(Long locationCode) {
-        this.locationCode = locationCode;
+    public GeoLocationResponse(Long id, Long code, String name) {
+        this.id = id;
+        this.code = code;
+        this.name = name;
     }
 
-    public String getLocationName() {
-        return locationName;
+    public Long getId() {
+        return id;
     }
 
-    public void setLocationName(String locationName) {
-        this.locationName = locationName;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public Map<Long, String> getSublocations() {
-        return sublocations;
+    public Long getCode() {
+        return code;
     }
 
-    public void setSublocations(Map<Long, String> sublocations) {
-        this.sublocations = sublocations;
+    public void setCode(Long code) {
+        this.code = code;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

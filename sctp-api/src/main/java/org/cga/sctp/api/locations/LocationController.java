@@ -41,6 +41,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.cga.sctp.api.core.BaseController;
 import org.cga.sctp.api.core.IncludeGeneralResponses;
 import org.cga.sctp.location.Location;
+import org.cga.sctp.location.LocationCode;
 import org.cga.sctp.location.LocationService;
 import org.cga.sctp.location.LocationType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,8 +51,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequestMapping
@@ -61,28 +61,18 @@ public class LocationController extends BaseController {
     @Autowired
     private LocationService locationService;
 
-    @GetMapping("/locations")
+    @GetMapping("/district-locations/{district-id}")
     @Operation(description = "Fetches locations from the  database by code.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = LocationDetailResponse.class)))
+        @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = GeoLocationResponse.class)))
     })
     @IncludeGeneralResponses
-    public ResponseEntity<LocationDetailResponse> fetchLocationsForAuthorizedUser(@RequestParam("code") Long locationCode) {
-        LocationDetailResponse locationDetail = new LocationDetailResponse();
-
-        Location location = locationService.findActiveLocationByCodeAndType(locationCode, LocationType.SUBNATIONAL1);
+    public ResponseEntity<List<LocationCode>> fetchLocationsForAuthorizedUser(@RequestParam("district-id") Long districtId) {
+        Location location = locationService.findActiveLocationByCodeAndType(districtId, LocationType.SUBNATIONAL1);
         if (location == null) {
             return ResponseEntity.badRequest().build();
         }
-        locationDetail.setLocationCode(location.getCode());
-        locationDetail.setLocationName(location.getName());
-        Map<Long, String> sublocationMap = new HashMap<>();
 
-        locationService.getLocationCodesByParent(locationCode)
-            .forEach(sublocation -> sublocationMap.put(sublocation.getCode(), sublocation.getName()));
-
-        locationDetail.setSublocations(sublocationMap);
-
-        return ResponseEntity.ok(locationDetail);
+        return ResponseEntity.ok(locationService.getLocationCodesByParent(districtId));
     }
 }
