@@ -125,6 +125,10 @@ public class LocationService extends BaseService {
         return locationRepository.getActiveCodesByType(LocationType.SUBNATIONAL1.name());
     }
 
+    public List<LocationCode> getCodesByType(LocationType locationType) {
+        return locationRepository.getActiveCodesByType(locationType.name());
+    }
+
     public Location findActiveLocationByCodeAndType(Long code, LocationType type) {
         return locationRepository.findByActiveAndCodeAndLocationType(true, code, type);
     }

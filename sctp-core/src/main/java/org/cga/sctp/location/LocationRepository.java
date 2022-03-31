@@ -75,10 +75,10 @@ interface LocationRepository extends JpaRepository<Location, Long> {
 
     Location findByCode(long code);
 
-    @Query(nativeQuery = true, value = "select id, name, code, location_type from location_by_codes_v where parentCode = :code")
+    @Query(nativeQuery = true, value = "select id, name, code, parentCode, location_type locationType from location_by_codes_v where parentCode = :code")
     List<LocationCode> getCodesByParentCode(@Param("code") Long code);
 
-    @Query(nativeQuery = true, value = "select id, name, code, location_type from location_by_codes_v where location_type = :type")
+    @Query(nativeQuery = true, value = "select id, name, code, parentCode, location_type locationType from location_by_codes_v where location_type = :type")
     List<LocationCode> getActiveCodesByType(@Param("type") String type);
 
     Location findByActiveAndCodeAndLocationType(boolean active, Long code, LocationType type);

@@ -81,6 +81,11 @@ public class GeoLocationResponse implements LocationCode {
         return name;
     }
 
+    @Override
+    public Long getParentCode() {
+        return null;
+    }
+
     public void setName(String name) {
         this.name = name;
     }

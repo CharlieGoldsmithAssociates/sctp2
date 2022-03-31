@@ -51,7 +51,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping
+@RequestMapping("/locations")
 @Tag(name = "Locations", description = "Locations endpoint")
 public class LocationController extends BaseController {
 
@@ -61,7 +61,7 @@ public class LocationController extends BaseController {
     @GetMapping("/district-locations/{district-code}")
     @Operation(description = "Fetches locations from the  database by code.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = GeoLocationResponse.class)))
+            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = GeoLocationResponse.class)))
     })
     @IncludeGeneralResponses
     public ResponseEntity<List<LocationCode>> fetchLocationsForAuthorizedUser(@PathVariable("district-code") Long districtCode) {
@@ -71,5 +71,15 @@ public class LocationController extends BaseController {
         }
         // TODO: Do a recursive fetch of the locations
         return ResponseEntity.ok(locationService.getLocationCodesByParent(districtCode));
+    }
+
+    @GetMapping("/get-by-type")
+    @Operation(description = "Get list of locations by location type")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = LocationCode.class)))
+    })
+    @IncludeGeneralResponses
+    public ResponseEntity<List<LocationCode>> getLocationsByType(@RequestParam("type") LocationType locationType) {
+        return ResponseEntity.ok(locationService.getCodesByType(locationType));
     }
 }
