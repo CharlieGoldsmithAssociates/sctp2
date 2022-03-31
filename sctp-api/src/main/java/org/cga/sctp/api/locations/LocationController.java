@@ -46,10 +46,7 @@ import org.cga.sctp.location.LocationService;
 import org.cga.sctp.location.LocationType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -67,12 +64,12 @@ public class LocationController extends BaseController {
         @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = GeoLocationResponse.class)))
     })
     @IncludeGeneralResponses
-    public ResponseEntity<List<LocationCode>> fetchLocationsForAuthorizedUser(@RequestParam("district-id") Long districtId) {
+    public ResponseEntity<List<LocationCode>> fetchLocationsForAuthorizedUser(@PathVariable("district-id") Long districtId) {
         Location location = locationService.findActiveLocationByCodeAndType(districtId, LocationType.SUBNATIONAL1);
         if (location == null) {
             return ResponseEntity.badRequest().build();
         }
-
+        // TODO: Do a recursive fetch of the locations
         return ResponseEntity.ok(locationService.getLocationCodesByParent(districtId));
     }
 }
