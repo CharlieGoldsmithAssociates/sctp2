@@ -45,15 +45,20 @@ public class GeoLocationResponse implements LocationCode {
     @JsonProperty
     private String name;
 
+    @JsonProperty
+    private String locationType;
+
     public GeoLocationResponse() {
     }
 
-    public GeoLocationResponse(Long id, Long code, String name) {
+    public GeoLocationResponse(Long id, Long code, String name, String locationType) {
         this.id = id;
         this.code = code;
         this.name = name;
+        this.locationType = locationType;
     }
 
+    @Override
     public Long getId() {
         return id;
     }
@@ -62,6 +67,7 @@ public class GeoLocationResponse implements LocationCode {
         this.id = id;
     }
 
+    @Override
     public Long getCode() {
         return code;
     }
@@ -70,11 +76,21 @@ public class GeoLocationResponse implements LocationCode {
         this.code = code;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public String getLocationType() {
+        return locationType;
+    }
+
+    public void setLocationType(String locationType) {
+        this.locationType = locationType;
     }
 }
