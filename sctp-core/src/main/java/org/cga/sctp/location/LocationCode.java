@@ -36,4 +36,5 @@ public interface LocationCode {
     Long getCode();
     Long getId();
     String getName();
+    String getLocationType();
 }

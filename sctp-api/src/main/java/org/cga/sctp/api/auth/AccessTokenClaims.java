@@ -35,6 +35,8 @@ package org.cga.sctp.api.auth;
 import org.cga.sctp.user.DistrictUserProfilesView;
 import org.cga.sctp.user.User;
 
+import java.math.BigInteger;
+
 public class AccessTokenClaims {
     private String guid;
     private String lastName;
@@ -44,6 +46,7 @@ public class AccessTokenClaims {
     private String authority;
     private String districtName;
     private String authorityName;
+    private BigInteger districtCode;
 
     public AccessTokenClaims() {
     }
@@ -56,6 +59,7 @@ public class AccessTokenClaims {
         authority = user.getRole().name();
         authorityName = user.getRole().label;
         districtId = profile.getDistrictId();
+        districtCode = profile.getDistrictCode();
         districtName = profile.getDistrictName();
     }
 
@@ -121,5 +125,13 @@ public class AccessTokenClaims {
 
     public void setAuthorityName(String authorityName) {
         this.authorityName = authorityName;
+    }
+
+    public BigInteger getDistrictCode() {
+        return districtCode;
+    }
+
+    public void setDistrictCode(BigInteger districtCode) {
+        this.districtCode = districtCode;
     }
 }

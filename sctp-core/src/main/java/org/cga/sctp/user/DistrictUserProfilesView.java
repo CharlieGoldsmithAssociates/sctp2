@@ -37,6 +37,7 @@ import org.hibernate.annotations.Immutable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.math.BigInteger;
 
 @Entity
 @Immutable
@@ -46,14 +47,13 @@ public class DistrictUserProfilesView extends DistrictUserProfileEntity {
     @Column(name = "user_name", nullable = false, length = 20)
     private String userName;
 
-    @Column(name = "email", nullable = false, length = 50)
-    private String email;
-
     @Column(name = "fullname", length = 101)
     private String fullname;
 
     @Column(name = "district_name", length = 100)
     private String districtName;
+
+    private BigInteger districtCode;
 
     public String getUserName() {
         return userName;
@@ -61,14 +61,6 @@ public class DistrictUserProfilesView extends DistrictUserProfileEntity {
 
     public void setUserName(String userName) {
         this.userName = userName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public String getFullname() {
@@ -85,5 +77,13 @@ public class DistrictUserProfilesView extends DistrictUserProfileEntity {
 
     public void setDistrictName(String districtName) {
         this.districtName = districtName;
+    }
+
+    public BigInteger getDistrictCode() {
+        return districtCode;
+    }
+
+    public void setDistrictCode(BigInteger districtCode) {
+        this.districtCode = districtCode;
     }
 }
