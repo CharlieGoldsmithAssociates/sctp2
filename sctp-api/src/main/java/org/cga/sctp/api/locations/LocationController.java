@@ -58,18 +58,18 @@ public class LocationController extends BaseController {
     @Autowired
     private LocationService locationService;
 
-    @GetMapping("/district-locations/{district-id}")
+    @GetMapping("/district-locations/{district-code}")
     @Operation(description = "Fetches locations from the  database by code.")
     @ApiResponses({
         @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = GeoLocationResponse.class)))
     })
     @IncludeGeneralResponses
-    public ResponseEntity<List<LocationCode>> fetchLocationsForAuthorizedUser(@PathVariable("district-id") Long districtId) {
-        Location location = locationService.findActiveLocationByCodeAndType(districtId, LocationType.SUBNATIONAL1);
+    public ResponseEntity<List<LocationCode>> fetchLocationsForAuthorizedUser(@PathVariable("district-code") Long districtCode) {
+        Location location = locationService.findActiveLocationByCodeAndType(districtCode, LocationType.SUBNATIONAL1);
         if (location == null) {
             return ResponseEntity.badRequest().build();
         }
         // TODO: Do a recursive fetch of the locations
-        return ResponseEntity.ok(locationService.getLocationCodesByParent(districtId));
+        return ResponseEntity.ok(locationService.getLocationCodesByParent(districtCode));
     }
 }
