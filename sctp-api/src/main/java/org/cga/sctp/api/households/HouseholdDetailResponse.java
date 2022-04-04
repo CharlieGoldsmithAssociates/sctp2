@@ -30,60 +30,32 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.user;
+package org.cga.sctp.api.households;
 
-import org.hibernate.annotations.Immutable;
+import org.cga.sctp.beneficiaries.Individual;
+import org.cga.sctp.targeting.EligibleHousehold;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import java.math.BigInteger;
+import java.util.List;
 
-@Entity
-@Immutable
-@Table(name = "district_user_profiles_view")
-public class DistrictUserProfilesView extends DistrictUserProfileEntity {
+public class HouseholdDetailResponse {
 
-    @Column(name = "user_name", nullable = false, length = 20)
-    private String userName;
+    private EligibleHousehold household;
 
-    @Column(name = "fullname", length = 101)
-    private String fullname;
+    private List<Individual> members;
 
-    @Column(name = "district_name", length = 100)
-    private String districtName;
-
-    private BigInteger districtCode;
-
-    public String getUserName() {
-        return userName;
+    public EligibleHousehold getHousehold() {
+        return household;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setHousehold(EligibleHousehold household) {
+        this.household = household;
     }
 
-    public String getFullname() {
-        return fullname;
+    public List<Individual> getMembers() {
+        return members;
     }
 
-    public void setFullname(String fullname) {
-        this.fullname = fullname;
-    }
-
-    public String getDistrictName() {
-        return districtName;
-    }
-
-    public void setDistrictName(String districtName) {
-        this.districtName = districtName;
-    }
-
-    public BigInteger getDistrictCode() {
-        return districtCode;
-    }
-
-    public void setDistrictCode(BigInteger districtCode) {
-        this.districtCode = districtCode;
+    public void setMembers(List<Individual> members) {
+        this.members = members;
     }
 }

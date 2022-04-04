@@ -30,60 +30,72 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.user;
+package org.cga.sctp.api.locations;
 
-import org.hibernate.annotations.Immutable;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.cga.sctp.location.LocationCode;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import java.math.BigInteger;
+public class GeoLocationResponse implements LocationCode {
+    @JsonProperty
+    private Long id;
 
-@Entity
-@Immutable
-@Table(name = "district_user_profiles_view")
-public class DistrictUserProfilesView extends DistrictUserProfileEntity {
+    @JsonProperty
+    private Long code;
 
-    @Column(name = "user_name", nullable = false, length = 20)
-    private String userName;
+    @JsonProperty
+    private String name;
 
-    @Column(name = "fullname", length = 101)
-    private String fullname;
+    @JsonProperty
+    private String locationType;
 
-    @Column(name = "district_name", length = 100)
-    private String districtName;
-
-    private BigInteger districtCode;
-
-    public String getUserName() {
-        return userName;
+    public GeoLocationResponse() {
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public GeoLocationResponse(Long id, Long code, String name, String locationType) {
+        this.id = id;
+        this.code = code;
+        this.name = name;
+        this.locationType = locationType;
     }
 
-    public String getFullname() {
-        return fullname;
+    @Override
+    public Long getId() {
+        return id;
     }
 
-    public void setFullname(String fullname) {
-        this.fullname = fullname;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public String getDistrictName() {
-        return districtName;
+    @Override
+    public Long getCode() {
+        return code;
     }
 
-    public void setDistrictName(String districtName) {
-        this.districtName = districtName;
+    public void setCode(Long code) {
+        this.code = code;
     }
 
-    public BigInteger getDistrictCode() {
-        return districtCode;
+    @Override
+    public String getName() {
+        return name;
     }
 
-    public void setDistrictCode(BigInteger districtCode) {
-        this.districtCode = districtCode;
+    @Override
+    public Long getParentCode() {
+        return null;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getLocationType() {
+        return locationType;
+    }
+
+    public void setLocationType(String locationType) {
+        this.locationType = locationType;
     }
 }

@@ -33,7 +33,9 @@
 package org.cga.sctp.location;
 
 public interface LocationCode {
-    Long getCode();
     Long getId();
+    Long getCode();
     String getName();
+    Long getParentCode();
+    String getLocationType();
 }

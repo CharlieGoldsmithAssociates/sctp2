@@ -48,7 +48,6 @@ import org.cga.sctp.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
 
@@ -77,7 +76,6 @@ public final class JwtUtil extends BaseComponent {
      * @return A signed JWT
      */
     public JwtInfo generateJwt(User user, DistrictUserProfilesView profile) {
-        final Instant now, exp;
         final String jti;
 
         final Date issueDate;
