@@ -61,20 +61,6 @@ public class CommunityBasedTargetingController extends BaseController {
                 .addObject("districts", toSelectOptions(locationService.getActiveDistrictCodes()));
     }
 
-    @AdminAccessOnly
-    @GetMapping(value = "/get-child-locations", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<List<SelectOptionItem>> getSubLocations(@RequestParam("id") Long parentId) {
-        List<LocationCode> subLocations = locationService.getLocationCodesByParent(parentId);
-        if (subLocations.isEmpty()) {
-            return ResponseEntity
-                    .ok().contentType(MediaType.APPLICATION_JSON)
-                    .body(Collections.emptyList());
-        }
-        return ResponseEntity
-                .ok().contentType(MediaType.APPLICATION_JSON)
-                .body(toSelectOptions(subLocations));
-    }
-
     private Location getActiveLocationByCode(Long id, LocationType type, String message, RedirectAttributes attributes) {
         Location location = locationService.findActiveLocationByCodeAndType(id, type);
         if (location == null) {

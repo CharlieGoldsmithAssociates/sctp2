@@ -141,7 +141,7 @@
         };
         window.loadLocations = function(target, sender, prepend, useExtraField){
             getOptions(
-                '/targeting/community/get-child-locations?id=' + sender.selectedOptions[0].value,
+                '/locations/get-child-locations?id=' + sender.selectedOptions[0].value,
                 function(data){
                     renderOptions(target, data, prepend, useExtraField);
                 },

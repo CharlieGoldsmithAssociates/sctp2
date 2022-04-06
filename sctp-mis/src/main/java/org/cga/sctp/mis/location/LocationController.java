@@ -33,16 +33,15 @@
 package org.cga.sctp.mis.location;
 
 
-import org.cga.sctp.location.Location;
-import org.cga.sctp.location.LocationInfo;
-import org.cga.sctp.location.LocationService;
-import org.cga.sctp.location.LocationType;
+import org.cga.sctp.location.*;
 import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.mis.core.templating.Booleans;
+import org.cga.sctp.mis.core.templating.SelectOptionItem;
 import org.cga.sctp.terminology.TerminologyService;
-import org.cga.sctp.user.RoleConstants;
+import org.cga.sctp.user.AdminAndStandardAccessOnly;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -53,7 +52,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+
+import static org.cga.sctp.mis.location.LocationCodeUtil.toSelectOptions;
 
 @Controller
 @RequestMapping("/locations")
@@ -74,7 +76,7 @@ public class LocationController extends BaseController {
     }
 
     @GetMapping
-    @Secured({RoleConstants.ROLE_ADMINISTRATOR, RoleConstants.ROLE_STANDARD})
+    @AdminAndStandardAccessOnly
     ModelAndView getAllLocations(@RequestParam(value = "type", defaultValue = "COUNTRY", required = false) LocationType type) {
 
         return view("/locations/list")
@@ -84,7 +86,7 @@ public class LocationController extends BaseController {
     }
 
     @GetMapping("/{location-id}/sublocations")
-    @Secured({RoleConstants.ROLE_ADMINISTRATOR, RoleConstants.ROLE_STANDARD})
+    @AdminAndStandardAccessOnly
     ModelAndView getAllLocations(@PathVariable("location-id") Long locationId, RedirectAttributes attributes) {
         final Location location = locationService.findById(locationId);
         String returnUrl;
@@ -107,7 +109,7 @@ public class LocationController extends BaseController {
     }
 
     @GetMapping("/new")
-    @Secured({RoleConstants.ROLE_ADMINISTRATOR, RoleConstants.ROLE_STANDARD})
+    @AdminAndStandardAccessOnly
     ModelAndView newLocation(@RequestParam("type") LocationType type, @ModelAttribute("locationForm") NewLocationForm locationForm) {
         locationForm.setType(type);
         return view("/locations/new")
@@ -118,7 +120,7 @@ public class LocationController extends BaseController {
     }
 
     @PostMapping
-    @Secured({RoleConstants.ROLE_ADMINISTRATOR, RoleConstants.ROLE_STANDARD})
+    @AdminAndStandardAccessOnly
     ModelAndView addLocation(
             @Validated @ModelAttribute("locationForm") NewLocationForm locationForm,
             BindingResult result,
@@ -194,7 +196,7 @@ public class LocationController extends BaseController {
     }
 
     @PostMapping("/update")
-    @Secured({RoleConstants.ROLE_ADMINISTRATOR, RoleConstants.ROLE_STANDARD})
+    @AdminAndStandardAccessOnly
     ModelAndView updateLocation(
             @Validated @ModelAttribute("locationForm") EditLocationForm editForm,
             BindingResult result,
@@ -273,7 +275,7 @@ public class LocationController extends BaseController {
     }
 
     @GetMapping("/{location-id}/edit")
-    @Secured({RoleConstants.ROLE_ADMINISTRATOR, RoleConstants.ROLE_STANDARD})
+    @AdminAndStandardAccessOnly
     ModelAndView editLocation(@PathVariable("location-id") Long locationId,
                               @ModelAttribute("locationForm") EditLocationForm locationForm,
                               RedirectAttributes attributes) {
@@ -293,5 +295,19 @@ public class LocationController extends BaseController {
                 .addObject("locationType", terminologyService.getTerminologyByName(location.getLocationType().name()))
                 .addObject("parentType", getLocationParentType(location.getLocationType()))
                 .addObject("parents", getActiveParentLocationsForType(location.getLocationType()));
+    }
+
+    @AdminAndStandardAccessOnly
+    @GetMapping(value = "/get-child-locations", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<SelectOptionItem>> getSubLocations(@RequestParam("id") Long parentId) {
+        List<LocationCode> subLocations = locationService.getLocationCodesByParent(parentId);
+        if (subLocations.isEmpty()) {
+            return ResponseEntity
+                    .ok().contentType(MediaType.APPLICATION_JSON)
+                    .body(Collections.emptyList());
+        }
+        return ResponseEntity
+                .ok().contentType(MediaType.APPLICATION_JSON)
+                .body(toSelectOptions(subLocations));
     }
 }
