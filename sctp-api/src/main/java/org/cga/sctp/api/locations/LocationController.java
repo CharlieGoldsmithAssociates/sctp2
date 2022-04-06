@@ -41,14 +41,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.cga.sctp.api.core.BaseController;
 import org.cga.sctp.api.core.IncludeGeneralResponses;
 import org.cga.sctp.location.Location;
-import org.cga.sctp.location.LocationCode;
 import org.cga.sctp.location.LocationService;
 import org.cga.sctp.location.LocationType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/locations")
@@ -61,25 +58,24 @@ public class LocationController extends BaseController {
     @GetMapping("/district-locations/{district-code}")
     @Operation(description = "Fetches locations from the  database by code.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = GeoLocationResponse.class)))
+            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = LocationDownloadResponse.class)))
     })
     @IncludeGeneralResponses
-    public ResponseEntity<List<LocationCode>> fetchLocationsForAuthorizedUser(@PathVariable("district-code") Long districtCode) {
+    public ResponseEntity<LocationDownloadResponse> fetchLocationsForAuthorizedUser(@PathVariable("district-code") Long districtCode) {
         Location location = locationService.findActiveLocationByCodeAndType(districtCode, LocationType.SUBNATIONAL1);
         if (location == null) {
             return ResponseEntity.badRequest().build();
         }
-        // TODO: Do a recursive fetch of the locations
-        return ResponseEntity.ok(locationService.getLocationCodesByParent(districtCode));
+        return ResponseEntity.ok(new LocationDownloadResponse(locationService.getLocationCodesByParent(districtCode)));
     }
 
     @GetMapping("/get-by-type")
     @Operation(description = "Get list of locations by location type")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = LocationCode.class)))
+            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = LocationDownloadResponse.class)))
     })
     @IncludeGeneralResponses
-    public ResponseEntity<List<LocationCode>> getLocationsByType(@RequestParam("type") LocationType locationType) {
-        return ResponseEntity.ok(locationService.getCodesByType(locationType));
+    public ResponseEntity<LocationDownloadResponse> getLocationsByType(@RequestParam("type") LocationType locationType) {
+        return ResponseEntity.ok(new LocationDownloadResponse(locationService.getCodesByType(locationType)));
     }
 }

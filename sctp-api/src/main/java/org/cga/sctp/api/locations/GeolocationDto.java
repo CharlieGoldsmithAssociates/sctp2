@@ -35,7 +35,7 @@ package org.cga.sctp.api.locations;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.cga.sctp.location.LocationCode;
 
-public class GeoLocationResponse implements LocationCode {
+public class GeolocationDto implements LocationCode {
     @JsonProperty
     private Long id;
 
@@ -48,10 +48,10 @@ public class GeoLocationResponse implements LocationCode {
     @JsonProperty
     private String locationType;
 
-    public GeoLocationResponse() {
+    public GeolocationDto() {
     }
 
-    public GeoLocationResponse(Long id, Long code, String name, String locationType) {
+    public GeolocationDto(Long id, Long code, String name, String locationType) {
         this.id = id;
         this.code = code;
         this.name = name;
