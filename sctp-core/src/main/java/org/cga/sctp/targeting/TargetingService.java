@@ -51,6 +51,9 @@ import java.util.stream.Collectors;
 public class TargetingService extends TransactionalService {
 
     @Autowired
+    private CbtRankingRepository cbtRankingRepository;
+
+    @Autowired
     private TargetingSessionRepository sessionRepository;
 
     @Autowired
@@ -105,7 +108,7 @@ public class TargetingService extends TransactionalService {
     }
 
     public Slice<CbtRanking> getCbtRanking(TargetingSessionView session, Pageable pageable) {
-        return viewRepository.getCbtRankingResults(session.getId(), pageable.getPageNumber(), pageable.getPageSize());
+        return cbtRankingRepository.findByCbtSessionId(session.getId(), pageable);
     }
 
     public TargetingSessionView findSessionViewById(Long sessionId) {

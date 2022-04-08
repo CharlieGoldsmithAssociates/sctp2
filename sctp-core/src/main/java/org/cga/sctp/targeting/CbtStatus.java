@@ -66,7 +66,7 @@ public enum CbtStatus {
         throw new IllegalArgumentException("Code " + code + " not found in " + CbtStatus.class.getCanonicalName());
     }
 
-    @javax.persistence.Converter
+    @javax.persistence.Converter(autoApply = true)
     public static class Converter implements AttributeConverter<CbtStatus, Integer> {
 
         @Override

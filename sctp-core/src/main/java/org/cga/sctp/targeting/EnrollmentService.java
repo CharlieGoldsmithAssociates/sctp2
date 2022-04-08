@@ -45,6 +45,9 @@ import java.util.List;
 public class EnrollmentService extends TransactionalService {
 
     @Autowired
+    CbtRankingRepository cbtRankingRepository;
+
+    @Autowired
     EnrolmentSessionRepository enrolmentSessionRepository;
 
     @Autowired
@@ -68,7 +71,7 @@ public class EnrollmentService extends TransactionalService {
     }
 
     public Slice<CbtRanking> getEnrolledHouseholds(EnrollmentSessionView session, Pageable pageable) {
-        return enrolmentSessionRepository.getEnrolledHouseholds(session.getId(), pageable.getPageNumber(), pageable.getPageSize());
+        return cbtRankingRepository.findByCbtSessionId(session.getId(), pageable);
     }
 
     public EnrollmentSessionView getEnrollmentSession(Long sessionId) {

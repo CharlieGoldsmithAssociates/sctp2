@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,34 +32,14 @@
 
 package org.cga.sctp.targeting;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.query.Procedure;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface EnrolmentSessionRepository extends JpaRepository<EnrolmentSession, Long> {
-    @Procedure(procedureName = "sendHouseholdToEnrolment")
-    void sendToEnrolment(
-            @Param("targeting_session_id") Long targetingId,
-            @Param("verification_session_id") Long verificationId,
-            @Param("user_id") Long userId
-    );
+public interface CbtRankingRepository extends JpaRepository<CbtRanking, Long> {
 
-    @Modifying
-    @Query(value = "UPDATE household_enrollment SET status = 4 WHERE household_id = :id", nativeQuery = true)
-    void setEnrolledHouseholdToEnrolled(@Param("id") Long id);
+    Page<CbtRanking> findByCbtSessionId(Long cbtSessionId, Pageable pageable);
 
-    /**
-     * Counts the households in the enrollment session that have not yet been moved to enrolled status (i.e. are
-     * not yet Beneficiaries)
-     *
-     * @param id Enrollment Session ID
-     * @return the number of households that have not been enrolled
-     * @see CbtStatus
-     */
-    @Query(nativeQuery=true, value="SELECT count(household_id) FROM household_enrollment WHERE session_id = :id AND status = 1")
-    Long countUnenrolledHouseholds(@Param("id") Long id);
 }
