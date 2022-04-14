@@ -37,6 +37,7 @@ import org.cga.sctp.targeting.criteria.*;
 import org.cga.sctp.utils.CollectionUtils;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -395,5 +396,40 @@ public class TargetingService extends TransactionalService {
 
     public List<EligibleHousehold> getEligibleHouseholds(EligibilityVerificationSessionBase session) {
         return verificationSessionRepository.getEligibleHouseholds(session.getId());
+    }
+
+    public Page<EligibilityVerificationSessionView> getOpenVerificationSessionsByLocation(
+            long districtCode
+            , Long taCode
+            , Long villageClusterCode
+            , Long zoneCode
+            , Long villageCode
+            , int page) {
+        if (isCodeSet(taCode) && isCodeSet(villageClusterCode)) {
+            return verificationSessionViewRepository.findByOpenByLocation(
+                    Pageable.ofSize(100).withPage(page)
+                    , EligibilityVerificationSessionBase.Status.Review.name()
+                    , districtCode
+                    , taCode
+                    , villageClusterCode
+            );
+        }
+        if (isCodeSet(taCode) && !isCodeSet(villageClusterCode)) {
+            return verificationSessionViewRepository.findByOpenByLocation(
+                    Pageable.ofSize(100).withPage(page)
+                    , EligibilityVerificationSessionBase.Status.Review.name()
+                    , districtCode
+                    , taCode
+            );
+        }
+        return verificationSessionViewRepository.findByOpenByLocation(
+                Pageable.ofSize(100).withPage(page)
+                , EligibilityVerificationSessionBase.Status.Review.name()
+                , districtCode
+        );
+    }
+
+    private boolean isCodeSet(Long code) {
+        return code != null && code > 0L;
     }
 }
