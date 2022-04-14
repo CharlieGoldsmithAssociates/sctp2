@@ -46,7 +46,7 @@ interface EligibilityVerificationSessionViewRepository extends JpaRepository<Eli
             nativeQuery = true,
             value = """
                     select * from eligibility_verification_sessions_v
-                     where status = :status and taCode = :taCode and districtCode = :districtCode
+                     where status = :status and ta_code = :taCode and district_code = :districtCode
                      and FIND_IN_SET(:clusterCode, clusters)
                     """
     )
@@ -62,7 +62,7 @@ interface EligibilityVerificationSessionViewRepository extends JpaRepository<Eli
             nativeQuery = true,
             value = """
                     select * from eligibility_verification_sessions_v
-                     where status = :status and taCode = :taCode and districtCode = :districtCode
+                     where status = :status and ta_code = :taCode and district_code = :districtCode
                     """
     )
     Page<EligibilityVerificationSessionView> findByOpenByLocation(
@@ -76,7 +76,7 @@ interface EligibilityVerificationSessionViewRepository extends JpaRepository<Eli
             nativeQuery = true,
             value = """
                     select * from eligibility_verification_sessions_v
-                     where status = :status and districtCode = :districtCode
+                     where status = :status and district_code = :districtCode
                     """
     )
     Page<EligibilityVerificationSessionView> findByOpenByLocation(

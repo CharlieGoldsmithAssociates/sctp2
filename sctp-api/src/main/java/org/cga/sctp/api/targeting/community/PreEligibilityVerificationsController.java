@@ -65,7 +65,7 @@ public class PreEligibilityVerificationsController extends BaseController {
     private BeneficiaryService beneficiaryService;
 
     @GetMapping("/sessions")
-    @Operation(description = "Fetches open pre-eligibility sessions.")
+    @Operation(description = "Fetches open pre-eligibility verification sessions.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = PreEligibilityVerificationSessionResponse.class)))
     })
