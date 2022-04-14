@@ -1,5 +1,5 @@
 -- cbt_ranking_results view provides summarized data for CBT Screens
-DROP VIEW cbt_ranking_results_v;
+DROP VIEW IF EXISTS cbt_ranking_results_v;
 
 CREATE VIEW cbt_ranking_results_v
 AS
