@@ -32,9 +32,56 @@
 
 package org.cga.sctp.targeting;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
 interface EligibilityVerificationSessionViewRepository extends JpaRepository<EligibilityVerificationSessionView, Long> {
+
+    @Query(
+            nativeQuery = true,
+            value = """
+                    select * from eligibility_verification_sessions_v
+                     where status = :status and taCode = :taCode and districtCode = :districtCode
+                     and FIND_IN_SET(:clusterCode, clusters)
+                    """
+    )
+    Page<EligibilityVerificationSessionView> findByOpenByLocation(
+            Pageable pageable,
+            @Param("status") String status,
+            @Param("districtCode") long districtCode,
+            @Param("taCode") Long taCode,
+            @Param("clusterCode") Long villageClusterCode
+    );
+
+    @Query(
+            nativeQuery = true,
+            value = """
+                    select * from eligibility_verification_sessions_v
+                     where status = :status and taCode = :taCode and districtCode = :districtCode
+                    """
+    )
+    Page<EligibilityVerificationSessionView> findByOpenByLocation(
+            Pageable pageable,
+            @Param("status") String status,
+            @Param("districtCode") long districtCode,
+            @Param("taCode") Long taCode
+    );
+
+    @Query(
+            nativeQuery = true,
+            value = """
+                    select * from eligibility_verification_sessions_v
+                     where status = :status and districtCode = :districtCode
+                    """
+    )
+    Page<EligibilityVerificationSessionView> findByOpenByLocation(
+            Pageable pageable,
+            @Param("status") String status,
+            @Param("districtCode") long districtCode
+    );
 }
