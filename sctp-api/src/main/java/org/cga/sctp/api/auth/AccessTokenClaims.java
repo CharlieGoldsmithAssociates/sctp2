@@ -32,11 +32,13 @@
 
 package org.cga.sctp.api.auth;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import org.cga.sctp.user.DistrictUserProfilesView;
 import org.cga.sctp.user.User;
 
 import java.math.BigInteger;
 
+@Hidden
 public class AccessTokenClaims {
     private String guid;
     private String lastName;

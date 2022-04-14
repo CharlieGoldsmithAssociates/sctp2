@@ -58,10 +58,7 @@ public class AuthenticatedUserArgumentResolver implements HandlerMethodArgumentR
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
             if (authentication.isAuthenticated()) {
-                Object details = authentication.getDetails();
-                if (details instanceof AuthenticatedUser user) {
-                    return user;
-                }
+                return authentication.getDetails();
             }
         }
         return null;

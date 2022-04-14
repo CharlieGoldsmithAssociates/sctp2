@@ -30,59 +30,23 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.api.user;
+package org.cga.sctp.api.config;
 
-import io.swagger.v3.oas.annotations.Hidden;
-import org.cga.sctp.api.auth.AccessTokenClaims;
-import org.cga.sctp.user.User;
+import org.cga.sctp.user.AuthenticatedUserArgumentResolver;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@Hidden
-public class ApiUserDetails {
-    private String guid;
-    private Long userId;
-    private String userName;
-    private AccessTokenClaims accessTokenClaims;
+import java.util.List;
 
-    private ApiUserDetails(){}
+@Configuration
+public class ApiWebConfiguration implements WebMvcConfigurer {
+    @Autowired
+    private AuthenticatedUserArgumentResolver resolver;
 
-    public static ApiUserDetails of(User user, AccessTokenClaims accessTokenClaims) {
-        ApiUserDetails details = new ApiUserDetails();
-        details.guid = user.getGuid();
-        details.userId = user.getId();
-        details.userName = user.getUserName();
-        details.accessTokenClaims = accessTokenClaims;
-        return details;
-    }
-
-    public String getGuid() {
-        return guid;
-    }
-
-    public void setGuid(String guid) {
-        this.guid = guid;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public AccessTokenClaims getAccessTokenClaims() {
-        return accessTokenClaims;
-    }
-
-    public void setAccessTokenClaims(AccessTokenClaims accessTokenClaims) {
-        this.accessTokenClaims = accessTokenClaims;
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+        resolvers.add(resolver);
     }
 }
