@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,49 +30,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting.importation.parameters;
+package org.cga.sctp.targeting;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public enum ChronicIllness implements UbrParameterValue {
-    ChronicMalaria(1, "Chronic Malaria"),
-    TB(2, null),
-    HivAids(3, "HIV/AIDS"),
-    Asthma(4, null),
-    Arthritis(5, "Athritis"),
-    Epilepsy(6, null),
-    Cancer(7, null),
-    Other(8, null),
-    None(9, null);
+@Repository
+interface EligibleHouseholdDetailsRepository extends JpaRepository<EligibleHouseholdDetails, Long> {
 
-    ChronicIllness(int code, String text) {
-        this.code = code;
-        this.text = text;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    @Override
-    public String toString() {
-        return text != null ? text : name();
-    }
-
-    public final int code;
-    public final String text;
-    public static final ChronicIllness[] VALUES = values();
-
-    public static ChronicIllness parseCode(String code) {
-        return parseIntCode(Integer.parseInt(code));
-    }
-
-    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static ChronicIllness parseIntCode(int code) {
-        for(ChronicIllness e: VALUES) {
-            if (e.code == code) return e;
-        }
-
-        return null;
-    }
+    Page<EligibleHouseholdDetails> getBySessionId(Long sessionId, Pageable pageable);
 }

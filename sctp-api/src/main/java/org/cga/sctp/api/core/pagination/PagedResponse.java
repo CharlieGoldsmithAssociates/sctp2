@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,49 +30,43 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting.importation.parameters;
+package org.cga.sctp.api.core.pagination;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
+import org.springframework.data.domain.Page;
 
-public enum ChronicIllness implements UbrParameterValue {
-    ChronicMalaria(1, "Chronic Malaria"),
-    TB(2, null),
-    HivAids(3, "HIV/AIDS"),
-    Asthma(4, null),
-    Arthritis(5, "Athritis"),
-    Epilepsy(6, null),
-    Cancer(7, null),
-    Other(8, null),
-    None(9, null);
+import java.util.List;
 
-    ChronicIllness(int code, String text) {
-        this.code = code;
-        this.text = text;
+/**
+ * <p>Base class for responses that require paging</p>
+ *
+ * @param <T> .
+ */
+public class PagedResponse<T> {
+    private final int page;
+    private final int totalPages;
+    private final long totalItems;
+    private final List<T> items;
+
+    public PagedResponse(Page<T> page) {
+        this.page = page.getNumber();
+        this.totalItems = page.getTotalElements();
+        this.totalPages = page.getTotalPages();
+        this.items = page.toList();
     }
 
-    public int getCode() {
-        return code;
+    public long getTotalItems() {
+        return totalItems;
     }
 
-    @Override
-    public String toString() {
-        return text != null ? text : name();
+    public List<T> getItems() {
+        return items;
     }
 
-    public final int code;
-    public final String text;
-    public static final ChronicIllness[] VALUES = values();
-
-    public static ChronicIllness parseCode(String code) {
-        return parseIntCode(Integer.parseInt(code));
+    public int getPage() {
+        return page;
     }
 
-    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static ChronicIllness parseIntCode(int code) {
-        for(ChronicIllness e: VALUES) {
-            if (e.code == code) return e;
-        }
-
-        return null;
+    public int getTotalPages() {
+        return totalPages;
     }
 }

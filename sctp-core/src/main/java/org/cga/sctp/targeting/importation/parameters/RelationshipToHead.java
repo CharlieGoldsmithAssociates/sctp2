@@ -32,6 +32,8 @@
 
 package org.cga.sctp.targeting.importation.parameters;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public enum RelationshipToHead implements UbrParameterValue {
     // We can't rely on the intrinsic ordinal because the structure of the enum could be rearranged
     // So we define a code property
@@ -53,6 +55,7 @@ public enum RelationshipToHead implements UbrParameterValue {
         this.description = description;
     }
 
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static RelationshipToHead parseIntCode(int id) {
         for(RelationshipToHead e: VALUES) {
             if (e.code == id) return e;

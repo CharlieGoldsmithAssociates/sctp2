@@ -32,6 +32,8 @@
 
 package org.cga.sctp.targeting.importation.parameters;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public enum EducationLevel implements UbrParameterValue {
     Nursery(1, null),
     Primary(2, null),
@@ -49,8 +51,9 @@ public enum EducationLevel implements UbrParameterValue {
         this.otherName = otherName;
     }
 
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static EducationLevel parseIntCode(int id) {
-        for(EducationLevel e: VALUES) {
+        for (EducationLevel e : VALUES) {
             if (e.code == id) return e;
         }
         return null;

@@ -32,6 +32,8 @@
 
 package org.cga.sctp.targeting.importation.parameters;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public enum MaritalStatus implements UbrParameterValue {
     Married(1),
     Separated(2),
@@ -45,6 +47,7 @@ public enum MaritalStatus implements UbrParameterValue {
         this.code = code;
     }
 
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static MaritalStatus parseIntCode(int id) {
         for(MaritalStatus e: VALUES) {
             if (e.code == id) return e;

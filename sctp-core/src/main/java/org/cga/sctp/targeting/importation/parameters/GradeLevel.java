@@ -32,6 +32,8 @@
 
 package org.cga.sctp.targeting.importation.parameters;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public enum GradeLevel implements UbrParameterValue {
     Standard1(1, "Std. 1"),
     Standard2(2, "Std. 2"),
@@ -54,6 +56,16 @@ public enum GradeLevel implements UbrParameterValue {
     GradeLevel(int code, String text) {
         this.code = code;
         this.text = text;
+    }
+
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    public static GradeLevel fromCode(int code) {
+        for (GradeLevel gradeLevel : VALUES) {
+            if (gradeLevel.code == code) {
+                return gradeLevel;
+            }
+        }
+        throw new IllegalArgumentException("Invalid code");
     }
 
     @Override

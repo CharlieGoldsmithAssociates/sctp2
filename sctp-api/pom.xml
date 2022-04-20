@@ -16,7 +16,7 @@
     <properties>
         <spring-starter-security.version>2.3.11.RELEASE</spring-starter-security.version>
         <springdoc.vesion>1.6.6</springdoc.vesion>
-        <java-jwt.version>3.18.3</java-jwt.version>
+        <java-jwt.version>3.19.0</java-jwt.version>
         <hibernate-types.version>2.12.0</hibernate-types.version>
     </properties>
 
@@ -88,6 +88,18 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+       <!-- <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>2.13.2</version>
+        </dependency>-->
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-joda</artifactId>
+            <version>2.13.2</version>
         </dependency>
     </dependencies>
 

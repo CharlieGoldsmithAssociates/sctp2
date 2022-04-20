@@ -50,6 +50,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class TargetingService extends TransactionalService {
+    private static final int PAGE_SIZE = 200;
 
     @Autowired
     private CbtRankingRepository cbtRankingRepository;
@@ -89,6 +90,9 @@ public class TargetingService extends TransactionalService {
 
     @Autowired
     private EnrolmentSessionRepository enrolmentRepository;
+
+    @Autowired
+    private EligibleHouseholdDetailsRepository eligibleHouseholdDetailsRepository;
 
     public void saveTargetingSession(TargetingSession targetingSession) {
         sessionRepository.save(targetingSession);
@@ -398,6 +402,13 @@ public class TargetingService extends TransactionalService {
         return verificationSessionRepository.getEligibleHouseholds(session.getId());
     }
 
+    public Page<EligibleHouseholdDetails> getEligibleHouseholdsDetails(Long sessionId, int page) {
+        return eligibleHouseholdDetailsRepository.getBySessionId(
+                sessionId,
+                Pageable.ofSize(PAGE_SIZE).withPage(page)
+        );
+    }
+
     public Page<EligibilityVerificationSessionView> getOpenVerificationSessionsByLocation(
             long districtCode
             , Long taCode
@@ -407,7 +418,7 @@ public class TargetingService extends TransactionalService {
             , int page) {
         if (isCodeSet(taCode) && isCodeSet(villageClusterCode)) {
             return verificationSessionViewRepository.findByOpenByLocation(
-                    Pageable.ofSize(100).withPage(page)
+                    Pageable.ofSize(PAGE_SIZE).withPage(page)
                     , EligibilityVerificationSessionBase.Status.Review.name()
                     , districtCode
                     , taCode
@@ -416,14 +427,14 @@ public class TargetingService extends TransactionalService {
         }
         if (isCodeSet(taCode) && !isCodeSet(villageClusterCode)) {
             return verificationSessionViewRepository.findByOpenByLocation(
-                    Pageable.ofSize(100).withPage(page)
+                    Pageable.ofSize(PAGE_SIZE).withPage(page)
                     , EligibilityVerificationSessionBase.Status.Review.name()
                     , districtCode
                     , taCode
             );
         }
         return verificationSessionViewRepository.findByOpenByLocation(
-                Pageable.ofSize(100).withPage(page)
+                Pageable.ofSize(PAGE_SIZE).withPage(page)
                 , EligibilityVerificationSessionBase.Status.Review.name()
                 , districtCode
         );

@@ -32,6 +32,8 @@
 
 package org.cga.sctp.targeting.importation.parameters;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public enum Gender implements UbrParameterValue {
     Male(1),
     Female(2);
@@ -43,6 +45,14 @@ public enum Gender implements UbrParameterValue {
     }
 
     public static final Gender[] VALUES = values();
+
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    public static Gender fromCode(int code) {
+        for (Gender gender : VALUES) {
+            if (gender.code == code) return gender;
+        }
+        return null;
+    }
 
     @Override
     public int getCode() {

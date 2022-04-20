@@ -32,45 +32,12 @@
 
 package org.cga.sctp.api.targeting.community;
 
+import org.cga.sctp.api.core.pagination.PagedResponse;
 import org.cga.sctp.targeting.EligibilityVerificationSessionView;
+import org.springframework.data.domain.Page;
 
-import java.util.List;
-
-public class PreEligibilityVerificationSessionResponse {
-    private int page;
-    private int totalPages;
-    private List<EligibilityVerificationSessionView> sessions;
-
-    public PreEligibilityVerificationSessionResponse() {
-    }
-
-    public PreEligibilityVerificationSessionResponse(int page, int totalPages, List<EligibilityVerificationSessionView> sessions) {
-        this.page = page;
-        this.totalPages = totalPages;
-        this.sessions = sessions;
-    }
-
-    public int getPage() {
-        return page;
-    }
-
-    public void setPage(int page) {
-        this.page = page;
-    }
-
-    public int getTotalPages() {
-        return totalPages;
-    }
-
-    public void setTotalPages(int totalPages) {
-        this.totalPages = totalPages;
-    }
-
-    public List<EligibilityVerificationSessionView> getSessions() {
-        return sessions;
-    }
-
-    public void setSessions(List<EligibilityVerificationSessionView> sessions) {
-        this.sessions = sessions;
+public class PreEligibilityVerificationSessionResponse extends PagedResponse<EligibilityVerificationSessionView> {
+    public PreEligibilityVerificationSessionResponse(Page<EligibilityVerificationSessionView> page) {
+        super(page);
     }
 }

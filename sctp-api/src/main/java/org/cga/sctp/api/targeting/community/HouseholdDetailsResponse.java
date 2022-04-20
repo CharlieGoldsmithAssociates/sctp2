@@ -30,32 +30,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.api.households;
+package org.cga.sctp.api.targeting.community;
 
-import org.cga.sctp.beneficiaries.Individual;
-import org.cga.sctp.targeting.EligibleHousehold;
+import org.cga.sctp.api.core.pagination.PagedResponse;
+import org.cga.sctp.targeting.EligibleHouseholdDetails;
+import org.springframework.data.domain.Page;
 
-import java.util.List;
-
-public class HouseholdDetailResponse {
-
-    private EligibleHousehold household;
-
-    private List<Individual> members;
-
-    public EligibleHousehold getHousehold() {
-        return household;
-    }
-
-    public void setHousehold(EligibleHousehold household) {
-        this.household = household;
-    }
-
-    public List<Individual> getMembers() {
-        return members;
-    }
-
-    public void setMembers(List<Individual> members) {
-        this.members = members;
+public class HouseholdDetailsResponse extends PagedResponse<EligibleHouseholdDetails> {
+    public HouseholdDetailsResponse(Page<EligibleHouseholdDetails> page) {
+        super(page);
     }
 }

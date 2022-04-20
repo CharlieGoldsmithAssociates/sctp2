@@ -32,6 +32,8 @@
 
 package org.cga.sctp.targeting.importation.parameters;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public enum Orphanhood implements UbrParameterValue {
     SingleOrphan(1, "Single orphan"),
     DoubleOrphan(2, "Double orphan"),
@@ -45,6 +47,7 @@ public enum Orphanhood implements UbrParameterValue {
         this.text = text;
     }
 
+    @JsonCreator
     public static Orphanhood parseIntCode(int id) {
         for(Orphanhood e: VALUES) {
             if (e.code == id) return e;

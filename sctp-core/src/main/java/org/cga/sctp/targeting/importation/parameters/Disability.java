@@ -32,6 +32,8 @@
 
 package org.cga.sctp.targeting.importation.parameters;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public enum Disability implements UbrParameterValue {
     Blind(1, null),
     Deaf(2, null),
@@ -66,8 +68,9 @@ public enum Disability implements UbrParameterValue {
         return parseIntCode(Integer.parseInt(code));
     }
 
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     private static Disability parseIntCode(int code) {
-        for(Disability e: values()) {
+        for(Disability e: VALUES) {
             if (e.code == code) return e;
         }
 

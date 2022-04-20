@@ -39,20 +39,16 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.cga.sctp.api.core.BaseController;
 import org.cga.sctp.api.core.IncludeGeneralResponses;
-import org.cga.sctp.api.households.HouseholdDetailResponse;
 import org.cga.sctp.api.user.ApiUserDetails;
 import org.cga.sctp.beneficiaries.BeneficiaryService;
 import org.cga.sctp.targeting.EligibilityVerificationSessionView;
-import org.cga.sctp.targeting.EligibleHousehold;
+import org.cga.sctp.targeting.EligibleHouseholdDetails;
 import org.cga.sctp.targeting.TargetingService;
 import org.cga.sctp.user.AuthenticatedUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequestMapping("/targeting/pre-eligibility")
@@ -87,34 +83,31 @@ public class PreEligibilityVerificationsController extends BaseController {
                 village,
                 page
         );
-        return ResponseEntity.ok(new PreEligibilityVerificationSessionResponse(
-                page,
-                verificationList.getTotalPages(),
-                verificationList.toList()
-        ));
+        return ResponseEntity.ok(new PreEligibilityVerificationSessionResponse(verificationList));
     }
 
     @GetMapping("/sessions/{session-id}/households")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(anyOf = HouseholdDetailResponse.class)))
+            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(anyOf = HouseholdDetailsResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Session not found")
     })
     @IncludeGeneralResponses
-    public ResponseEntity<List<HouseholdDetailResponse>> fetchHouseholdsById(@PathVariable("session-id") Long sessionId) {
+    public ResponseEntity<HouseholdDetailsResponse> fetchHouseholdsBySessionId(
+            @PathVariable("session-id") Long sessionId,
+            @RequestParam(value = "page", defaultValue = "0") int page) {
         EligibilityVerificationSessionView verificationSessionView = targetingService.findVerificationViewById(sessionId);
+
         if (verificationSessionView == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (!verificationSessionView.isOpen()) {
             return ResponseEntity.badRequest().build();
         }
-        List<EligibleHousehold> households = targetingService.getEligibleHouseholds(verificationSessionView);
 
-        List<HouseholdDetailResponse> householdDetailResponses = new ArrayList<>();
-        households.forEach(eligibleHousehold -> {
-            HouseholdDetailResponse hh = new HouseholdDetailResponse();
-            hh.setHousehold(eligibleHousehold);
-            hh.setMembers(beneficiaryService.getHouseholdMembers(hh.getHousehold().getHouseholdId()));
+        Page<EligibleHouseholdDetails> households = targetingService.getEligibleHouseholdsDetails(
+                verificationSessionView.getId(), page);
 
-            householdDetailResponses.add(hh);
-        });
-
-        return ResponseEntity.ok(householdDetailResponses);
+        return ResponseEntity.ok(new HouseholdDetailsResponse(households));
     }
 }
