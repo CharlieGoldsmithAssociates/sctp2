@@ -33,11 +33,16 @@
 package org.cga.sctp.api.targeting.community;
 
 import org.cga.sctp.api.core.pagination.PagedResponse;
-import org.cga.sctp.targeting.EligibleHouseholdDetails;
 import org.springframework.data.domain.Page;
 
-public class HouseholdDetailsResponse extends PagedResponse<EligibleHouseholdDetails> {
-    public HouseholdDetailsResponse(Page<EligibleHouseholdDetails> page) {
+import java.util.List;
+
+public class HouseholdDetailsResponse extends PagedResponse<HouseholdData> {
+    public HouseholdDetailsResponse(Page<HouseholdData> page) {
         super(page);
+    }
+
+    public HouseholdDetailsResponse(int page, long totalItems, int totalPages, List<HouseholdData> householdData) {
+        super(page, totalItems, totalPages, householdData);
     }
 }

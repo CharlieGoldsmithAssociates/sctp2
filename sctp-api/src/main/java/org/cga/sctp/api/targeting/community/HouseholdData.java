@@ -30,50 +30,37 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.api.core.pagination;
+package org.cga.sctp.api.targeting.community;
 
-import org.springframework.data.domain.Page;
+import org.cga.sctp.targeting.EligibleHouseholdDetails;
+import org.cga.sctp.targeting.IndividualDetails;
 
 import java.util.List;
 
-/**
- * <p>Base class for responses that require paging</p>
- *
- * @param <T> .
- */
-public class PagedResponse<T> {
-    private final int page;
-    private final int totalPages;
-    private final long totalItems;
-    private final List<T> items;
+public class HouseholdData {
+    private EligibleHouseholdDetails household;
+    private List<IndividualDetails> memberDetails;
 
-    public PagedResponse(Page<T> page) {
-        this.page = page.getNumber();
-        this.totalItems = page.getTotalElements();
-        this.totalPages = page.getTotalPages();
-        this.items = page.toList();
+    public EligibleHouseholdDetails getHousehold() {
+        return household;
     }
 
-    public PagedResponse(int page, long totalItems, int totalPages, List<T> items) {
-        this.page = page;
-        this.items = items;
-        this.totalPages = totalPages;
-        this.totalItems = totalItems;
+    public void setHousehold(EligibleHouseholdDetails household) {
+        this.household = household;
     }
 
-    public long getTotalItems() {
-        return totalItems;
+    public List<IndividualDetails> getMemberDetails() {
+        return memberDetails;
     }
 
-    public List<T> getItems() {
-        return items;
+    public void setMemberDetails(List<IndividualDetails> memberDetails) {
+        this.memberDetails = memberDetails;
     }
 
-    public int getPage() {
-        return page;
-    }
-
-    public int getTotalPages() {
-        return totalPages;
+    public static HouseholdData of(EligibleHouseholdDetails household) {
+        HouseholdData householdData = new HouseholdData();
+        householdData.setHousehold(household);
+        householdData.setMemberDetails(household.getMemberDetails());
+        return householdData;
     }
 }

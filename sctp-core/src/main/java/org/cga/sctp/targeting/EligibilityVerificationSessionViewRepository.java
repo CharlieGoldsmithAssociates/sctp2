@@ -48,14 +48,15 @@ interface EligibilityVerificationSessionViewRepository extends JpaRepository<Eli
                     select * from eligibility_verification_sessions_v
                      where status = :status and ta_code = :taCode and district_code = :districtCode
                      and FIND_IN_SET(:clusterCode, clusters)
+                     ORDER BY id ASC
                     """
     )
     Page<EligibilityVerificationSessionView> findByOpenByLocation(
-            Pageable pageable,
             @Param("status") String status,
             @Param("districtCode") long districtCode,
             @Param("taCode") Long taCode,
-            @Param("clusterCode") Long villageClusterCode
+            @Param("clusterCode") Long villageClusterCode,
+            Pageable pageable
     );
 
     @Query(
@@ -63,13 +64,14 @@ interface EligibilityVerificationSessionViewRepository extends JpaRepository<Eli
             value = """
                     select * from eligibility_verification_sessions_v
                      where status = :status and ta_code = :taCode and district_code = :districtCode
+                     ORDER BY id ASC
                     """
     )
     Page<EligibilityVerificationSessionView> findByOpenByLocation(
-            Pageable pageable,
             @Param("status") String status,
             @Param("districtCode") long districtCode,
-            @Param("taCode") Long taCode
+            @Param("taCode") Long taCode,
+            Pageable pageable
     );
 
     @Query(
@@ -77,11 +79,12 @@ interface EligibilityVerificationSessionViewRepository extends JpaRepository<Eli
             value = """
                     select * from eligibility_verification_sessions_v
                      where status = :status and district_code = :districtCode
+                     ORDER BY id ASC
                     """
     )
     Page<EligibilityVerificationSessionView> findByOpenByLocation(
-            Pageable pageable,
             @Param("status") String status,
-            @Param("districtCode") long districtCode
+            @Param("districtCode") long districtCode,
+            Pageable pageable
     );
 }

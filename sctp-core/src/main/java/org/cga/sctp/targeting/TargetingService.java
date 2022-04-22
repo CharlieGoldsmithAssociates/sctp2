@@ -418,25 +418,25 @@ public class TargetingService extends TransactionalService {
             , int page) {
         if (isCodeSet(taCode) && isCodeSet(villageClusterCode)) {
             return verificationSessionViewRepository.findByOpenByLocation(
-                    Pageable.ofSize(PAGE_SIZE).withPage(page)
-                    , EligibilityVerificationSessionBase.Status.Review.name()
+                    EligibilityVerificationSessionBase.Status.Review.name()
                     , districtCode
                     , taCode
                     , villageClusterCode
+                    , Pageable.ofSize(PAGE_SIZE).withPage(page)
             );
         }
         if (isCodeSet(taCode) && !isCodeSet(villageClusterCode)) {
             return verificationSessionViewRepository.findByOpenByLocation(
-                    Pageable.ofSize(PAGE_SIZE).withPage(page)
-                    , EligibilityVerificationSessionBase.Status.Review.name()
+                    EligibilityVerificationSessionBase.Status.Review.name()
                     , districtCode
                     , taCode
+                    , Pageable.ofSize(PAGE_SIZE).withPage(page)
             );
         }
         return verificationSessionViewRepository.findByOpenByLocation(
-                Pageable.ofSize(PAGE_SIZE).withPage(page)
-                , EligibilityVerificationSessionBase.Status.Review.name()
+                EligibilityVerificationSessionBase.Status.Review.name()
                 , districtCode
+                , Pageable.ofSize(PAGE_SIZE).withPage(page)
         );
     }
 

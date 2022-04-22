@@ -32,6 +32,7 @@
 
 package org.cga.sctp.targeting;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Immutable;
 
 import javax.persistence.*;
@@ -98,9 +99,9 @@ public class EligibleHouseholdDetails {
     public JsonNode getMemberDetailsJson() {
         return memberDetailsJson;
     }*/
-
     @Column(name = "member_details")
     @Convert(converter = HouseholdJsonMemberDataConverter.class)
+    @JsonIgnore
     private List<IndividualDetails> memberDetails;
 
     public List<IndividualDetails> getMemberDetails() {
