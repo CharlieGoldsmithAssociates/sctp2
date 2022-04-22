@@ -50,6 +50,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/targeting/pre-eligibility")
 public class PreEligibilityVerificationsController extends BaseController {
@@ -108,6 +110,16 @@ public class PreEligibilityVerificationsController extends BaseController {
         Page<EligibleHouseholdDetails> households = targetingService.getEligibleHouseholdsDetails(
                 verificationSessionView.getId(), page);
 
-        return ResponseEntity.ok(new HouseholdDetailsResponse(households));
+        List<HouseholdData> householdDataList =
+                households.stream()
+                        .map(HouseholdData::of).toList();
+
+        return ResponseEntity.ok(new HouseholdDetailsResponse(
+                households.getNumber(),
+                households.getTotalElements(),
+                households.getTotalPages(),
+                householdDataList
+        ));
+        //return ResponseEntity.ok(new HouseholdDetailsResponse(households));
     }
 }
