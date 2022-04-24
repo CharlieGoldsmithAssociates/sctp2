@@ -30,7 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.mis.targeting;
+package org.cga.sctp.targeting.enrollment;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
