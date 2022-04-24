@@ -1,0 +1,31 @@
+auth:
+  max_attempts: 3
+
+spring:
+  jpa:
+    properties:
+      hibernate:
+        dialect:org.hibernate.dialect.MySQL8Dialect
+  datasource:
+    username: sctp
+    password: sctp123
+    url: jdbc:mysql://localhost:3307/sctp2_test
+# Email/SMTP settings
+simplejavamail:
+  fromAddress: no-reply@sctp.localhost.com
+  smtp:
+    host: localhost
+    port: 25
+    password: admin
+    username: admin
+
+sctp:
+  transfers:
+    manualTransferFrequency: 2
+
+ubr:
+  api:
+    baseUrl: http://localhost:8082/
+    fetchHouseholdData: /api/v2/get_households_data
+    username: username
+    password: password

@@ -96,4 +96,8 @@ public class TransferAgencyService {
 
         return transferAgencyAssignmentRepository.save(agencyAssignment);
     }
+
+    public void save(TransferAgency transferAgency) {
+        transferAgenciesRepository.save(transferAgency);
+    }
 }
