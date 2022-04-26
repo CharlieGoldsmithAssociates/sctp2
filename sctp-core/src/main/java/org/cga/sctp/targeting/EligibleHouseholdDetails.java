@@ -36,6 +36,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Immutable;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -45,6 +46,9 @@ public class EligibleHouseholdDetails {
     @Id
     @Column(name = "household_id")
     private Long householdId;
+
+    @Column(name = "ml_code")
+    private String mlCode;
 
     @Column(name = "session_id")
     private Long sessionId;
@@ -91,14 +95,41 @@ public class EligibleHouseholdDetails {
     @Column(name = "household_head", length = 201)
     private String householdHead;
 
-    /*@Column(name = "member_details")
-    @Type(type = "com.vladmihalcea.hibernate.type.json.JsonNodeStringType")
-    @JsonSubTypes.Type(value = IndividualDetails.class)
-    private JsonNode memberDetailsJson;
+    @Column
+    private Integer ranking;
 
-    public JsonNode getMemberDetailsJson() {
-        return memberDetailsJson;
-    }*/
+    @Column(name = "last_cbt_ranking")
+    private LocalDateTime lastRankingDate;
+
+    @Column(name = "selection")
+    @Convert(disableConversion = true)
+    @Enumerated(EnumType.STRING)
+    private CbtStatus selection;
+
+    public Integer getRanking() {
+        return ranking;
+    }
+
+    public LocalDateTime getLastRankingDate() {
+        return lastRankingDate;
+    }
+
+    public CbtStatus getSelection() {
+        return selection;
+    }
+
+    public String getMlCode() {
+        return mlCode;
+    }
+
+    /*@Column(name = "member_details")
+        @Type(type = "com.vladmihalcea.hibernate.type.json.JsonNodeStringType")
+        @JsonSubTypes.Type(value = IndividualDetails.class)
+        private JsonNode memberDetailsJson;
+
+        public JsonNode getMemberDetailsJson() {
+            return memberDetailsJson;
+        }*/
     @Column(name = "member_details")
     @Convert(converter = HouseholdJsonMemberDataConverter.class)
     @JsonIgnore
