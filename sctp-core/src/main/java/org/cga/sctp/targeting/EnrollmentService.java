@@ -33,12 +33,22 @@
 package org.cga.sctp.targeting;
 
 import org.cga.sctp.core.TransactionalService;
+import org.cga.sctp.targeting.enrollment.EnrollmentForm;
+import org.cga.sctp.targeting.enrollment.SchoolEnrollmentForm;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StreamUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -64,6 +74,9 @@ public class EnrollmentService extends TransactionalService {
 
     @Autowired
     SchoolEnrolledRepository schoolEnrolledRepository;
+
+    @Value("${pictures:beneficiary-images}")
+    private String beneficiaryPictureUploadDirectory;
 
 
     public List<EnrollmentSessionView> getEnrollmentSessions() {
@@ -133,5 +146,69 @@ public class EnrollmentService extends TransactionalService {
 
     public boolean sessionHasPendingHouseholdsToEnroll(Long enrollmentSessionId) {
         return enrolmentSessionRepository.countUnenrolledHouseholds(enrollmentSessionId) > 0;
+    }
+
+
+    public void processEnrollment(EnrollmentForm enrollmentForm, MultipartFile file, MultipartFile alternate) throws IOException {
+        HouseholdRecipient householdRecipient = new HouseholdRecipient();
+        String mainReceiverPhotoName = "main-" + enrollmentForm.getHouseholdId() + ".jpg";
+        String altReceiverPhotoName = null;
+
+        //downloadFile(file, mainReceiverPhotoName);
+        saveBeneficiaryPicture(file, mainReceiverPhotoName);
+
+        if (enrollmentForm.getHasAlternate() != 0) {
+            altReceiverPhotoName = "alt-" + enrollmentForm.getHouseholdId() + ".jpg";
+            //downloadFile(alternate, altReceiverPhotoName);
+
+            saveBeneficiaryPicture(alternate, altReceiverPhotoName);
+
+            if (enrollmentForm.getNonHouseholdMember() != 0) {
+                this.saveHouseholdAlternateRecipient(enrollmentForm.getHouseholdId(),
+                        enrollmentForm.getMainReceiver(),
+                        mainReceiverPhotoName,
+                        altReceiverPhotoName,
+                        enrollmentForm.getAltFirstName(),
+                        enrollmentForm.getAltLastName(),
+                        enrollmentForm.getAltNationalId(),
+                        enrollmentForm.getAltGender(),
+                        LocalDate.parse(enrollmentForm.getAltDOB()));
+            } else {
+                householdRecipient.setHouseholdId(enrollmentForm.getHouseholdId());
+                householdRecipient.setMainRecipient(enrollmentForm.getMainReceiver());
+                householdRecipient.setAltRecipient(enrollmentForm.getAltReceiver());
+                householdRecipient.setCreatedAt(LocalDateTime.now());
+                householdRecipient.setMainPhoto(mainReceiverPhotoName);
+                householdRecipient.setAltPhoto(altReceiverPhotoName);
+                this.saveHouseholdRecipient(householdRecipient);
+            }
+        } else {
+            householdRecipient.setHouseholdId(enrollmentForm.getHouseholdId());
+            householdRecipient.setMainRecipient(enrollmentForm.getMainReceiver());
+            householdRecipient.setAltRecipient(enrollmentForm.getAltReceiver());
+            householdRecipient.setCreatedAt(LocalDateTime.now());
+            householdRecipient.setMainPhoto(mainReceiverPhotoName);
+            householdRecipient.setAltPhoto(altReceiverPhotoName);
+            this.saveHouseholdRecipient(householdRecipient);
+        }
+
+        List<SchoolEnrolled> schoolEnrolledList = new ArrayList<>();
+        List<SchoolEnrollmentForm> schoolEnrollmentForm = enrollmentForm.getSchoolEnrollmentForm();
+        if (!schoolEnrollmentForm.isEmpty()) {
+            for (SchoolEnrollmentForm sch : schoolEnrollmentForm) {
+                schoolEnrolledList.add(new SchoolEnrolled(sch.getHouseholdId(), sch.getIndividualId(), sch.getEducationLevel(), sch.getGrade(), sch.getSchoolId(), sch.getStatus()));
+            }
+            this.saveChildrenEnrolledSchool(schoolEnrolledList);
+        }
+        this.setEnrollmentHouseholdEnrolled(enrollmentForm.getHouseholdId());
+    }
+
+    private void saveBeneficiaryPicture(MultipartFile file, String fileName) throws IOException {
+        try (FileOutputStream fos = new FileOutputStream(new File(beneficiaryPictureUploadDirectory, fileName))) {
+            StreamUtils.copy(file.getInputStream(), fos);
+        } catch (IOException e) {
+            LOG.error("Failure saving beneficiary image", e);
+            throw e;
+        }
     }
 }
