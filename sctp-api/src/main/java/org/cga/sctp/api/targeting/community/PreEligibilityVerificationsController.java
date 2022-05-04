@@ -41,7 +41,10 @@ import org.cga.sctp.api.core.BaseController;
 import org.cga.sctp.api.core.IncludeGeneralResponses;
 import org.cga.sctp.api.user.ApiUserDetails;
 import org.cga.sctp.beneficiaries.BeneficiaryService;
-import org.cga.sctp.targeting.*;
+import org.cga.sctp.targeting.CbtStatus;
+import org.cga.sctp.targeting.EligibilityVerificationSessionView;
+import org.cga.sctp.targeting.EligibleHouseholdDetails;
+import org.cga.sctp.targeting.TargetingService;
 import org.cga.sctp.user.AuthenticatedUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -60,9 +63,6 @@ public class PreEligibilityVerificationsController extends BaseController {
 
     @Autowired
     private BeneficiaryService beneficiaryService;
-
-    @Autowired
-    private EnrollmentService enrollmentService;
 
     @GetMapping("/sessions")
     @Operation(description = "Fetches open pre-eligibility verification sessions.")
@@ -143,14 +143,13 @@ public class PreEligibilityVerificationsController extends BaseController {
         if (request == null || !verificationSessionView.isOpen()) {
             return ResponseEntity.badRequest().build();
         }
+
         // FIXME: Make this operation run in a batch op instead of one-by-one like this
         request.getUpdates()
             .forEach(updateRankRequest -> {
                 publishGeneralEvent("User %s updated rank and status of household %s", apiUserDetails.getUserName(), updateRankRequest.getHouseholdId());
                 CbtStatus status = CbtStatus.valueOf(updateRankRequest.getCbtStatus());
-                // FIXME: combine these two updates (via stored procedure?)
                 beneficiaryService.updateHouseholdRankAndStatus(updateRankRequest.getHouseholdId(), updateRankRequest.getRank(), status);
-                enrollmentService.updateHouseholdEnrollmentStatus(updateRankRequest.getHouseholdId(), status);
             });
 
         return ResponseEntity.ok().build();
