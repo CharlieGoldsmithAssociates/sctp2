@@ -1,0 +1,25 @@
+spring:
+  config:
+    import: file:../sctp-common-local.yaml
+
+---
+# Authentication
+auth:
+  max_attempts: 5
+  jwt:
+    iss: # issuer
+    secret: # secret
+
+# Logging level
+logging:
+  level:
+    org:
+      cga: INFO
+    root: ERROR
+
+# Spring Doc + API documentation configuration (/api-doc.yaml or /api-doc)
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true

@@ -1,0 +1,56 @@
+# Core configuration file. Import this file in the MIS and API configuration files using the following
+# This file is not checked into version control. The import must be the first thing in the file
+#
+#spring:
+#  config:
+#import: file:<some-path>/sctp-core.yaml
+
+auth:
+  max_attempts: 3
+  jwt:
+    iss: sctp
+
+spring:
+  resources:
+    cache:
+      cachecontrol:
+        max-age: 365d
+  datasource:
+    username: sctp
+    password: toor
+    url: jdbc:mysql://localhost/sctp
+
+# Email/SMTP settings
+simplejavamail:
+  transportstrategy: SMTP
+  fromName: SCTP MIS
+  fromAddress: no-reply@target.ministryofgender-socialcashtransfer.com
+  smtp:
+    host: localhost
+    port: 25
+    password:
+    username:
+  javaxmail:
+    debug: false
+
+# Data importation setting.
+# If importing data through CSV, this path will be used to temporarily hold files
+imports:
+  staging: ./staging
+
+# Targeting related settings
+targeting:
+  pictures: ./beneficiary-images # Where to save beneficiary pictures. If the directory does not exist, it will be created.
+
+sctp:
+  transfers:
+    # Number of months in a transfer period for manual transfers, defaults to 2
+    manualTransferFrequency: 2
+
+# Ubr API settings
+ubr:
+  api:
+    baseUrl: http://localhost:8082/
+    fetchHouseholdData: /api/v2/get_households_data
+    username:
+    password:

@@ -1,0 +1,40 @@
+permissions: write-all
+name: Release
+on:
+  push:
+    tags:
+      - v*
+jobs:
+  release-and-sign:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'corretto'
+          java-version: '16'
+          cache: 'maven'
+
+      - name: Build
+        run: mvn -B package -DskipTests
+
+      - name: Prepare release
+        run: |
+          mkdir -p release-assets/mis release-assets/api
+          cp sctp-api/target/sctp-api*.jar release-assets/api/
+          cp sctp-mis/target/sctp-mis*.jar release-assets/mis/
+          cp sctp-common.example.yaml release-assets/sctp-common-local.yaml
+          cp sctp-mis/application-example.yaml release-assets/mis/application-prod.yaml
+          cp sctp-api/application-prod-example.yaml release-assets/api/application-prod.yaml
+          cp README.txt release-assets/
+          zip sctp-release.zip release-assets
+
+      - name: Action Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: sctp-release.zip
