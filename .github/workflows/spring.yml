@@ -36,10 +36,10 @@ jobs:
           cp sctp-mis/application-example.yaml release-assets/mis/application-prod.yaml
           cp sctp-api/application-prod-example.yaml release-assets/api/application-prod.yaml
           cp README.txt release-assets/
+          zip -r ${{env.GITHUB_REF}}-release.zip release-assets
 
       - name: Action Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: |
-            release-assets/*
+          files: ${{env.GITHUB_REF}}-release.zip
