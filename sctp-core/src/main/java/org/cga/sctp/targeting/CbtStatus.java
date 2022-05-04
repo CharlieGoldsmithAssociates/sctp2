@@ -38,15 +38,12 @@ import javax.persistence.AttributeConverter;
  * TODO: Review the conversion, at the time of writing Hibernate is using the ORDINAL value
  * when mapping to the database. So I (zikani03) have applied a sick sick hack of just re-ordering
  * the enum values so that they correspond to some of the stored procedures.
- *
- *
- *
  */
 public enum CbtStatus {
     NonRecertified(4),
     PreEligible(6),
     Ineligible(2),
-    Eligible(   1),
+    Eligible(1),
     Selected(3),
     Enrolled(5);
 
