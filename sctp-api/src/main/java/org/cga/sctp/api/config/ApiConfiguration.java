@@ -40,6 +40,7 @@ import org.cga.sctp.api.security.JwtUtil;
 import org.cga.sctp.mobile.MobileApplicationService;
 import org.cga.sctp.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -82,36 +83,8 @@ public class ApiConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private MobileApplicationService mobileApplicationService;
 
-/*    @Bean
-    OperationCustomizer customize() {
-        return (operation, handlerMethod) -> {
-            operation.responses(new ApiResponses()
-                    .addApiResponse("Mobile Application Version", new ApiResponse()
-                            .addHeaderObject(
-                                    AppConstants.APP_VERSION_CODE_HEADER, new Header()
-                                            .schema(new IntegerSchema())
-                                            .description("Current application version code")
-                            )
-                            .addHeaderObject(
-                                    AppConstants.APP_VERSION_UPDATE_AVAILABLE_HEADER, new Header()
-                                            .schema(new BooleanSchema())
-                                            .description("Whether an update is available")
-                            )
-                            .addHeaderObject(
-                                    AppConstants.APP_VERSION_UPDATE_TIME_HEADER, new Header()
-                                            .schema(new DateTimeSchema())
-                                            .description("When the new application became available")
-                            )
-                            .addHeaderObject(
-                                    AppConstants.APP_VERSION_UPDATE_MANDATORY, new Header()
-                                            .schema(new BooleanSchema())
-                                            .description("Whether the update is mandatory or not")
-                            )
-                    )
-            );
-            return operation;
-        };
-    }*/
+    @Value("${api.checkAppVersion:false}")
+    private boolean checkAppVersion;
 
     @Override
     public void configure(WebSecurity web) throws Exception {
@@ -148,7 +121,7 @@ public class ApiConfiguration extends WebSecurityConfigurerAdapter {
 
     @Bean
     public AppVersionFilter apiVersionFilter() {
-        return new AppVersionFilter(mobileApplicationService, gson, ALLOW_LIST);
+        return new AppVersionFilter(mobileApplicationService, checkAppVersion, gson, ALLOW_LIST);
     }
 
     @Bean
