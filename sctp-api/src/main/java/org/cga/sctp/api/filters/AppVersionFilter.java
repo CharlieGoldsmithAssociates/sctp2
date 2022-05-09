@@ -59,11 +59,12 @@ import java.util.concurrent.atomic.AtomicReference;
 public class AppVersionFilter extends GenericFilterBean {
 
     private final Gson gson;
+    private final boolean filterEnabled;
     private final AtomicReference<AppVersion> appVersion;
     private final List<AntPathRequestMatcher> ignoredPathMatchers;
     private final MobileApplicationService mobileApplicationService;
 
-    public AppVersionFilter(MobileApplicationService mobileApplicationService, Gson gson, String... ignoredPaths) {
+    public AppVersionFilter(MobileApplicationService mobileApplicationService, boolean filterEnabled, Gson gson, String... ignoredPaths) {
         this.gson = gson;
         this.appVersion = new AtomicReference<>();
         this.ignoredPathMatchers = new LinkedList<>();
@@ -73,7 +74,12 @@ public class AppVersionFilter extends GenericFilterBean {
                 this.ignoredPathMatchers.add(new AntPathRequestMatcher(pathPattern));
             }
         }
+        this.filterEnabled = filterEnabled;
         this.refreshVersion();
+    }
+
+    public AppVersionFilter(MobileApplicationService mobileApplicationService, Gson gson, String... ignoredPaths) {
+        this(mobileApplicationService, true, gson, ignoredPaths);
     }
 
     private boolean ignorePath(HttpServletRequest request) {
@@ -86,15 +92,21 @@ public class AppVersionFilter extends GenericFilterBean {
     }
 
     @Override
-    public void doFilter(
-            ServletRequest servletRequest,
-            ServletResponse servletResponse,
-            FilterChain filterChain) throws IOException, ServletException {
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
 
         int applicationVersionCode = -1;
         AppVersion version = appVersion.get();
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
+
+        if (!filterEnabled) {
+            response.addHeader(AppConstants.APP_VERSION_CODE_HEADER, version.getVersionCode().toString());
+            response.addHeader(AppConstants.APP_VERSION_UPDATE_TIME_HEADER, version.getUpdatedAt().toString());
+            response.addHeader(AppConstants.APP_VERSION_UPDATE_AVAILABLE_HEADER, "false");
+            response.addHeader(AppConstants.APP_VERSION_UPDATE_MANDATORY, version.getMandatoryUpdate().toString());
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         if (ignorePath(request)) {
             filterChain.doFilter(request, response);
