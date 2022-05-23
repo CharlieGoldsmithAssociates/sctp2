@@ -77,7 +77,7 @@
                 </div>
                 <div class="field is-horizontal">
                     <div class="field-label is-normal">
-                        <label class="label is-required">GVH</label>
+                        <label class="label is-required">Village Cluster / GVH</label>
                     </div>
                     <div class="field-body">
                         <div class="control">
@@ -104,6 +104,30 @@
                                 </select>
                             </div>
                             {{ printFieldErrors(getFieldErrors('form', 'enrolmentStatus')) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label is-required">Lower Percentile</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="control">
+                            <input type="number" class="input" name="lowerPercentileCategory" value="0" required/>
+                            {{ printFieldErrors(getFieldErrors('form', 'lowerPercentileCategory')) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label is-required">Upper Percentile</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="control">
+                            <input type="number" class="input" name="upperPercentileCategory" value="0" required/>
+                            {{ printFieldErrors(getFieldErrors('form', 'upperPercentileCategory')) }}
                         </div>
                     </div>
                 </div>

@@ -98,4 +98,9 @@ public class BaseController extends BaseComponent {
         setDangerFlashMessage(message, attributes);
         return "redirect:" + url;
     }
+
+    protected final ModelAndView redirectWithDangerMessageModelAndView(String url, String message, RedirectAttributes attributes) {
+        setDangerFlashMessage(message, attributes);
+        return view("redirect:" + url);
+    }
 }

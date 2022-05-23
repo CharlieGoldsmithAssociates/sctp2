@@ -99,8 +99,21 @@ public class UbrApiDataToHouseholdImportMapper {
         common.setVillageCode(Long.parseLong(targetingData.village.village_code));
         common.setVillageName(targetingData.village.village_name);
 
-        common.setZoneCode(Long.parseLong(targetingData.village.zone.zone_code));
-        common.setZoneName(targetingData.village.zone.zone_name);
+        List<Cluster> taClusters =  targetingData.village.group_village_head.traditional_authority.clusters;
+        if (taClusters.size() > 1) {
+            LoggerFactory.getLogger(getClass()).warn("Found more than one cluster");
+        }
+
+        if (targetingData.village.zone != null) {
+            common.setZoneCode(Long.parseLong(targetingData.village.zone.zone_code));
+            common.setZoneName(targetingData.village.zone.zone_name);
+
+            Optional<Cluster> cluster = taClusters.stream().filter(c -> c.id == targetingData.village.zone.cluster_id).findFirst();
+            if (cluster.isPresent()) {
+                common.setClusterCode(Long.parseLong(cluster.get().cluster_code));
+                common.setClusterName(cluster.get().cluster_name);
+            }
+        }
 
         common.setGroupVillageHeadCode(Long.parseLong(targetingData.village.group_village_head.group_village_head_code));
         common.setGroupVillageHeadName(targetingData.village.group_village_head.group_village_head_name);
@@ -111,15 +124,7 @@ public class UbrApiDataToHouseholdImportMapper {
         common.setDistrictCode(Long.parseLong(targetingData.village.group_village_head.traditional_authority.district.district_code));
         common.setDistrictName(targetingData.village.group_village_head.traditional_authority.district.district_name);
 
-        List<Cluster> taClusters =  targetingData.village.group_village_head.traditional_authority.clusters;
-        if (taClusters.size() > 1) {
-            LoggerFactory.getLogger(getClass()).warn("Found more than one cluster");
-        }
-        Optional<Cluster> cluster = taClusters.stream().filter(c -> c.id == targetingData.village.zone.cluster_id).findFirst();
-        if (cluster.isPresent()) {
-            common.setClusterCode(Long.parseLong(cluster.get().cluster_code));
-            common.setClusterName(cluster.get().cluster_name);
-        }
+
 
         common.setAssistanceReceived(targetingData.household_food_reserve.assistance_received != 0);
         //        common.setHouseholdHeadName(/* TODO: set it! */);

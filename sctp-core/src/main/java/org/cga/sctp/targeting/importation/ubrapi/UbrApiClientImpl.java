@@ -34,8 +34,10 @@ package org.cga.sctp.targeting.importation.ubrapi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cga.sctp.targeting.importation.ubrapi.data.UbrApiDataResponse;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -75,15 +77,22 @@ public class UbrApiClientImpl implements UbrApiClient {
 
         HttpClient httpClient = HttpClient.newBuilder()
                 .followRedirects(HttpClient.Redirect.NEVER)
-                .connectTimeout(Duration.ofSeconds(60)) // TODO: Make configurable
+                .connectTimeout(Duration.ofSeconds(apiConfiguration.getClientTimeoutSeconds()))
                 .build();
 
         try {
+            String url = String.format(fetchHouseholdsTemplate, baseUrl);
+            String requestBody = objectMapper.writeValueAsString(request);
+            LoggerFactory.getLogger(getClass()).info("Sending request to {} with following parameters: {}", url, requestBody);
+
             HttpRequest httpRequest = HttpRequest.newBuilder()
-                    .uri(URI.create(String.format(fetchHouseholdsTemplate, baseUrl)))
+                    .uri(URI.create(url))
+                    .version(HttpClient.Version.HTTP_1_1)
+                    .header("User-Agent", "CGA Target MIS v1.4.10-dev")
+                    .header("Accept", "*/*")
                     .header("Authorization", "Basic " + apiConfiguration.basicAuthCredentials())
                     .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(request)))
+                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                     .build();
 
             //HttpResponse.BodyHandlers.ofFile(Paths.get("staging/ubrimport.json"))

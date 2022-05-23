@@ -102,9 +102,8 @@ public class UbrApiImportController extends BaseController {
                                        RedirectAttributes attributes) throws JsonProcessingException {
 
         form.setProgrammes(UbrRequest.UBR_SCTP_PROGRAMME_CODE);
-        form.setLowerPercentileCategory(0L);
-        form.setUpperPercentileCategory(100L);
-
+//        form.setLowerPercentileCategory(0L);
+//        form.setUpperPercentileCategory(10L);
         DataImport dataImport = new DataImport();
         dataImport.setTitle(form.getTitle());
         dataImport.setDataSource(DataImportObject.ImportSource.UBR_API);
@@ -123,7 +122,6 @@ public class UbrApiImportController extends BaseController {
         dataImport.setImportDate(LocalDateTime.now());
 
         dataImportService.saveDataImport(dataImport);
-
 
         publishGeneralEvent("User:%s initiated Import from UBR API with parameters: %s", user.username(), requestJson);
 

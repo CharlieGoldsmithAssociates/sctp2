@@ -91,7 +91,7 @@ public class SchoolsController extends BaseController {
         schoolForm.setId(school.getId());
         schoolForm.setName(school.getName());
         schoolForm.setCode(school.getCode());
-        // TODO: schoolForm.setEducationZone(school.getEducationZone());
+        schoolForm.setEducationZone(school.getEducationZone());
         schoolForm.setEducationLevel(school.getEducationLevel());
         schoolForm.setContactName(school.getContactName());
         schoolForm.setContactPhone(school.getContactPhone());
@@ -158,14 +158,14 @@ public class SchoolsController extends BaseController {
         school.setName(schoolForm.getName());
         school.setCode(schoolForm.getCode());
         school.setEducationLevel(schoolForm.getEducationLevel());
-        // school.setEducationZone(schoolForm.getEducationZone());
+        school.setEducationZone(schoolForm.getEducationZone());
         school.setContactName(schoolForm.getContactName());
         school.setContactPhone(schoolForm.getContactPhone());
         school.setCreatedAt(LocalDateTime.now());
         school.setModifiedAt(school.getCreatedAt());
         school.setActive(schoolForm.getActive().value);
 
-        publishGeneralEvent("%s added new school %s.", username, schoolForm.getName());
+        publishGeneralEvent("%s added new school %s:%s.", username, school.getId(), schoolForm.getName());
 
         schoolsService.save(school);
 

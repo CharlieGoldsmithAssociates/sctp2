@@ -39,6 +39,7 @@ import org.cga.sctp.core.BaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -133,8 +134,13 @@ public class LocationService extends BaseService {
         return locationRepository.findByActiveAndCodeAndLocationType(true, code, type);
     }
 
-    // TODO(zikani03): Review whether this is the right place for this method...
-    public boolean locationHasTransferAgency(Location location) {
+    /**
+     * Checks whether the location has any Transfer Agencies assigned either directly or hierarchically, i.e.
+     * there is a Transfer Agency assigned to a parent or grand-parent of the location.
+     * @param location location to check
+     * @return whether transfer agency has been assigned to this location
+     */
+    public boolean locationHasTransferAgency(@NonNull final Location location) {
         return locationRepository.countNumberOfTransferAgenciesAssigned(location.getId()) > 0;
     }
 }

@@ -59,8 +59,7 @@ public class SchoolForm {
 
     private Long districtId;
 
-    @NotEmpty
-    private String educationZone;
+    private long educationZone;
 
     @NotNull
     private Booleans active;
@@ -130,11 +129,11 @@ public class SchoolForm {
         this.districtId = districtId;
     }
 
-    public String getEducationZone() {
+    public long getEducationZone() {
         return educationZone;
     }
 
-    public void setEducationZone(String educationZone) {
+    public void setEducationZone(long educationZone) {
         this.educationZone = educationZone;
     }
 

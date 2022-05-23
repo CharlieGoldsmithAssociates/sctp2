@@ -1,0 +1,2 @@
+-- Changes the household_ml_code field to a nullable string
+ALTER TABLE `ubr_csv_imports` CHANGE COLUMN `household_ml_code` `household_ml_code` VARCHAR(50) NULL DEFAULT NULL COMMENT 'ML code for this household. Can be null for new members' AFTER `form_number`;

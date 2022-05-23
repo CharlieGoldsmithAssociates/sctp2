@@ -84,3 +84,5 @@ ubr:
     fetchHouseholdData: /api/v2/get_households_data
     username: username
     password: password
+    # Client Timeout in Seconds
+    timeout: 60
