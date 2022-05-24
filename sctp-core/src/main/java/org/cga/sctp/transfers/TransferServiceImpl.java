@@ -230,4 +230,10 @@ public class TransferServiceImpl implements TransferService {
         // TODO: look at caching the results...
         return transferSessionRepository.fetchDistrictSummary();
     }
+
+    @Override
+    public int countUnreconciledTransfers(TransferPeriod transferPeriod) {
+        // TODO: count unreconciled transfers
+        return 0;
+    }
 }

@@ -154,4 +154,11 @@ public interface TransferService {
      * @return list of district summaries
      */
     List<DistrictTransferSummaryView> fetchDistrictSummaries();
+
+    /**
+     * Counts the number of transfers that haven't been reconciled in the given TransferPeriod
+     * @param transferPeriod transfer period to check
+     * @return
+     */
+    int countUnreconciledTransfers(TransferPeriod transferPeriod);
 }

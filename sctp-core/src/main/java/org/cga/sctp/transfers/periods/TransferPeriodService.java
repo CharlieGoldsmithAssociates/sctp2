@@ -32,14 +32,13 @@
 
 package org.cga.sctp.transfers.periods;
 
-import org.cga.sctp.transfers.TransfersRepository;
+import org.cga.sctp.transfers.TransferService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static java.lang.String.format;
 
 @Service
 public class TransferPeriodService {
@@ -47,7 +46,7 @@ public class TransferPeriodService {
     private TransferPeriodRepository transferPeriodRepository;
 
     @Autowired
-    private TransfersRepository transfersRepository;
+    private TransferService transferService;
 
     /**
      * Creates a new transfer period if possible.
@@ -63,27 +62,36 @@ public class TransferPeriodService {
      */
     public TransferPeriod openNewPeriod(TransferPeriod newPeriod) throws TransferPeriodException {
         if (newPeriod.getStartDate().isAfter(newPeriod.getEndDate())) {
-            return null; // TODO: do better than returning null
+            throw new TransferPeriodException("Transfer Period duration is invalid");
         }
-//        // Check if we don't have another period already running
-//        // Check if the program is allowed to have a new period
+        // TODO: check for minimum duration of transfer
+        // Check if we don't have another period already running
+        // Check if the program is allowed to have a new period
         if (transferPeriodRepository.countAllOpenInProgramAndDistrict(newPeriod.getProgramId(), newPeriod.getDistrictId()) > 0L) {
-            // TODO: throw an exception here
-            throw new TransferPeriodException(format("Found an open Transfer Period in the district"));
+            throw new TransferPeriodException("Found an open Transfer Period in the district");
         }
         newPeriod.setClosed(false);
         newPeriod.setCreatedAt(LocalDateTime.now());
         newPeriod.setUpdatedAt(newPeriod.getCreatedAt());
-        // Check if the households
         return transferPeriodRepository.save(newPeriod);
     }
 
-    public void closePeriod(TransferPeriod transferPeriod) {
-        // TODO: attempt to close the transfer period here...
-        int pendingTransfers  = 0;// TODO: transfersRepository.countUnreconciledTransfers();
-        if (pendingTransfers > 0) {
-            throw new UnsupportedOperationException("cannot close period when transfers haven't been closed/reconciled");
+    /**
+     * Closes an open Transfer Period
+     * @param transferPeriod the transfer period to close
+     * @throws TransferPeriodException thrown if the period cannot be closed
+     */
+    public void closePeriod(@NonNull TransferPeriod transferPeriod) throws TransferPeriodException {
+        if (transferPeriod.isClosed()) {
+            return;
         }
+        int pendingTransfers  = transferService.countUnreconciledTransfers(transferPeriod);
+        if (pendingTransfers > 0) {
+            throw new TransferPeriodException("Cannot close Transfer Period when some Transfers haven't been Closed/Reconciled");
+        }
+        transferPeriod.setClosed(true);
+        // TODO: Generate statistics for this transfer period and store them somewhere
+        transferPeriodRepository.save(transferPeriod);
     }
 
     public List<TransferPeriod> findAll() {
