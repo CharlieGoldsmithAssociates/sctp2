@@ -6,7 +6,7 @@ node_modules
 .idea/*
 !.idea/copyright/
 *.iml
-
+*.versionsBackup
 *.ipr
 
 # >>>>>> Netbeans Specific | https://github.com/github/gitignore/blob/master/Global/NetBeans.gitignore

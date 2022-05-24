@@ -51,6 +51,7 @@ sctp:
 ubr:
   api:
     baseUrl: http://localhost:8082/
+    timeout: 60
     fetchHouseholdData: /api/v2/get_households_data
     username:
     password:
