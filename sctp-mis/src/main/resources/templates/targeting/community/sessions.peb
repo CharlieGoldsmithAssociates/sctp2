@@ -69,6 +69,12 @@
                                         <div class="dropdown-content">
                                             <a href="/targeting/community/review?session={{ s.id }}"
                                                class="dropdown-item">Review</a>
+                                        {% if s.pevSession != null %}
+                                            <a href="/verification/review?id={{ s.pevSession }}"
+                                               target="_blank"
+                                               class="dropdown-item"
+                                               rel="noopener noreferrer">View linked pre-eligibility verification</a>
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </div>

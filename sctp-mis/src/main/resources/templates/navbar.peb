@@ -23,7 +23,9 @@
                     {% if hasRole("ADMINISTRATOR") %}
                     <a class="navbar-item" href="/locations">Geolocation Areas</a>
                     {% endif %}
+                    {% if hasRole("ADMINISTRATOR") %}
                     <a class="navbar-item" href="/programs">Programmes</a>
+                    {% endif %}
                     <a class="navbar-item" href="/schools">Schools</a>
                     <a href="/logs" class="navbar-item">Audit Log</a>
                     <a href="/system/version" class="navbar-item">Version Information</a>

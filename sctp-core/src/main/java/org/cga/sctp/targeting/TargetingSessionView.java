@@ -41,12 +41,12 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "target_sessions_view")
 public class TargetingSessionView extends TargetingSessionBase {
-    private Long householdCount;
-    private String creatorName;
+    private String taName;
     private String closerName;
     private String programName;
+    private String creatorName;
     private String districtName;
-    private String taName;
+    private Long householdCount;
 
     public String getCreatorName() {
         return creatorName;

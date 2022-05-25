@@ -32,8 +32,11 @@
 
 package org.cga.sctp.targeting;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Set;
 
 @MappedSuperclass
@@ -41,6 +44,12 @@ public class TargetingSessionBase {
     public enum SessionStatus {
         Review,
         Closed
+    }
+
+    public enum MeetingPhase {
+        completed,
+        district_meeting,
+        second_community_meeting
     }
 
     @Id
@@ -55,6 +64,21 @@ public class TargetingSessionBase {
     private Long taCode;
     @Column(name = "pev_session")
     private Long pevSession;
+
+    @Enumerated(EnumType.STRING)
+    private MeetingPhase meetingPhase;
+
+    @Column(name = "scm_timestamp")
+    private OffsetDateTime communityMeetingTimestamp;
+
+    @Column(name = "dm_timestamp")
+    private OffsetDateTime districtMeetingTimestamp;
+
+    @Column(name = "dm_user_id")
+    private Long districtMeetingUserId;
+
+    @Column(name = "scm_user_id")
+    private Long communityMeetingUserId;
 
     @Enumerated(EnumType.STRING)
     private TargetingSession.SessionStatus status;
@@ -151,12 +175,68 @@ public class TargetingSessionBase {
     }
 
     @Transient
+    @JsonIgnore
     public boolean isClosed() {
         return status == SessionStatus.Closed;
     }
 
     @Transient
+    @JsonIgnore
     public boolean isOpen() {
         return status == SessionStatus.Review;
+    }
+
+    public OffsetDateTime getCommunityMeetingTimestamp() {
+        return communityMeetingTimestamp;
+    }
+
+    public void setCommunityMeetingTimestamp(OffsetDateTime communityMeetingTimestamp) {
+        this.communityMeetingTimestamp = communityMeetingTimestamp;
+    }
+
+    public OffsetDateTime getDistrictMeetingTimestamp() {
+        return districtMeetingTimestamp;
+    }
+
+    public void setDistrictMeetingTimestamp(OffsetDateTime districtMeetingTimestamp) {
+        this.districtMeetingTimestamp = districtMeetingTimestamp;
+    }
+
+    public Long getDistrictMeetingUserId() {
+        return districtMeetingUserId;
+    }
+
+    public void setDistrictMeetingUserId(Long districtMeetingUserId) {
+        this.districtMeetingUserId = districtMeetingUserId;
+    }
+
+    public Long getCommunityMeetingUserId() {
+        return communityMeetingUserId;
+    }
+
+    public void setCommunityMeetingUserId(Long communityMeetingUserId) {
+        this.communityMeetingUserId = communityMeetingUserId;
+    }
+
+    public MeetingPhase getMeetingPhase() {
+        return meetingPhase;
+    }
+
+    public void setMeetingPhase(MeetingPhase meetingPhase) {
+        this.meetingPhase = meetingPhase;
+    }
+
+    @Transient
+    @JsonIgnore
+    public boolean isAtDistrictMeeting() {
+        return getStatus() == SessionStatus.Review
+                && meetingPhase == MeetingPhase.district_meeting;
+    }
+
+    @Transient
+    @JsonIgnore
+    public boolean isAtSecondCommunityMeeting() {
+        return getStatus() == SessionStatus.Review
+                && meetingPhase == MeetingPhase.second_community_meeting;
     }
 }

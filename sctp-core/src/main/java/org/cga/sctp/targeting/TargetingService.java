@@ -37,29 +37,30 @@ import org.cga.sctp.targeting.criteria.*;
 import org.cga.sctp.utils.CollectionUtils;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.*;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class TargetingService extends TransactionalService {
-    private static final int PAGE_SIZE = 200;
+    private static final int PAGE_SIZE = 1000;
 
     @Autowired
     private CbtRankingRepository cbtRankingRepository;
 
     @Autowired
-    private TargetingSessionRepository sessionRepository;
+    private TargetingSessionRepository targetingSessionRepository;
 
-    @Autowired
-    private TargetingSessionViewRepository viewRepository;
+    /*@Autowired
+    private TargetingSessionViewRepository viewRepository;*/
 
     @Autowired
     private CriterionRepository criterionRepository;
@@ -97,38 +98,47 @@ public class TargetingService extends TransactionalService {
     @Autowired
     private TargetingResultRepository targetingResultRepository;
 
+    @Autowired
+    private TargetingSessionViewRepository targetingSessionViewRepository;
+
+    @Autowired
+    private TargetedHouseholdSummaryRepository targetedHouseholdSummaryRepository;
+
     public void saveTargetingSession(TargetingSession targetingSession) {
-        sessionRepository.save(targetingSession);
+        targetingSessionRepository.save(targetingSession);
     }
 
     public void performCommunityBasedTargetingRanking(TargetingSession session) {
         if (session.isOpen()) {
-            sessionRepository.runCommunityBasedTargetingRanking(session.getId());
+            targetingSessionRepository.runCommunityBasedTargetingRanking(session.getId());
         }
     }
 
     public List<TargetingSessionView> targetingSessionViewList() {
-        return viewRepository.findAll();
+        return targetingSessionViewRepository.findAll();
     }
 
     public TargetingSession findSessionById(Long sessionId) {
-        return sessionRepository.findById(sessionId).orElse(null);
+        return targetingSessionRepository.findById(sessionId).orElse(null);
     }
 
     public Slice<CbtRankingResult> getCbtRanking(TargetingSessionView session, Pageable pageable) {
         return cbtRankingRepository.findByCbtSessionId(session.getId(), pageable);
     }
 
-    public TargetingSessionView findSessionViewById(Long sessionId) {
-        return viewRepository.findById(sessionId).orElse(null);
+    public TargetingSessionView findTargetingSessionViewById(Long sessionId) {
+        return targetingSessionViewRepository.findById(sessionId).orElse(null);
+    }
+
+    public TargetingSession findTargetingSessionById(Long sessionId) {
+        return targetingSessionRepository.findById(sessionId).orElse(null);
     }
 
     public void closeTargetingSession(TargetingSessionView session, Long userId) {
-        sessionRepository.closeSession(session.getId(), userId, LocalDateTime.now(),
+        targetingSessionRepository.closeSession(session.getId(), userId, LocalDateTime.now(),
                 TargetingSessionBase.SessionStatus.Closed.name());
 
         enrolmentRepository.sendToEnrolment(session.getId(), (long) 0, userId);
-
     }
 
     public void saveTargetingCriterion(Criterion criterion) {
@@ -385,7 +395,7 @@ public class TargetingService extends TransactionalService {
                     saveTargetingSession(targetingSession);
 
                     // 2. Run CBT on the households selected
-                    sessionRepository.runCommunityBasedTargetingRankingOnEligibleHouseholds(targetingSession.getId(), session.getId());
+                    targetingSessionRepository.runCommunityBasedTargetingRankingOnEligibleHouseholds(targetingSession.getId(), session.getId());
                 }
             }
         } else {
@@ -409,10 +419,11 @@ public class TargetingService extends TransactionalService {
     public Page<EligibleHouseholdDetails> getEligibleHouseholdsDetails(Long sessionId, int page) {
         return eligibleHouseholdDetailsRepository.getBySessionId(
                 sessionId,
-                Pageable.ofSize(PAGE_SIZE).withPage(page)
+                PageRequest.of(page, PAGE_SIZE)
         );
     }
 
+    @Deprecated(forRemoval = true)
     public Page<EligibilityVerificationSessionView> getOpenVerificationSessionsByLocation(
             long districtCode
             , Long taCode
@@ -426,7 +437,7 @@ public class TargetingService extends TransactionalService {
                     , districtCode
                     , taCode
                     , villageClusterCode
-                    , Pageable.ofSize(PAGE_SIZE).withPage(page)
+                    , PageRequest.of(page, PAGE_SIZE)
             );
         }
         if (isCodeSet(taCode) && !isCodeSet(villageClusterCode)) {
@@ -434,13 +445,13 @@ public class TargetingService extends TransactionalService {
                     EligibilityVerificationSessionBase.Status.Review.name()
                     , districtCode
                     , taCode
-                    , Pageable.ofSize(PAGE_SIZE).withPage(page)
+                    , PageRequest.of(page, PAGE_SIZE)
             );
         }
         return verificationSessionViewRepository.findByOpenByLocation(
                 EligibilityVerificationSessionBase.Status.Review.name()
                 , districtCode
-                , Pageable.ofSize(PAGE_SIZE).withPage(page)
+                , PageRequest.of(page, PAGE_SIZE)
         );
     }
 
@@ -454,5 +465,113 @@ public class TargetingService extends TransactionalService {
 
     public TargetingResult findTargetingResultByHouseholdId(Long sessionId, Long household) {
         return targetingResultRepository.findByTargetingSessionAndHousehold(sessionId, household);
+    }
+
+    private Page<TargetingSessionView> getOpenTargetingSessionsByLocation(
+            Long districtCode
+            , Long taCode
+            , Long clusterCode
+            , int page
+            , int pageSize
+            , TargetingSessionBase.MeetingPhase meetingPhase
+    ) {
+        List<TargetingSessionView> slice = targetingSessionViewRepository
+                .getTargetingSessionsByLocation(
+                        districtCode
+                        , taCode
+                        , clusterCode
+                        , page
+                        , Math.max(pageSize, PAGE_SIZE)
+                        , TargetingSessionBase.SessionStatus.Review.name()
+                        , meetingPhase.name()
+                );
+        // TODO this is necessary for paging on the android front but can be removed to improve performance
+        //  just that the app would have to be changed to use optimistic paging.
+        Long totalResults = targetingSessionViewRepository.countTargetingSessionsByLocation(
+                districtCode
+                , taCode
+                , clusterCode
+                , TargetingSessionBase.SessionStatus.Review.name()
+                , meetingPhase.name()
+        );
+        return new PageImpl<>(slice, PageRequest.of(page, pageSize), totalResults);
+    }
+
+    public Page<TargetingSessionView> getOpenTargetingSessionsForSecondCommunityMeeting(
+            Long districtCode
+            , Long taCode
+            , Long clusterCode
+            , int page
+            , int pageSize) {
+        return getOpenTargetingSessionsByLocation(districtCode, taCode, clusterCode, page, pageSize,
+                TargetingSessionBase.MeetingPhase.second_community_meeting);
+    }
+
+    public Page<TargetingSessionView> getOpenTargetingSessionsForDistrictMeeting(
+            Long districtCode
+            , Long taCode
+            , Long clusterCode
+            , int page
+            , int pageSize) {
+        return getOpenTargetingSessionsByLocation(districtCode, taCode, clusterCode, page, pageSize,
+                TargetingSessionBase.MeetingPhase.district_meeting);
+    }
+
+    public Page<TargetedHouseholdSummary> getTargetedHouseholdSummaries(Long sessionId, Pageable pageable) {
+        return targetedHouseholdSummaryRepository.getByTargetingSession(sessionId, pageable);
+    }
+
+    @Transactional
+    public boolean updateTargetedHouseholds(TargetingSessionView session, List<TargetedHouseholdStatus> statuses, @Nullable Long updatedBy) {
+        var sql = """
+                update targeting_results tr
+                JOIN targeting_sessions ts ON ts.id = tr.targeting_session
+                set tr.status = :newStatus
+                    , tr.ranking = COALESCE(:newRank, tr.ranking)
+                	, tr.updated_at = :timestamp
+                	, tr.scm_user_id = COALESCE(tr.scm_user_id, :scmUserId)
+                	, tr.scm_user_timestamp = COALESCE (tr.scm_user_timestamp, :scmTimestamp)
+                	, tr.dm_user_id = COALESCE(tr.dm_user_id, :dmUserId)
+                	, tr.dm_user_timestamp  = COALESCE (tr.dm_user_timestamp, :dmTimestamp)
+                WHERE ts.id = :sessionId AND ts.status = :sessionStatus AND tr.household_id = :householdId
+                """;
+        boolean updated = false;
+
+        if (statuses.isEmpty()) {
+            return false;
+        }
+
+        OffsetDateTime updatedAt = OffsetDateTime.now();
+        Query query = entityManager.createNativeQuery(sql);
+
+        try {
+            for (TargetedHouseholdStatus status : statuses) {
+                query.setParameter("timestamp", updatedAt);
+                query.setParameter("sessionId", session.getId());
+                query.setParameter("newStatus", status.getStatus().name());
+                query.setParameter("householdId", status.getHouseholdId());
+                query.setParameter("sessionStatus", TargetingSessionBase.SessionStatus.Review.name());
+
+                if (session.isAtDistrictMeeting()) {
+                    query.setParameter("newRank", null);
+                    query.setParameter("scmUserId", null);
+                    query.setParameter("scmTimestamp", null);
+                    query.setParameter("dmUserId", updatedBy);
+                    query.setParameter("dmTimestamp", updatedAt);
+                } else if (session.isAtSecondCommunityMeeting()) {
+                    query.setParameter("dmUserId", null);
+                    query.setParameter("dmTimestamp", null);
+                    query.setParameter("scmUserId", updatedBy);
+                    query.setParameter("scmTimestamp", updatedAt);
+                    query.setParameter("newRank", status.getRank());
+                }
+            }
+            query.executeUpdate();
+            updated = true;
+        } catch (Exception e) {
+            LOG.error("Error during household updates", e);
+        }
+
+        return updated;
     }
 }

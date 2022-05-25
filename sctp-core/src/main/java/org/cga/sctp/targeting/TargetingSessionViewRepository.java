@@ -33,8 +33,43 @@
 package org.cga.sctp.targeting;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.query.Procedure;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 interface TargetingSessionViewRepository extends JpaRepository<TargetingSessionView, Long> {
+
+    @Procedure(procedureName = "getTargetingSessionsByLocation")
+    List<TargetingSessionView> getTargetingSessionsByLocation(
+            @Param("district") long districtCode,
+            @Param("ta") Long taCode,
+            @Param("cluster") Long clusterCode,
+            @Param("page") int page,
+            @Param("pageSize") int pageSize,
+            @Param("status") String status,
+            @Param("meetingPhase") String meetingPhase
+    );
+
+    @Query(
+            value = """
+                    CALL countTargetingSessionsByLocation(
+                        :_districtCode
+                       ,:_taCode
+                       ,:_clusterCode
+                       ,:_statusHint
+                       ,:_meetingPhase)
+                    """
+            , nativeQuery = true
+    )
+    Long countTargetingSessionsByLocation(
+            @Param("_districtCode") long districtCode,
+            @Param("_taCode") Long taCode,
+            @Param("_clusterCode") Long clusterCode,
+            @Param("_statusHint") String status,
+            @Param("_meetingPhase") String meetingPhase
+    );
 }

@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,37 +30,17 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting;
+package org.cga.sctp.api.utils;
 
-import org.springframework.util.StringUtils;
-
-import javax.persistence.AttributeConverter;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-public class LongSetConverter implements AttributeConverter<Set<Long>, String> {
-    @Override
-    public String convertToDatabaseColumn(Set<Long> attribute) {
-        if (attribute == null || attribute.isEmpty()) {
+public final class LangUtils {
+    public static Long nullIfLessThanOrEqual(Long value, long min) {
+        if (value == null) {
             return null;
         }
-        StringJoiner joiner = new StringJoiner(",");
-        for (Long l : attribute) {
-            joiner.add(l.toString());
-        }
-        return joiner.toString();
+        return value <= min ? null : value;
     }
 
-    @Override
-    public Set<Long> convertToEntityAttribute(String dbData) {
-        if (dbData == null) {
-            return Set.of();
-        }
-        return Stream.of(dbData.split(","))
-                .filter(StringUtils::hasText)
-                .map(Long::parseLong)
-                .collect(Collectors.toSet());
+    public static Long nullIfZeroOrLess(Long value) {
+        return nullIfLessThanOrEqual(value, 0);
     }
 }

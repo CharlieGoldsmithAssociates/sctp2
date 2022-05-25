@@ -100,10 +100,12 @@ public class AppVersionFilter extends GenericFilterBean {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
         if (!filterEnabled) {
-            response.addHeader(AppConstants.APP_VERSION_CODE_HEADER, version.getVersionCode().toString());
-            response.addHeader(AppConstants.APP_VERSION_UPDATE_TIME_HEADER, version.getUpdatedAt().toString());
-            response.addHeader(AppConstants.APP_VERSION_UPDATE_AVAILABLE_HEADER, "false");
-            response.addHeader(AppConstants.APP_VERSION_UPDATE_MANDATORY, version.getMandatoryUpdate().toString());
+            if (version != null) {
+                response.addHeader(AppConstants.APP_VERSION_UPDATE_AVAILABLE_HEADER, "false");
+                response.addHeader(AppConstants.APP_VERSION_CODE_HEADER, version.getVersionCode().toString());
+                response.addHeader(AppConstants.APP_VERSION_UPDATE_TIME_HEADER, version.getUpdatedAt().toString());
+                response.addHeader(AppConstants.APP_VERSION_UPDATE_MANDATORY, version.getMandatoryUpdate().toString());
+            }
             filterChain.doFilter(request, response);
             return;
         }

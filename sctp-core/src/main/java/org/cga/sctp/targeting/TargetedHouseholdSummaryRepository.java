@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,35 +32,12 @@
 
 package org.cga.sctp.targeting;
 
-import org.springframework.util.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-import javax.persistence.AttributeConverter;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-public class LongSetConverter implements AttributeConverter<Set<Long>, String> {
-    @Override
-    public String convertToDatabaseColumn(Set<Long> attribute) {
-        if (attribute == null || attribute.isEmpty()) {
-            return null;
-        }
-        StringJoiner joiner = new StringJoiner(",");
-        for (Long l : attribute) {
-            joiner.add(l.toString());
-        }
-        return joiner.toString();
-    }
-
-    @Override
-    public Set<Long> convertToEntityAttribute(String dbData) {
-        if (dbData == null) {
-            return Set.of();
-        }
-        return Stream.of(dbData.split(","))
-                .filter(StringUtils::hasText)
-                .map(Long::parseLong)
-                .collect(Collectors.toSet());
-    }
+@Repository
+interface TargetedHouseholdSummaryRepository extends JpaRepository<TargetedHouseholdSummary, TargetedHouseholdSummaryId> {
+    Page<TargetedHouseholdSummary> getByTargetingSession(Long sessionId, Pageable pageable);
 }

@@ -32,6 +32,8 @@
 
 package org.cga.sctp.mobile;
 
+import org.cga.sctp.utils.LocaleUtils;
+
 import javax.persistence.*;
 import java.time.Instant;
 
@@ -104,6 +106,13 @@ public class AppVersion {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public boolean hasVersionInfo() {
+        return versionCode != null
+                && id != null
+                && updatedAt != null
+                && !LocaleUtils.isStringNullOrEmpty(fileHash);
     }
 
     @Override
