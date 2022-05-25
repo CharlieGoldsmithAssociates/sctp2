@@ -34,24 +34,18 @@ package org.cga.sctp.mis.transfers;
 
 import org.cga.sctp.location.LocationService;
 import org.cga.sctp.mis.core.SecuredBaseController;
-import org.cga.sctp.transfers.accounts.BeneficiaryAccountService;
 import org.cga.sctp.transfers.TransferEventHouseholdView;
 import org.cga.sctp.transfers.TransferService;
 import org.cga.sctp.transfers.TransferSession;
+import org.cga.sctp.transfers.accounts.BeneficiaryAccountService;
 import org.cga.sctp.user.AdminAndStandardAccessOnly;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -91,35 +85,5 @@ public class TransferBeneficiariesController extends SecuredBaseController {
                 .addObject("sessionId", sessionId)
                 .addObject("districts", locationService.getActiveDistricts())
                 .addObject("households", householdList);
-    }
-
-    @GetMapping("/export-accounts-template")
-    @AdminAndStandardAccessOnly
-    public ResponseEntity<?> downloadExportedAccountFormat(@RequestParam(value = "sessionId", required = false) Long sessionId,
-                                                           @RequestParam(value = "district", required = false) Long districtId) {
-
-        Optional<TransferSession> transferSession = Optional.empty();
-        List<TransferEventHouseholdView> householdList = new ArrayList<>();
-
-        if (districtId != null) {
-            transferSession = transferService.findLatestSessionInDistrict(districtId);
-        } else if (sessionId != null) {
-            transferSession = transferService.getTranferSessionRepository().findById(sessionId);
-        }
-
-        transferSession.ifPresent(session -> {
-            householdList.addAll(transferService.findAllHouseholdsInSession(session.getId()));
-        });
-
-        try {
-            Path filePath = beneficiaryAccountService.exportBeneficiaryListToExcel(householdList);
-            return ResponseEntity.status(200)
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .header("Content-Disposition", "filename=accounts.xlsx")
-                    .body(Files.readAllBytes(filePath));
-        } catch (IOException e) {
-            LoggerFactory.getLogger(getClass()).error("Failed to export beneficiaries", e);
-            return ResponseEntity.internalServerError().build();
-        }
     }
 }

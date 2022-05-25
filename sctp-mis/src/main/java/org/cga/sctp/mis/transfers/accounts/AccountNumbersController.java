@@ -39,6 +39,8 @@ import org.cga.sctp.location.Location;
 import org.cga.sctp.location.LocationService;
 import org.cga.sctp.mis.core.SecuredBaseController;
 import org.cga.sctp.mis.file_upload.FileUploadService;
+import org.cga.sctp.transfers.TransferEventHouseholdView;
+import org.cga.sctp.transfers.TransferService;
 import org.cga.sctp.transfers.TransferSession;
 import org.cga.sctp.transfers.accounts.BeneficiaryAccountService;
 import org.cga.sctp.transfers.accounts.TransferAccountNumberList;
@@ -48,7 +50,10 @@ import org.cga.sctp.transfers.periods.TransferPeriod;
 import org.cga.sctp.user.AdminAndStandardAccessOnly;
 import org.cga.sctp.user.AuthenticatedUser;
 import org.cga.sctp.user.AuthenticatedUserDetails;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -57,7 +62,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -78,6 +85,9 @@ public class AccountNumbersController extends SecuredBaseController {
 
     @Autowired
     private TransferAgencyService transferAgencyService;
+
+    @Autowired
+    private TransferService transferService;
 
     @GetMapping
     @AdminAndStandardAccessOnly
@@ -126,6 +136,36 @@ public class AccountNumbersController extends SecuredBaseController {
         } catch (TusException | IOException e) {
             LOG.error("Error getting upload information", e);
             servletResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/export-accounts-template")
+    @AdminAndStandardAccessOnly
+    public ResponseEntity<?> downloadExportedAccountFormat(@RequestParam(value = "sessionId", required = false) Long sessionId,
+                                                           @RequestParam(value = "district", required = false) Long districtId) {
+
+        Optional<TransferSession> transferSession = Optional.empty();
+        List<TransferEventHouseholdView> householdList = new ArrayList<>();
+
+        if (districtId != null) {
+            transferSession = transferService.findLatestSessionInDistrict(districtId);
+        } else if (sessionId != null) {
+            transferSession = transferService.getTranferSessionRepository().findById(sessionId);
+        }
+
+        transferSession.ifPresent(session -> {
+            householdList.addAll(transferService.findAllHouseholdsInSession(session.getId()));
+        });
+
+        try {
+            Path filePath = beneficiaryAccountService.exportBeneficiaryListToExcel(householdList);
+            return ResponseEntity.status(200)
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .header("Content-Disposition", "filename=accounts.xlsx")
+                    .body(Files.readAllBytes(filePath));
+        } catch (IOException e) {
+            LoggerFactory.getLogger(getClass()).error("Failed to export beneficiaries", e);
+            return ResponseEntity.internalServerError().build();
         }
     }
 }

@@ -30,7 +30,7 @@
                             </div>
                             <div class="dropdown-menu" id="ibd" role="menu">
                                 <div class="dropdown-content">
-                                    <a href="/transfers/beneficiaries/export-accounts-template?district={{ districtId }}"
+                                    <a href="/transfers/assign-accounts/export-accounts-template?district={{ districtId }}"
                                        class="dropdown-item">Export Account Template</a>
                                 </div>
                             </div>
