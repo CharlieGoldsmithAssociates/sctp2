@@ -68,6 +68,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -146,71 +147,22 @@ public class DataImportController extends BaseController {
         return redirectToReview(id);
     }
 
-
     @GetMapping("/export-errors/{import-id}")
     ResponseEntity<?> exportErrors(@PathVariable("import-id") Long id, RedirectAttributes attributes) {
-        DataImportView importView = dataImportService.findDataImportViewById(id);
-        if (importView == null) {
-            setDangerFlashMessage("Data import session does not exist.", attributes);
-            return ResponseEntity.notFound().build();
-        }
-        List<UbrHouseholdImport> householdList = importTaskService.getImportsBySessionIdForReview(id, Pageable.unpaged());
+        Optional<Path> filePath = dataImportService.exportDataImportErrors(id, importTaskService, stagingDirectory);
         try {
-            Path filePath = exportHouseholdsWithErrors(householdList);
+            if (filePath.isEmpty()) {
+                setDangerFlashMessage("Data import session does not exist or export directory not found.", attributes);
+                return ResponseEntity.notFound().build();
+            }
+
             return ResponseEntity.status(200)
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .header("Content-Disposition", "filename=accounts.xlsx")
-                    .body(Files.readAllBytes(filePath));
+                    .header("Content-Disposition", format("filename=data-import-%s-errors.xlsx", id))
+                    .body(Files.readAllBytes(filePath.get()));
         } catch (IOException e) {
             LoggerFactory.getLogger(getClass()).error("Failed to export beneficiaries", e);
             return ResponseEntity.internalServerError().build();
         }
-    }
-
-    // TODO: move to dedicated service class
-    public Path exportHouseholdsWithErrors(List<UbrHouseholdImport> householdList) throws IOException {
-        try (Workbook workbook = new XSSFWorkbook()) {
-            Path filePath = Files.createTempFile(Paths.get(stagingDirectory), "imported-households", ".xlsx");
-            FileOutputStream fos = new FileOutputStream(filePath.toFile());
-            Sheet sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName("Households"));
-            // Create file headers
-            Row tmpExcelRow = sheet.createRow(0);
-            Cell cell = tmpExcelRow.createCell(0);
-            cell.setCellValue("Account Numbers");
-
-            // Headers
-            tmpExcelRow = sheet.createRow(1);
-            addCell(tmpExcelRow,0, "District");
-            addCell(tmpExcelRow, 1,"TA");
-            addCell(tmpExcelRow, 2,"Village Cluster");
-            addCell(tmpExcelRow, 3,"HH Code");
-            addCell(tmpExcelRow, 4,"HH Head");
-            addCell(tmpExcelRow, 5,"Errors");
-            // Add other rows
-            int currentRow = 2;
-            for (UbrHouseholdImport household : householdList) {
-                tmpExcelRow = sheet.createRow(currentRow);
-                addCell(tmpExcelRow, 0, household.getDistrictName());
-                addCell(tmpExcelRow, 1, household.getTraditionalAuthorityName());
-                addCell(tmpExcelRow, 2, household.getVillageName());
-                addCell(tmpExcelRow, 3, household.getHouseholdCode());
-                addCell(tmpExcelRow, 4, household.getHouseholdHeadName());
-                addCell(tmpExcelRow, 5, household.getErrors().stream().collect(Collectors.joining(",")));
-                currentRow++;
-            }
-
-            workbook.write(fos);
-            tmpExcelRow = null;
-            sheet = null;
-
-            return filePath;
-        } catch (IOException exception) {
-            throw exception;
-        }
-    }
-
-    private void addCell(Row row, int index, String data) {
-        Cell cell = row.createCell(index);
-        cell.setCellValue(data);
     }
 }

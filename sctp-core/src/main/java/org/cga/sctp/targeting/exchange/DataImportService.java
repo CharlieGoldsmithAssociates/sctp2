@@ -32,13 +32,29 @@
 
 package org.cga.sctp.targeting.exchange;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.WorkbookUtil;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.cga.sctp.core.TransactionalService;
+import org.cga.sctp.targeting.importation.ImportTaskService;
+import org.cga.sctp.targeting.importation.UbrHouseholdImport;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class DataImportService extends TransactionalService {
@@ -102,5 +118,68 @@ public class DataImportService extends TransactionalService {
 
     public void mergeBatchIntoPopulation(DataImportView dataImport) {
         importRepository.mergeBatchIntoPopulation(dataImport.getId(), DataImportObject.ImportStatus.Merged.name());
+    }
+
+    // TODO: remove importTaskService and directoryToSaveFile from parameters and make them part of this service?
+    public Optional<Path> exportDataImportErrors(Long dataImportId, ImportTaskService importTaskService, String directoryToSaveFile) {
+        DataImportView importView = this.findDataImportViewById(dataImportId);
+        if (importView == null) {
+            return Optional.empty();
+        }
+
+        List<UbrHouseholdImport> householdList = importTaskService.getImportsBySessionIdForReview(dataImportId, Pageable.unpaged());
+        try {
+            Path filePath = exportHouseholdsWithErrors(householdList, directoryToSaveFile);
+            return Optional.of(filePath);
+        } catch (IOException e) {
+            LoggerFactory.getLogger(getClass()).error("Failed to export beneficiaries", e);
+        }
+        return Optional.empty();
+    }
+
+    private Path exportHouseholdsWithErrors(List<UbrHouseholdImport> householdList, String directoryToSaveFile) throws IOException {
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Path filePath = Files.createTempFile(Paths.get(directoryToSaveFile), "imported-households", ".xlsx");
+            FileOutputStream fos = new FileOutputStream(filePath.toFile());
+            Sheet sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName("Households"));
+            // Create file headers
+            Row tmpExcelRow = sheet.createRow(0);
+            Cell cell = tmpExcelRow.createCell(0);
+            cell.setCellValue("Account Numbers");
+
+            // Headers
+            tmpExcelRow = sheet.createRow(1);
+            addCell(tmpExcelRow,0, "District");
+            addCell(tmpExcelRow, 1,"TA");
+            addCell(tmpExcelRow, 2,"Village Cluster");
+            addCell(tmpExcelRow, 3,"HH Code");
+            addCell(tmpExcelRow, 4,"HH Head");
+            addCell(tmpExcelRow, 5,"Errors");
+            // Add other rows
+            int currentRow = 2;
+            for (UbrHouseholdImport household : householdList) {
+                tmpExcelRow = sheet.createRow(currentRow);
+                addCell(tmpExcelRow, 0, household.getDistrictName());
+                addCell(tmpExcelRow, 1, household.getTraditionalAuthorityName());
+                addCell(tmpExcelRow, 2, household.getVillageName());
+                addCell(tmpExcelRow, 3, household.getHouseholdCode());
+                addCell(tmpExcelRow, 4, household.getHouseholdHeadName());
+                addCell(tmpExcelRow, 5, household.getErrors().stream().collect(Collectors.joining(",")));
+                currentRow++;
+            }
+
+            workbook.write(fos);
+            tmpExcelRow = null;
+            sheet = null;
+
+            return filePath;
+        } catch (IOException exception) {
+            throw exception;
+        }
+    }
+
+    private void addCell(Row row, int index, String data) {
+        Cell cell = row.createCell(index);
+        cell.setCellValue(data);
     }
 }
