@@ -52,7 +52,7 @@ public class UbrApiConfiguration {
     public UbrApiConfiguration(@Value("${ubr.api.baseUrl}") String baseUrl,
                                @Value("${ubr.api.username}") String username,
                                @Value("${ubr.api.password}") String password,
-                               @Value("${ubr.api.timeout}") int clientTimeoutSeconds) {
+                               @Value("${ubr.api.timeout:300}") int clientTimeoutSeconds) {
         this.baseUrl = baseUrl;
         this.username = username;
         this.password = password;

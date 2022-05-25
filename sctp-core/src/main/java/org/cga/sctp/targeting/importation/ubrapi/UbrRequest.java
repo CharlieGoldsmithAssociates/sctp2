@@ -48,26 +48,26 @@ public class UbrRequest {
 
     @JsonProperty("district_code")
     private String districtCode; //":"103",
-    
+
     @JsonProperty("traditional_authority_code")
     private String traditionalAuthorityCode; //": "10302",
-    
+
     @JsonProperty("group_village_head_code")
     private String groupVillageHeadCode; //": "1030201",
 
-    @Min(value=0,message = "Lower Percentile Category cannot be less than 0")
-    @Max(value=90,message = "Lower Percentile Category must be less than or equal to 90")
+    @Min(value = 0, message = "Lower Percentile Category cannot be less than 0")
+    @Max(value = 90, message = "Lower Percentile Category must be less than or equal to 90")
     @JsonProperty("lower_percentile_category")
     private Long lowerPercentileCategory; //": "0",
 
-    @Min(value=10,message = "Upper Percentile Category must be greater than or equal to 10")
-    @Max(value=100,message = "Upper Percentile Category must be less than or equal to 100")
+    @Min(value = 10, message = "Upper Percentile Category must be greater than or equal to 10")
+    @Max(value = 100, message = "Upper Percentile Category must be less than or equal to 100")
     @JsonProperty("upper_percentile_category")
     private Long upperPercentileCategory; //": "100",
-    
+
     @JsonProperty("enrolment_status")
     private Long enrolmentStatus; //": 0,
-    
+
     @JsonProperty("programmes")
     private Long programmes; //": 1
 
