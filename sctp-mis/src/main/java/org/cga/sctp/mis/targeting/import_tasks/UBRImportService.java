@@ -39,7 +39,7 @@ import org.cga.sctp.targeting.exchange.DataImport;
 import org.cga.sctp.targeting.exchange.DataImportObject;
 import org.cga.sctp.targeting.exchange.DataImportService;
 import org.cga.sctp.targeting.importation.ImportTaskService;
-import org.cga.sctp.targeting.importation.UbrApiDataToHouseholdImportMapper;
+import org.cga.sctp.targeting.importation.ubrapi.UbrApiDataToHouseholdImportMapper;
 import org.cga.sctp.targeting.importation.ubrapi.UbrApiClient;
 import org.cga.sctp.targeting.importation.ubrapi.UbrRequest;
 import org.cga.sctp.targeting.importation.ubrapi.data.UbrApiDataResponse;

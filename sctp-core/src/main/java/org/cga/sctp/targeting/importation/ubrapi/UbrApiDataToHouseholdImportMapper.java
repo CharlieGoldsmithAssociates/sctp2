@@ -30,9 +30,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting.importation;
+package org.cga.sctp.targeting.importation.ubrapi;
 
 import org.cga.sctp.targeting.exchange.DataImport;
+import org.cga.sctp.targeting.importation.UbrHouseholdImport;
+import org.cga.sctp.targeting.importation.UbrHouseholdImportUtil;
 import org.cga.sctp.targeting.importation.parameters.*;
 import org.cga.sctp.targeting.importation.ubrapi.data.Cluster;
 import org.cga.sctp.targeting.importation.ubrapi.data.HouseholdMember;
