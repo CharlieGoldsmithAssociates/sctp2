@@ -43,6 +43,11 @@
                     <div class="column">
                         <div class="info-list">
                             <div class="info-row">
+                                <div class="item-label">Status</div>
+                                <div class="item-value">{{ importStatusTag(import.status) }}</div>
+                            </div>
+
+                            <div class="info-row">
                                 <div class="item-label">Data Import Title</div>
                                 <div class="item-value">{{ import.title }}</div>
                             </div>
@@ -65,11 +70,6 @@
                             <div class="info-row">
                                 <div class="item-label">Completion Date</div>
                                 <div class="item-value">{{ (import.completionDate == null) ? '-' : printDate(import.completionDate) }}</div>
-                            </div>
-
-                            <div class="info-row">
-                                <div class="item-label">Status</div>
-                                <div class="item-value">{{ importStatusTag(import.status) }}</div>
                             </div>
                         </div>
                     </div>
