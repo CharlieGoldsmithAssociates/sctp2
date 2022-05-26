@@ -34,20 +34,6 @@
 
                 <div class="field is-horizontal">
                     <div class="field-label is-normal">
-                        <label class="label is-required">Title</label>
-                    </div>
-                    <div class="field-body">
-                        <div class="field">
-                            <div class="control">
-                                 {{ textField('title', form.title, 1, 100, true, null) }}
-                            </div>
-                            {{ printFieldErrors(getFieldErrors('form', 'title')) }}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="field is-horizontal">
-                    <div class="field-label is-normal">
                         <label class="label is-required">District</label>
                     </div>
                     <div class="field-body">

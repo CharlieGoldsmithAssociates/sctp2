@@ -35,13 +35,4 @@ package org.cga.sctp.mis.targeting;
 import org.cga.sctp.targeting.importation.ubrapi.UbrRequest;
 
 public class UbrApiImportDataForm extends UbrRequest {
-    private String title;
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
 }
