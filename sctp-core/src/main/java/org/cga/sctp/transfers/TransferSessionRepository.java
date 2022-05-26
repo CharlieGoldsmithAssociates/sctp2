@@ -53,12 +53,23 @@ public interface TransferSessionRepository extends JpaRepository<TransferSession
     @Query
     Optional<TransferSession> findOneByDistrictId(Long districtId);
 
+    // TODO(zikani03): Refactor the query
     @Query(nativeQuery = true, value = """
             SELECT
               district.id as id,
               district.id as districtId,
               district.code as districtCode,
               district.name as districtName,
+              (SELECT COUNT(id) FROM transfer_periods WHERE district_id = district.id) AS numOfTransferPeriods,
+              (SELECT closed FROM transfer_periods WHERE district_id = district.id ORDER BY created_at DESC LIMIT 1) AS currentPeriodStatus,
+              (SELECT start_date FROM transfer_periods WHERE district_id = district.id ORDER BY created_at DESC LIMIT 1) AS currentPeriodStartDate,
+              (SELECT end_date FROM transfer_periods WHERE district_id = district.id ORDER BY created_at DESC LIMIT 1) AS currentPeriodEndDate,
+              -- TODO(zikani03): Refactor the transfers query to use the current period
+              (SELECT COUNT(id) FROM transfers WHERE transfers.district_id = district.id) AS noOfHouseholds,
+              (SELECT SUM(household_member_count) FROM transfers WHERE transfers.district_id = district.id) AS noOfHouseholdMembers,
+              (SELECT SUM(total_transfer_amount) FROM transfers WHERE transfers.district_id = district.id) AS totalAmountToDisburse,
+              (SELECT SUM(amount_disbursed) FROM transfers WHERE transfers.district_id = district.id) AS totalAmountDisbursed,
+              (SELECT SUM(arrears_amount) FROM transfers WHERE transfers.district_id = district.id) AS totalArrearsAmountNotPaid,
               district.created_at as created_at
             FROM locations AS district
             LEFT OUTER JOIN transfer_periods tp ON tp.district_id = district.id
