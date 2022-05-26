@@ -92,7 +92,12 @@ public class UbrApiDataToHouseholdImportMapper {
         common.setHouseOwnership(HouseOwnership.parseIntCode(targetingData.household_characteristic.house_ownership_id));
         common.setLatrineType(LatrineType.parseCode(targetingData.household_characteristic.latrine.parameter_code));
 
-        common.setHouseholdCode(targetingData.household_code);
+        // Households that don't have an ML Code may come with an empty String.
+        // We want to allow households without ML codes to be inserted with null so that the
+        // Assign ML code trigger can run successfully
+        if (! ("" + targetingData.household_code).isEmpty()) {
+            common.setHouseholdCode(targetingData.household_code);
+        }
         common.setPmtScore(new BigDecimal(targetingData.pmt_score));
         common.setDependencyRatio(new BigDecimal(targetingData.household_summary.dependency_ratio));
         common.setFormNumber(Long.parseLong(targetingData.form_number));
