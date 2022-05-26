@@ -407,6 +407,14 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes implements Clo
         this.validationStatus = validationStatus;
     }
 
+    public int getErrorCount() {
+        if (this.errors != null) {
+            return this.errors.size();
+        }
+
+        return 0;
+    }
+
     public List<String> getErrors() {
         return errors;
     }

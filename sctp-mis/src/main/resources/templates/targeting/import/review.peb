@@ -28,6 +28,9 @@
                         {{ csrf(_csrf) }}
                         <input name="id" value="{{ importSession.id }}" type="hidden"/>
                     </form>
+                    <a href="/data-import/export-errors/{{ importSession.id }}" class="button is-primary">
+                        Export Errors to Excel
+                    </a>
                     <button onclick="merge(mergeForm)" class="button is-primary">
                         Finish And Merge
                     </button>
@@ -49,6 +52,7 @@
                 <table class="table dataTable is-narrow is-striped is-hoverable">
                     <thead>
                     <tr>
+                        <th>Errors</th>
                         <th>Form Number</th>
                         <th>Member Name</th>
                         <th>Head of Household</th>
@@ -62,6 +66,7 @@
                     <tbody>
                         {% for import in imports %}
                         <tr>
+                            <td>{{ import.errorCount }}</td>
                             <td>UBR-{{ import.formNumber }}</td>
                             <td>{{ import.firstName }} {{ import.lastName }}</td>
                             <td>{{ import.householdHeadName }}</td>
