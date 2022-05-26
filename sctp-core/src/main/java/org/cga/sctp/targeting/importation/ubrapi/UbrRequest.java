@@ -127,4 +127,17 @@ public class UbrRequest {
     public void setProgrammes(Long programmes) {
         this.programmes = programmes;
     }
+
+    @Override
+    public String toString() {
+        return "UbrRequest{" +
+                "districtCode='" + districtCode + '\'' +
+                ", traditionalAuthorityCode='" + traditionalAuthorityCode + '\'' +
+                ", groupVillageHeadCode='" + groupVillageHeadCode + '\'' +
+                ", lowerPercentileCategory=" + lowerPercentileCategory +
+                ", upperPercentileCategory=" + upperPercentileCategory +
+                ", enrolmentStatus=" + enrolmentStatus +
+                ", programmes=" + programmes +
+                '}';
+    }
 }
