@@ -72,4 +72,6 @@ interface TargetingSessionViewRepository extends JpaRepository<TargetingSessionV
             @Param("_statusHint") String status,
             @Param("_meetingPhase") String meetingPhase
     );
+
+    TargetingSessionView findByIdAndDistrictCode(Long sessionId, Long districtCode);
 }

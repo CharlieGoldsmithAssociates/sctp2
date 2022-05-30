@@ -126,6 +126,14 @@ public class TargetingService extends TransactionalService {
         return cbtRankingRepository.findByCbtSessionId(session.getId(), pageable);
     }
 
+    public TargetingSessionView findTargetingSessionViewById(Long districtCode, Long sessionId) {
+        return targetingSessionViewRepository.findByIdAndDistrictCode(sessionId, districtCode);
+    }
+
+    public TargetingSession findTargetingSessionById(Long districtCode, Long sessionId) {
+        return targetingSessionRepository.findByIdAndDistrictCode(sessionId, districtCode);
+    }
+
     public TargetingSessionView findTargetingSessionViewById(Long sessionId) {
         return targetingSessionViewRepository.findById(sessionId).orElse(null);
     }
@@ -391,6 +399,7 @@ public class TargetingService extends TransactionalService {
                     targetingSession.setProgramId(session.getProgramId());
                     targetingSession.setDistrictCode(session.getDistrictCode());
                     targetingSession.setStatus(TargetingSessionBase.SessionStatus.Review);
+                    targetingSession.setMeetingPhase(TargetingSessionBase.MeetingPhase.second_community_meeting);
 
                     saveTargetingSession(targetingSession);
 

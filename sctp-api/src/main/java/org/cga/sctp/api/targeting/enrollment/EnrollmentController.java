@@ -30,9 +30,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.api.targeting;
+package org.cga.sctp.api.targeting.enrollment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.cga.sctp.api.core.BaseController;
 import org.cga.sctp.api.core.IncludeGeneralResponses;
 import org.cga.sctp.targeting.EnrollmentService;
 import org.cga.sctp.targeting.enrollment.EnrollmentForm;
@@ -47,13 +49,28 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("/targeting/enrollment")
-public class EnrollmentController {
+@Tag(name = "Enrollment", description = "Endpoint for enrollment tasks")
+public class EnrollmentController extends BaseController {
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
     private EnrollmentService enrollmentService;
+
+    /*@GetMapping
+    public ResponseEntity<GetEnrollmentSessionResponse> getEnrollmentSessions(
+            @AuthenticatedUserDetails ApiUserDetails apiUserDetails,
+            @RequestParam(value = "traditional-authority-code", required = false) Long taCode,
+            @RequestParam(value = "village-cluster-code", required = false) Long villageCluster,
+            @RequestParam(value = "zone-code", required = false) Long zone,
+            @RequestParam(value = "village-code", required = false) Long village,
+            @Valid @Min(0) @RequestParam(value = "page", defaultValue = "0") int page,
+            @Valid @Min(100) @Max(1000) @RequestParam(value = "pageSize", defaultValue = "1000") int pageSize) {
+
+
+        enrollmentService.get
+    }*/
 
     @PostMapping
     @RequestMapping(value = "/{session-id}/enroll/single-household", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -78,7 +95,7 @@ public class EnrollmentController {
                                                            @RequestBody BulkEnrollmentForm request)
             throws IOException {
 
-        for (EnrollmentForm enrollmentForm: request.getItems()) {
+        for (EnrollmentForm enrollmentForm : request.getItems()) {
             // TODO: How do we get the image files? Do we request Base64 encoded images??
             enrollmentService.processEnrollment(enrollmentForm, null, null);
         }
