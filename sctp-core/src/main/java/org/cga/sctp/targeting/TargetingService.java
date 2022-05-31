@@ -391,7 +391,7 @@ public class TargetingService extends TransactionalService {
                     targetingSession.setProgramId(session.getProgramId());
                     targetingSession.setDistrictCode(session.getDistrictCode());
                     targetingSession.setStatus(TargetingSessionBase.SessionStatus.Review);
-
+                    targetingSession.setMeetingPhase(TargetingSessionBase.MeetingPhase.second_community_meeting);
                     saveTargetingSession(targetingSession);
 
                     // 2. Run CBT on the households selected

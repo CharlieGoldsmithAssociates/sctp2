@@ -112,6 +112,7 @@ public class CommunityBasedTargetingController extends BaseController {
         targetingSession.setCreatedAt(LocalDateTime.now());
         targetingSession.setStatus(TargetingSession.SessionStatus.Review);
         targetingSession.setTaCode(form.getTraditionalAuthority());
+        targetingSession.setMeetingPhase(TargetingSessionBase.MeetingPhase.second_community_meeting);
 
         targetingService.saveTargetingSession(targetingSession);
         targetingService.performCommunityBasedTargetingRanking(targetingSession);
