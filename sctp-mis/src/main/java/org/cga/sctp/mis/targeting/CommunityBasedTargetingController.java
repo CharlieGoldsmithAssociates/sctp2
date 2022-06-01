@@ -108,8 +108,8 @@ public class CommunityBasedTargetingController extends BaseController {
         targetingSession.setCreatedBy(user.id());
         targetingSession.setProgramId(form.getProgram());
         targetingSession.setClusters(form.getClusters());
-        targetingSession.setDistrictCode(form.getDistrict());
         targetingSession.setCreatedAt(LocalDateTime.now());
+        targetingSession.setDistrictCode(form.getDistrict());
         targetingSession.setTaCode(form.getTraditionalAuthority());
         targetingSession.setStatus(TargetingSession.SessionStatus.Review);
         targetingSession.setMeetingPhase(TargetingSessionBase.MeetingPhase.second_community_meeting);

@@ -30,67 +30,26 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting;
+package org.cga.sctp.validation;
 
-import org.cga.sctp.validation.OptionalString;
+import org.cga.sctp.utils.LocaleUtils;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
 
-/**
- * Used when updating {@link TargetingResult}
- */
-public class TargetedHouseholdStatus {
+public class OptionalStringValidator implements ConstraintValidator<OptionalString, String> {
+    private OptionalString optionalString;
 
-    /**
-     * @see CbtStatus
-     */
-    public enum EligibilityStatus {
-        Eligible,
-        Ineligible,
-        PreEligible
+    @Override
+    public void initialize(OptionalString optionalString) {
+        this.optionalString = optionalString;
     }
 
-    @NotNull(message = "Status is required")
-    private TargetedHouseholdStatus.EligibilityStatus status;
-
-    @NotNull(message = "Household id is required")
-    private Long householdId;
-
-    @NotNull(message = "rank is required")
-    private Integer rank;
-
-    @OptionalString(min = 1, max = 100)
-    private String reason;
-
-    public EligibilityStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(EligibilityStatus status) {
-        this.status = status;
-    }
-
-    public Long getHouseholdId() {
-        return householdId;
-    }
-
-    public void setHouseholdId(Long householdId) {
-        this.householdId = householdId;
-    }
-
-    public Integer getRank() {
-        return rank;
-    }
-
-    public void setRank(Integer rank) {
-        this.rank = rank;
-    }
-
-    public String getReason() {
-        return reason;
-    }
-
-    public void setReason(String reason) {
-        this.reason = reason;
+    @Override
+    public boolean isValid(String value, ConstraintValidatorContext context) {
+        if (LocaleUtils.isStringNullOrEmpty(value)) {
+            return true;
+        }
+        return LocaleUtils.checkLengthBounds(value, optionalString.min(), optionalString.max());
     }
 }

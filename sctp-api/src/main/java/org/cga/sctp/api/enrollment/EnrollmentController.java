@@ -30,7 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.api.targeting.enrollment;
+package org.cga.sctp.api.enrollment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -48,7 +48,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/targeting/enrollment")
+@RequestMapping("/enrollment")
 @Tag(name = "Enrollment", description = "Endpoint for enrollment tasks")
 public class EnrollmentController extends BaseController {
 

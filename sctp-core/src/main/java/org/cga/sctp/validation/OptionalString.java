@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2022, CGATechnologies
+ * Copyright (c) 2021, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,67 +30,24 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting;
+package org.cga.sctp.validation;
 
-import org.cga.sctp.validation.OptionalString;
+import javax.validation.Constraint;
+import javax.validation.Payload;
+import java.lang.annotation.*;
 
-import javax.validation.constraints.NotNull;
+@Documented
+@Constraint(validatedBy = {OptionalStringValidator.class})
+@Target({ElementType.PARAMETER, ElementType.FIELD})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface OptionalString {
+    int min() default 1;
 
-/**
- * Used when updating {@link TargetingResult}
- */
-public class TargetedHouseholdStatus {
+    int max() default Integer.MAX_VALUE;
 
-    /**
-     * @see CbtStatus
-     */
-    public enum EligibilityStatus {
-        Eligible,
-        Ineligible,
-        PreEligible
-    }
+    String message() default "must be {min}-{max} characters long.";
 
-    @NotNull(message = "Status is required")
-    private TargetedHouseholdStatus.EligibilityStatus status;
+    Class<?>[] groups() default {};
 
-    @NotNull(message = "Household id is required")
-    private Long householdId;
-
-    @NotNull(message = "rank is required")
-    private Integer rank;
-
-    @OptionalString(min = 1, max = 100)
-    private String reason;
-
-    public EligibilityStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(EligibilityStatus status) {
-        this.status = status;
-    }
-
-    public Long getHouseholdId() {
-        return householdId;
-    }
-
-    public void setHouseholdId(Long householdId) {
-        this.householdId = householdId;
-    }
-
-    public Integer getRank() {
-        return rank;
-    }
-
-    public void setRank(Integer rank) {
-        this.rank = rank;
-    }
-
-    public String getReason() {
-        return reason;
-    }
-
-    public void setReason(String reason) {
-        this.reason = reason;
-    }
+    Class<? extends Payload>[] payload() default {};
 }
