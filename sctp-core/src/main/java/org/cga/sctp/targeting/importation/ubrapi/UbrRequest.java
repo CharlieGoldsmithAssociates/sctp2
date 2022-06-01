@@ -33,6 +33,8 @@
 package org.cga.sctp.targeting.importation.ubrapi;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -46,14 +48,28 @@ public class UbrRequest {
      */
     public static final long UBR_SCTP_PROGRAMME_CODE = 1;
 
+    @NonNull
     @JsonProperty("district_code")
     private String districtCode; //":"103",
 
+    @NonNull
     @JsonProperty("traditional_authority_code")
     private String traditionalAuthorityCode; //": "10302",
 
     @JsonProperty("group_village_head_code")
     private String groupVillageHeadCode; //": "1030201",
+
+    @Nullable
+    @JsonProperty("village_code")
+    private String villageCode; //": "1030201",
+
+    @Nullable
+    @JsonProperty("cluster_code")
+    private String clusterCode;
+
+    @Nullable
+    @JsonProperty("zone_code")
+    private String zoneCode;
 
     @Min(value = 0, message = "Lower Percentile Category cannot be less than 0")
     @Max(value = 90, message = "Lower Percentile Category must be less than or equal to 90")
@@ -68,23 +84,76 @@ public class UbrRequest {
     @JsonProperty("enrolment_status")
     private Long enrolmentStatus; //": 0,
 
+    /**
+     * See @link {@link org.cga.sctp.targeting.importation.parameters.WealthQuintile}
+     */
+    @Nullable
+    @JsonProperty("wealth_quintiles")
+    private String wealthClassification;
+
+    @Nullable
+    @JsonProperty("labour_constrained")
+    private String labourConstrained;
+
+    @Nullable
+    @JsonProperty("dependency_ratio")
+    private String dependencyRatio;
+
+    @Nullable
+    @JsonProperty("head_gender")
+    private String headGender;
+
+    @Nullable
+    @JsonProperty("head_lower_age_limit")
+    private Integer headLowerAgeLimit;
+
+    @Nullable
+    @JsonProperty("head_upper_age_limit")
+    private Integer headUpperAgeLimit;
+
+    @Nullable
+    @JsonProperty("fit_for_work")
+    private Integer fitForWork;
+
+    @Nullable
+    @JsonProperty("has_school_attending_member")
+    private Integer hasSchoolAttendingMember;
+
+    @Nullable
+    @JsonProperty("has_member_with_disability")
+    private Integer hasMemberWithDisability;
+
+    @Nullable
+    @JsonProperty("has_member_with_chronic_illness")
+    private Integer hasMemberWithChronicIllness;
+
+    @Nullable
+    @JsonProperty("orphanhood")
+    private String orphanhood;
+
+    @NonNull
     @JsonProperty("programmes")
     private Long programmes; //": 1
 
+    @Nullable
+    @JsonProperty("enrolled_in_programmes")
+    private String enrolledInProgrammes;
 
+    @NonNull
     public String getDistrictCode() {
         return districtCode;
     }
 
-    public void setDistrictCode(String districtCode) {
+    public void setDistrictCode(@NonNull String districtCode) {
         this.districtCode = districtCode;
     }
 
+    @NonNull
     public String getTraditionalAuthorityCode() {
         return traditionalAuthorityCode;
     }
 
-    public void setTraditionalAuthorityCode(String traditionalAuthorityCode) {
+    public void setTraditionalAuthorityCode(@NonNull String traditionalAuthorityCode) {
         this.traditionalAuthorityCode = traditionalAuthorityCode;
     }
 
@@ -94,6 +163,33 @@ public class UbrRequest {
 
     public void setGroupVillageHeadCode(String groupVillageHeadCode) {
         this.groupVillageHeadCode = groupVillageHeadCode;
+    }
+
+    @Nullable
+    public String getVillageCode() {
+        return villageCode;
+    }
+
+    public void setVillageCode(@Nullable String villageCode) {
+        this.villageCode = villageCode;
+    }
+
+    @Nullable
+    public String getClusterCode() {
+        return clusterCode;
+    }
+
+    public void setClusterCode(@Nullable String clusterCode) {
+        this.clusterCode = clusterCode;
+    }
+
+    @Nullable
+    public String getZoneCode() {
+        return zoneCode;
+    }
+
+    public void setZoneCode(@Nullable String zoneCode) {
+        this.zoneCode = zoneCode;
     }
 
     public Long getLowerPercentileCategory() {
@@ -120,24 +216,120 @@ public class UbrRequest {
         this.enrolmentStatus = enrolmentStatus;
     }
 
+    @Nullable
+    public String getWealthClassification() {
+        return wealthClassification;
+    }
+
+    public void setWealthClassification(@Nullable String wealthClassification) {
+        this.wealthClassification = wealthClassification;
+    }
+
+    @Nullable
+    public String getLabourConstrained() {
+        return labourConstrained;
+    }
+
+    public void setLabourConstrained(@Nullable String labourConstrained) {
+        this.labourConstrained = labourConstrained;
+    }
+
+    @Nullable
+    public String getDependencyRatio() {
+        return dependencyRatio;
+    }
+
+    public void setDependencyRatio(@Nullable String dependencyRatio) {
+        this.dependencyRatio = dependencyRatio;
+    }
+
+    @Nullable
+    public String getHeadGender() {
+        return headGender;
+    }
+
+    public void setHeadGender(@Nullable String headGender) {
+        this.headGender = headGender;
+    }
+
+    @Nullable
+    public Integer getHeadLowerAgeLimit() {
+        return headLowerAgeLimit;
+    }
+
+    public void setHeadLowerAgeLimit(@Nullable Integer headLowerAgeLimit) {
+        this.headLowerAgeLimit = headLowerAgeLimit;
+    }
+
+    @Nullable
+    public Integer getHeadUpperAgeLimit() {
+        return headUpperAgeLimit;
+    }
+
+    public void setHeadUpperAgeLimit(@Nullable Integer headUpperAgeLimit) {
+        this.headUpperAgeLimit = headUpperAgeLimit;
+    }
+
+    @Nullable
+    public Integer getFitForWork() {
+        return fitForWork;
+    }
+
+    public void setFitForWork(@Nullable Integer fitForWork) {
+        this.fitForWork = fitForWork;
+    }
+
+    @Nullable
+    public Integer getHasSchoolAttendingMember() {
+        return hasSchoolAttendingMember;
+    }
+
+    public void setHasSchoolAttendingMember(@Nullable Integer hasSchoolAttendingMember) {
+        this.hasSchoolAttendingMember = hasSchoolAttendingMember;
+    }
+
+    @Nullable
+    public Integer getHasMemberWithDisability() {
+        return hasMemberWithDisability;
+    }
+
+    public void setHasMemberWithDisability(@Nullable Integer hasMemberWithDisability) {
+        this.hasMemberWithDisability = hasMemberWithDisability;
+    }
+
+    @Nullable
+    public Integer getHasMemberWithChronicIllness() {
+        return hasMemberWithChronicIllness;
+    }
+
+    public void setHasMemberWithChronicIllness(@Nullable Integer hasMemberWithChronicIllness) {
+        this.hasMemberWithChronicIllness = hasMemberWithChronicIllness;
+    }
+
+    @Nullable
+    public String getOrphanhood() {
+        return orphanhood;
+    }
+
+    public void setOrphanhood(@Nullable String orphanhood) {
+        this.orphanhood = orphanhood;
+    }
+
+    @NonNull
     public Long getProgrammes() {
         return programmes;
     }
 
-    public void setProgrammes(Long programmes) {
+    public void setProgrammes(@NonNull Long programmes) {
         this.programmes = programmes;
     }
 
-    @Override
-    public String toString() {
-        return "UbrRequest{" +
-                "districtCode='" + districtCode + '\'' +
-                ", traditionalAuthorityCode='" + traditionalAuthorityCode + '\'' +
-                ", groupVillageHeadCode='" + groupVillageHeadCode + '\'' +
-                ", lowerPercentileCategory=" + lowerPercentileCategory +
-                ", upperPercentileCategory=" + upperPercentileCategory +
-                ", enrolmentStatus=" + enrolmentStatus +
-                ", programmes=" + programmes +
-                '}';
+    @Nullable
+    public String getEnrolledInProgrammes() {
+        return enrolledInProgrammes;
+    }
+
+    public void setEnrolledInProgrammes(@Nullable String enrolledInProgrammes) {
+        this.enrolledInProgrammes = enrolledInProgrammes;
     }
 }
