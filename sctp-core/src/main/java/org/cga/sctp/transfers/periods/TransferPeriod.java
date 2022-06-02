@@ -32,6 +32,8 @@
 
 package org.cga.sctp.transfers.periods;
 
+import org.cga.sctp.utils.DateUtils;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -203,5 +205,9 @@ public class TransferPeriod {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Long countNoOfMonths() {
+        return DateUtils.monthsBetween(this.startDate, this.endDate);
     }
 }

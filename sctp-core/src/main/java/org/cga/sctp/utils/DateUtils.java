@@ -65,8 +65,13 @@ public final class DateUtils {
 
     public static long monthsBetween(int startMonth, int startYear, int endMonth, int endYear) {
         LocalDate startDate = LocalDate.of(startYear, startMonth, 1),
-                    endDate = LocalDate.of(endYear, endMonth, 1);
+                endDate = LocalDate.of(endYear, endMonth, 1);
 
+        return monthsBetween(startDate, endDate);
+    }
+
+    public static long monthsBetween(LocalDate startDate, LocalDate endDate) {
+        int startYear = startDate.getYear(), endYear = endDate.getYear();
         // one year is twelve months, 0 is twelve months
         int monthsSoFar = (endDate.getYear() - startDate.getYear()) * 12;
         if (startYear == endYear) {
