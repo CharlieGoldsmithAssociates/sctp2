@@ -146,7 +146,7 @@ public class TargetingService extends TransactionalService {
         targetingSessionRepository.closeSession(session.getId(), userId, LocalDateTime.now(),
                 TargetingSessionBase.SessionStatus.Closed.name());
 
-        enrolmentRepository.sendToEnrolment(session.getId(), (long) 0, userId);
+        enrolmentRepository.createEnrollmentSessionFromCbtOrPev(session.getId(), (long) 0, userId);
     }
 
     public void saveTargetingCriterion(Criterion criterion) {
@@ -342,9 +342,9 @@ public class TargetingService extends TransactionalService {
         List<CriteriaFilterInfo> criteriaFilterInfoList = criteriaFilterRepository
                 .getFilterValuesForCriterion(session.getCriterionId());
 
-        StringBuilder builder = new StringBuilder(" INSERT INTO eligible_households (session_id, household_id, created_at, run_by)")
+        StringBuilder builder = new StringBuilder(" INSERT INTO eligible_households (session_id, household_id, created_at, run_by, selection_status)")
                 .append(" WITH _insert_ AS (").append(criterion.getCompiledQuery()).append(")")
-                .append(" SELECT :sessionId, household_id, :createdAt, :runBy")
+                .append(" SELECT :sessionId, household_id, :createdAt, :runBy, :selectionStatus")
                 .append(" FROM _insert_")
                 .append(" WHERE location_code = :districtCode AND ta_code = :taCode")
                 .append(" AND FIND_IN_SET(cluster_code, :clusterCodes)");
@@ -354,6 +354,7 @@ public class TargetingService extends TransactionalService {
         Query query = entityManager.createNativeQuery(sql);
 
         query.setParameter("runBy", userId)
+                .setParameter("selectionStatus", CbtStatus.PreEligible.name())
                 .setParameter("taCode", session.getTaCode())
                 .setParameter("sessionId", session.getId())
                 .setParameter("createdAt", LocalDateTime.now())
@@ -387,7 +388,7 @@ public class TargetingService extends TransactionalService {
         // Send to next module if the session did have households that matched
         if (session.getHouseholds() > 0) {
             switch (destination) {
-                case enrolment -> enrolmentRepository.sendToEnrolment(0L, session.getId(), userId);
+                case enrolment -> enrolmentRepository.createEnrollmentSessionFromCbtOrPev(0L, session.getId(), userId);
                 case targeting -> {
                     // 1. Create a targeting session
                     TargetingSession targetingSession = new TargetingSession();

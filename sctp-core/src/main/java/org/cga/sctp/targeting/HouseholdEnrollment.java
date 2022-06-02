@@ -33,15 +33,24 @@
 package org.cga.sctp.targeting;
 
 import javax.persistence.*;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "household_enrollment")
-public class EnrollmentHousehold {
+public class HouseholdEnrollment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private long sessionId;
     private long householdId;
+    private Long reviewerId;
+    private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
+    private OffsetDateTime reviewedAt;
+
+    @Enumerated(value = EnumType.STRING)
+    @Convert(disableConversion = true)
+    private CbtStatus status;
 
     public long getId() {
         return id;
@@ -67,6 +76,43 @@ public class EnrollmentHousehold {
         this.householdId = householdId;
     }
 
+    public CbtStatus getStatus() {
+        return status;
+    }
 
+    public void setStatus(CbtStatus status) {
+        this.status = status;
+    }
 
+    public Long getReviewerId() {
+        return reviewerId;
+    }
+
+    public void setReviewerId(Long reviewerId) {
+        this.reviewerId = reviewerId;
+    }
+
+    public OffsetDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(OffsetDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public OffsetDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(OffsetDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public OffsetDateTime getReviewedAt() {
+        return reviewedAt;
+    }
+
+    public void setReviewedAt(OffsetDateTime reviewedAt) {
+        this.reviewedAt = reviewedAt;
+    }
 }

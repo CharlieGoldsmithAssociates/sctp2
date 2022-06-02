@@ -35,7 +35,7 @@ package org.cga.sctp.targeting;
 import org.hibernate.annotations.Immutable;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Immutable
 @Entity
@@ -44,12 +44,12 @@ public class EnrollmentSessionView {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private LocalDateTime createdAt;
     private String taName;
-    private String districtName;
-    private String programName;
-    private Long householdCount;
     private String doneBy;
+    private String programName;
+    private String districtName;
+    private Long householdCount;
+    private OffsetDateTime createdAt;
 
     public Long getId() {
         return id;
@@ -59,11 +59,11 @@ public class EnrollmentSessionView {
         this.id = id;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public OffsetDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(OffsetDateTime createdAt) {
         this.createdAt = createdAt;
     }
 

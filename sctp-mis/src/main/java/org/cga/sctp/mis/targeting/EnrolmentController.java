@@ -43,6 +43,8 @@ import org.cga.sctp.targeting.enrollment.EnrollmentForm;
 import org.cga.sctp.targeting.importation.parameters.EducationLevel;
 import org.cga.sctp.targeting.importation.parameters.Gender;
 import org.cga.sctp.targeting.importation.parameters.GradeLevel;
+import org.cga.sctp.user.AdminAccessOnly;
+import org.cga.sctp.user.AdminAndStandardAccessOnly;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -78,12 +80,14 @@ public class EnrolmentController extends SecuredBaseController {
     private TargetingConfig config;
 
     @GetMapping
+    @AdminAndStandardAccessOnly
     public ModelAndView index() {
         return view("targeting/enrolment/sessions",
                 "sessions", enrollmentService.getEnrollmentSessions());
     }
 
     @GetMapping("/households")
+    @AdminAndStandardAccessOnly
     public ModelAndView households(@RequestParam("session") Long sessionId, RedirectAttributes attributes, Pageable pageable) {
         EnrollmentSessionView sessionView = enrollmentService.getEnrollmentSession(sessionId);
         if (sessionView == null) {
@@ -98,10 +102,11 @@ public class EnrolmentController extends SecuredBaseController {
     }
 
     @GetMapping("/details")
+    @AdminAndStandardAccessOnly
     public ModelAndView details(@RequestParam("id") Long householdId,
                                 @RequestParam("session") Long sessionId, RedirectAttributes attributes,
                                 @ModelAttribute("enrollmentForm") EnrollmentForm enrollmentForm) {
-        EnrollmentHousehold enrollmentHousehold = enrollmentService.findEnrollmentHousehold(sessionId, householdId);
+        HouseholdEnrollment enrollmentHousehold = enrollmentService.findEnrollmentHousehold(sessionId, householdId);
         if (enrollmentHousehold == null) {
             setDangerFlashMessage("Enrollment session not found.", attributes);
             return redirect("/targeting/enrolment/households?session=" + sessionId);
@@ -132,6 +137,7 @@ public class EnrolmentController extends SecuredBaseController {
     }
 
     @RequestMapping(value = "/enroll", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @AdminAccessOnly
     public ResponseEntity<Object> uploadFile(@RequestParam(required = true, value = "file") MultipartFile file,
                                              @RequestParam(required = false, value = "altPhoto") MultipartFile alternate,
                                              @RequestParam(required = true, value = "jsondata") String jsondata)
@@ -145,11 +151,12 @@ public class EnrolmentController extends SecuredBaseController {
     }
 
     @GetMapping("/view")
+    @AdminAccessOnly
     public ModelAndView edit(@RequestParam("id") Long householdId,
                              @RequestParam("session") Long sessionId, RedirectAttributes attributes,
                              @ModelAttribute("enrollmentForm") EnrollmentForm enrollmentForm) {
 
-        EnrollmentHousehold enrollmentHousehold = enrollmentService.findEnrollmentHousehold(sessionId, householdId);
+        HouseholdEnrollment enrollmentHousehold = enrollmentService.findEnrollmentHousehold(sessionId, householdId);
         if (enrollmentHousehold == null) {
             setDangerFlashMessage("Enrollment session not found.", attributes);
             return redirect("/targeting/enrolment/households?session=" + sessionId);

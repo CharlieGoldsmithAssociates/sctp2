@@ -40,9 +40,16 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface EnrolmentSessionRepository extends JpaRepository<EnrolmentSession, Long> {
-    @Procedure(procedureName = "sendHouseholdToEnrolment")
-    void sendToEnrolment(
+public interface EnrolmentSessionRepository extends JpaRepository<EnrollmentSession, Long> {
+    /**
+     * Creates an enrollment session from {@link TargetingSession} or {@link EligibilityVerificationSession}
+     *
+     * @param targetingId    Targeting session id (0 or NUlL)
+     * @param verificationId Verification session id (0 or NULL if )
+     * @param userId         User id under which the enrollment session will be created
+     */
+    @Procedure(procedureName = "createEnrollmentSessionFromCbtOrPev")
+    void createEnrollmentSessionFromCbtOrPev(
             @Param("targeting_session_id") Long targetingId,
             @Param("verification_session_id") Long verificationId,
             @Param("user_id") Long userId
@@ -54,14 +61,15 @@ public interface EnrolmentSessionRepository extends JpaRepository<EnrolmentSessi
 
     /**
      * Counts the households in the enrollment session with the given
-     * @param id Enrollment Session ID
-     * @param cbtStatusCode  the status code
+     *
+     * @param id            Enrollment Session ID
+     * @param cbtStatusCode the status code
      * @return the number of households that match the criteria
      * @see CbtStatus
      */
-    @Query(nativeQuery=true, value="SELECT count(household_id) FROM household_enrollment WHERE session_id = :id AND status = :cbtStatusCode")
-    Long countHouseholdsInSessionByStatus(@Param("id") Long id, @Param("cbtStatusCode")int cbtStatusCode);
+    @Query(nativeQuery = true, value = "SELECT count(household_id) FROM household_enrollment WHERE session_id = :id AND status = :cbtStatusCode")
+    Long countHouseholdsInSessionByStatus(@Param("id") Long id, @Param("cbtStatusCode") int cbtStatusCode);
 
-    @Query(nativeQuery=true, value="SELECT count(household_id) FROM household_enrollment WHERE session_id = :id AND (status = 6 OR status <> 5")
+    @Query(nativeQuery = true, value = "SELECT count(household_id) FROM household_enrollment WHERE session_id = :id AND (status = 6 OR status <> 5")
     int countPreEligibleOrNotEnrolled(@Param("id") Long id);
 }

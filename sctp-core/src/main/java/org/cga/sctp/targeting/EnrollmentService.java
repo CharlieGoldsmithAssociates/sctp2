@@ -91,7 +91,7 @@ public class EnrollmentService extends TransactionalService {
         return sessionViewRepository.findById(sessionId).orElse(null);
     }
 
-    public EnrollmentHousehold findEnrollmentHousehold(Long sessionId, long householdId) {
+    public HouseholdEnrollment findEnrollmentHousehold(Long sessionId, long householdId) {
         return enrollmentHouseholdRepository.findBySessionAndHousehold(sessionId, householdId);
     }
 

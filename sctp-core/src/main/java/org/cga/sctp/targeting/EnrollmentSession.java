@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,21 +32,10 @@
 
 package org.cga.sctp.targeting;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
-@Repository
-public interface EnrollmentHouseholdRepository extends JpaRepository<HouseholdEnrollment, Long> {
-
-    @Query(value = "select * FROM household_enrollment WHERE session_id = :session and household_id = :household", nativeQuery = true)
-    HouseholdEnrollment findBySessionAndHousehold(@Param("session") long session, @Param("household") long household);
-
-    @Query(value = "CALL getHouseholdDetails(:household)", nativeQuery = true)
-    HouseholdDetails getEnrolledHouseholdDetails(@Param("household") Long id);
-
-
+@Entity
+@Table(name = "enrollment_session")
+public class EnrollmentSession extends EnrollmentSessionObject {
 }
-
-
