@@ -1,0 +1,2 @@
+ALTER TABLE `transfers`
+	CHANGE COLUMN `secondary_incentive_amount` `secondary_bonus_amount` BIGINT(19) NULL DEFAULT NULL COMMENT 'Bonus amount for secondary school children' AFTER `secondary_children_count`;

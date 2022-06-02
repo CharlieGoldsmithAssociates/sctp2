@@ -100,6 +100,10 @@ public class Transfer {
     @Column
     private Long primaryChildrenCount;
 
+    /** INT COMMENT 'Number of children in primary school', */
+    @Column
+    private Long primaryIncentiveChildrenCount;
+
     /** BIGINT COMMENT 'Amount to add based on number of primary going children', */
     @Column
     private Long primaryIncentiveAmount;
@@ -110,7 +114,11 @@ public class Transfer {
 
     /** BIGINT COMMENT 'Amount to add based on number of primary going children', */
     @Column
-    private Long secondaryIncentiveAmount;
+    private Long primaryBonusAmount;
+
+    /** BIGINT COMMENT 'Amount to add based on number of primary going children', */
+    @Column
+    private Long secondaryBonusAmount;
 
     /** TINYINT(1) DEFAULT 1 COMMENT 'Whether it is the first transfer for the household or not', */
     @Column(name = "is_first_transfer")
@@ -336,12 +344,28 @@ public class Transfer {
         this.secondaryChildrenCount = secondaryChildrenCount;
     }
 
-    public Long getSecondaryIncentiveAmount() {
-        return secondaryIncentiveAmount;
+    public Long getPrimaryIncentiveChildrenCount() {
+        return primaryIncentiveChildrenCount;
     }
 
-    public void setSecondaryIncentiveAmount(Long secondaryIncentiveAmount) {
-        this.secondaryIncentiveAmount = secondaryIncentiveAmount;
+    public void setPrimaryIncentiveChildrenCount(Long primaryIncentiveChildrenCount) {
+        this.primaryIncentiveChildrenCount = primaryIncentiveChildrenCount;
+    }
+
+    public void setPrimaryBonusAmount(Long primaryBonusAmount) {
+        this.primaryBonusAmount = primaryBonusAmount;
+    }
+
+    public Long getPrimaryBonusAmount() {
+        return primaryBonusAmount;
+    }
+
+    public Long getSecondaryBonusAmount() {
+        return secondaryBonusAmount;
+    }
+
+    public void setSecondaryBonusAmount(Long secondaryBonusAmount) {
+        this.secondaryBonusAmount = secondaryBonusAmount;
     }
 
     public Long getIsFirstTransfer() {
@@ -498,6 +522,6 @@ public class Transfer {
 
     // TODO: Make this a property in the database ? or pre-compute
     public Long getTotalAmountToTransfer() {
-        return this.basicSubsidyAmount + this.secondaryIncentiveAmount + this.primaryIncentiveAmount;
+        return this.basicSubsidyAmount + this.secondaryBonusAmount  /* + TODO: this.primaryBonusAmount */ + this.primaryIncentiveAmount;
     }
 }
