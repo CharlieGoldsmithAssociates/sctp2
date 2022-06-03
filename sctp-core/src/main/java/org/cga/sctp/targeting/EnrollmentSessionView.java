@@ -34,38 +34,19 @@ package org.cga.sctp.targeting;
 
 import org.hibernate.annotations.Immutable;
 
-import javax.persistence.*;
-import java.time.OffsetDateTime;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 @Immutable
 @Entity
 @Table(name = "enrollment_session_v")
-public class EnrollmentSessionView {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class EnrollmentSessionView extends EnrollmentSessionObject {
     private String taName;
-    private String doneBy;
+    private String closerName;
+    private String creatorName;
     private String programName;
-    private String districtName;
     private Long householdCount;
-    private OffsetDateTime createdAt;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public OffsetDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(OffsetDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
+    private String districtName;
 
     public String getTaName() {
         return taName;
@@ -75,12 +56,20 @@ public class EnrollmentSessionView {
         this.taName = taName;
     }
 
-    public String getDistrictName() {
-        return districtName;
+    public String getCloserName() {
+        return closerName;
     }
 
-    public void setDistrictName(String districtName) {
-        this.districtName = districtName;
+    public void setCloserName(String closerName) {
+        this.closerName = closerName;
+    }
+
+    public String getCreatorName() {
+        return creatorName;
+    }
+
+    public void setCreatorName(String creatorName) {
+        this.creatorName = creatorName;
     }
 
     public String getProgramName() {
@@ -99,12 +88,11 @@ public class EnrollmentSessionView {
         this.householdCount = householdCount;
     }
 
-    public String getDoneBy() {
-        return doneBy;
+    public String getDistrictName() {
+        return districtName;
     }
 
-    public void setDoneBy(String doneBy) {
-        this.doneBy = doneBy;
+    public void setDistrictName(String districtName) {
+        this.districtName = districtName;
     }
-
 }

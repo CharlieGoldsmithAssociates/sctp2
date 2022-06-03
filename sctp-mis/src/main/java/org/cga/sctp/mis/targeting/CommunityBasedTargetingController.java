@@ -126,9 +126,9 @@ public class CommunityBasedTargetingController extends BaseController {
 
     @GetMapping
     @AdminAndStandardAccessOnly
-    public ModelAndView community() {
+    public ModelAndView community(Pageable pageable) {
         return view("targeting/community/sessions",
-                "sessions", targetingService.targetingSessionViewList());
+                "sessions", targetingService.targetingSessionViewList(pageable));
     }
 
 
@@ -140,7 +140,6 @@ public class CommunityBasedTargetingController extends BaseController {
             setDangerFlashMessage("Community based targeting session not found.", attributes);
             return redirect("/targeting/community");
         }
-        // TODO Add pagination controls to view
         Slice<CbtRankingResult> rankedList = targetingService.getCbtRanking(session, pageable);
         return view("targeting/community/details")
                 .addObject("isSessionOpen", session.isOpen())

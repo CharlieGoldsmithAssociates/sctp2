@@ -117,6 +117,8 @@
                         </tbody>
                     </table>
                 </div>
+                <hr />
+                {{ paginate(imports, request) | raw }}
             </div>
         </div>
     </div>

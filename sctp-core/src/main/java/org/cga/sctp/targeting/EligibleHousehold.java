@@ -39,6 +39,8 @@ public interface EligibleHousehold {
 
     Long getFormNumber();
 
+    Long getMlCode();
+
     Long getMembers();
 
     String getDistrict();

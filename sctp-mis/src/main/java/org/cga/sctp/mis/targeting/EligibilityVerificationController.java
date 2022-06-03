@@ -8,7 +8,9 @@ import org.cga.sctp.location.LocationCode;
 import org.cga.sctp.location.LocationService;
 import org.cga.sctp.location.LocationType;
 import org.cga.sctp.mis.core.BaseController;
-import org.cga.sctp.mis.core.navigation.*;
+import org.cga.sctp.mis.core.navigation.BreadcrumbDefinition;
+import org.cga.sctp.mis.core.navigation.BreadcrumbPath;
+import org.cga.sctp.mis.core.navigation.ModuleNames;
 import org.cga.sctp.mis.core.templating.SelectOptionItem;
 import org.cga.sctp.program.Program;
 import org.cga.sctp.program.ProgramService;
@@ -19,6 +21,8 @@ import org.cga.sctp.user.AdminAndStandardAccessOnly;
 import org.cga.sctp.user.AuthenticatedUser;
 import org.cga.sctp.user.AuthenticatedUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -49,8 +53,9 @@ public class EligibilityVerificationController extends BaseController {
 
     @AdminAndStandardAccessOnly
     @GetMapping
-    public ModelAndView verification() {
-        List<EligibilityVerificationSessionView> verificationList = targetingService.getVerificationSessionViews();
+    public ModelAndView verification(Pageable pageable) {
+        Page<EligibilityVerificationSessionView> verificationList
+                = targetingService.getVerificationSessionViews(pageable);
         return view("targeting/verification/history", "verifications", verificationList);
     }
 
@@ -140,13 +145,13 @@ public class EligibilityVerificationController extends BaseController {
     @AdminAndStandardAccessOnly
     @GetMapping("/review")
     @BreadcrumbPath(link = "/review", title = "Eligibility Verification Review")
-    public ModelAndView reviewEligibilityList(@RequestParam Long id, RedirectAttributes attributes) {
+    public ModelAndView reviewEligibilityList(@RequestParam Long id, RedirectAttributes attributes, Pageable pageable) {
         EligibilityVerificationSessionView verificationSessionView = targetingService.findVerificationViewById(id);
         if (verificationSessionView == null) {
             setDangerFlashMessage("Cannot find verification session.", attributes);
             return redirect("/verification");
         }
-        List<EligibleHousehold> households = targetingService.getEligibleHouseholds(verificationSessionView);
+        Page<EligibleHousehold> households = targetingService.getEligibleHouseholds(verificationSessionView, pageable);
         return view("targeting/verification/review", "households", households)
                 .addObject("verification", verificationSessionView);
     }

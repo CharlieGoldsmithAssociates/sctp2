@@ -37,6 +37,7 @@ import org.cga.sctp.targeting.enrollment.EnrollmentForm;
 import org.cga.sctp.targeting.enrollment.SchoolEnrollmentForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -55,32 +56,32 @@ import java.util.List;
 public class EnrollmentService extends TransactionalService {
 
     @Autowired
-    CbtRankingRepository cbtRankingRepository;
+    private CbtRankingRepository cbtRankingRepository;
 
     @Autowired
-    EnrolmentSessionRepository enrolmentSessionRepository;
+    private EnrolmentSessionRepository enrolmentSessionRepository;
 
     @Autowired
-    EnrollmentSessionViewRepository sessionViewRepository;
+    private EnrollmentSessionViewRepository sessionViewRepository;
 
     @Autowired
-    EnrollmentHouseholdRepository enrollmentHouseholdRepository;
+    private EnrollmentHouseholdRepository enrollmentHouseholdRepository;
 
     @Autowired
-    AlternateRecipientRepository alternateRecipientRepository;
+    private AlternateRecipientRepository alternateRecipientRepository;
 
     @Autowired
-    HouseholdRecipientRepository householdRecipientRepository;
+    private HouseholdRecipientRepository householdRecipientRepository;
 
     @Autowired
-    SchoolEnrolledRepository schoolEnrolledRepository;
+    private SchoolEnrolledRepository schoolEnrolledRepository;
 
     @Value("${pictures:beneficiary-images}")
     private String beneficiaryPictureUploadDirectory;
 
 
-    public List<EnrollmentSessionView> getEnrollmentSessions() {
-        return sessionViewRepository.findAll();
+    public Page<EnrollmentSessionView> getEnrollmentSessions(Pageable pageable) {
+        return sessionViewRepository.findAll(pageable);
     }
 
     public Slice<CbtRankingResult> getEnrolledHouseholds(EnrollmentSessionView session, Pageable pageable) {
@@ -136,7 +137,7 @@ public class EnrollmentService extends TransactionalService {
     }
 
     public void setEnrollmentHouseholdEnrolled(Long householdId) {
-        enrolmentSessionRepository.updateHouseholdEnrollmentStatus(householdId,CbtStatus.Enrolled.code);
+        enrolmentSessionRepository.updateHouseholdEnrollmentStatus(householdId, CbtStatus.Enrolled.code);
     }
 
     public void updateHouseholdEnrollmentStatus(Long householdId, CbtStatus status) {

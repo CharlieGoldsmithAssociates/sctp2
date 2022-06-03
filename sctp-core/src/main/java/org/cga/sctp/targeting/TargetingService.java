@@ -114,8 +114,8 @@ public class TargetingService extends TransactionalService {
         }
     }
 
-    public List<TargetingSessionView> targetingSessionViewList() {
-        return targetingSessionViewRepository.findAll();
+    public Page<TargetingSessionView> targetingSessionViewList(Pageable pageable) {
+        return targetingSessionViewRepository.findAll(pageable);
     }
 
     public TargetingSession findSessionById(Long sessionId) {
@@ -368,8 +368,8 @@ public class TargetingService extends TransactionalService {
         query.executeUpdate();
     }
 
-    public List<EligibilityVerificationSessionView> getVerificationSessionViews() {
-        return verificationSessionViewRepository.findAll();
+    public Page<EligibilityVerificationSessionView> getVerificationSessionViews(Pageable pageable) {
+        return verificationSessionViewRepository.findAll(pageable);
     }
 
     public Criterion getActiveTargetingCriterionById(Long criterion) {
@@ -422,8 +422,11 @@ public class TargetingService extends TransactionalService {
         return criterionRepository.getUsageCount(criterion.getId());
     }
 
-    public List<EligibleHousehold> getEligibleHouseholds(EligibilityVerificationSessionBase session) {
-        return verificationSessionRepository.getEligibleHouseholds(session.getId());
+    public Page<EligibleHousehold> getEligibleHouseholds(EligibilityVerificationSessionBase session, Pageable pageable) {
+        List<EligibleHousehold> householdList = verificationSessionRepository
+                .getEligibleHouseholds(session.getId(), pageable.getPageNumber(), pageable.getPageSize());
+        long total = verificationSessionRepository.countEligibleHouseholds(session.getId());
+        return new PageImpl<>(householdList, pageable, total);
     }
 
     public Page<EligibleHouseholdDetails> getEligibleHouseholdsDetails(Long sessionId, int page) {

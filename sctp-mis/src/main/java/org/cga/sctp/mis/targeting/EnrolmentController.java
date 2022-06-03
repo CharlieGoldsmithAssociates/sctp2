@@ -81,9 +81,10 @@ public class EnrolmentController extends SecuredBaseController {
 
     @GetMapping
     @AdminAndStandardAccessOnly
-    public ModelAndView index() {
+    public ModelAndView index(Pageable pageable) {
         return view("targeting/enrolment/sessions",
-                "sessions", enrollmentService.getEnrollmentSessions());
+                "sessions", enrollmentService.getEnrollmentSessions(pageable)
+        );
     }
 
     @GetMapping("/households")

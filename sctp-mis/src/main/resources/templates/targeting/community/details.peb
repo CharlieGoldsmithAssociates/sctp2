@@ -151,6 +151,8 @@
                         </tbody>
                     </table>
                 </div>
+                <hr />
+                {{ paginate(ranks, request) | raw }}
             </div>
         </div>
     </div>

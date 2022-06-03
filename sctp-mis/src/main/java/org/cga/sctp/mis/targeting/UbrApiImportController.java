@@ -43,6 +43,7 @@ import org.cga.sctp.targeting.importation.UbrHouseholdImport;
 import org.cga.sctp.user.AuthenticatedUser;
 import org.cga.sctp.user.AuthenticatedUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -106,7 +107,7 @@ public class UbrApiImportController extends BaseController {
         if (dataImport == null) {
             return redirect("/data-import");
         }
-        List<UbrHouseholdImport> imports = ubrImportService.getImportTaskService().getImportsBySessionIdForReview(dataImport.getId(), pageable);
+        Page<UbrHouseholdImport> imports = ubrImportService.getImportTaskService().getImportsBySessionIdForReview(dataImport.getId(), pageable);
         return view("targeting/import/review")
                 .addObject("importSession", dataImport)
                 .addObject("imports", imports);

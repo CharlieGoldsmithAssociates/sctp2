@@ -83,7 +83,7 @@ public class EnrollmentSessionObject {
     @Convert(converter = LongSetConverter.class)
     private Set<Long> clusterCode;
 
-    @JoinColumn(name = "program_id")
+    @Column(name = "program_id")
     private Long program;
 
     public Long getId() {

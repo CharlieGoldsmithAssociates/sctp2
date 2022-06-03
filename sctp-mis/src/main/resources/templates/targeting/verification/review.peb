@@ -89,6 +89,7 @@
                         <table id="results" class="table dataTable is-narrow is-striped is-hoverable">
                             <thead>
                             <tr>
+                                <th>ML Code</th>
                                 <th>Form Number</th>
                                 <th>TA</th>
                                 <th>GVH Name</th>
@@ -103,7 +104,8 @@
                                 {% for household in households %}
                                     {# @pebvariable name="household" type="org.cga.sctp.targeting.EligibleHousehold" #}
                                     <tr>
-                                        <td>ML-{{ household.formNumber }}</td>
+                                        <td>ML-{{ household.mlCode }}</td>
+                                        <td>{{ household.formNumber }}</td>
                                         <td>{{ household.ta }}</td>
                                         {# <td>{{ result.district }}</td> #}
                                         <td>{{ household.villageHead }}</td>
@@ -137,6 +139,8 @@
                         </table>
                     </div>
                 </div>
+                <hr />
+                {{ paginate(households, request) | raw }}
             </div>
         </div>
     {% endblock %}

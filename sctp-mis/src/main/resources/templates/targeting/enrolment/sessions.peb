@@ -13,7 +13,7 @@
     <div>
         <div class="card no-overlap">
             <header class="card-header">
-                <p class="card-header-title">Enrolment</p>
+                <p class="card-header-title">Enrollment</p>
             </header>
             <div class="card-content">
                 {{ showMessages(successMessage, message("targeting.enrolment.info"), dangerMessage, warningMessage) }}
@@ -27,7 +27,7 @@
                             <th>T.A</th>
                             <th>Date</th>
                             <th>Done By</th>
-{#                            <th>Status</th>#}
+                            <th>Status</th>
                             <th data-sortable="false" width="5%">Options</th>
                         </tr>
                         </thead>
@@ -39,8 +39,9 @@
                             <td>{{ s.householdCount }}</td>
                             <td>{{ s.taName }}</td>
                             <td>{{ printDate(s.createdAt) }}</td>
-                            <td>{{ s.doneBy }}</td>
-{#                            <td>Review</td>#}
+                            <td>{{ s.creatorName }}</td>
+                            <td>{{ s.status }}</td>
+                            {# <td>Review</td>#}
                             <td>
                                 <div class="dropdown is-hoverable is-right">
                                     <div class="dropdown-trigger">
@@ -65,6 +66,8 @@
                         </tbody>
                     </table>
                 </div>
+                <hr />
+                {{ paginate(sessions, request) | raw }}
             </div>
         </div>
     </div>
