@@ -83,6 +83,11 @@ public class PebbleFunctions {
     }
 
     @Bean
+    public Function percentage() {
+        return new Percentage();
+    }
+
+    @Bean
     public Function hasRole() {
         return new HasRole();
     }

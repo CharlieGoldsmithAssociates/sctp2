@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,27 +30,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.mis.core.navigation;
+package org.cga.sctp.targeting;
 
-import org.springframework.util.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public record Breadcrumb(String link, String title, boolean active) {
-    Breadcrumb(BreadcrumbPath path) {
-        this(normalize(path.link()), path.title(), path.navigable());
-    }
+@Repository
+interface HouseholdEnrollmentViewRepository extends JpaRepository<HouseholdEnrollmentView, Long> {
 
-    Breadcrumb(String title) {
-        this(null, title, false);
-    }
-
-    private static String normalize(String path) {
-        if (StringUtils.hasText(path)) {
-            if (path.length() > 1) {
-                if (path.startsWith("/")) {
-                    path = path.substring(1);
-                }
-            }
-        }
-        return path;
-    }
+    Page<HouseholdEnrollmentView> getBySessionId(Long sessionId, Pageable pageable);
 }

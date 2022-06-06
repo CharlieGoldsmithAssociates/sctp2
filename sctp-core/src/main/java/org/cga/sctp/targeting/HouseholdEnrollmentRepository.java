@@ -30,27 +30,21 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.mis.core.navigation;
+package org.cga.sctp.targeting;
 
-import org.springframework.util.StringUtils;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
-public record Breadcrumb(String link, String title, boolean active) {
-    Breadcrumb(BreadcrumbPath path) {
-        this(normalize(path.link()), path.title(), path.navigable());
-    }
+@Repository
+interface HouseholdEnrollmentRepository extends JpaRepository<HouseholdEnrollment, Long> {
 
-    Breadcrumb(String title) {
-        this(null, title, false);
-    }
+    //@Query(value = "select * FROM household_enrollment WHERE session_id = :session and household_id = :household", nativeQuery = true)
+    HouseholdEnrollment findBySessionIdAndHouseholdId(@Param("session") long session, @Param("household") long household);
 
-    private static String normalize(String path) {
-        if (StringUtils.hasText(path)) {
-            if (path.length() > 1) {
-                if (path.startsWith("/")) {
-                    path = path.substring(1);
-                }
-            }
-        }
-        return path;
-    }
+    @Query(value = "CALL getHouseholdDetails(:household)", nativeQuery = true)
+    HouseholdDetails getEnrolledHouseholdDetails(@Param("household") Long id);
 }
+
+

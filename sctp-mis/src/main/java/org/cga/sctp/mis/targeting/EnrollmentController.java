@@ -46,8 +46,8 @@ import org.cga.sctp.targeting.importation.parameters.GradeLevel;
 import org.cga.sctp.user.AdminAccessOnly;
 import org.cga.sctp.user.AdminAndStandardAccessOnly;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -62,7 +62,7 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/targeting/enrolment")
-public class EnrolmentController extends SecuredBaseController {
+public class EnrollmentController extends SecuredBaseController {
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -95,11 +95,10 @@ public class EnrolmentController extends SecuredBaseController {
             setDangerFlashMessage("Enrollment session not found.", attributes);
             return redirect("/targeting/enrolment");
         }
-
-        Slice<CbtRankingResult> rankedList = enrollmentService.getEnrolledHouseholds(sessionView, pageable);
+        Page<HouseholdEnrollmentView> households = enrollmentService.getEnrolledHouseholds(sessionView, pageable);
         return view("targeting/enrolment/households")
                 .addObject("sessionInfo", sessionView)
-                .addObject("ranks", rankedList);
+                .addObject("households", households);
     }
 
     @GetMapping("/details")
@@ -107,7 +106,9 @@ public class EnrolmentController extends SecuredBaseController {
     public ModelAndView details(@RequestParam("id") Long householdId,
                                 @RequestParam("session") Long sessionId, RedirectAttributes attributes,
                                 @ModelAttribute("enrollmentForm") EnrollmentForm enrollmentForm) {
+
         HouseholdEnrollment enrollmentHousehold = enrollmentService.findEnrollmentHousehold(sessionId, householdId);
+
         if (enrollmentHousehold == null) {
             setDangerFlashMessage("Enrollment session not found.", attributes);
             return redirect("/targeting/enrolment/households?session=" + sessionId);
@@ -122,7 +123,6 @@ public class EnrolmentController extends SecuredBaseController {
         List<Individual> individuals = beneficiaryService.getEligibleRecipients(householdId);
         List<Individual> children = beneficiaryService.findSchoolChildren(householdId);
         List<SchoolsView> schools = schoolService.getSchools();
-
 
         String returnUrl = "households?session=" + sessionId;
 
@@ -151,7 +151,7 @@ public class EnrolmentController extends SecuredBaseController {
 
     }
 
-    @GetMapping("/view")
+    @GetMapping("/edit")
     @AdminAccessOnly
     public ModelAndView edit(@RequestParam("id") Long householdId,
                              @RequestParam("session") Long sessionId, RedirectAttributes attributes,
@@ -169,8 +169,8 @@ public class EnrolmentController extends SecuredBaseController {
             return redirect("/targeting/enrolment/households?session=" + sessionId);
         }
 
-        List<Individual> individuals = beneficiaryService.getEligibleRecipients(householdId);
         List<Individual> children = beneficiaryService.findSchoolChildren(householdId);
+        List<Individual> individuals = beneficiaryService.getHouseholdMembers(householdId);
         List<SchoolEnrolled> schoolEnrolled = enrollmentService.getSchoolEnrolledByHousehold(householdId);
         List<SchoolsView> schools = schoolService.getSchools();
         String returnUrl = "households?session=" + sessionId;

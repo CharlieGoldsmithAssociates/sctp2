@@ -32,6 +32,7 @@
 
 package org.cga.sctp.targeting.exchange;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -44,7 +45,7 @@ interface DataImportsViewRepository extends PagingAndSortingRepository<DataImpor
     List<DataImportView> findByImporterUserId(Long userId);
 
     @Query(value = "select * from data_imports_v order by import_date DESC", nativeQuery = true)
-    List<DataImportView> findAllOrderByIdDesc(Pageable pageable);
+    Page<DataImportView> findAllOrderByIdDesc(Pageable pageable);
 
     DataImportView findImportByIdAndDataSourceAndStatus(Long id, DataImportObject.ImportSource importSource, DataImportObject.ImportStatus importStatus);
 }

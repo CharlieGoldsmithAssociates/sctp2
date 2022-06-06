@@ -52,4 +52,6 @@ public @interface BreadcrumbPath {
      * @return Indicates whether this link can be navigated to
      */
     boolean navigable() default false;
+
+    VarBinding[] bindings() default {};
 }

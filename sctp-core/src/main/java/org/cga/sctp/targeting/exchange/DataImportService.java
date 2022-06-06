@@ -70,8 +70,8 @@ public class DataImportService extends TransactionalService {
         return viewRepository.findByImporterUserId(userId);
     }
 
-    public List<DataImportView> getDataImports() {
-        return viewRepository.findAllOrderByIdDesc(Pageable.unpaged());
+    public Page<DataImportView> getDataImports(Pageable pageable) {
+        return viewRepository.findAllOrderByIdDesc(pageable);
     }
 
     public void saveDataImport(DataImport dataImport) {

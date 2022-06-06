@@ -39,7 +39,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -56,16 +55,16 @@ import java.util.List;
 public class EnrollmentService extends TransactionalService {
 
     @Autowired
-    private CbtRankingRepository cbtRankingRepository;
-
-    @Autowired
     private EnrolmentSessionRepository enrolmentSessionRepository;
 
     @Autowired
     private EnrollmentSessionViewRepository sessionViewRepository;
 
     @Autowired
-    private EnrollmentHouseholdRepository enrollmentHouseholdRepository;
+    private HouseholdEnrollmentRepository enrollmentHouseholdRepository;
+
+    @Autowired
+    private HouseholdEnrollmentViewRepository enrollmentViewRepository;
 
     @Autowired
     private AlternateRecipientRepository alternateRecipientRepository;
@@ -84,8 +83,8 @@ public class EnrollmentService extends TransactionalService {
         return sessionViewRepository.findAll(pageable);
     }
 
-    public Slice<CbtRankingResult> getEnrolledHouseholds(EnrollmentSessionView session, Pageable pageable) {
-        return cbtRankingRepository.findByCbtSessionId(session.getId(), pageable);
+    public Page<HouseholdEnrollmentView> getEnrolledHouseholds(EnrollmentSessionView session, Pageable pageable) {
+        return enrollmentViewRepository.getBySessionId(session.getId(), pageable);
     }
 
     public EnrollmentSessionView getEnrollmentSession(Long sessionId) {
@@ -93,7 +92,7 @@ public class EnrollmentService extends TransactionalService {
     }
 
     public HouseholdEnrollment findEnrollmentHousehold(Long sessionId, long householdId) {
-        return enrollmentHouseholdRepository.findBySessionAndHousehold(sessionId, householdId);
+        return enrollmentHouseholdRepository.findBySessionIdAndHouseholdId(sessionId, householdId);
     }
 
     public HouseholdDetails getHouseholdDetails(Long householdId) {

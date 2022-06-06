@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,23 +30,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting;
+package org.cga.sctp.mis.core.navigation;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+import java.lang.annotation.*;
 
-@Repository
-public interface EnrollmentHouseholdRepository extends JpaRepository<HouseholdEnrollment, Long> {
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD})
+public @interface VarBinding {
+    String variable();
 
-    @Query(value = "select * FROM household_enrollment WHERE session_id = :session and household_id = :household", nativeQuery = true)
-    HouseholdEnrollment findBySessionAndHousehold(@Param("session") long session, @Param("household") long household);
-
-    @Query(value = "CALL getHouseholdDetails(:household)", nativeQuery = true)
-    HouseholdDetails getEnrolledHouseholdDetails(@Param("household") Long id);
-
-
+    String lookupKey();
 }
-
-

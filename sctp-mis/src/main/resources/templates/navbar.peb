@@ -39,7 +39,7 @@
                 <span class="icon">
                   <i class="far fa-address-book">&nbsp;</i>
                 </span>
-                <span>Targeting &amp; Enrolment</span>
+                <span>Targeting &amp; Enrollment</span>
               </span>
                 </a>
                 <div class="navbar-dropdown">
@@ -47,7 +47,7 @@
                     <a href="/criteria" class="navbar-item">Create Targeting Criteria</a>
                     <a href="/verification" class="navbar-item">Pre-Eligibility Verification</a>
                     <a href="/targeting/community" class="navbar-item">Community Based Targeting</a>
-                    <a href="/targeting/enrolment" class="navbar-item">Enrolment</a>
+                    <a href="/targeting/enrolment" class="navbar-item">Enrollment</a>
                 </div>
             </div>
             {% endif %}
@@ -162,6 +162,8 @@
     </div>
 </nav>
 <!-- /end-bottom nav -->
+
+{# {{ breadcrumb(request, useWideContainer) | raw }}#}
 
 {% if beans.showPrototypeBanner %}
 <div class="container">
