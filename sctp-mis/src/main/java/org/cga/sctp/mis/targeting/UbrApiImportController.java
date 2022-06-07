@@ -35,11 +35,14 @@ package org.cga.sctp.mis.targeting;
 import org.cga.sctp.location.LocationCode;
 import org.cga.sctp.location.LocationService;
 import org.cga.sctp.mis.core.BaseController;
+import org.cga.sctp.mis.core.SecuredBaseController;
 import org.cga.sctp.mis.targeting.import_tasks.UBRImportService;
 import org.cga.sctp.targeting.exchange.DataImport;
 import org.cga.sctp.targeting.exchange.DataImportObject;
 import org.cga.sctp.targeting.exchange.DataImportView;
 import org.cga.sctp.targeting.importation.UbrHouseholdImport;
+import org.cga.sctp.user.AdminAccessOnly;
+import org.cga.sctp.user.AdminAndStandardAccessOnly;
 import org.cga.sctp.user.AuthenticatedUser;
 import org.cga.sctp.user.AuthenticatedUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +61,7 @@ import static org.cga.sctp.mis.location.LocationCodeUtil.toSelectOptions;
 
 @Controller
 @RequestMapping("/data-import/from-ubr-api")
-public class UbrApiImportController extends BaseController {
+public class UbrApiImportController extends SecuredBaseController {
     @Autowired
     private LocationService locationService;
 
@@ -66,6 +69,7 @@ public class UbrApiImportController extends BaseController {
     private UBRImportService ubrImportService;
 
     @GetMapping
+    @AdminAndStandardAccessOnly
     ModelAndView viewInitiatePage(@AuthenticatedUserDetails AuthenticatedUser user,
                                   RedirectAttributes attributes) {
 
@@ -77,6 +81,7 @@ public class UbrApiImportController extends BaseController {
     }
 
     @PostMapping
+    @AdminAccessOnly
     ModelAndView initiateImportFromAPI(@AuthenticatedUserDetails AuthenticatedUser user,
                                        @Valid @ModelAttribute UbrApiImportDataForm form,
                                        BindingResult result,
@@ -101,6 +106,7 @@ public class UbrApiImportController extends BaseController {
     }
 
     @GetMapping("/{import-id}/review")
+    @AdminAndStandardAccessOnly
     ModelAndView index(@PathVariable("import-id") Long id, RedirectAttributes attributes, Pageable pageable) {
         DataImportView dataImport = getImport(id, attributes);
         if (dataImport == null) {

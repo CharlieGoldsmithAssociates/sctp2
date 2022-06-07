@@ -34,11 +34,12 @@ package org.cga.sctp.mis.targeting;
 
 import org.cga.sctp.location.LocationService;
 import org.cga.sctp.mis.core.BaseController;
+import org.cga.sctp.mis.core.SecuredBaseController;
 import org.cga.sctp.targeting.exchange.DataImportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.ModelAndView;
 
-abstract class UBRImportController extends BaseController {
+abstract class UBRImportController extends SecuredBaseController {
 
     @Autowired
     protected LocationService locationService;
