@@ -30,7 +30,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting;
+package org.cga.sctp.targeting.enrollment;
+
+import org.cga.sctp.targeting.CbtStatus;
 
 import javax.persistence.*;
 import java.time.OffsetDateTime;

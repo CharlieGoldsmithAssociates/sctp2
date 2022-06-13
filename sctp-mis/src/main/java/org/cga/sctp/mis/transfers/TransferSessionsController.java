@@ -38,7 +38,7 @@ import org.cga.sctp.location.LocationService;
 import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.program.Program;
 import org.cga.sctp.program.ProgramService;
-import org.cga.sctp.targeting.EnrollmentService;
+import org.cga.sctp.targeting.enrollment.EnrollmentService;
 import org.cga.sctp.transfers.TransferEventHouseholdView;
 import org.cga.sctp.transfers.TransferService;
 import org.cga.sctp.transfers.TransferSession;

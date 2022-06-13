@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,13 +30,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting;
+package org.cga.sctp.targeting.enrollment;
 
 import org.cga.sctp.core.TransactionalService;
-import org.cga.sctp.targeting.enrollment.EnrollmentForm;
-import org.cga.sctp.targeting.enrollment.SchoolEnrollmentForm;
+import org.cga.sctp.targeting.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -50,6 +50,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EnrollmentService extends TransactionalService {
@@ -75,9 +76,14 @@ public class EnrollmentService extends TransactionalService {
     @Autowired
     private SchoolEnrolledRepository schoolEnrolledRepository;
 
+    @Autowired
+    private SchoolChildrenCandidateRepository schoolChildrenCandidateRepository;
+
     @Value("${pictures:beneficiary-images}")
     private String beneficiaryPictureUploadDirectory;
 
+    @Value("classpath:passbook/test.pdf")
+    private Resource passbookTemplate;
 
     public Page<EnrollmentSessionView> getEnrollmentSessions(Pageable pageable) {
         return sessionViewRepository.findAll(pageable);
@@ -213,5 +219,21 @@ public class EnrollmentService extends TransactionalService {
             LOG.error("Failure saving beneficiary image", e);
             throw e;
         }
+    }
+
+    public List<SchoolChildrenCandidate> getSchoolGoingChildrenCandidates(Long household) {
+        return schoolChildrenCandidateRepository.findByHouseholdId(household);
+    }
+
+    /**
+     * Returns a household's passbook
+     *
+     * @param enrollment enrollment session id
+     * @param household  household id
+     * @return {@link  Optional} containing the pfd resource or null
+     */
+    public Optional<Resource> getHouseholdPassbookResource(Long enrollment, Long household) {
+        //HouseholdPassbook
+        return Optional.of(passbookTemplate);
     }
 }

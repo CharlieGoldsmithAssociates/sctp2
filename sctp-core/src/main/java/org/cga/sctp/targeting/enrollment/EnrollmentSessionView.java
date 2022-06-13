@@ -30,89 +30,78 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting;
+package org.cga.sctp.targeting.enrollment;
 
 import org.hibernate.annotations.Immutable;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-@Entity
 @Immutable
-@Table(name = "household_enrollment_v")
-public class HouseholdEnrollmentView extends HouseholdEnrollmentBase {
-    @Column(name = "ml_code")
-    private Long mlCode;
-
-    @Column(name = "district_name", nullable = false, length = 100)
-    private String districtName;
-
-    @Column(name = "ta_name", nullable = false, length = 100)
+@Entity
+@Table(name = "enrollment_session_v")
+public class EnrollmentSessionView extends EnrollmentSessionObject {
     private String taName;
+    private String closerName;
+    private String creatorName;
+    private String programName;
+    private Long householdCount;
+    private String districtName;
+    private Long reviewedHouseholds;
 
-    @Column(name = "gvh_name", nullable = false, length = 100)
-    private String gvhName;
+    public String getTaName() {
+        return taName;
+    }
 
-    @Column(name = "cluster_name", nullable = false, length = 100)
-    private String clusterName;
+    public void setTaName(String taName) {
+        this.taName = taName;
+    }
 
-    @Column(name = "village_name", nullable = false, length = 100)
-    private String villageName;
+    public String getCloserName() {
+        return closerName;
+    }
 
-    private String zoneName;
+    public void setCloserName(String closerName) {
+        this.closerName = closerName;
+    }
 
-    @Column(name = "member_count")
-    private Long memberCount;
+    public String getCreatorName() {
+        return creatorName;
+    }
 
-    @Column(name = "reviewed_by", length = 101)
-    private String reviewedBy;
+    public void setCreatorName(String creatorName) {
+        this.creatorName = creatorName;
+    }
 
-    private String householdHead;
+    public String getProgramName() {
+        return programName;
+    }
 
-    private Long formNumber;
+    public void setProgramName(String programName) {
+        this.programName = programName;
+    }
 
-    public Long getMlCode() {
-        return mlCode;
+    public Long getHouseholdCount() {
+        return householdCount;
+    }
+
+    public void setHouseholdCount(Long householdCount) {
+        this.householdCount = householdCount;
     }
 
     public String getDistrictName() {
         return districtName;
     }
 
-    public String getTaName() {
-        return taName;
+    public void setDistrictName(String districtName) {
+        this.districtName = districtName;
     }
 
-    public String getGvhName() {
-        return gvhName;
+    public Long getReviewedHouseholds() {
+        return reviewedHouseholds;
     }
 
-    public String getClusterName() {
-        return clusterName;
-    }
-
-    public String getVillageName() {
-        return villageName;
-    }
-
-    public Long getMemberCount() {
-        return memberCount;
-    }
-
-    public String getReviewedBy() {
-        return reviewedBy;
-    }
-
-    public String getHouseholdHead() {
-        return householdHead;
-    }
-
-    public Long getFormNumber() {
-        return formNumber;
-    }
-
-    public String getZoneName() {
-        return zoneName;
+    public boolean getCanSendToTransfers() {
+        return householdCount.longValue() == reviewedHouseholds.longValue();
     }
 }

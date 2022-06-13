@@ -131,6 +131,7 @@ public class DataImportController extends BaseController {
             return redirectToReview(id);
         }
         try {
+            // TODO Run in background
             dataImportService.mergeBatchIntoPopulation(dataImport);
             setSuccessFlashMessage("Data imported successfully", attributes);
             publishGeneralEvent("%s merged data in population from import session %s.", username, dataImport.getTitle());

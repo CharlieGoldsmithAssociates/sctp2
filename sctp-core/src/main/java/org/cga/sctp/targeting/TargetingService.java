@@ -34,6 +34,7 @@ package org.cga.sctp.targeting;
 
 import org.cga.sctp.core.TransactionalService;
 import org.cga.sctp.targeting.criteria.*;
+import org.cga.sctp.targeting.enrollment.EnrolmentSessionRepository;
 import org.cga.sctp.utils.CollectionUtils;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -33,7 +33,7 @@
 package org.cga.sctp.mis.transfers;
 
 import org.cga.sctp.program.Program;
-import org.cga.sctp.targeting.EnrollmentSessionView;
+import org.cga.sctp.targeting.enrollment.EnrollmentSessionView;
 import org.cga.sctp.transfers.TransferEventHouseholdView;
 import org.cga.sctp.transfers.TransferSession;
 import org.cga.sctp.transfers.parameters.EducationTransferParameter;

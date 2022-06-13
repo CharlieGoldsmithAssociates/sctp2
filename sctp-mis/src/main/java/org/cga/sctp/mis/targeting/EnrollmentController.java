@@ -38,14 +38,17 @@ import org.cga.sctp.beneficiaries.Individual;
 import org.cga.sctp.mis.core.SecuredBaseController;
 import org.cga.sctp.schools.SchoolService;
 import org.cga.sctp.schools.SchoolsView;
-import org.cga.sctp.targeting.*;
-import org.cga.sctp.targeting.enrollment.EnrollmentForm;
+import org.cga.sctp.targeting.AlternateRecipient;
+import org.cga.sctp.targeting.HouseholdDetails;
+import org.cga.sctp.targeting.SchoolEnrolled;
+import org.cga.sctp.targeting.enrollment.*;
 import org.cga.sctp.targeting.importation.parameters.EducationLevel;
 import org.cga.sctp.targeting.importation.parameters.Gender;
 import org.cga.sctp.targeting.importation.parameters.GradeLevel;
 import org.cga.sctp.user.AdminAccessOnly;
 import org.cga.sctp.user.AdminAndStandardAccessOnly;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -127,6 +130,7 @@ public class EnrollmentController extends SecuredBaseController {
         String returnUrl = "households?session=" + sessionId;
 
         return view("targeting/enrolment/details")
+                .addObject("sessionId", sessionId)
                 .addObject("details", householdDetails)
                 .addObject("gender", Gender.VALUES)
                 .addObject("children", children)
@@ -158,24 +162,28 @@ public class EnrollmentController extends SecuredBaseController {
                              @ModelAttribute("enrollmentForm") EnrollmentForm enrollmentForm) {
 
         HouseholdEnrollment enrollmentHousehold = enrollmentService.findEnrollmentHousehold(sessionId, householdId);
+
         if (enrollmentHousehold == null) {
             setDangerFlashMessage("Enrollment session not found.", attributes);
-            return redirect("/targeting/enrolment/households?session=" + sessionId);
+            return redirect("/targeting/enrolment");
         }
 
         HouseholdDetails householdDetails = enrollmentService.getHouseholdDetails(householdId);
+
         if (householdDetails == null) {
-            setDangerFlashMessage("Enrollment household not found.", attributes);
+            setDangerFlashMessage("Household not found.", attributes);
             return redirect("/targeting/enrolment/households?session=" + sessionId);
         }
 
         List<Individual> children = beneficiaryService.findSchoolChildren(householdId);
         List<Individual> individuals = beneficiaryService.getHouseholdMembers(householdId);
         List<SchoolEnrolled> schoolEnrolled = enrollmentService.getSchoolEnrolledByHousehold(householdId);
+
         List<SchoolsView> schools = schoolService.getSchools();
         String returnUrl = "households?session=" + sessionId;
 
         HouseholdRecipient householdRecipient = enrollmentService.getHouseholdRecipient(householdId);
+
         if (householdRecipient.getAltOther() != 0) {
             AlternateRecipient alternateRecipient = enrollmentService.getHouseholdAlternateRecipient(householdRecipient.getAltOther());
             enrollmentForm.setAltGender(alternateRecipient.getGender());
@@ -201,5 +209,18 @@ public class EnrollmentController extends SecuredBaseController {
                 .addObject("schools", schools)
                 .addObject("schoolEnrolled", schoolEnrolled)
                 .addObject("individuals", individuals);
+    }
+
+    @GetMapping(value = "/passbook", produces = "application/pdf")
+    @AdminAndStandardAccessOnly
+    ResponseEntity<?> getHouseholdPassbook(@RequestParam("household") Long household, @RequestParam("enrollment") Long enrollment) {
+        Resource resource = enrollmentService.getHouseholdPassbookResource(enrollment, household).orElse(null);
+        if (resource == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok()
+                /*.header("Content-Disposition", format("attachment; filename=\"%s\"", resource.getFilename()))*/
+                /*.contentType(MediaType.APPLICATION_PDF)*/
+                .body(resource);
     }
 }

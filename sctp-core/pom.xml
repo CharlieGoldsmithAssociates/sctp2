@@ -23,6 +23,26 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
+                <excludes>
+                    <exclude>**/*.pdf</exclude>
+                    <exclude>**/*.jpg</exclude>
+                    <exclude>**/*.html</exclude>
+                    <exclude>**/*.zip</exclude>
+                    <exclude>**/*.xls</exclude>
+                    <exclude>**/*.xlsx</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*.pdf</include>
+                    <include>**/*.jpg</include>
+                    <include>**/*.html</include>
+                    <include>**/*.zip</include>
+                    <include>**/*.xls</include>
+                    <include>**/*.xlsx</include>
+                </includes>
             </resource>
         </resources>
     </build>

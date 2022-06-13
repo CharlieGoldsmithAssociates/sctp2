@@ -36,7 +36,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.cga.sctp.api.core.BaseController;
 import org.cga.sctp.api.core.IncludeGeneralResponses;
-import org.cga.sctp.targeting.EnrollmentService;
+import org.cga.sctp.targeting.enrollment.EnrollmentService;
 import org.cga.sctp.targeting.enrollment.EnrollmentForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

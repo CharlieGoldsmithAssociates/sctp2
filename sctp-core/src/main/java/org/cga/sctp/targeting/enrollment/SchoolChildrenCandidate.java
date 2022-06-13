@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,78 +30,82 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting;
+package org.cga.sctp.targeting.enrollment;
 
 import org.hibernate.annotations.Immutable;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.Table;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
 
-@Immutable
+/**
+ * <p>This class represents household members that can be considered as children for the purpose
+ * of additional bonuses.</p>
+ */
 @Entity
-@Table(name = "enrollment_session_v")
-public class EnrollmentSessionView extends EnrollmentSessionObject {
-    private String taName;
-    private String closerName;
-    private String creatorName;
-    private String programName;
-    private Long householdCount;
-    private String districtName;
-    private Long reviewedHouseholds;
+@Immutable
+@Table(name = "school_children_candidates_v")
+public class SchoolChildrenCandidate {
+    @Id
+    @Column(name = "id", nullable = false)
+    private Long id;
 
-    public String getTaName() {
-        return taName;
+    @Column(name = "individual_id", nullable = false, length = 50)
+    private String individualId;
+
+    @Column(name = "name", length = 201)
+    private String name;
+
+    @Column(name = "date_of_birth", nullable = false)
+    private LocalDate dateOfBirth;
+
+    @Column(name = "age")
+    private Long age;
+
+    @Column(name = "household_id")
+    private Long householdId;
+
+    @Column(name = "created_at", nullable = false)
+    private OffsetDateTime createdAt;
+
+    @Column(name = "modified_at")
+    private OffsetDateTime modifiedAt;
+
+    public Long getId() {
+        return id;
     }
 
-    public void setTaName(String taName) {
-        this.taName = taName;
+    public String getIndividualId() {
+        return individualId;
     }
 
-    public String getCloserName() {
-        return closerName;
+    public String getName() {
+        return name;
     }
 
-    public void setCloserName(String closerName) {
-        this.closerName = closerName;
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
     }
 
-    public String getCreatorName() {
-        return creatorName;
+    public Long getAge() {
+        return age;
     }
 
-    public void setCreatorName(String creatorName) {
-        this.creatorName = creatorName;
+    public Long getHouseholdId() {
+        return householdId;
     }
 
-    public String getProgramName() {
-        return programName;
+    public OffsetDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public void setProgramName(String programName) {
-        this.programName = programName;
+    public OffsetDateTime getModifiedAt() {
+        return modifiedAt;
     }
 
-    public Long getHouseholdCount() {
-        return householdCount;
-    }
-
-    public void setHouseholdCount(Long householdCount) {
-        this.householdCount = householdCount;
-    }
-
-    public String getDistrictName() {
-        return districtName;
-    }
-
-    public void setDistrictName(String districtName) {
-        this.districtName = districtName;
-    }
-
-    public Long getReviewedHouseholds() {
-        return reviewedHouseholds;
-    }
-
-    public boolean getCanSendToTransfers() {
-        return householdCount.longValue() == reviewedHouseholds.longValue();
+    protected SchoolChildrenCandidate() {
     }
 }

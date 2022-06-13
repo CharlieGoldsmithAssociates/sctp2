@@ -30,15 +30,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting;
+package org.cga.sctp.targeting.enrollment;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
-@Repository
-interface HouseholdEnrollmentViewRepository extends JpaRepository<HouseholdEnrollmentView, Long> {
-
-    Page<HouseholdEnrollmentView> getBySessionId(Long sessionId, Pageable pageable);
+@Entity
+@Table(name = "enrollment_session")
+public class EnrollmentSession extends EnrollmentSessionObject {
 }

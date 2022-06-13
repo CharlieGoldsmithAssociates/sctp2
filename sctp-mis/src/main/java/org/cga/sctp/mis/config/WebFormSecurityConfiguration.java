@@ -60,11 +60,6 @@ public class WebFormSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Value("${server.servlet.session.cookie.name}")
     private String cookieName;
 
-    /*@Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }*/
-
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -99,6 +94,8 @@ public class WebFormSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/assets/**").permitAll()
                 .antMatchers("/auth/register", "/auth/reset/**", "/auth/captcha").permitAll()
                 .anyRequest().authenticated()
+                .and()
+                .headers().frameOptions().sameOrigin()
                 .and()
                 .formLogin(this::configureLoginForm)
                 .logout(this::configureLogout)

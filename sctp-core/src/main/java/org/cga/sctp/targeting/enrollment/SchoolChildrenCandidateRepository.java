@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,13 +30,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting;
+package org.cga.sctp.targeting.enrollment;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-@Entity
-@Table(name = "household_enrollment")
-public class HouseholdEnrollment extends HouseholdEnrollmentBase {
+import java.util.List;
 
+@Repository
+interface SchoolChildrenCandidateRepository extends JpaRepository<SchoolChildrenCandidate, Long> {
+    List<SchoolChildrenCandidate> findByHouseholdId(Long household);
 }
