@@ -39,6 +39,8 @@ import javax.validation.constraints.NotNull;
 public class TransferAgencyAssignmentForm {
     @NotNull(message = "Transfer Agency must be specified")
     private Long transferAgencyId;
+    @NotNull(message = "Program must be specified")
+    private Long programId;
     @NotNull(message = "Location must be specified")
     private Long locationId;
     @NotNull(message = "Transfer method must be specified")
@@ -50,6 +52,14 @@ public class TransferAgencyAssignmentForm {
 
     public void setTransferAgencyId(Long transferAgencyId) {
         this.transferAgencyId = transferAgencyId;
+    }
+
+    public Long getProgramId() {
+        return programId;
+    }
+
+    public void setProgramId(Long programId) {
+        this.programId = programId;
     }
 
     public Long getLocationId() {

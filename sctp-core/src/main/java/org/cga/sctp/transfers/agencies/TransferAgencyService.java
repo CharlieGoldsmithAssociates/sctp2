@@ -45,7 +45,8 @@ public interface TransferAgencyService {
      * @param transferMethod
      * @return
      */
-    TransferAgencyAssignment assignAgency(TransferAgency transferAgency,
+    TransferAgencyAssignment assignAgency(Long programId,
+                                          TransferAgency transferAgency,
                                           Location location,
                                           TransferMethod transferMethod,
                                           Long assignedBy) throws TransferAgencyAlreadyAssignedException;

@@ -56,6 +56,9 @@ public class TransferAgencyAssignment {
     private Long transferAgencyId;
 
     @Column
+    private Long programId;
+
+    @Column
     private Long assignedBy;
 
     @Column
@@ -96,6 +99,14 @@ public class TransferAgencyAssignment {
 
     public void setTransferAgencyId(Long transferAgencyId) {
         this.transferAgencyId = transferAgencyId;
+    }
+
+    public Long getProgramId() {
+        return programId;
+    }
+
+    public void setProgramId(Long programId) {
+        this.programId = programId;
     }
 
     public Long getAssignedBy() {

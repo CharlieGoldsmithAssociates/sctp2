@@ -38,6 +38,7 @@ import org.cga.sctp.location.LocationType;
 import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.mis.core.templating.Booleans;
 import org.cga.sctp.mis.core.templating.SelectOptionItem;
+import org.cga.sctp.program.ProgramService;
 import org.cga.sctp.transfers.agencies.TransferAgency;
 import org.cga.sctp.transfers.agencies.TransferAgencyAlreadyAssignedException;
 import org.cga.sctp.transfers.agencies.TransferAgencyServiceImpl;
@@ -64,6 +65,9 @@ import java.util.List;
 @Controller
 @RequestMapping("/transfers/agencies")
 public class TransferAgenciesController extends BaseController {
+
+    @Autowired
+    private ProgramService programService;
 
     @Autowired
     private TransferAgencyServiceImpl transferAgencyService;
@@ -216,6 +220,7 @@ public class TransferAgenciesController extends BaseController {
         List<Location> initialLocations = locationService.getActiveDistricts();
 
         return view("/transfers/agencies/assign")
+                .addObject("programs", programService.getActivePrograms())
                 .addObject("transferAgencies", transferAgencies)
                 .addObject("transferMethodOptions", TransferMethod.values())
                 .addObject("geolocationTypes", LocationType.values())
@@ -239,7 +244,7 @@ public class TransferAgenciesController extends BaseController {
         TransferAgency transferAgency = transferAgencyService.findActiveTransferAgencyById(form.getTransferAgencyId());
         Location location = locationService.findById(form.getLocationId());
         try {
-            transferAgencyService.assignAgency(transferAgency, location, form.getTransferMethod(), user.id());
+            transferAgencyService.assignAgency(form.getProgramId(), transferAgency, location, form.getTransferMethod(), user.id());
         } catch(TransferAgencyAlreadyAssignedException e) {
             setDangerFlashMessage("Location already has an assigned Transfer agency, please use 'Change Transfer Agency'", attributes);
             return redirect("/transfers/agencies/assign");

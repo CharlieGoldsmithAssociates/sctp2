@@ -35,6 +35,18 @@
                 <div class="content">
                     <div class="field is-horizontal">
                         <div class="field-label is-normal">
+                            <label for="" class="label">Program</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="select is-fullwidth">
+                                    {{ selectField('programId', programs, form.programId, true) }}
+                            </div>
+                        </div>
+                        {{ printFieldErrors(getFieldErrors('form', 'programId')) }}
+                    </div>
+
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
                             <label for="" class="label">Transfer Method</label>
                         </div>
                         <div class="field-body">

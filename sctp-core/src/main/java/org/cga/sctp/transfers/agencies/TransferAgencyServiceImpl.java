@@ -84,7 +84,8 @@ public class TransferAgencyServiceImpl implements TransferAgencyService {
      * @param assignedBy user who assigned the agency
      * @return transfer agency assignment entity
      */
-    public TransferAgencyAssignment assignAgency(TransferAgency transferAgency,
+    public TransferAgencyAssignment assignAgency(Long programId,
+                                                 TransferAgency transferAgency,
                                                  Location location,
                                                  TransferMethod transferMethod,
                                                  Long assignedBy) throws TransferAgencyAlreadyAssignedException {
@@ -94,6 +95,7 @@ public class TransferAgencyServiceImpl implements TransferAgencyService {
         }
 
         TransferAgencyAssignment agencyAssignment = new TransferAgencyAssignment();
+        agencyAssignment.setProgramId(programId);
         agencyAssignment.setTransferAgencyId(transferAgency.getId());
         agencyAssignment.setLocationId(location.getId());
         agencyAssignment.setTransferMethod(transferMethod);
