@@ -55,70 +55,99 @@
                     </ul>
                 </div>
 
-                <div class="container section is-fluid tab-content-container">
+                <div class="container section is-fluid tab-content-container" hx-ext="client-side-templates">
                     <div id="general" class="content-tab">
                         {{ showMessages(null, message('enrollment.summary.general.info'), null, null) }}
-                        <div class="columns">
+                        <div id="hh-summary" class="columns">
                             <div class="column">
-                                <div class="info-list">
-                                    <div class="info-row">
-                                        <div class="item-label">TA</div>
-                                        <div class="item-value">{{ details.taName }}</div>
-                                    </div>
-                                    <div class="info-row">
-                                        <div class="item-label">Village Cluster</div>
-                                        <div class="item-value">{{ details.clusterName }}</div>
-                                    </div>
-                                    <div class="info-row">
-                                        <div class="item-label">Pre-Printed Num</div>
-                                        <div class="item-value">{{ details.formNumber }}</div>
-                                    </div>
-
-                                </div>
+                                <img src="/assets/img/tailspin.svg" />
                             </div>
+                        </div>
+                        <template id="summaryTpl">
+                            {% verbatim %}
+                                <div class="column">
+                                    <div class="info-list">
+                                        <div class="info-row">
+                                            <div class="item-label">TA</div>
+                                            <div class="item-value">{{ taName }}</div>
+                                        </div>
+                                        <div class="info-row">
+                                            <div class="item-label">Village Cluster</div>
+                                            <div class="item-value">{{ clusterName }}</div>
+                                        </div>
+                                        <div class="info-row">
+                                            <div class="item-label">Pre-Printed Num</div>
+                                            <div class="item-value">{{ formNumber }}</div>
+                                        </div>
 
-                            <div class="column">
-                                <div class="info-list">
-                                    <div class="info-row">
-                                        <div class="item-label">Household Code</div>
-                                        <div class="item-value">ML-{{ details.mlCode }}</div>
-                                    </div>
-                                    <div class="info-row">
-                                        <div class="item-label">Household Name</div>
-                                        <div class="item-value">{{ details.houseHoldHead ? details.householdHead : 'N/A' }}</div>
-                                    </div>
-                                    <div class="info-row">
-                                        <div class="item-label">National ID Number</div>
-                                        <div class="item-value">-</div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="column">
-                                <div class="info-list">
-                                    <div class="info-row">
-                                        <div class="item-label">Total Household Members</div>
-                                        <div class="item-value">{{ details.memberCount | numberformat("#,###") }}</div>
-                                    </div>
-                                    <div class="info-row">
-                                        <div class="item-label">Total Children in Primary</div>
-                                        <div class="item-value">{{ details.primaryChildren | numberformat("#,###") }}</div>
-                                    </div>
-                                    <div class="info-row">
-                                        <div class="item-label">Total Children in Secondary</div>
-                                        <div class="item-value">{{ details.secondaryChildren | numberformat("#,###") }}</div>
+                                <div class="column">
+                                    <div class="info-list">
+                                        <div class="info-row">
+                                            <div class="item-label">Household Code</div>
+                                            <div class="item-value">ML-{{ mlCode }}</div>
+                                        </div>
+                                        <div class="info-row">
+                                            <div class="item-label">Household Name</div>
+                                            <div class="item-value">
+                                                {{houseHoldHead}}
+                                                {{^houseHoldHead}}
+                                                <span class="has-text-danger-dark">Not available</span>
+                                                {{/houseHoldHead}}
+                                            </div>
+                                        </div>
+                                        <div class="info-row">
+                                            <div class="item-label">National ID Number</div>
+                                            <div class="item-value">
+                                                {{ individualId }}
+                                                {{^individualId}}
+                                                <span class="has-text-danger-dark">Not available</span>
+                                                {{/individualId}}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="column">
-                                <div class="info-list">
-                                    <div class="info-row">
-                                        <div class="item-label">Total Enrolled Children Age 6-15</div>
-                                        <div class="item-value">{{ details.totalChildren }}</div>
+                                <div class="column">
+                                    <div class="info-list">
+                                        <div class="info-row">
+                                            <div class="item-label">Total Household Members</div>
+                                            <div class="item-value">{{ memberCount }}</div>
+                                        </div>
+                                        <div class="info-row">
+                                            <div class="item-label">Total Children in Primary</div>
+                                            <div class="item-value">{{ primaryChildren }}</div>
+                                        </div>
+                                        <div class="info-row">
+                                            <div class="item-label">Total Children in Secondary</div>
+                                            <div class="item-value">{{ secondaryChildren }}</div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+
+                                <div class="column">
+                                    <div class="info-list">
+                                        <div class="info-row">
+                                            <div class="item-label">Total Enrolled Children Age 6-15</div>
+                                            <div class="item-value">{{ childEnrollment6to15 }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                             {% endverbatim %}
+                        </template>
+
+                        <div class="buttons iis-right mt-5">
+                            <button id="refreshSummary"
+                                    hx-get="/targeting/enrolment/summary?household={{ details.householdId }}&amp;enrollment={{ sessionId }}"
+                                    hx-swap="innerHTML"
+                                    hx-target="#hh-summary"
+                                    hx-trigger="load, click"
+                                    mustache-template="summaryTpl"
+                                    class="button is-info">Refresh&nbsp;&nbsp;
+                                <img class="htmx-indicator" width="20" height="20" src="/assets/img/tailspin-white.svg" />
+                            </button>
                         </div>
                     </div>
 
@@ -208,7 +237,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="buttons iis-right mt-5">
+                        <div class="buttons is-right mt-5">
                             <button id="mainReceiverLoad"
                                     class="button is-info"
                                     onclick="loadMainReceiver()">Reload</button>
@@ -347,7 +376,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="buttons iis-right mt-5">
+                        <div class="buttons is-right mt-5">
                             <button id="altReceiverLoad"
                                     class="button is-info"
                                     onclick="loadAltReceiver()">Reload</button>
@@ -410,7 +439,7 @@
                                     {% endfor %}
                             </tbody>
                         </table>
-                        <div class="buttons iis-right mt-5">
+                        <div class="buttons is-right mt-5">
                             <button id="schoolChildrenLoad"
                                     class="button is-info"
                                     onclick="loadSchoolChildren()">Reload</button>

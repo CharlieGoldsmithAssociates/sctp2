@@ -62,10 +62,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 @Controller
 @RequestMapping("/targeting/enrolment")
 public class EnrollmentController extends SecuredBaseController {
+    private static final HouseholdEnrollmentSummary EMPTY_SUMMARY = new HouseholdEnrollmentSummary();
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -219,8 +221,14 @@ public class EnrollmentController extends SecuredBaseController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok()
-                /*.header("Content-Disposition", format("attachment; filename=\"%s\"", resource.getFilename()))*/
-                /*.contentType(MediaType.APPLICATION_PDF)*/
                 .body(resource);
+    }
+
+    @GetMapping(value = "/summary", produces = MediaType.APPLICATION_JSON_VALUE)
+    @AdminAndStandardAccessOnly
+    ResponseEntity<HouseholdEnrollmentSummary> getHouseholdEnrollmentSummary(@RequestParam("household") Long household, @RequestParam("enrollment") Long enrollment) {
+        HouseholdEnrollmentSummary summary = enrollmentService.getHouseholdEnrollmentSummary(enrollment, household);
+        return ResponseEntity.ok()
+                .body(Objects.requireNonNullElse(summary, EMPTY_SUMMARY));
     }
 }

@@ -79,6 +79,9 @@ public class EnrollmentService extends TransactionalService {
     @Autowired
     private SchoolChildrenCandidateRepository schoolChildrenCandidateRepository;
 
+    @Autowired
+    private HouseholdEnrollmentSummaryRepository householdEnrollmentSummaryRepository;
+
     @Value("${pictures:beneficiary-images}")
     private String beneficiaryPictureUploadDirectory;
 
@@ -234,6 +237,17 @@ public class EnrollmentService extends TransactionalService {
      */
     public Optional<Resource> getHouseholdPassbookResource(Long enrollment, Long household) {
         //HouseholdPassbook
+        /*try (OutputStream os = new FileOutputStream(outputPdf)) {
+            PdfRendererBuilder builder = new PdfRendererBuilder();
+            builder.withUri(outputPdf);
+            builder.toStream(os);
+            builder.withW3cDocument(new W3CDom().fromJsoup(doc), "/");
+            builder.run();
+        }*/
         return Optional.of(passbookTemplate);
+    }
+
+    public HouseholdEnrollmentSummary getHouseholdEnrollmentSummary(Long enrollment, Long household) {
+        return householdEnrollmentSummaryRepository.getBySessionIdAndHouseholdId(enrollment, household);
     }
 }
