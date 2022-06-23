@@ -1,0 +1,37 @@
+{% extends "../../base" %}
+{% import "../../../utils/form" %}
+{% block contextMenu %}
+<div class="container context-nav-container">
+    <div class="buttons is-right">
+        <a href="{{ href('/transfers/parameters/new') }}" class="button is-primary">Add New</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+<div class="card no-overlap">
+    <header class="card-header">
+        <p class="card-header-title">View Transfer Parameter</p>
+    </header>
+    <div class="card-content">
+        <div class="display-content">
+            <div class="field-display">
+                <label for="">Parameter Title</label>
+                <span>{{ transferParameter.title }}</span>
+            </div>
+        </div>
+
+        <div class="household-subsidy-parameters">
+            <p class="notification">This Parameter is not Linked to any Subsidy Calculation Options</p>
+            <button>Add Calculation Option</button>
+        </div>
+        <div class="education-bonus-parameters">
+            <p class="notification">This Parameter is not Linked to any Education Bonus options</p>
+            <button>Add Education Bonuses</button>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}

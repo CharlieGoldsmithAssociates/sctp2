@@ -33,16 +33,82 @@
 package org.cga.sctp.mis.transfers.parameters;
 
 import org.cga.sctp.mis.core.BaseController;
+import org.cga.sctp.mis.core.templating.Booleans;
+import org.cga.sctp.transfers.parameters.TransferParameter;
+import org.cga.sctp.transfers.parameters.TransferParametersRepository;
+import org.cga.sctp.user.AdminAndStandardAccessOnly;
+import org.cga.sctp.user.AuthenticatedUser;
+import org.cga.sctp.user.AuthenticatedUserDetails;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/transfers/parameters")
 public class TransferParametersController extends BaseController {
+
+    @Autowired
+    private TransferParametersRepository transferParameterRepository;
+
     @GetMapping
+    @AdminAndStandardAccessOnly
     public ModelAndView getParametersList() {
-        return view("transfers/parameters/index");
+        List<TransferParameter> transferParameters = transferParameterRepository.findAll();
+        return view("transfers/parameters/index")
+                .addObject("transferParameters", transferParameters);
+    }
+
+    @GetMapping("/view/{parameter-id}")
+    @AdminAndStandardAccessOnly
+    public ModelAndView getParametersList(@PathVariable("parameter-id") Long parameterId) {
+        Optional<TransferParameter> transferParameterOptional = transferParameterRepository.findById(parameterId);
+        if (transferParameterOptional.isEmpty()) {
+            return redirect("/transfers/parameters");
+        }
+
+        return view("transfers/parameters/view")
+                .addObject("transferParameter", transferParameterOptional.get());
+    }
+
+    @GetMapping("/new")
+    @AdminAndStandardAccessOnly
+    public ModelAndView viewNew() {
+        return view("transfers/parameters/new")
+                .addObject("booleans", Booleans.VALUES);
+    }
+
+    @PostMapping("/new")
+    @AdminAndStandardAccessOnly
+    public ModelAndView processAdd(@AuthenticatedUserDetails AuthenticatedUser user,
+                                   @Validated @ModelAttribute TransferParameterForm form,
+                                   BindingResult result,
+                                   RedirectAttributes attributes) {
+        if (result.hasErrors()) {
+            setWarningFlashMessage("Failed to Save Parameter. Please fix the errors on the form", attributes);
+            return view("/transfers/parameters/new")
+                    .addObject("booleans", Booleans.VALUES);
+        }
+
+        TransferParameter transferParameter = new TransferParameter();
+        transferParameter.setTitle(form.getTitle());
+        transferParameter.setActive(form.getActive().value);
+        transferParameter.setCreatedBy(user.id());
+        transferParameter.setCreatedAt(LocalDateTime.now());
+        transferParameter.setUpdatedAt(LocalDateTime.now());
+
+        if (transferParameterRepository.save(transferParameter) != null) {
+            return redirect(format("/transfers/parameters/add/%s/household-parameters", transferParameter.getId()));
+        }
+
+        return view("transfers/parameters/new")
+                .addObject("booleans", Booleans.VALUES);
     }
 }

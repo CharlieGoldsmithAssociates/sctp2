@@ -1,0 +1,74 @@
+    {% extends "../../base" %}
+        {% import "../../../utils/form" %}
+        {% block contextMenu %}
+        <div class="container context-nav-container">
+            <div class="buttons is-right">
+                <a href="{{ href('/transfers/parameters/households/new') }}" class="button is-primary">Add New</a>
+            </div>
+        </div>
+        {% endblock %}
+
+    {% block content %}
+
+    <div class="container">
+        <div class="card no-overlap">
+            <header class="card-header">
+                <p class="card-header-title">New Transfer Parameter</p>
+            </header>
+            <div class="card-content">
+                <form method="post"
+                      enctype="application/x-www-form-urlencoded"
+                      action="/transfers/parameters/new">
+                    {{ csrf(_csrf) }}
+                    <div class="content">
+                        <div class="field is-horizontal">
+                            <div class="field-label is-normal">
+                                <label class="label is-required">Title</label>
+                            </div>
+                            <div class="field-body">
+                                <div class="field">
+                                    <div class="control">
+                                            {{ textField('title', form.title) }}
+                                    </div>
+                                    {{ printFieldErrors(getFieldErrors('form', 'title')) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="field is-horizontal">
+                            <div class="field-label is-normal">
+                                <label class="label is-required">Active</label>
+                            </div>
+                            <div class="field-body">
+                                <div class="field">
+                                    <div class="control">
+                                        <div class="select is-fullwidth">
+                                                {{ selectField('active', booleans, form.active, true) }}
+                                        </div>
+                                    </div>
+                                    {{ printFieldErrors(getFieldErrors('form', 'active')) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="field is-horizontal">
+                            <div class="field-label">
+                                <!-- Left empty for spacing -->
+                            </div>
+                            <div class="field-body">
+                                <div class="field">
+                                    <div class="control">
+                                        <div class="buttons is-right">
+                                            <button class="button is-primary">Save and Define Parameters</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
