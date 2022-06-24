@@ -2,6 +2,9 @@
 
         {% block contextMenu %}
         <div class="container context-nav-container">
+            <div class="buttons is-right">
+                <a href="{{ href('/transfers/parameters/new') }}" class="button is-primary">Add New Parameter</a>
+            </div>
         </div>
         {% endblock %}
 
@@ -13,30 +16,33 @@
             <p class="card-header-title">Transfer Parameters</p>
         </header>
         <div class="card-content">
-            <div class="columns is-mobile">
-                <div class="column">
-                    <h3 class="subtitle"><i class="fa fa-house"></i>&nbsp;Base Household Transfer</h3>
-                    <p>
-                        Parameters for how much should be added to Beneficiary Households based on number of members in the household.
-                    </p>
-                    <div class="buttons is-right">
-                        <a href="{{ href('parameters/households') }}" class="button is-primary">View All</a>
-                        <a href="{{ href('parameters/households/new') }}" class="button is-primary">Add New</a>
-                    </div>
-                </div>
-                <div class="column">
-                    <h3 class="subtitle"><i class="fa fa-books"></i>&nbsp;Education Bonus</h3>
-                    <p>
-                        Parameters for how much should be added to Beneficiary Households based on School going children
-                    </p>
-                    <div class="buttons is-right">
-                        <a href="{{ href('parameters/education') }}" class="button is-primary">View All</a>
-                        <a href="{{ href('parameters/education/new') }}" class="button is-primary">Add New</a>
-                    </div>
-                </div>
-            </div>
-            <div class="columns">
-            </div>
+            <table class="table is-striped is-fullwidth">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Active</th>
+                    <th>Usage Count</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for p in transferParameters %}
+                <tr>
+                    <td>{{ p.id }}</td>
+                    <td>{{ p.title }}</td>
+                    <td>{{ p.active }}</td>
+                    <td>{{ p.usageCount }}</td>
+                    <td>
+                        <a href="{{ href("/transfers/parameters/view/" + p.id) }}"
+                            class="button is-primary">View</a>
+                        <a href="{{ href("/transfers/parameters/delete/" + p.id) }}"
+                            class="button is-danger">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
     </div>
