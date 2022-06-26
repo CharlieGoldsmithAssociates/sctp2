@@ -14,6 +14,13 @@
             padding-bottom: 16px;
             margin: 0px !important;
         }
+        .receiver-image {
+            width: 512px !important;
+            height: 412px !important;
+        }
+        .htmx-indicator {
+            display: none;
+        }
     {% endblock %}
 
     {% block contextMenu %}
@@ -24,7 +31,7 @@
         <div class="level">
             <div class="level-left">
                 <div class="level-item">
-                    <a href="{{ returnUrl }}" class="button is-danger">
+                    <a href="/targeting/enrolment/details?session={{ sessionId }}" class="button is-danger">
                         <span class="icon-text">
                             <span class="icon">
                                 <i class="fa fa-chevron-left"></i>
@@ -42,7 +49,7 @@
     <div>
         <div class="card no-overlap">
             <header class="card-header">
-                <p class="card-header-title">Enrolled / Household - ML- {{ details.mlCode }}</p>
+                <p class="card-header-title">Household Enrollment Details</p>
             </header>
             <div class="card-content">
                 <div class="tabs">
@@ -138,9 +145,9 @@
                              {% endverbatim %}
                         </template>
 
-                        <div class="buttons iis-right mt-5">
+                        <div class="buttons is-right mt-5">
                             <button id="refreshSummary"
-                                    hx-get="/targeting/enrolment/summary?household={{ details.householdId }}&amp;enrollment={{ sessionId }}"
+                                    hx-get="/targeting/enrolment/summary?household={{ householdId }}&amp;enrollment={{ sessionId }}"
                                     hx-swap="innerHTML"
                                     hx-target="#hh-summary"
                                     hx-trigger="load, click"
@@ -153,94 +160,77 @@
 
                     <div id="main-receiver" class="content-tab" style="display:none">
                         {{ showMessages(null, message('enrollment.summary.receiver.main.info'), null, null) }}
-                        <div class="columns">
-                            <div class="column is-5">
+                        <div id="hh-primary-recipient" class="columns">
+                            <div class="column">
+                                <img src="/assets/img/tailspin.svg" />
+                            </div>
+                        </div>
+                        <template id="tpl-primary-recipient">
+                            {% verbatim %}
+                            <div class="column is-3">
                                 <div class="card-image">
                                     <figure class="image is-4by3">
-                                        <img id="main-photo" class="p4p obj-fit-contain" src="/assets/img/user-svg.svg" alt="Placeholder image" />
+                                        <img id="main-photo"
+                                             class="receiver-image p4p obj-fit-contain"
+                                             src="/targeting/enrolment/recipient-photo?photo={{photo}}{{^photo}}na{{/photo}}"
+                                             alt="Main receiver photo" />
                                     </figure>
                                 </div>
                             </div>
-                            <div class="card-content">
-                                <div class="columns">
-                                    <div class="column is-6">
-                                        <label class="label">HouseHold Member</label>
-                                    </div>
-                                    <div class="column is-12">
-                                        <div class="field">
-                                            <div class="control">
-                                                <div class="select is-fullwidth">
-                                                        {{ selectField('mainReceiver', individuals, enrolmentForm.mainReceiver, true) }}
-                                                </div>
-                                            </div>
-                                            {{ printFieldErrors(getFieldErrors('enrolmentForm', 'mainReceiver')) }}
+                            <div class="column is-4">
+                                <div class="info-list">
+                                    <div class="info-row">
+                                        <div class="item-label">Household member</div>
+                                        <div class="item-value">
+                                            {{ firstName }} {{ lastName }}
+                                            {{^firstName}}
+                                            <span class="has-text-danger-dark">Not available</span>
+                                            {{/firstName}}
                                         </div>
                                     </div>
-                                </div>
-                                <div class="columns">
-                                    <div class="column is-6">
-                                        <label class="label">Gender</label>
-                                    </div>
-                                    <div class="column is-12">
-                                        <div class="field">
-                                            <div class="control">
-                                                <div class="select is-fullwidth">
-                                                        {{ selectField('mainGender', gender, enrolmentForm.mainGender, true) }}
-                                                </div>
-                                            </div>
+                                    <div class="info-row">
+                                        <div class="item-label">Gender</div>
+                                        <div class="item-value">
+                                            {{ gender }}
+                                            {{^gender}}
+                                            <span class="has-text-danger-dark">Not available</span>
+                                            {{/gender}}
                                         </div>
                                     </div>
-                                </div>
-                                <div class="columns">
-                                    <div class="column is-6">
-                                        <label class="label">Date of Birth</label>
-                                    </div>
-                                    <div class="column is-12">
-                                        <div class="field">
-                                            <div class="control">
-                                                <div class=" is-fullwidth">
-                                                        {{ dateField('mainDOB', enrolmentForm.mainDOB, true) }}
-                                                </div>
-                                            </div>
-                                            {{ printFieldErrors(getFieldErrors('enrolmentForm', 'mainDOB')) }}
+                                    <div class="info-row">
+                                        <div class="item-label">Date of birth</div>
+                                        <div class="item-value">
+                                            {{ dateOfBirth }}
+                                            {{^dateOfBirth}}
+                                            <span class="has-text-danger-dark">Not available</span>
+                                            {{/dateOfBirth}}
                                         </div>
                                     </div>
-                                </div>
-                                <div class="columns">
-                                    <div class="column is-6">
-                                        <label class="label">National ID</label>
-                                    </div>
-                                    <div class="column is-6">
-                                        <input id="mainNationalId" name="mainNationalId" type="text" minlength="1" maxlength="100" class="input" disabled>
-                                    </div>
-                                </div>
-                                <div class="columns">
-                                    <div class="column">
-                                        <button id="modal-btn" class="button is-primary modal-button" data-target="modal" aria-haspopup="true">Take picture</button>
-                                    </div>
-                                    <div class="column">
-                                        <div class="file">
-                                            <label class="file-label">
-                                                <input class="file-input" type="file" accept="image/*" name="alt-photo" onchange="loadMainFile(event)">
-                                                <span class="file-cta">
-                                              <span class="file-icon">
-                                                <i class="fas fa-upload"></i>
-                                              </span>
-                                              <span class="file-label">
-                                                Choose a file…
-                                              </span>
-                                            </span>
-                                            </label>
+                                    <div class="info-row">
+                                        <div class="item-label">National Id</div>
+                                        <div class="item-value">
+                                            {{ individualId }}
+                                            {{^individualId}}
+                                            <span class="has-text-danger-dark">Not available</span>
+                                            {{/individualId}}
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
-                        </div>
+                            <div class="divider is-vertical">UPDATE</div>
+                            <div class="column is-5">
+
+                            </div>
+                            {% endverbatim %}
+                        </template>
                         <div class="buttons is-right mt-5">
                             <button id="mainReceiverLoad"
-                                    class="button is-info"
-                                    onclick="loadMainReceiver()">Reload</button>
+                                    hx-get="/targeting/enrolment/primary-recipient?household={{ householdId }}"
+                                    hx-swap="innerHTML"
+                                    hx-target="#hh-primary-recipient"
+                                    hx-trigger="load, click"
+                                    mustache-template="tpl-primary-recipient"
+                                    class="button is-info">Reload <img class="htmx-indicator" width="20" height="20" src="/assets/img/tailspin-white.svg" /></button>
                             <button id="mainReceiverSend"
                                     class="button is-primary"
                                     onclick="saveMainReceiver()">Save</button>
@@ -253,7 +243,10 @@
                             <div class="column is-5">
                                 <div class="card-image">
                                     <figure class="image is-4by3">
-                                        <img id="alt-photo" class="p4p obj-fit-contain" src="/assets/img/user-svg.svg" alt="Placeholder image">
+                                        <img id="alt-photo"
+                                             class="receiver-image obj-fit-contain"
+                                             src="/assets/img/user-svg.svg"
+                                             alt="Placeholder image" />
                                     </figure>
                                 </div>
                             </div>

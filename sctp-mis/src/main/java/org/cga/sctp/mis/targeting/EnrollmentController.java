@@ -68,6 +68,8 @@ import java.util.Objects;
 @RequestMapping("/targeting/enrolment")
 public class EnrollmentController extends SecuredBaseController {
     private static final HouseholdEnrollmentSummary EMPTY_SUMMARY = new HouseholdEnrollmentSummary();
+    private static final HouseholdRecipientSummary EMPTY_RECIPIENT = new HouseholdRecipientSummary() {
+    };
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -106,41 +108,44 @@ public class EnrollmentController extends SecuredBaseController {
                 .addObject("households", households);
     }
 
+
     @GetMapping("/details")
     @AdminAndStandardAccessOnly
     public ModelAndView details(@RequestParam("id") Long householdId,
                                 @RequestParam("session") Long sessionId, RedirectAttributes attributes,
                                 @ModelAttribute("enrollmentForm") EnrollmentForm enrollmentForm) {
 
-        HouseholdEnrollment enrollmentHousehold = enrollmentService.findEnrollmentHousehold(sessionId, householdId);
+        HouseholdEnrollment householdEnrollment = enrollmentService.findEnrollmentHousehold(sessionId, householdId);
 
-        if (enrollmentHousehold == null) {
+        if (householdEnrollment == null) {
             setDangerFlashMessage("Enrollment session not found.", attributes);
-            return redirect("/targeting/enrolment/households?session=" + sessionId);
+            return redirect("/targeting/enrolment");
         }
 
-        HouseholdDetails householdDetails = enrollmentService.getHouseholdDetails(householdId);
+        /*HouseholdDetails householdDetails = enrollmentService.getHouseholdDetails(householdId);
         if (householdDetails == null) {
             setDangerFlashMessage("Enrollment household not found.", attributes);
             return redirect("/targeting/enrolment/households?session=" + sessionId);
-        }
-
-        List<Individual> individuals = beneficiaryService.getEligibleRecipients(householdId);
-        List<Individual> children = beneficiaryService.findSchoolChildren(householdId);
+        }*/
+/*
         List<SchoolsView> schools = schoolService.getSchools();
+        List<Individual> children = beneficiaryService.findSchoolChildren(householdId);
+        List<Individual> individuals = beneficiaryService.getEligibleRecipients(householdId);
 
-        String returnUrl = "households?session=" + sessionId;
+        String returnUrl = "households?session=" + sessionId;*/
 
         return view("targeting/enrolment/details")
+                .addObject("enrollment", householdEnrollment)
                 .addObject("sessionId", sessionId)
-                .addObject("details", householdDetails)
+                .addObject("householdId", householdId)
+/*                .addObject("details", householdDetails)*/
                 .addObject("gender", Gender.VALUES)
-                .addObject("children", children)
+/*                .addObject("children", children)*/
                 .addObject("educationLevel", EducationLevel.VALUES)
                 .addObject("gradeLevel", GradeLevel.VALUES)
-                .addObject("returnUrl", returnUrl)
+/*                .addObject("returnUrl", returnUrl)
                 .addObject("schools", schools)
-                .addObject("individuals", individuals);
+                .addObject("individuals", individuals)*/;
     }
 
     @RequestMapping(value = "/enroll", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -230,5 +235,30 @@ public class EnrollmentController extends SecuredBaseController {
         HouseholdEnrollmentSummary summary = enrollmentService.getHouseholdEnrollmentSummary(enrollment, household);
         return ResponseEntity.ok()
                 .body(Objects.requireNonNullElse(summary, EMPTY_SUMMARY));
+    }
+
+    private ResponseEntity<HouseholdRecipientSummary> getHouseholdRecipient(Long household, boolean primary) {
+        HouseholdRecipientSummary recipient = primary
+                ? enrollmentService.getHouseholdPrimaryRecipient(household)
+                : enrollmentService.getHouseholdSecondaryRecipient(household);
+        return ResponseEntity.ok(Objects.requireNonNullElse(recipient, EMPTY_RECIPIENT));
+    }
+
+    @GetMapping(value = "/primary-recipient", produces = MediaType.APPLICATION_JSON_VALUE)
+    @AdminAndStandardAccessOnly
+    ResponseEntity<HouseholdRecipientSummary> getHouseholdPrimaryRecipient(@RequestParam("household") Long household) {
+        return getHouseholdRecipient(household, true);
+    }
+
+    @GetMapping(value = "/secondary-recipient", produces = MediaType.APPLICATION_JSON_VALUE)
+    @AdminAndStandardAccessOnly
+    ResponseEntity<HouseholdRecipientSummary> getHouseholdSecondaryRecipient(@RequestParam("household") Long household) {
+        return getHouseholdRecipient(household, false);
+    }
+
+    @GetMapping(value = "/recipient-photo")
+    @AdminAndStandardAccessOnly
+    ResponseEntity<Resource> getHouseholdRecipientPhoto(@RequestParam("photo") String imageId) {
+        return ResponseEntity.notFound().build();
     }
 }

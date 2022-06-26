@@ -98,6 +98,9 @@ public class HouseholdEnrollmentSummary {
     @Column(name = "individual_id", length = 50)
     private String individualId;
 
+    @Column(name = "member_code")
+    private String memberCode;
+
     @Column(name = "member_count")
     private Long memberCount;
 
@@ -180,6 +183,10 @@ public class HouseholdEnrollmentSummary {
 
     public String getIndividualId() {
         return individualId;
+    }
+
+    public String getMemberCode() {
+        return memberCode;
     }
 
     public Long getMemberCount() {

@@ -77,6 +77,12 @@ public class EnrollmentService extends TransactionalService {
     private SchoolEnrolledRepository schoolEnrolledRepository;
 
     @Autowired
+    private MainHouseholdRecipientRepository mainHouseholdRecipientRepository;
+
+    @Autowired
+    private AlternateHouseholdRecipientRepository alternateHouseholdRecipientRepository;
+
+    @Autowired
     private SchoolChildrenCandidateRepository schoolChildrenCandidateRepository;
 
     @Autowired
@@ -249,5 +255,13 @@ public class EnrollmentService extends TransactionalService {
 
     public HouseholdEnrollmentSummary getHouseholdEnrollmentSummary(Long enrollment, Long household) {
         return householdEnrollmentSummaryRepository.getBySessionIdAndHouseholdId(enrollment, household);
+    }
+
+    public MainHouseholdRecipient getHouseholdPrimaryRecipient(Long householdId) {
+        return mainHouseholdRecipientRepository.getByHouseholdId(householdId);
+    }
+
+    public MainHouseholdRecipient getHouseholdSecondaryRecipient(Long householdId) {
+        return alternateHouseholdRecipientRepository.getByHouseholdId(householdId);
     }
 }
