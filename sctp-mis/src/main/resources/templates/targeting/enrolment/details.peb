@@ -18,6 +18,10 @@
             width: 512px !important;
             height: 412px !important;
         }
+        .preview-image {
+            width: 250px !important;
+            height: 250px !important;
+        }
         .htmx-indicator {
             display: none;
         }
@@ -31,7 +35,7 @@
         <div class="level">
             <div class="level-left">
                 <div class="level-item">
-                    <a href="/targeting/enrolment/details?session={{ sessionId }}" class="button is-danger">
+                    <a href="/targeting/enrolment/households?session={{ sessionId }}" class="button is-danger">
                         <span class="icon-text">
                             <span class="icon">
                                 <i class="fa fa-chevron-left"></i>
@@ -160,80 +164,132 @@
 
                     <div id="main-receiver" class="content-tab" style="display:none">
                         {{ showMessages(null, message('enrollment.summary.receiver.main.info'), null, null) }}
-                        <div id="hh-primary-recipient" class="columns">
-                            <div class="column">
+                        <div class="columns">
+                            <div id="hh-primary-recipient" class="column is-6">
+                                <img src="/assets/img/tailspin.svg" />
+                            </div>
+                            <div class="divider is-vertical">UPDATE</div>
+                            <div id="hh-primary-recipient-update" class="column is-5">
                                 <img src="/assets/img/tailspin.svg" />
                             </div>
                         </div>
                         <template id="tpl-primary-recipient">
                             {% verbatim %}
-                            <div class="column is-3">
-                                <div class="card-image">
-                                    <figure class="image is-4by3">
+                                <div class="columns is-vcentered">
+                                    <div class="column is-6">
+                                        {{#photo}}
                                         <img id="main-photo"
                                              class="receiver-image p4p obj-fit-contain"
-                                             src="/targeting/enrolment/recipient-photo?photo={{photo}}{{^photo}}na{{/photo}}"
+                                             src="/targeting/enrolment/recipient-photo?photo={{photo}}"
                                              alt="Main receiver photo" />
-                                    </figure>
+                                        {{/photo}}
+                                        {{^photo}}
+                                        <img id="main-photo"
+                                             class="receiver-image p4p obj-fit-contain"
+                                             src="/assets/img/user-svg.svg"
+                                             alt="Main receiver photo" />
+                                        {{/photo}}
+                                    </div>
+                                    <div class="column is-6">
+                                        <div class="info-list">
+                                            <div class="info-row">
+                                                <div class="item-label">Household member</div>
+                                                <div class="item-value">
+                                                    {{ firstName }} {{ lastName }}
+                                                    {{^firstName}}
+                                                    <span class="has-text-danger-dark">Not available</span>
+                                                    {{/firstName}}
+                                                </div>
+                                            </div>
+                                            <div class="info-row">
+                                                <div class="item-label">Gender</div>
+                                                <div class="item-value">
+                                                    {{ gender }}
+                                                    {{^gender}}
+                                                    <span class="has-text-danger-dark">Not available</span>
+                                                    {{/gender}}
+                                                </div>
+                                            </div>
+                                            <div class="info-row">
+                                                <div class="item-label">Date of birth</div>
+                                                <div class="item-value">
+                                                    {{ dateOfBirth }}
+                                                    {{^dateOfBirth}}
+                                                    <span class="has-text-danger-dark">Not available</span>
+                                                    {{/dateOfBirth}}
+                                                </div>
+                                            </div>
+                                            <div class="info-row">
+                                                <div class="item-label">National Id</div>
+                                                <div class="item-value">
+                                                    {{ individualId }}
+                                                    {{^individualId}}
+                                                    <span class="has-text-danger-dark">Not available</span>
+                                                    {{/individualId}}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="column is-4">
-                                <div class="info-list">
-                                    <div class="info-row">
-                                        <div class="item-label">Household member</div>
-                                        <div class="item-value">
-                                            {{ firstName }} {{ lastName }}
-                                            {{^firstName}}
-                                            <span class="has-text-danger-dark">Not available</span>
-                                            {{/firstName}}
-                                        </div>
-                                    </div>
-                                    <div class="info-row">
-                                        <div class="item-label">Gender</div>
-                                        <div class="item-value">
-                                            {{ gender }}
-                                            {{^gender}}
-                                            <span class="has-text-danger-dark">Not available</span>
-                                            {{/gender}}
-                                        </div>
-                                    </div>
-                                    <div class="info-row">
-                                        <div class="item-label">Date of birth</div>
-                                        <div class="item-value">
-                                            {{ dateOfBirth }}
-                                            {{^dateOfBirth}}
-                                            <span class="has-text-danger-dark">Not available</span>
-                                            {{/dateOfBirth}}
-                                        </div>
-                                    </div>
-                                    <div class="info-row">
-                                        <div class="item-label">National Id</div>
-                                        <div class="item-value">
-                                            {{ individualId }}
-                                            {{^individualId}}
-                                            <span class="has-text-danger-dark">Not available</span>
-                                            {{/individualId}}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="divider is-vertical">UPDATE</div>
-                            <div class="column is-5">
-
-                            </div>
                             {% endverbatim %}
                         </template>
-                        <div class="buttons is-right mt-5">
-                            <button id="mainReceiverLoad"
-                                    hx-get="/targeting/enrolment/primary-recipient?household={{ householdId }}"
-                                    hx-swap="innerHTML"
-                                    hx-target="#hh-primary-recipient"
-                                    hx-trigger="load, click"
-                                    mustache-template="tpl-primary-recipient"
-                                    class="button is-info">Reload <img class="htmx-indicator" width="20" height="20" src="/assets/img/tailspin-white.svg" /></button>
-                            <button id="mainReceiverSend"
-                                    class="button is-primary"
-                                    onclick="saveMainReceiver()">Save</button>
+                        <template id="tpl-primary-recipient-update">
+                            {% verbatim %}
+                                <div class="columns">
+                                    <div class="column">
+                                        <div class="field">
+                                            <label class="label">Select new main recipient</label>
+                                            <div class="control is-expanded">
+                                                <div class="select is-fullwidth">
+                                                    <select id="main-candidates" required="required">
+                                                        <option disabled="disabled">Select household member</option>
+                                                        {{#candidates}}<option value="{{id}}">{{name}} {{gender}} {{age}} yrs</option> {{/candidates}}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="field ">
+                                            <label class="label">Update recipient photo</label>
+                                            <div class="control is-expanded">
+                                                <img id="main-preview-photo"
+                                                     class="preview-image obj-fit-contain"
+                                                     src="/assets/img/user-svg.svg" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- insert here -->
+                                <div class="columns">
+                                    <div class="column">
+                                        <button class="button is-primary">Change</button>
+                                    </div>
+                                </div>
+                            {% endverbatim %}
+                        </template>
+                        <hr />
+                        <div class="level">
+                            <div class="level-left">
+                                <div class="level-item">
+                                    <button
+                                            hx-get="/targeting/enrolment/primary-recipient?household={{ householdId }}"
+                                            hx-swap="innerHTML"
+                                            hx-target="#hh-primary-recipient"
+                                            hx-trigger="load, click"
+                                            mustache-template="tpl-primary-recipient"
+                                            class="button is-info">Reload main recipient details<img class="htmx-indicator" width="20" height="20" src="/assets/img/tailspin-white.svg" /></button>
+                                </div>
+                            </div>
+                            <div class="level-right">
+                                <div class="level-item">
+                                    <button
+                                            hx-get="/targeting/enrolment/recipient-candidates?household={{ householdId }}"
+                                            hx-swap="innerHTML"
+                                            hx-target="#hh-primary-recipient-update"
+                                            hx-trigger="load, click"
+                                            mustache-template="tpl-primary-recipient-update"
+                                            class="button is-link is-info">Refresh members list<img class="htmx-indicator" width="20" height="20" src="/assets/img/tailspin-white.svg" /></button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 

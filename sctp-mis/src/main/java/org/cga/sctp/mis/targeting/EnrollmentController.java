@@ -33,6 +33,7 @@
 package org.cga.sctp.mis.targeting;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import org.cga.sctp.beneficiaries.BeneficiaryService;
 import org.cga.sctp.beneficiaries.Individual;
 import org.cga.sctp.mis.core.SecuredBaseController;
@@ -60,8 +61,12 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Pattern;
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Controller
@@ -85,6 +90,9 @@ public class EnrollmentController extends SecuredBaseController {
 
     @Autowired
     private TargetingConfig config;
+
+    @Autowired
+    private Gson gson;
 
     @GetMapping
     @AdminAndStandardAccessOnly
@@ -258,7 +266,19 @@ public class EnrollmentController extends SecuredBaseController {
 
     @GetMapping(value = "/recipient-photo")
     @AdminAndStandardAccessOnly
-    ResponseEntity<Resource> getHouseholdRecipientPhoto(@RequestParam("photo") String imageId) {
+    ResponseEntity<Resource> getHouseholdRecipientPhoto(@Valid @Pattern(regexp = "^[0-9a-fA-F]{64,256}$") @RequestParam(value = "photo") String imageId) {
         return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping(value = "/recipient-candidates", produces = MediaType.APPLICATION_JSON_VALUE)
+    @AdminAndStandardAccessOnly
+    ResponseEntity<Map<String, Object>> getHouseholdCandidates(@RequestParam(value = "household") Long household) {
+        List<HouseholdRecipientCandidate> candidates = enrollmentService.getHouseholdRecipientCandidates(household);
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("candidates", candidates);
+        return ResponseEntity
+                .ok()
+                /* .cacheControl(CacheControl.maxAge(Duration.ofHours(5)).mustRevalidate().noTransform())*/
+                .body(response);
     }
 }

@@ -30,19 +30,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.mis.config;
+package org.cga.sctp.targeting.importation.parameters;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import com.fasterxml.jackson.databind.util.StdConverter;
 
-import java.util.concurrent.TimeUnit;
-
-@Configuration
-public class MisMvcConfiguration implements WebMvcConfigurer {
-
+public class GenderJsonSerializer extends StdConverter<Gender, String> {
     @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/static/**").setCachePeriod((int) (TimeUnit.DAYS.toSeconds(365L)));
+    public String convert(Gender value) {
+        return value != null ? value.name() : null;
     }
 }
