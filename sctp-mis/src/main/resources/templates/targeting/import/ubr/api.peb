@@ -132,7 +132,7 @@
                                 <div class="control select">
                                     <select
                                             id="head_gender"
-                                            name="head_gender"
+                                            name="headGender"
                                             class="form-control"
                                     >
                                         <option value="" selected disabled></option>
@@ -162,7 +162,7 @@
                                             min="1"
                                             max="150"
                                             class="input"
-                                            name="head_lower_age_limit"
+                                            name="headLowerAgeLimit"
                                     />
                                 </div>
                                 <div class="col-md-1">
@@ -177,7 +177,7 @@
                                             min="1"
                                             max="150"
                                             class="input"
-                                            name="head_upper_age_limit"
+                                            name="headUpperAgeLimit"
                                     />
                                 </div>
                             </div>
@@ -196,7 +196,7 @@
                                 <div class="control select">
                                     <select
                                             id="has_member_not_fit_for_work"
-                                            name="has_member_not_fit_for_work"
+                                            name="fitForWork"
                                             class="form-control"
                                     >
                                         <option value="" selected disabled></option>
@@ -220,7 +220,7 @@
                                 <div class="control select">
                                     <select
                                             id="has_school_attending_member"
-                                            name="has_school_attending_member"
+                                            name="hasSchoolAttendingMember"
                                             class="form-control"
                                     >
                                         <option value="" selected disabled></option>
@@ -241,7 +241,7 @@
                                 <div class="control select">
                                     <select
                                             id="labour_constrained"
-                                            name="labour_constrained"
+                                            name="labourConstrained"
                                             class="form-control"
                                     >
                                         <option value="" selected disabled></option>
@@ -266,7 +266,7 @@
                                             min="1"
                                             max="100"
                                             class="input"
-                                            name="dependency_ratio"
+                                            name="dependencyRatio"
                                     />
                                 </div>
                             </div>
@@ -284,7 +284,7 @@
                                 <div class="control select">
                                     <select
                                             id="has_member_with_disability"
-                                            name="has_member_with_disability"
+                                            name="hasMemberWithDisability"
                                             class="form-control"
                                     >
                                         <option value="" selected disabled></option>
@@ -308,7 +308,7 @@
                                 <div class="control select">
                                     <select
                                             id="has_member_with_chronic_illness"
-                                            name="has_member_with_chronic_illness"
+                                            name="hasMemberWithChronicIllness"
                                             class="form-control"
                                     >
                                         <option value="" selected disabled></option>
