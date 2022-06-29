@@ -35,6 +35,7 @@
         <div class="level">
             <div class="level-left">
                 <div class="level-item">
+                    {{ hiddenField('sessionId', sessionId) }}
                     <a href="/targeting/enrolment/households?session={{ sessionId }}" class="button is-danger">
                         <span class="icon-text">
                             <span class="icon">
@@ -180,7 +181,7 @@
                                         {{#photo}}
                                         <img id="main-photo"
                                              class="receiver-image p4p obj-fit-contain"
-                                             src="/targeting/enrolment/recipient-photo?photo={{photo}}"
+                                             src="/targeting/enrolment/recipient-photo?household={{householdId}}&amp;type=primary"
                                              alt="Main receiver photo" />
                                         {{/photo}}
                                         {{^photo}}
@@ -241,17 +242,18 @@
                                             <label class="label">Select new main recipient</label>
                                             <div class="control is-expanded">
                                                 <div class="select is-fullwidth">
-                                                    <select id="main-candidates" required="required">
+                                                    <select id="mainCandidates" required="required">
                                                         <option disabled="disabled">Select household member</option>
-                                                        {{#candidates}}<option value="{{id}}">{{name}} {{gender}} {{age}} yrs</option> {{/candidates}}
+                                                        {{#candidates}}<option value="{{id}}"
+                                                                               data-hh="{{householdId}}">{{name}} ({{gender}}, {{age}} yrs)</option>{{/candidates}}
                                                     </select>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="field ">
-                                            <label class="label">Update recipient photo</label>
+                                            <label class="label">Update recipient photo (5 MB max)</label>
                                             <div class="control is-expanded">
-                                                <img id="main-preview-photo"
+                                                <img id="mainPreviewPhoto"
                                                      class="preview-image obj-fit-contain"
                                                      src="/assets/img/user-svg.svg" />
                                             </div>
@@ -261,7 +263,42 @@
                                 <!-- insert here -->
                                 <div class="columns">
                                     <div class="column">
-                                        <button class="button is-primary">Change</button>
+                                        <div class="level">
+                                            <div class="level-left">
+                                                <div class="level-item">
+                                                    <div class="file is-text is-small">
+                                                      <label class="file-label">
+                                                        <input class="file-input"
+                                                               id="mainPhotoSelection"
+                                                               required="required"
+                                                               type="file"
+                                                               onchange="if(this.files[0]){ mainPreviewPhoto.src = window.URL.createObjectURL(this.files[0]); }"
+                                                               maxlength="5242880"
+                                                               accept="image/jpeg; image/png"
+                                                               name="resume" />
+                                                        <span class="file-cta">
+                                                          <span class="file-icon">
+                                                            <i class="fas fa-upload"></i>
+                                                          </span>
+                                                          <span class="file-label">
+                                                            Select photo
+                                                          </span>
+                                                        </span>
+                                                      </label>
+                                                    </div>
+                                                </div>
+                                                <div class="level-item">
+                                                    <button onclick="mainPreviewPhoto.src = '/assets/img/user-svg.svg'; mainPhotoSelection.value='';"
+                                                            class="button is-inverted is-small is-text is-danger">Cancel photo selection</button>
+                                                </div>
+                                            </div>
+                                            <div class="level-right">
+                                                <div class="level-item">
+                                                    <button onclick="saveMainReceiver()"
+                                                            class="button is-small is-link">Save changes</button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             {% endverbatim %}
@@ -662,6 +699,33 @@
               }
               query(tabName).style.display = "block";
               evt.currentTarget.className += " is-active";
+            };
+            window.saveMainReceiver = function(){
+                if(1 > mainCandidates.selectedIndex){
+                    alert('Please select a household member first');
+                    return;
+                }
+                if(!mainPhotoSelection.files.length == 1){
+                    alert('Please select a photo for the selected member');
+                    return;
+                }
+                if(!validateFile(mainPhotoSelection.files[0], 5242880, ['image/jpeg','image/png'])){
+                    alert('Invalid file size or type.');
+                    return;
+                }
+                const household_id = mainCandidates;
+                const opts = {
+                    files: [{file: mainPhotoSelection.files[0], name: 'photo'}],
+                    data: {
+                        id: mainCandidates.options[mainCandidates.selectedIndex].value,
+                        household: mainCandidates.options[mainCandidates.selectedIndex].dataset.hh,
+                        session: sessionId.value
+                    }
+                };
+                postForm(`/targeting/enrolment/update-recipient?type=primary`, opts)
+                    .then(data => {alert('Changes saved');})
+                    .catch(e => {console.log(e); alert('Error saving changes. Please try again')})
+                ;
             };
         })();
     </script>

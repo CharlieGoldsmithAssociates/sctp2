@@ -58,6 +58,10 @@
             <id>jcenter</id>
             <url>https://jcenter.bintray.com/</url>
         </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -164,6 +168,12 @@
             <groupId>com.google.zxing</groupId>
             <artifactId>javase</artifactId>
             <version>${zxing.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.SharkFourSix</groupId>
+            <artifactId>spector</artifactId>
+            <version>v1.2.0</version>
         </dependency>
 
     </dependencies>

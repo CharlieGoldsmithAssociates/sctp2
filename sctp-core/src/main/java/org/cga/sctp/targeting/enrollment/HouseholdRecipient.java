@@ -32,45 +32,47 @@
 
 package org.cga.sctp.targeting.enrollment;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import java.time.LocalDateTime;
+import javax.persistence.*;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "household_recipient")
 public class HouseholdRecipient {
     @Id
-    private long householdId;
-    private long mainRecipient;
-    private long altRecipient;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long householdId;
+    private Long mainRecipient;
+    private Long altRecipient;
     private String mainPhoto;
+    private String mainPhotoType;
+    private String altPhotoType;
+    private Long enrollmentSession;
     private String altPhoto;
-    private long altOther;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
+    private Long altOther;
+    private OffsetDateTime createdAt;
+    private OffsetDateTime modifiedAt;
 
-    public long getHouseholdId() {
+    public Long getHouseholdId() {
         return householdId;
     }
 
-    public void setHouseholdId(long householdId) {
+    public void setHouseholdId(Long householdId) {
         this.householdId = householdId;
     }
 
-    public long getMainRecipient() {
+    public Long getMainRecipient() {
         return mainRecipient;
     }
 
-    public void setMainRecipient(long mainRecipient) {
+    public void setMainRecipient(Long mainRecipient) {
         this.mainRecipient = mainRecipient;
     }
 
-    public long getAltRecipient() {
+    public Long getAltRecipient() {
         return altRecipient;
     }
 
-    public void setAltRecipient(long altRecipient) {
+    public void setAltRecipient(Long altRecipient) {
         this.altRecipient = altRecipient;
     }
 
@@ -90,31 +92,51 @@ public class HouseholdRecipient {
         this.altPhoto = altPhoto;
     }
 
-    public long getAltOther() {
+    public Long getAltOther() {
         return altOther;
     }
 
-    public void setAltOther(long altOther) {
+    public void setAltOther(Long altOther) {
         this.altOther = altOther;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public OffsetDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(OffsetDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getModifiedAt() {
+    public OffsetDateTime getModifiedAt() {
         return modifiedAt;
     }
 
-    public void setModifiedAt(LocalDateTime modifiedAt) {
+    public void setModifiedAt(OffsetDateTime modifiedAt) {
         this.modifiedAt = modifiedAt;
     }
 
+    public String getMainPhotoType() {
+        return mainPhotoType;
+    }
 
+    public void setMainPhotoType(String mainPhotoType) {
+        this.mainPhotoType = mainPhotoType;
+    }
 
+    public String getAltPhotoType() {
+        return altPhotoType;
+    }
 
+    public void setAltPhotoType(String altPhotoType) {
+        this.altPhotoType = altPhotoType;
+    }
+
+    public Long getEnrollmentSession() {
+        return enrollmentSession;
+    }
+
+    public void setEnrollmentSession(Long enrollmentSession) {
+        this.enrollmentSession = enrollmentSession;
+    }
 }

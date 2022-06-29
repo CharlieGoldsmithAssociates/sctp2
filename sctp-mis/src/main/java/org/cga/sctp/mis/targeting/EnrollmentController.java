@@ -33,10 +33,11 @@
 package org.cga.sctp.mis.targeting;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import org.cga.sctp.beneficiaries.BeneficiaryService;
 import org.cga.sctp.beneficiaries.Individual;
+import org.cga.sctp.data.ResourceService;
 import org.cga.sctp.mis.core.SecuredBaseController;
+import org.cga.sctp.mis.file_upload.FileUploadService;
 import org.cga.sctp.schools.SchoolService;
 import org.cga.sctp.schools.SchoolsView;
 import org.cga.sctp.targeting.AlternateRecipient;
@@ -56,14 +57,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Pattern;
 import java.io.IOException;
+import java.net.URI;
+import java.time.OffsetDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,6 +79,11 @@ public class EnrollmentController extends SecuredBaseController {
     private static final HouseholdEnrollmentSummary EMPTY_SUMMARY = new HouseholdEnrollmentSummary();
     private static final HouseholdRecipientSummary EMPTY_RECIPIENT = new HouseholdRecipientSummary() {
     };
+
+    enum RecipientType {
+        primary,
+        secondary
+    }
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -92,7 +101,7 @@ public class EnrollmentController extends SecuredBaseController {
     private TargetingConfig config;
 
     @Autowired
-    private Gson gson;
+    private FileUploadService fileUploadService;
 
     @GetMapping
     @AdminAndStandardAccessOnly
@@ -123,7 +132,7 @@ public class EnrollmentController extends SecuredBaseController {
                                 @RequestParam("session") Long sessionId, RedirectAttributes attributes,
                                 @ModelAttribute("enrollmentForm") EnrollmentForm enrollmentForm) {
 
-        HouseholdEnrollment householdEnrollment = enrollmentService.findEnrollmentHousehold(sessionId, householdId);
+        HouseholdEnrollment householdEnrollment = enrollmentService.findHouseholdEnrollment(sessionId, householdId);
 
         if (householdEnrollment == null) {
             setDangerFlashMessage("Enrollment session not found.", attributes);
@@ -176,7 +185,7 @@ public class EnrollmentController extends SecuredBaseController {
                              @RequestParam("session") Long sessionId, RedirectAttributes attributes,
                              @ModelAttribute("enrollmentForm") EnrollmentForm enrollmentForm) {
 
-        HouseholdEnrollment enrollmentHousehold = enrollmentService.findEnrollmentHousehold(sessionId, householdId);
+        HouseholdEnrollment enrollmentHousehold = enrollmentService.findHouseholdEnrollment(sessionId, householdId);
 
         if (enrollmentHousehold == null) {
             setDangerFlashMessage("Enrollment session not found.", attributes);
@@ -266,8 +275,31 @@ public class EnrollmentController extends SecuredBaseController {
 
     @GetMapping(value = "/recipient-photo")
     @AdminAndStandardAccessOnly
-    ResponseEntity<Resource> getHouseholdRecipientPhoto(@Valid @Pattern(regexp = "^[0-9a-fA-F]{64,256}$") @RequestParam(value = "photo") String imageId) {
-        return ResponseEntity.notFound().build();
+    ResponseEntity<Resource> getHouseholdRecipientPhoto(@RequestParam(value = "household") Long household, @RequestParam RecipientType type) {
+        HouseholdRecipient recipient = enrollmentService.getHouseholdRecipient(household);
+        if (recipient != null) {
+            String name = switch (type) {
+                case primary -> recipient.getMainPhoto();
+                case secondary -> recipient.getAltPhoto();
+            };
+            String contentType = switch (type) {
+                case primary -> recipient.getMainPhotoType();
+                case secondary -> recipient.getAltPhotoType();
+            };
+            if (StringUtils.hasText(name)) {
+                Resource resource = fileUploadService.getResourceService()
+                        .getRecipientPhotoResource(household, type == RecipientType.primary);
+                if (resource != null && resource.exists()) {
+                    return ResponseEntity
+                            .ok()
+                            .contentType(MediaType.valueOf(contentType))
+                            .body(resource);
+                }
+            }
+        }
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create("/static/img/user-svg.svg"))
+                .build();
     }
 
     @GetMapping(value = "/recipient-candidates", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -278,7 +310,74 @@ public class EnrollmentController extends SecuredBaseController {
         response.put("candidates", candidates);
         return ResponseEntity
                 .ok()
-                /* .cacheControl(CacheControl.maxAge(Duration.ofHours(5)).mustRevalidate().noTransform())*/
                 .body(response);
+    }
+
+    @PostMapping(value = "/update-recipient", produces = MediaType.APPLICATION_JSON_VALUE)
+    @AdminAndStandardAccessOnly
+    ResponseEntity<?> updateHouseholdRecipient(
+            @RequestParam(value = "type") RecipientType type,
+            @RequestParam(value = "photo") MultipartFile photo,
+            @Valid @ModelAttribute UpdateHouseholdRecipientForm form,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        HouseholdEnrollment enrollment = enrollmentService
+                .findHouseholdEnrollment(form.getSession(), form.getHousehold());
+
+        if (enrollment == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // verify household member existence
+        if (!beneficiaryService.householdMemberExists(form.getHousehold(), form.getId())) {
+            return ResponseEntity.notFound().build();
+        }
+
+        HouseholdRecipient recipient = enrollmentService.getHouseholdRecipient(form.getHousehold());
+
+        if (recipient == null) {
+            recipient = new HouseholdRecipient();
+            recipient.setMainRecipient(form.getId());
+            recipient.setCreatedAt(OffsetDateTime.now());
+            recipient.setHouseholdId(form.getHousehold());
+        }
+
+        recipient.setModifiedAt(OffsetDateTime.now());
+        enrollment.setUpdatedAt(recipient.getModifiedAt());
+
+        if (!fileUploadService.getResourceService().isAcceptedImageFile(photo)) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        ResourceService.UpdateResult updateResult = switch (type) {
+            case primary -> fileUploadService.getResourceService().storeMainRecipientPhoto(photo, form.getHousehold());
+            case secondary -> fileUploadService.getResourceService().storeAlternateRecipientPhoto(photo, form.getHousehold());
+        };
+
+        if (!updateResult.stored()) {
+            LOG.error("Failure uploading photo file");
+        }
+
+        switch (type) {
+            case secondary -> {
+                recipient.setAltRecipient(form.getId()); // TODO For alternate other, require extra data
+                recipient.setAltPhoto(updateResult.name());
+                recipient.setAltPhotoType(updateResult.type());
+            }
+            case primary -> {
+                recipient.setMainRecipient(form.getId());
+                recipient.setMainPhoto(updateResult.name());
+                recipient.setMainPhotoType(updateResult.type());
+            }
+        }
+
+        enrollmentService.saveEnrollment(enrollment);
+        enrollmentService.saveHouseholdRecipient(recipient);
+
+        return ResponseEntity.ok("{}");
     }
 }

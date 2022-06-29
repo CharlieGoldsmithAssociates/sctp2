@@ -16,6 +16,12 @@
         }
         return null;
     }
+    window.csrf = function () {
+        return {
+            'name': query('meta[name="csrf-name"]').content,
+            'token': query('meta[name="csrf-token"]').content
+        }
+    };
     window.replaceClass = function(el, a, b){
       if(el.dataset.class == a){
         el.dataset.class = b;
@@ -24,7 +30,7 @@
       }
       el.classList.remove(a, b);
       el.classList.add(el.dataset.class);
-    }
+    };
     window.setupDataTables = function(...elements){
         var _results = [];
         var options = {perPage: 50, perPageSelect: [5, 10, 20, 25, 50, 100]};
@@ -65,7 +71,7 @@
             opts['skipColumn'] = skipColumns;
         }
         firstDataTable.export(opts);
-    }
+    };
     window.createResumableFile = function(file, options){
         if("tus" in window){
             if(!("retryDelays" in options)){
@@ -88,5 +94,40 @@
         }else{
             tusUploadHandle.start();
         }
+    };
+    window.postForm = async function(url, options){
+        const files = 'files' in options ? options.files : null;
+        const data  = 'data' in options ? options.data : null;
+        const hdrs  = 'headers' in options
+            ? options.headers
+            : { /*'Content-Type': 'multipart/form-data; charset=UTF8',*/ 'X-CSRF-TOKEN': csrf().token };
+        const form  = new FormData();
+        if(files){
+            for(var i = 0; i < files.length; i++){
+                form.append('name' in files[i] ? files[i].name : ('file'+i), files[i].file);
+            }
+        }
+        if(data){
+            for(var k in data){
+                form.append(k, data[k]);
+            }
+        }
+        const response = await fetch(url, {method: 'POST', body: form, headers: hdrs});
+        if(!response.ok){
+            const message = `An error has occurred: HTTP ${response.status}`;
+            throw new Error(message);
+        }
+        const type = response.headers.get('Content-Type');
+        if(type == 'application/json'){
+            return await response.json();
+        }
+        if(type.startsWith('text/')){
+            return await response.text();
+        }
+        const raw = await response.blob();
+        return {contentType: type, blob: raw};
+    };
+    window.validateFile = function(file, size, types){
+        return file.size <= size && types.indexOf(file.type) != -1;
     };
 })();

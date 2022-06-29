@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,32 +30,30 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.beneficiaries;
+package org.cga.sctp.data;
 
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
-import java.util.List;
+import javax.validation.constraints.NotNull;
+import java.io.File;
 
-@Repository
-interface IndividualRepository extends JpaRepository<Individual, Long> {
+@Configuration
+public class DatastoreConfiguration {
+    private final File recipientPhotoDirectory;
 
-    @Query(nativeQuery = true, value = "select * from dashboard_stats_v")
-    DashboardStats getDashboardStats();
+    public DatastoreConfiguration(
+            @NotNull
+            @Value("${targeting.pictures:data/recipient_photos}") File directory) {
+        if (!directory.exists()) {
+            if (!directory.mkdirs()) {
+                throw new RuntimeException("Failed to initialize directory " + directory.getAbsolutePath());
+            }
+        }
+        this.recipientPhotoDirectory = directory;
+    }
 
-    Slice<Individual> findByHouseholdId(Long householdId, Pageable pageable);
-
-    List<Individual> findByHouseholdId(Long householdId);
-
-    @Query(nativeQuery = true, value = "select * from individuals where household_id = :hhId and date_of_birth >= '1996-01-01' and date_of_birth <= '2017-01-01'")
-    List<Individual> findSchoolChildren(@Param("hhId") Long householdId);
-
-    @Query(nativeQuery = true, value = "select * from individuals where household_id =:hhId and TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) >= 14 ")
-    List<Individual> getEligibleRecipients(@Param("hhId") Long householdId);
-
-    boolean existsByIdAndHouseholdId(Long id, Long household);
+    public File getRecipientPhotoDirectory() {
+        return recipientPhotoDirectory;
+    }
 }

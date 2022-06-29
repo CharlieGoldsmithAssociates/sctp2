@@ -47,7 +47,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -62,7 +62,7 @@ public class EnrollmentService extends TransactionalService {
     private EnrollmentSessionViewRepository sessionViewRepository;
 
     @Autowired
-    private HouseholdEnrollmentRepository enrollmentHouseholdRepository;
+    private HouseholdEnrollmentRepository householdEnrollmentRepository;
 
     @Autowired
     private HouseholdEnrollmentViewRepository enrollmentViewRepository;
@@ -109,12 +109,12 @@ public class EnrollmentService extends TransactionalService {
         return sessionViewRepository.findById(sessionId).orElse(null);
     }
 
-    public HouseholdEnrollment findEnrollmentHousehold(Long sessionId, long householdId) {
-        return enrollmentHouseholdRepository.findBySessionIdAndHouseholdId(sessionId, householdId);
+    public HouseholdEnrollment findHouseholdEnrollment(Long sessionId, long householdId) {
+        return householdEnrollmentRepository.findBySessionIdAndHouseholdId(sessionId, householdId);
     }
 
     public HouseholdDetails getHouseholdDetails(Long householdId) {
-        return enrollmentHouseholdRepository.getEnrolledHouseholdDetails(householdId);
+        return householdEnrollmentRepository.getEnrolledHouseholdDetails(householdId);
     }
 
     public void saveAlternateRecipient(AlternateRecipient alternateRecipient) {
@@ -198,7 +198,7 @@ public class EnrollmentService extends TransactionalService {
                 householdRecipient.setHouseholdId(enrollmentForm.getHouseholdId());
                 householdRecipient.setMainRecipient(enrollmentForm.getMainReceiver());
                 householdRecipient.setAltRecipient(enrollmentForm.getAltReceiver());
-                householdRecipient.setCreatedAt(LocalDateTime.now());
+                householdRecipient.setCreatedAt(OffsetDateTime.now());
                 householdRecipient.setMainPhoto(mainReceiverPhotoName);
                 householdRecipient.setAltPhoto(altReceiverPhotoName);
                 this.saveHouseholdRecipient(householdRecipient);
@@ -207,7 +207,7 @@ public class EnrollmentService extends TransactionalService {
             householdRecipient.setHouseholdId(enrollmentForm.getHouseholdId());
             householdRecipient.setMainRecipient(enrollmentForm.getMainReceiver());
             householdRecipient.setAltRecipient(enrollmentForm.getAltReceiver());
-            householdRecipient.setCreatedAt(LocalDateTime.now());
+            householdRecipient.setCreatedAt(OffsetDateTime.now());
             householdRecipient.setMainPhoto(mainReceiverPhotoName);
             householdRecipient.setAltPhoto(altReceiverPhotoName);
             this.saveHouseholdRecipient(householdRecipient);
@@ -270,5 +270,9 @@ public class EnrollmentService extends TransactionalService {
 
     public List<HouseholdRecipientCandidate> getHouseholdRecipientCandidates(Long household) {
         return recipientCandidateRepository.getByHouseholdId(household);
+    }
+
+    public void saveEnrollment(HouseholdEnrollment enrollment) {
+        householdEnrollmentRepository.save(enrollment);
     }
 }

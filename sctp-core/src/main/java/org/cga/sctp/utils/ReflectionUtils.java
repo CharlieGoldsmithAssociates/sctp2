@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,32 +30,33 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.beneficiaries;
+package org.cga.sctp.utils;
 
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+import java.lang.reflect.Field;
 
-import java.util.List;
-
-@Repository
-interface IndividualRepository extends JpaRepository<Individual, Long> {
-
-    @Query(nativeQuery = true, value = "select * from dashboard_stats_v")
-    DashboardStats getDashboardStats();
-
-    Slice<Individual> findByHouseholdId(Long householdId, Pageable pageable);
-
-    List<Individual> findByHouseholdId(Long householdId);
-
-    @Query(nativeQuery = true, value = "select * from individuals where household_id = :hhId and date_of_birth >= '1996-01-01' and date_of_birth <= '2017-01-01'")
-    List<Individual> findSchoolChildren(@Param("hhId") Long householdId);
-
-    @Query(nativeQuery = true, value = "select * from individuals where household_id =:hhId and TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) >= 14 ")
-    List<Individual> getEligibleRecipients(@Param("hhId") Long householdId);
-
-    boolean existsByIdAndHouseholdId(Long id, Long household);
+public class ReflectionUtils {
+    public static <T> T getFieldValue(Object instance, String fieldName) {
+        Class<?> klazz = instance.getClass();
+        Field field = null;
+        while (klazz != null) {
+            try {
+                field = klazz.getField(fieldName);
+                break;
+            } catch (NoSuchFieldException e) {
+                try {
+                    field = klazz.getDeclaredField(fieldName);
+                    break;
+                } catch (NoSuchFieldException e2) {
+                    klazz = klazz.getSuperclass();
+                }
+            }
+        }
+        try {
+            field.setAccessible(true);
+            // Suppressed unchecked
+            return (T) field.get(instance);
+        } catch (IllegalAccessException ignore) {
+        }
+        return null;
+    }
 }
