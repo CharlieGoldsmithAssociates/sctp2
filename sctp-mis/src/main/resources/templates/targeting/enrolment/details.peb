@@ -308,6 +308,7 @@
                             <div class="level-left">
                                 <div class="level-item">
                                     <button
+                                            id="btnGetMainRecipient"
                                             hx-get="/targeting/enrolment/primary-recipient?household={{ householdId }}"
                                             hx-swap="innerHTML"
                                             hx-target="#hh-primary-recipient"
@@ -723,8 +724,11 @@
                     }
                 };
                 postForm(`/targeting/enrolment/update-recipient?type=primary`, opts)
-                    .then(data => {alert('Changes saved');})
-                    .catch(e => {console.log(e); alert('Error saving changes. Please try again')})
+                    .then(data => {
+                            htmx.trigger("#btnGetMainRecipient", "click");
+                            alert('Changes saved');
+                        }
+                    ).catch(e => {console.log(e); alert('Error saving changes. Please try again')})
                 ;
             };
         })();
