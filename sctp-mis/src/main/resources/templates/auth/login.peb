@@ -19,7 +19,7 @@
                     {% endif %}
                     <div class="box">
                         <figure class="avatar">
-                            <img id="coa" src="/assets/img/coa-mw.svg"/>
+                            <img id="coa" src="/assets/img/mtukula-pakhomo-logo.jpg"/>
                         </figure>
                         {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
                         <form name="loginForm"
