@@ -46,6 +46,10 @@ public class TransferAgencyForm {
     @Length(min=2, max=100)
     private String name;
 
+    @NotEmpty
+    @Length(min=2, max=100)
+    private String transferMethod;
+
     @NotNull(message = "Status is required")
     private Booleans active;
 
@@ -60,7 +64,6 @@ public class TransferAgencyForm {
     private String address;
 
     @NotEmpty
-    @SimpleName
     private String representativeName;
 
     @NotEmpty
@@ -89,6 +92,14 @@ public class TransferAgencyForm {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getTransferMethod() {
+        return transferMethod;
+    }
+
+    public void setTransferMethod(String transferMethod) {
+        this.transferMethod = transferMethod;
     }
 
     public Booleans isActive() {

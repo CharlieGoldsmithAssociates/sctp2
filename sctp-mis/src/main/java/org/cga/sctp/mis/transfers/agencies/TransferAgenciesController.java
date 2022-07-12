@@ -86,6 +86,7 @@ public class TransferAgenciesController extends BaseController {
     public ModelAndView createPage() {
         List<Location> locations = locationService.getActiveDistricts();
         return view("/transfers/agencies/new")
+                .addObject("transferMethods", TransferMethod.values())
                 .addObject("options", Booleans.VALUES)
                 .addObject("locations", locations);
     }
@@ -123,6 +124,7 @@ public class TransferAgenciesController extends BaseController {
         TransferAgency transferAgency = new TransferAgency();
 
         transferAgency.setName(form.getName());
+        transferAgency.setTransferMethod(TransferMethod.valueOf(form.getTransferMethod()));
         transferAgency.setActive(form.isActive().value);
         transferAgency.setAddress(form.getAddress());
         transferAgency.setRepresentativeName(form.getRepresentativeName());
@@ -153,6 +155,7 @@ public class TransferAgenciesController extends BaseController {
 
         form.setId(transferAgency.getId());
         form.setName(transferAgency.getName());
+        form.setTransferMethod(transferAgency.getTransferMethod().name());
         form.setActive(Booleans.of(transferAgency.getActive()));
         form.setLocationId(transferAgency.getLocationId());
         form.setWebsite(transferAgency.getWebsite());
@@ -165,6 +168,7 @@ public class TransferAgenciesController extends BaseController {
 
         List<Location> locations = locationService.getActiveDistricts();
         return view("/transfers/agencies/edit")
+                .addObject("transferMethods", TransferMethod.values())
                 .addObject("options", Booleans.VALUES)
                 .addObject("locations", locations);
     }
@@ -187,6 +191,7 @@ public class TransferAgenciesController extends BaseController {
         }
 
         transferAgency.setName(form.getName());
+        transferAgency.setTransferMethod(TransferMethod.valueOf(form.getTransferMethod()));
         transferAgency.setActive(form.isActive().value);
         transferAgency.setAddress(form.getAddress());
         transferAgency.setPhone(form.getPhone());
