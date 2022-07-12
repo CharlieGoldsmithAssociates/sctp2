@@ -63,12 +63,12 @@
                 </div>
                 <div class="field is-horizontal">
                     <div class="field-label is-normal">
-                        <label class="label is-required">Village Cluster / GVH</label>
+                        <label class="label is-required">Village Cluster</label>
                     </div>
                     <div class="field-body">
                         <div class="control">
-                            <div class="select is-fullwidth">
-                                <select name="groupVillageHeadCode" id="groupVillageHeadCode">
+                            <div class="select is-multiple is-fullwidth"">
+                                <select name="groupVillageHeadCode" id="groupVillageHeadCode" multiple>
                                     {#  to be loaded via JavaScript here #}
                                 </select>
                             </div>
