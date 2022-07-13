@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <style>
+      .input-cell {
+        border: 1px solid #d9d9d9;
+        width: 30px;
+        height: 30px;
+      }
+      .photo {
+        width: 200px;
+        height: 200px;
+        border: 2px solid #000;
+      }
+      .section-header {
+        background-color: #eeeeee;
+        border: 0.1mm solid #ccc;
+        border-left: none;
+        border-right: none;
+        font-size: 12px;
+        text-align: center;
+      }
+      .form {
+        border: 2px solid #000;
+      }
+      .program-logo,
+      .program-title,
+      .govt-logo {
+        display: inline-block;
+      }
+      .program-logo img,
+      .govt-logo img {
+        width: 79px;
+        height: 78p;
+        border: none;
+        display: block;
+        flex: column;
+      }
+      .program-title h1,
+      h2,
+      h3,
+      h4 {
+        text-align: center;
+      }
+      .header {
+        display: grid;
+        grid-template-columns: auto auto auto;
+      }
+      body {
+        background-color: #fff;
+      }
+      .reset {
+        border: none; padding: 0; margin: 0;
+      }
+      .is-center{ text-align: center;}
+      .is-right{ text-align: right;}
+      .is-left{ text-align: left;}
+    </style>
+  </head>
+  <body>
+    <div>
+      <div style="float: left; border: solid; padding: 0">
+        <table border="0" style="padding: 0; border: none">
+          <tr>
+            <td>
+              <table width="100%" style="border: none">
+                <tr>
+                  <th>
+                    <img
+                      src="logo_program.jpg"
+                      width="79"
+                      height="78"
+                      border="0"
+                      style="float: left"
+                    />
+                  </th>
+                  <th align="center">
+                    MTUKULA PAKHOMO<br />KHADI LOLANDILIRA NDALAMA
+                  </th>
+                  <th>
+                    <img
+                      src="logo_gov.jpg"
+                      width="79"
+                      height="78"
+                      border="0"
+                      style="float: right"
+                    />
+                  </th>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td class="section-header">
+              <strong>KUSINTHA WOLANDIRA NDALAMA</strong>
+            </td>
+          </tr>
+          <tr>
+            <td class="reset" style="width: 70%;">
+              <table style="width: 100%;" class="reset" border="0">
+                <tr>
+                  <td class="reset" style="padding: 0px 32px 0px 32px;">
+                    <table style="width: 100%;" class="reset is-left" border="0">
+                      <tr>
+                        <td>
+                          __________________________________<br />
+                          Nambala ya chinsisi ya wolandira ndalama
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>&nbsp;</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          ____________________________________________________________<br />
+                          Dzina la wolandira ndalama
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>&nbsp;</td>
+                      </tr>
+                      <tr>
+                        <td class="reset">
+                          <table>
+                            <tr>
+                              <td class="input-cell"></td>
+                              <td class="input-cell"></td>
+                              <td class="input-cell"></td>
+                              <td class="input-cell"></td>
+                              <td class="input-cell"></td>
+                              <td class="input-cell"></td>
+                              <td class="input-cell"></td>
+                              <td class="input-cell"></td>
+                            </tr>
+                            <tr>
+                              <td colspan="8">Tsiku losinthira (DD/MM/YYYY)</td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr><td>&nbsp;</td></tr>
+                      <tr>
+                        <td class="reset">
+                          ______________________________<br />Kusayinira
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+
+                  <td class="reset is-center" style="width: 30%;">
+                    <figure>
+                        <img src="logo_program_bg.jpg" class="photo" />
+                        <figcaption>Chithunzi cha wolandira ndalama</td>
+                    </figure>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td class="section-header">
+              <strong>CHITSIMIKIZO</strong>
+            </td>
+          </tr>
+          <tr>
+            <td align="center">
+              <div style="padding: 16px" class="is-left">
+                Ndikuvomereza kuti mwini wakhadi ndi amene chithunzi chake
+                chasonyezedwa pa khadiyi.<br />
+                Ndikuvomerazanso kuti khadiyi ikhoza kugwiritsidwa ntchito ndi
+                woyimira yemwe adzilandira ndalama.
+              </div>
+              <table width="100%">
+                <tr>
+                  <td style="padding-left: 16px" width="50%">
+                    <table>
+                      <tr>
+                        <td class="input-cell"></td>
+                        <td class="input-cell"></td>
+                        <td class="input-cell"></td>
+                        <td class="input-cell"></td>
+                        <td class="input-cell"></td>
+                        <td class="input-cell"></td>
+                        <td class="input-cell"></td>
+                        <td class="input-cell"></td>
+                      </tr>
+                      <tr>
+                        <td colspan="8">
+                          Tsiku lopelekera khadiyi (DD/MM/YYYY)
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                  <td align="center" width="50%" valign="middle">
+                    &nbsp;<br />&nbsp;
+                  </td>
+                </tr>
+
+                <tr>
+                  <td colspan="2">&nbsp;</td>
+                </tr>
+
+                <tr>
+                  <td align="center" width="50%" valign="middle">
+                    ________________________________________________<br />Dzina la Desk Officer
+                  </td>
+                  <td align="center" width="50%">
+                    ______________________________<br />Kusayinira
+                  </td>
+                </tr>
+
+                <tr>
+                    <td colspan="2">&nbsp;</td>
+                  </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" class="section-header">
+              <strong>UTHENGA OFUNIKIRA</strong>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div style="padding: 24px 0 24px 0">
+                <ol style="line-height: 160%;">
+                  <li>
+                    Onetsetsani kuti muli ndi khadili pamene mukulandira
+                    ndalama.
+                  </li>
+                  <li>
+                    Simungalandire ndalama ngati khadili mulibe kapena
+                    simunatenge.
+                  </li>
+                  <li>
+                    Munthu yemwe adzilandira ndalama kapena amene ali woyimira
+                    banja ndi omwe angalandire ndalama.
+                  </li>
+                  <li>
+                    Onetsetsani kuti mwasayinira nthawi ili yonse pamene
+                    mukulandira ndalama.
+                  </li>
+                  <li>
+                    Ngati pali kusintha, onetsetsani kuti kusinthako
+                    kwasonyezedwa mukhadili.
+                  </li>
+                </ol>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <!--<div style="float: right; width: 45%; border:solid; height:90%">
+        <table border="0" width="100%">
+            <tr>
+                <td>
+                    <table width="500px">
+                        <tr>
+                            <th
+                            <?=$widthLogo?>><img src="../img/logo_program.jpg" width="79" height="78" border="0"
+                                                 style="float:left"/></th>
+                            <th align="center">
+                                <font size=""><?=utf8_decode(_TitPrintCards1)?></font><br/>
+                                <font size=""><?=utf8_decode(_TitPrintCards2)?></font><br/>
+                            </th>
+                            <th
+                            <?=$widthLogo?>><img src="../img/logo_gov.jpg" width="79" height="78" border="0"
+                                                 style="float:right"/></th>
+                        </tr>
+                    </table>
+
+                </td>
+            </tr>
+            <tr>
+                <td align="center" style="background-color:#EEEEEE; border:0.1mm solid #CCC; font-size:11px;">
+                    <strong><?=utf8_decode(_LabelPrintCardsA)?></strong></td>
+            </tr>
+            <tr>
+                <td>
+                    <table width="500px" border="0">
+                        <tr>
+                            <td
+                            <?=$widthPicture?> align="center"><? if(trim($rs['houmem_imageurl'])!=""){ ?><img
+                                src="../photo/<?=$rs['houmem_imageurl']?>" width="120" height="90" border="0"/>
+                            &lt;!&ndash;<img src="../img/test.png" width="120" height="90" border="0"  />&ndash;&gt;<? }else{ ?>
+                            <table align="center" width="100%">
+                                <tr>
+                                    <td
+                                    <?=$widthAltRecPicture?> align="center"><br/><br/><br/><br/>&nbsp;</td>
+                                </tr>
+                            </table>
+                            <? } ?>
+                            </td>
+                            <td align="center" rowspan="2" valign="middle">
+                                <table width="350px" border="0">
+                                    <tr>
+                                        <td align="center"
+                                            style="font-size:17px; <? if(trim($rs['num_ben'])==''){ ?>border-bottom: 0.1mm solid #888888;<? }?>"><? if(trim($rs['num_ben'])!=""){ echo "<b>
+                                            ".$rs['num_ben']."</b>"; }else{ echo "&nbsp;"; }?>
+                                        </td>
+                                        <td align="center" style="font-size:17px; <? if(trim($rs['houmem_name'])=="
+                                        "){ ?>border-bottom: 0.1mm solid #888888;<? }?>
+                                        "><? if(trim($rs['houmem_name'])!=""){ echo "<b>
+                                        ".utf8_decode($rs['houmem_lastname'])."&nbsp;".utf8_decode($rs['houmem_name'])."</b>
+                                        "; }else{ echo "&nbsp;"; }?></td>
+
+                                    </tr>
+                                    <tr>
+                                        <td align="center"><font size="2">
+                                            <?=utf8_decode(_LabelPrintCardsA1)?>
+                                        </font></td>
+                                        <td align="center"><font size="2">
+                                            <?=utf8_decode(_LabelPrintCardsA2)?>
+                                        </font></td>
+                                    </tr>
+                                    <tr>
+                                        <td align="center" colspan="2">
+                                            <table border="0" width="185px">
+                                                <tr>
+                                                    <td style="border-bottom: 0.1mm solid #888888;">
+                                                        &nbsp;<br/>&nbsp;<br/>&nbsp;
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td align="center"><font
+                                                            size="2"><?=utf8_decode(_LabelPrintCardsA3)?></font></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="center"><font size="2"><?=utf8_decode(_LabelPrintCardsA4)?></font></td>
+                        </tr>
+                    </table>
+                    <br/><br/>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td align="center" style="background-color:#EEEEEE; border:0.1mm solid #CCC; font-size:11px;">
+                    <strong><?=utf8_decode(_LabelPrintCardsB)?></strong></td>
+            </tr>
+            <?
+            $sql_t2 = "
+			SELECT
+				houmemenr_id
+				,houmemenr_2_2
+				,houmemenr_2_1
+				,houmemenr_idform
+				,houmemenr_imageurl
+				,houmemenr_idcardnumber
+			FROM transferrepresentativeenrol
+				JOIN householdmemberenrol ON houmemenr_appenr_id = trarepenr_appenr_id and houmemenr_id=trarepenr_houmemenr_id
+			WHERE
+				trarepenr_receiver=2
+				AND trarepenr_appenr_id=".$rs['appenr_id']."
+				AND trarepenr_pro_id=".$idPro."
+			";
+
+			$qry_t2 = db_query($sql_t2);
+			$num_rows_t2=db_num_rows($qry_t2);
+			if($num_rows_t2 > 0){
+            $rs_t2 = db_fetch_assoc($qry_t2);
+            $FormT2=$rs_t2['houmemenr_idform'];
+            $NameT2=$rs_t2['houmemenr_2_1']." ".$rs_t2['houmemenr_2_2'];
+            $ImgT2=$rs_t2['houmemenr_imageurl'];
+            $TipT2=1;
+            $NumBen2=$rs_t2['houmemenr_idcardnumber'];
+            }else{
+            $FormT2="&nbsp;";
+            $NameT2="&nbsp;";
+            $ImgT2="";
+            $TipT2=0;
+            $NumBen2="";
+            }
+            ?>
+            <tr>
+                <td>
+                    <table width="500px" border="0">
+                        <tr>
+                            <td align="center" rowspan="2" valign="middle">
+                                <table width="350px" border="0">
+                                    <tr>
+                                        <td align="center"
+                                            style="font-size:17px; <? if($TipT2==0){ ?>border-bottom: 0.1mm solid #888888;<? }?>"><?="<b>
+                                            ".$FormT2."</b>"?>
+                                        </td>
+                                        <td align="center"
+                                            style="font-size:17px;<? if($TipT2==0){ ?> border-bottom: 0.1mm solid #888888;<? }?>"><?="<b>
+                                            ".utf8_decode($NameT2)."</b>"?>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="center"><font size="2">
+                                            <?=utf8_decode(_LabelPrintCardsB1)?>
+                                        </font></td>
+                                        <td align="center"><font size="2">
+                                            <?=utf8_decode(_LabelPrintCardsB2)?>
+                                        </font></td>
+                                    </tr>
+                                    <tr>
+                                        <td align="center" colspan="2">
+                                            <table border="0" width="185px">
+                                                <tr>
+                                                    <td style="border-bottom: 0.1mm solid #888888;">
+                                                        &nbsp;<br/>&nbsp;<br/>&nbsp;
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td align="center"><font
+                                                            size="2"><?=utf8_decode(_LabelPrintCardsB3)?></font></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+
+                                </table>
+                            </td>
+                            <td
+                            <?=$widthPicture?> align="center"><? if($TipT2==1){ ?><img src="../photo/<?=$ImgT2?>"
+                                                                                       width="120" height="90"
+                                                                                       border="0"/>
+                            &lt;!&ndash;<img src="../img/test.png" width="120" height="90" border="0"  />&ndash;&gt;<? }else{ ?>
+                            <table align="center" width="100%">
+                                <tr>
+                                    <td
+                                    <?=$widthAltRecPicture?> align="center"><br/><br/><br/><br/>&nbsp;</td>
+                                </tr>
+                            </table>
+                            <? } ?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="center"><font size="2"><?=utf8_decode(_LabelPrintCardsB4)?></font></td>
+                        </tr>
+                    </table>
+                    <br/><br/>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td align="center" style="background-color:#EEEEEE; border:0.1mm solid #CCC; font-size:11px;">
+                    <strong><?=utf8_decode(_LabelPrintCardsC)?></strong></td>
+            </tr>
+            <tr>
+                <td align="center">
+                    <table width="500px" border="0">
+
+                        <tr>
+                            <td align="center" colspan="2"><?="<b>
+                                ".utf8_decode($rs['LastnameHead'])?>&nbsp;<?=utf8_decode($rs['NameHead'])."</b>"?>
+                            </td>
+                            <td align="center"><?="<b>".$rs['CodeHead']."</b>"?></td>
+                            <td align="center"><?="<b>".utf8_decode($rs['NameRegion'])."</b>"?></td>
+                        </tr>
+                        <tr>
+                            <td align="center" width="250" colspan="2"><font
+                                    size="2"><?=utf8_decode(_LabelPrintCardsC1)?></font></td>
+                            <td align="center" width="125"><font size="2"><?=utf8_decode(_LabelPrintCardsC2)?></font>
+                            </td>
+                            <td align="center" width="125"><font size="2"><?=utf8_decode(_LabelPrintCardsC3)?></font>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">&nbsp;</td>&lt;!&ndash;?=utf8_decode(_LabelPrintCardsD)?&ndash;&gt;<
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+
+                        <tr>
+                            <td align="center"><?="<b>".utf8_decode($rs['NameDepartament'])."</b>"?></td>
+                            <td align="center"><?="<b>".utf8_decode($rs['NameCommune'])."</b>"?></td>
+                            <td align="center"><?="<b>".utf8_decode($rs['NameVillage'])."</b>"?></td>
+                            <td align="center"><?="<b>".utf8_decode($rs['NameVillage'])."</b>"?></td>
+                        </tr>
+                        <tr>
+                            <td align="center" width="125"><font size="2"><?=utf8_decode(_LabelPrintCardsC4)?></font>
+                            </td>
+                            <td align="center" width="125"><font size="2"><?=utf8_decode(_LabelPrintCardsC5)?></font>
+                            </td>
+                            <td align="center" width="125"><font size="2"><?=utf8_decode(_LabelPrintCardsC6)?></font>
+                            </td>
+                            <td align="center" width="125"><font size="2"><?=utf8_decode(_LabelPrintCardsC7)?></font>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr>
+                <td align="center"><br/><br/><br/>
+                    <div align="center">
+                        <barcode code="<? if(trim($rs['num_ben'])=="
+                        ") echo $NumBen2; else echo $rs['num_ben'];?>" type="C39" size="1.0" height="2.5" />
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>-->
+    </div>
+  </body>
+</html>

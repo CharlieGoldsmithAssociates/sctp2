@@ -43,6 +43,7 @@ import org.cga.sctp.targeting.importation.ImportTaskService;
 import org.cga.sctp.targeting.importation.UbrHouseholdImport;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,8 +70,8 @@ public class DataImportService extends TransactionalService {
         return viewRepository.findByImporterUserId(userId);
     }
 
-    public List<DataImportView> getDataImports() {
-        return viewRepository.findAllOrderByIdDesc(Pageable.unpaged());
+    public Page<DataImportView> getDataImports(Pageable pageable) {
+        return viewRepository.findAllOrderByIdDesc(pageable);
     }
 
     public void saveDataImport(DataImport dataImport) {
@@ -127,9 +128,9 @@ public class DataImportService extends TransactionalService {
             return Optional.empty();
         }
 
-        List<UbrHouseholdImport> householdList = importTaskService.getImportsBySessionIdForReview(dataImportId, Pageable.unpaged());
+        Page<UbrHouseholdImport> householdList = importTaskService.getImportsBySessionIdForReview(dataImportId, Pageable.unpaged());
         try {
-            Path filePath = exportHouseholdsWithErrors(householdList, directoryToSaveFile);
+            Path filePath = exportHouseholdsWithErrors(householdList.toList(), directoryToSaveFile);
             return Optional.of(filePath);
         } catch (IOException e) {
             LoggerFactory.getLogger(getClass()).error("Failed to export beneficiaries", e);
@@ -149,12 +150,12 @@ public class DataImportService extends TransactionalService {
 
             // Headers
             tmpExcelRow = sheet.createRow(1);
-            addCell(tmpExcelRow,0, "District");
-            addCell(tmpExcelRow, 1,"TA");
-            addCell(tmpExcelRow, 2,"Village Cluster");
-            addCell(tmpExcelRow, 3,"HH Code");
-            addCell(tmpExcelRow, 4,"HH Head");
-            addCell(tmpExcelRow, 5,"Errors");
+            addCell(tmpExcelRow, 0, "District");
+            addCell(tmpExcelRow, 1, "TA");
+            addCell(tmpExcelRow, 2, "Village Cluster");
+            addCell(tmpExcelRow, 3, "HH Code");
+            addCell(tmpExcelRow, 4, "HH Head");
+            addCell(tmpExcelRow, 5, "Errors");
             // Add other rows
             int currentRow = 2;
             for (UbrHouseholdImport household : householdList) {

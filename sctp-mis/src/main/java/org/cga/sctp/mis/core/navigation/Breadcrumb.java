@@ -32,12 +32,25 @@
 
 package org.cga.sctp.mis.core.navigation;
 
+import org.springframework.util.StringUtils;
+
 public record Breadcrumb(String link, String title, boolean active) {
     Breadcrumb(BreadcrumbPath path) {
-        this(path.link(), path.title(), path.navigable());
+        this(normalize(path.link()), path.title(), path.navigable());
     }
 
     Breadcrumb(String title) {
         this(null, title, false);
+    }
+
+    private static String normalize(String path) {
+        if (StringUtils.hasText(path)) {
+            if (path.length() > 1) {
+                if (path.startsWith("/")) {
+                    path = path.substring(1);
+                }
+            }
+        }
+        return path;
     }
 }

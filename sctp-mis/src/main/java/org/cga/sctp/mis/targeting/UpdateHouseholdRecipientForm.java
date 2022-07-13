@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,26 +30,19 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting;
+package org.cga.sctp.mis.targeting;
 
-import org.hibernate.annotations.Immutable;
+import javax.validation.constraints.NotNull;
 
-import javax.persistence.*;
-import java.time.LocalDateTime;
-
-@Immutable
-@Entity
-@Table(name = "enrollment_session_v")
-public class EnrollmentSessionView {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class UpdateHouseholdRecipientForm {
+    @NotNull(message = "Required")
     private Long id;
-    private LocalDateTime createdAt;
-    private String taName;
-    private String districtName;
-    private String programName;
-    private Long householdCount;
-    private String doneBy;
+
+    @NotNull(message = "Required")
+    private Long session;
+
+    @NotNull(message = "required")
+    private Long household;
 
     public Long getId() {
         return id;
@@ -59,52 +52,19 @@ public class EnrollmentSessionView {
         this.id = id;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public Long getSession() {
+        return session;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setSession(Long session) {
+        this.session = session;
     }
 
-    public String getTaName() {
-        return taName;
+    public Long getHousehold() {
+        return household;
     }
 
-    public void setTaName(String taName) {
-        this.taName = taName;
+    public void setHousehold(Long household) {
+        this.household = household;
     }
-
-    public String getDistrictName() {
-        return districtName;
-    }
-
-    public void setDistrictName(String districtName) {
-        this.districtName = districtName;
-    }
-
-    public String getProgramName() {
-        return programName;
-    }
-
-    public void setProgramName(String programName) {
-        this.programName = programName;
-    }
-
-    public Long getHouseholdCount() {
-        return householdCount;
-    }
-
-    public void setHouseholdCount(Long householdCount) {
-        this.householdCount = householdCount;
-    }
-
-    public String getDoneBy() {
-        return doneBy;
-    }
-
-    public void setDoneBy(String doneBy) {
-        this.doneBy = doneBy;
-    }
-
 }

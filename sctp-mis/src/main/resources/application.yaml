@@ -10,6 +10,11 @@ spring:
     name: "SCTP MIS"
     version: @project.version@
     build_timestamp: @maven.build.timestamp@
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
 
 server:
   error:

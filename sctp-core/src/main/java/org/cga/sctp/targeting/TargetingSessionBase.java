@@ -49,7 +49,14 @@ public class TargetingSessionBase {
     public enum MeetingPhase {
         completed,
         district_meeting,
-        second_community_meeting
+        second_community_meeting;
+
+        public MeetingPhase next() {
+            return switch (this) {
+                case second_community_meeting -> district_meeting;
+                case district_meeting, completed -> completed;
+            };
+        }
     }
 
     @Id

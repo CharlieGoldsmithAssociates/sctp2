@@ -74,28 +74,30 @@ public class BreadcrumbFn extends PebbleFunctionImpl {
         </nav>*/
         // breadcrumb is-medium" aria-label="breadcrumbs"
         container = new HtmlElement("div")
-                .attribute("style", "margin-top: 1rem")
+                .attribute("style", "margin-top: 1rem; padding-left: 1.5rem; padding-right: 1.5rem")
                 .addChild(
                         new HtmlElement("nav")
-                                .addClasses("breadcrumb"/*, "is-small"*/)
+                                .addClasses("breadcrumb", "has-arrow-separator")
                                 .attribute("aria-label", "breadcrumbs")
                                 .addChild(nav = new HtmlElement("ul"))
                 );
-        if (!useWideContainer) {
-            container.addClass("container");
-        }
-        List<Breadcrumb> breadcrumbs = breadCrumbChain.getBreadcrumbs();
+
         StringBuilder linkBuilder = new StringBuilder();
-        for (Breadcrumb breadcrumb : breadcrumbs) {
-            HtmlElement anchor = lastAnchor = new HtmlElement("a")
-                    .text(breadcrumb.title());
+        List<Breadcrumb> breadcrumbs = breadCrumbChain.getBreadcrumbs();
+
+        for (int i = 0; i < breadcrumbs.size(); i++) {
+            Breadcrumb breadcrumb = breadcrumbs.get(i);
+
+            HtmlElement anchor = lastAnchor = new HtmlElement("a").text(breadcrumb.title());
             if (!Strings.isBlank(breadcrumb.link())) {
                 anchor.attribute("href", linkBuilder.append(breadcrumb.link()));
+            } else {
+                anchor.attribute("style", "color: black; cursor: default");
             }
             nav.addChild(lastListItem = new HtmlElement("li").addChild(anchor));
-            if (!breadcrumb.active()) {
-                lastAnchor.attribute("aria-current", "page");
+            if (i == breadcrumbs.size() - 1) {
                 lastListItem.classes("is-active");
+                lastAnchor.attribute("aria-current", "page");
             }
         }
 

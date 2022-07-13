@@ -33,5 +33,6 @@
 package org.cga.sctp.mis.core.navigation;
 
 public interface ModuleNames {
-    String TARGETING = "Targeting & Enrolment";
+    String TARGETING = "Targeting & Enrollment";
+    String DATA_IMPORT = "Data Import";
 }

@@ -65,4 +65,6 @@ interface TargetingSessionRepository extends JpaRepository<TargetingSession, Lon
             @Param("closedAt") LocalDateTime time,
             @Param("newStatus") String newStatus
     );
+
+    TargetingSession findByIdAndDistrictCode(Long districtCode, Long sessionId);
 }

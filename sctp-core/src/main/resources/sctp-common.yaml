@@ -13,10 +13,13 @@ auth:
     iss: sctp
 
 spring:
-  resources:
-    cache:
-      cachecontrol:
-        max-age: 365d
+  web:
+    resources:
+      cache:
+        period: 365d
+  data:
+    pageable:
+      default-page-size: 50
   application:
     name: "SCTP"
     version: @project.version@

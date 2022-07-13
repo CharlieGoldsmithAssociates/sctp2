@@ -23,18 +23,44 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
+                <excludes>
+                    <exclude>**/*.pdf</exclude>
+                    <exclude>**/*.jpg</exclude>
+                    <exclude>**/*.html</exclude>
+                    <exclude>**/*.zip</exclude>
+                    <exclude>**/*.xls</exclude>
+                    <exclude>**/*.xlsx</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*.pdf</include>
+                    <include>**/*.jpg</include>
+                    <include>**/*.html</include>
+                    <include>**/*.zip</include>
+                    <include>**/*.xls</include>
+                    <include>**/*.xlsx</include>
+                </includes>
             </resource>
         </resources>
     </build>
 
     <properties>
         <hibernate-types.version>2.12.0</hibernate-types.version>
+        <pdfbox.version>2.0.26</pdfbox.version>
+        <zxing.version>3.5.0</zxing.version>
     </properties>
 
     <repositories>
         <repository>
             <id>jcenter</id>
             <url>https://jcenter.bintray.com/</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
     </repositories>
 
@@ -120,12 +146,35 @@
             <artifactId>commons-io</artifactId>
             <version>2.11.0</version>
         </dependency>
-        <!-- NOTE: addding this because seems to be needed by the test env -->
+        <!-- NOTE: adding this because seems to be needed by the test env -->
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-spatial</artifactId>
             <version>${hibernate.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>${pdfbox.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>${zxing.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+            <version>${zxing.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.SharkFourSix</groupId>
+            <artifactId>spector</artifactId>
+            <version>v1.2.0</version>
+        </dependency>
+
     </dependencies>
 </project>

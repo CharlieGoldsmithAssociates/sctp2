@@ -39,4 +39,9 @@ public final class LocaleUtils {
     public static boolean isStringNullOrEmpty(String string) {
         return string == null || (string.isBlank() || string.isEmpty());
     }
+
+    public static boolean checkLengthBounds(String value, int min, int max) {
+        final int length = value.length();
+        return length >= min && length <= max;
+    }
 }

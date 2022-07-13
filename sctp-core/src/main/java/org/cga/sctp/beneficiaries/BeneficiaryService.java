@@ -107,4 +107,8 @@ public class BeneficiaryService extends TransactionalService {
         }
         return householdRepository.findAllByLocationCode(String.valueOf(locationCode));//, pageable);
     }
+
+    public boolean householdMemberExists(Long household, Long id) {
+        return individualRepository.existsByIdAndHouseholdId(id, household);
+    }
 }

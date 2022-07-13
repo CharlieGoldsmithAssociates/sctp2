@@ -35,6 +35,7 @@ package org.cga.sctp.mis.file_upload;
 import me.desair.tus.server.TusFileUploadService;
 import me.desair.tus.server.upload.UploadInfo;
 import org.cga.sctp.core.TransactionalService;
+import org.cga.sctp.data.ResourceService;
 import org.cga.sctp.mis.targeting.import_tasks.FileImportConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -59,6 +60,9 @@ public class FileUploadService extends TransactionalService {
 
     @Autowired
     private TusFileUploadService tusFileUploadService;
+
+    @Autowired
+    private ResourceService resourceService;
 
     public boolean moveToStagingDirectory(InputStream inputStream, UploadInfo uploadInfo) {
         try {
@@ -95,5 +99,14 @@ public class FileUploadService extends TransactionalService {
                 LOG.error("Error when attempting to cleanup files", e);
             }
         }
+    }
+
+    /**
+     * This method is for convenience only. {@link  ResourceService} can be injected directly into whatever component
+     *
+     * @return .
+     */
+    public ResourceService getResourceService() {
+        return resourceService;
     }
 }

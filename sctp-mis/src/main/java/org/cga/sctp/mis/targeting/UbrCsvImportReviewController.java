@@ -39,6 +39,7 @@ import org.cga.sctp.targeting.exchange.DataImportView;
 import org.cga.sctp.targeting.importation.ImportTaskService;
 import org.cga.sctp.targeting.importation.UbrHouseholdImport;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -48,7 +49,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @Controller
 @RequestMapping("/data-import/from-ubr-csv/{import-id}/review")
@@ -79,7 +79,7 @@ public class UbrCsvImportReviewController extends SecuredBaseController {
         if (dataImport == null) {
             return redirect("/data-import");
         }
-        List<UbrHouseholdImport> imports = taskService.getImportsBySessionIdForReview(dataImport.getId(), pageable);
+        Page<UbrHouseholdImport> imports = taskService.getImportsBySessionIdForReview(dataImport.getId(), pageable);
         return view("targeting/import/review")
                 .addObject("importSession", dataImport)
                 .addObject("imports", imports);

@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,43 +30,30 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting;
+package org.cga.sctp.data;
 
-import javax.persistence.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
-@Entity
-@Table(name = "household_enrollment")
-public class EnrollmentHousehold {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-    private long sessionId;
-    private long householdId;
+import javax.validation.constraints.NotNull;
+import java.io.File;
 
-    public long getId() {
-        return id;
+@Configuration
+public class DatastoreConfiguration {
+    private final File recipientPhotoDirectory;
+
+    public DatastoreConfiguration(
+            @NotNull
+            @Value("${targeting.pictures:data/recipient_photos}") File directory) {
+        if (!directory.exists()) {
+            if (!directory.mkdirs()) {
+                throw new RuntimeException("Failed to initialize directory " + directory.getAbsolutePath());
+            }
+        }
+        this.recipientPhotoDirectory = directory;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public File getRecipientPhotoDirectory() {
+        return recipientPhotoDirectory;
     }
-
-    public long getSessionId() {
-        return sessionId;
-    }
-
-    public void setSessionId(long sessionId) {
-        this.sessionId = sessionId;
-    }
-
-    public long getHouseholdId() {
-        return householdId;
-    }
-
-    public void setHouseholdId(long householdId) {
-        this.householdId = householdId;
-    }
-
-
-
 }

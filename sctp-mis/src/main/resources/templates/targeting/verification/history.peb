@@ -71,6 +71,8 @@
                     </tbody>
                 </table>
             </div>
+            <hr />
+            {{ paginate(verifications, request) | raw }}
         </div>
     </div>
     </div>

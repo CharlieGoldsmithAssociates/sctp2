@@ -55,6 +55,17 @@ public class TargetingResultRecord {
     @Column(name = "ranking", nullable = false)
     private Integer ranking;
 
+    @Column(name = "old_rank")
+    private Integer oldRank;
+
+    @Column(name = "old_status")
+    @Enumerated(value = EnumType.STRING)
+    @Convert(disableConversion = true)
+    private CbtStatus oldStatus;
+
+    @Column
+    private String reason;
+
     @Column(name = "status", nullable = false)
     @Enumerated(value = EnumType.STRING)
     @Convert(disableConversion = true)
@@ -184,5 +195,29 @@ public class TargetingResultRecord {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Integer getOldRank() {
+        return oldRank;
+    }
+
+    public void setOldRank(Integer oldRank) {
+        this.oldRank = oldRank;
+    }
+
+    public CbtStatus getOldStatus() {
+        return oldStatus;
+    }
+
+    public void setOldStatus(CbtStatus oldStatus) {
+        this.oldStatus = oldStatus;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
     }
 }

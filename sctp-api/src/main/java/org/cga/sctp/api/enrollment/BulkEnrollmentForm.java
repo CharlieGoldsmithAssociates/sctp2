@@ -30,7 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.api.targeting;
+package org.cga.sctp.api.enrollment;
 
 import org.cga.sctp.targeting.enrollment.EnrollmentForm;
 

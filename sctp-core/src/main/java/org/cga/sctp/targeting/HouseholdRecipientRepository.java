@@ -32,6 +32,7 @@
 
 package org.cga.sctp.targeting;
 
+import org.cga.sctp.targeting.enrollment.HouseholdRecipient;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
@@ -40,7 +41,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 
 @Repository
-public interface HouseholdRecipientRepository extends JpaRepository<HouseholdRecipient,Long> {
+public interface HouseholdRecipientRepository extends JpaRepository<HouseholdRecipient, Long> {
 
 
     //@Query(value = "CALL addHouseholdAlternateRecipient(:householdId, :mainRecipient, :mainPhoto, :altPhoto, :firstName, :lastName, :nationalId, :gender, :dob)", nativeQuery = true)

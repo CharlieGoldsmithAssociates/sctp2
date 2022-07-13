@@ -1,225 +1,452 @@
     {% extends "./base" %}
+    {% block head %}
+        <link rel="stylesheet" type="text/css" href="/assets/css/info-list.css"/>
+    {% endblock %}
+    {% block headerStyles %}
+        .content-tab {
+           border-radius: 2px;
+           {#border: 1px solid #ebebeb;#}
+        }
+        .tab-content-container {
+            padding-top: 16px;
+            padding-left: 0px !important;
+            padding-right: 0px !important;
+            padding-bottom: 16px;
+            margin: 0px !important;
+        }
+        .receiver-image {
+            width: 512px !important;
+            height: 412px !important;
+        }
+        .preview-image {
+            width: 250px !important;
+            height: 250px !important;
+        }
+        .htmx-indicator {
+            display: none;
+        }
+    {% endblock %}
 
-        {% block head %}<link rel="stylesheet" type="text/css" href="/assets/css/info-list.css"/>{% endblock %}
+    {% block contextMenu %}
+    {% set canModify = hasRole("ADMINISTRATOR") and isSessionOpen %}
+    {% set useWideContainer = true %}
 
-        {% block contextMenu %}
-            {% set canModify = hasRole("ADMINISTRATOR") and isSessionOpen %}
-            {% set useWideContainer = true %}
-        <div class="context-nav-container">
-            <div class="level">
-                <div class="level-left">
-                    <div class="level-item">
-                        <a href="{{ returnUrl }}" class="button is-danger">
-                            <span class="icon-text">
-                                <span class="icon">
-                                    <i class="fa fa-chevron-left"></i>
-                                </span>
-                                <span>Back</span>
+    <div class="context-nav-container">
+        <div class="level">
+            <div class="level-left">
+                <div class="level-item">
+                    {{ hiddenField('sessionId', sessionId) }}
+                    <a href="/targeting/enrolment/households?session={{ sessionId }}" class="button is-danger">
+                        <span class="icon-text">
+                            <span class="icon">
+                                <i class="fa fa-chevron-left"></i>
                             </span>
-                        </a>
-                    </div>
+                            <span>Back</span>
+                        </span>
+                    </a>
                 </div>
             </div>
         </div>
-        {% endblock %}
-
+    </div>
+    {% endblock %}
 
     {% block content %}
     <div>
         <div class="card no-overlap">
             <header class="card-header">
-                <p class="card-header-title">Enrolled / Household - ML- {{ details.mlCode }}</p>
+                <p class="card-header-title">Household Enrollment Details</p>
             </header>
             <div class="card-content">
-                <div class="card">
-                    <header class="card-header">
-                        <p class="card-header-title">General Information</p>
-                    </header>
-                    <div class="card-content">
+                <div class="tabs">
+                    <ul>
+                        <li class="tab is-active" onclick="toggleTab(event,'#general')"><a>General Information</a></li>
+                        <li class="tab" onclick="toggleTab(event, '#main-receiver')"><a>Main Receiver</a></li>
+                        <li class="tab" onclick="toggleTab(event, '#alt-receiver')"><a>Alternate Receiver</a></li>
+                        <li class="tab" onclick="toggleTab(event, '#school-info')"><a>School information</a></li>
+                        <li class="tab" onclick="toggleTab(event, '#passbook-panel')"><a>Passbook</a></li>
+                    </ul>
+                </div>
+
+                <div class="container section is-fluid tab-content-container" hx-ext="client-side-templates">
+                    <div id="general" class="content-tab">
+                        {{ showMessages(null, message('enrollment.summary.general.info'), null, null) }}
+                        <div id="hh-summary" class="columns">
+                            <div class="column">
+                                <img src="/assets/img/tailspin.svg" />
+                            </div>
+                        </div>
+                        <template id="summaryTpl">
+                            {% verbatim %}
+                                <div class="column">
+                                    <div class="info-list">
+                                        <div class="info-row">
+                                            <div class="item-label">TA</div>
+                                            <div class="item-value">{{ taName }}</div>
+                                        </div>
+                                        <div class="info-row">
+                                            <div class="item-label">Village Cluster</div>
+                                            <div class="item-value">{{ clusterName }}</div>
+                                        </div>
+                                        <div class="info-row">
+                                            <div class="item-label">Pre-Printed Num</div>
+                                            <div class="item-value">{{ formNumber }}</div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="column">
+                                    <div class="info-list">
+                                        <div class="info-row">
+                                            <div class="item-label">Household Code</div>
+                                            <div class="item-value">ML-{{ mlCode }}</div>
+                                        </div>
+                                        <div class="info-row">
+                                            <div class="item-label">Household Name</div>
+                                            <div class="item-value">
+                                                {{houseHoldHead}}
+                                                {{^houseHoldHead}}
+                                                <span class="has-text-danger-dark">Not available</span>
+                                                {{/houseHoldHead}}
+                                            </div>
+                                        </div>
+                                        <div class="info-row">
+                                            <div class="item-label">National ID Number</div>
+                                            <div class="item-value">
+                                                {{ individualId }}
+                                                {{^individualId}}
+                                                <span class="has-text-danger-dark">Not available</span>
+                                                {{/individualId}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="column">
+                                    <div class="info-list">
+                                        <div class="info-row">
+                                            <div class="item-label">Total Household Members</div>
+                                            <div class="item-value">{{ memberCount }}</div>
+                                        </div>
+                                        <div class="info-row">
+                                            <div class="item-label">Total Children in Primary</div>
+                                            <div class="item-value">{{ primaryChildren }}</div>
+                                        </div>
+                                        <div class="info-row">
+                                            <div class="item-label">Total Children in Secondary</div>
+                                            <div class="item-value">{{ secondaryChildren }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="column">
+                                    <div class="info-list">
+                                        <div class="info-row">
+                                            <div class="item-label">Total Enrolled Children Age 6-15</div>
+                                            <div class="item-value">{{ childEnrollment6to15 }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                             {% endverbatim %}
+                        </template>
+
+                        <div class="buttons is-right mt-5">
+                            <button id="refreshSummary"
+                                    hx-get="/targeting/enrolment/summary?household={{ householdId }}&amp;enrollment={{ sessionId }}"
+                                    hx-swap="innerHTML"
+                                    hx-target="#hh-summary"
+                                    hx-trigger="load, click"
+                                    mustache-template="summaryTpl"
+                                    class="button is-info">Refresh&nbsp;&nbsp;
+                                <img class="htmx-indicator" width="20" height="20" src="/assets/img/tailspin-white.svg" />
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="main-receiver" class="content-tab" style="display:none">
+                        {{ showMessages(null, message('enrollment.summary.receiver.main.info'), null, null) }}
                         <div class="columns">
-                            <div class="column">
-                                <div class="info-list">
-
-                                    <div class="info-row">
-                                        <div class="item-label">TA</div>
-                                        <div class="item-value">{{ details.taName }}</div>
+                            <div id="hh-primary-recipient" class="column is-6">
+                                <img src="/assets/img/tailspin.svg" />
+                            </div>
+                            <div class="divider is-vertical">UPDATE</div>
+                            <div id="hh-primary-recipient-update" class="column is-5">
+                                <img src="/assets/img/tailspin.svg" />
+                            </div>
+                        </div>
+                        <template id="tpl-primary-recipient">
+                            {% verbatim %}
+                                <div class="columns is-vcentered">
+                                    <div class="column is-6">
+                                        {{#photo}}
+                                        <img id="main-photo"
+                                             class="receiver-image p4p obj-fit-contain"
+                                             src="/targeting/enrolment/recipient-photo?household={{householdId}}&amp;type=primary"
+                                             alt="Main receiver photo" />
+                                        {{/photo}}
+                                        {{^photo}}
+                                        <img id="main-photo"
+                                             class="receiver-image p4p obj-fit-contain"
+                                             src="/assets/img/user-svg.svg"
+                                             alt="Main receiver photo" />
+                                        {{/photo}}
                                     </div>
-
-                                    <div class="info-row">
-                                        <div class="item-label">Village Cluster</div>
-                                        <div class="item-value">{{ details.clusterName }}</div>
+                                    <div class="column is-6">
+                                        <div class="info-list">
+                                            <div class="info-row">
+                                                <div class="item-label">Household member</div>
+                                                <div class="item-value">
+                                                    {{ firstName }} {{ lastName }}
+                                                    {{^firstName}}
+                                                    <span class="has-text-danger-dark">Not available</span>
+                                                    {{/firstName}}
+                                                </div>
+                                            </div>
+                                            <div class="info-row">
+                                                <div class="item-label">Gender</div>
+                                                <div class="item-value">
+                                                    {{ gender }}
+                                                    {{^gender}}
+                                                    <span class="has-text-danger-dark">Not available</span>
+                                                    {{/gender}}
+                                                </div>
+                                            </div>
+                                            <div class="info-row">
+                                                <div class="item-label">Date of birth</div>
+                                                <div class="item-value">
+                                                    {{ dateOfBirth }}
+                                                    {{^dateOfBirth}}
+                                                    <span class="has-text-danger-dark">Not available</span>
+                                                    {{/dateOfBirth}}
+                                                </div>
+                                            </div>
+                                            <div class="info-row">
+                                                <div class="item-label">National Id</div>
+                                                <div class="item-value">
+                                                    {{ individualId }}
+                                                    {{^individualId}}
+                                                    <span class="has-text-danger-dark">Not available</span>
+                                                    {{/individualId}}
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-
-                                    <div class="info-row">
-                                        <div class="item-label">Pre-Printed Num</div>
-                                        <div class="item-value">{{ details.formNumber }}</div>
+                                </div>
+                            {% endverbatim %}
+                        </template>
+                        <template id="tpl-primary-recipient-update">
+                            {% verbatim %}
+                                <div class="columns">
+                                    <div class="column">
+                                        <div class="field">
+                                            <label class="label">Select new main recipient</label>
+                                            <div class="control is-expanded">
+                                                <div class="select is-fullwidth">
+                                                    <select id="mainCandidates" required="required">
+                                                        <option disabled="disabled">Select household member</option>
+                                                        {{#candidates}}<option value="{{id}}"
+                                                                               data-hh="{{householdId}}">{{name}} ({{gender}}, {{age}} yrs)</option>{{/candidates}}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="field ">
+                                            <label class="label">Update recipient photo (5 MB max)</label>
+                                            <div class="control is-expanded">
+                                                <img id="mainPreviewPhoto"
+                                                     class="preview-image obj-fit-contain"
+                                                     src="/assets/img/user-svg.svg" />
+                                            </div>
+                                        </div>
                                     </div>
-
+                                </div>
+                                <!-- insert here -->
+                                <div class="columns">
+                                    <div class="column">
+                                        <div class="level">
+                                            <div class="level-left">
+                                                <div class="level-item">
+                                                    <div class="file is-text is-small">
+                                                      <label class="file-label">
+                                                        <input class="file-input"
+                                                               id="mainPhotoSelection"
+                                                               required="required"
+                                                               type="file"
+                                                               onchange="if(this.files[0]){ mainPreviewPhoto.src = window.URL.createObjectURL(this.files[0]); }"
+                                                               maxlength="5242880"
+                                                               accept="image/jpeg; image/png"
+                                                               name="resume" />
+                                                        <span class="file-cta">
+                                                          <span class="file-icon">
+                                                            <i class="fas fa-upload"></i>
+                                                          </span>
+                                                          <span class="file-label">
+                                                            Select photo
+                                                          </span>
+                                                        </span>
+                                                      </label>
+                                                    </div>
+                                                </div>
+                                                <div class="level-item">
+                                                    <button onclick="mainPreviewPhoto.src = '/assets/img/user-svg.svg'; mainPhotoSelection.value='';"
+                                                            class="button is-inverted is-small is-text is-danger">Cancel photo selection</button>
+                                                </div>
+                                            </div>
+                                            <div class="level-right">
+                                                <div class="level-item">
+                                                    <button onclick="saveMainReceiver()"
+                                                            class="button is-small is-link">Save changes</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endverbatim %}
+                        </template>
+                        <hr />
+                        <div class="level">
+                            <div class="level-left">
+                                <div class="level-item">
+                                    <button
+                                            id="btnGetMainRecipient"
+                                            hx-get="/targeting/enrolment/primary-recipient?household={{ householdId }}"
+                                            hx-swap="innerHTML"
+                                            hx-target="#hh-primary-recipient"
+                                            hx-trigger="load, click"
+                                            mustache-template="tpl-primary-recipient"
+                                            class="button is-info">Reload main recipient details<img class="htmx-indicator" width="20" height="20" src="/assets/img/tailspin-white.svg" /></button>
                                 </div>
                             </div>
-
-                            <div class="column">
-                                <div class="info-list">
-
-                                    <div class="info-row">
-                                        <div class="item-label">Household Code</div>
-                                        <div class="item-value">ML-{{ details.mlCode }}</div>
-                                    </div>
-
-                                    <div class="info-row">
-                                        <div class="item-label">Household Name</div>
-                                        <div class="item-value">{{ details.houseHoldHead }}</div>
-                                    </div>
-
-                                    <div class="info-row">
-                                        <div class="item-label">National ID Number</div>
-                                        <div class="item-value"></div>
-                                    </div>
-
+                            <div class="level-right">
+                                <div class="level-item">
+                                    <button
+                                            hx-get="/targeting/enrolment/recipient-candidates?household={{ householdId }}"
+                                            hx-swap="innerHTML"
+                                            hx-target="#hh-primary-recipient-update"
+                                            hx-trigger="load, click"
+                                            mustache-template="tpl-primary-recipient-update"
+                                            class="button is-link is-info">Refresh members list<img class="htmx-indicator" width="20" height="20" src="/assets/img/tailspin-white.svg" /></button>
                                 </div>
                             </div>
-
-                            <div class="column">
-                                <div class="info-list">
-
-                                    <div class="info-row">
-                                        <div class="item-label">Total Household Members</div>
-                                        <div class="item-value">{{ details.memberCount | numberformat("#,###") }}</div>
-                                    </div>
-
-                                    <div class="info-row">
-                                        <div class="item-label">Total Children in Primary</div>
-                                        <div class="item-value">{{ details.primaryChildre | numberformat("#,###") }}</div>
-                                    </div>
-
-                                    <div class="info-row">
-                                        <div class="item-label">Total Children in Secondary</div>
-                                        <div class="item-value">{{ details.secondaryChildren | numberformat("#,###") }}</div>
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            <div class="column">
-                                <div class="info-list">
-
-                                    <div class="info-row">
-                                        <div class="item-label">Total Enrolled Children Age 6-15</div>
-                                        <div class="item-value">{{ details.totalChildren }}</div>
-                                    </div>
-
-
-
-                                </div>
-                            </div>
-
-
                         </div>
                     </div>
-                </div>
-                <!--main receiver-->
-                <div class="card mt-5">
-                    <header class="card-header">
-                        <p class="card-header-title">Main Receiver</p>
-                    </header>
-                    <div class="columns">
-                        <div class="column is-5">
-                            <div class="card-image">
-                                <figure class="image is-4by3">
-                                    <img id="main-photo" class="p4p obj-fit-contain" src="/assets/img/user-svg.svg" alt="Placeholder image" />
-                                </figure>
-                            </div>
-                        </div>
-                        <div class="card-content">
-                            <div class="columns">
-                                <div class="column is-6">
-                                    <label class="label">HouseHold Member</label>
+
+                    <div id="alt-receiver" class="content-tab" style="display:none">
+                        {{ showMessages(null, message('enrollment.summary.receiver.alt.info'), null, null) }}
+                        <div class="columns">
+                            <div class="column is-5">
+                                <div class="card-image">
+                                    <figure class="image is-4by3">
+                                        <img id="alt-photo"
+                                             class="receiver-image obj-fit-contain"
+                                             src="/assets/img/user-svg.svg"
+                                             alt="Placeholder image" />
+                                    </figure>
                                 </div>
-                                <div class="column is-12">
-                                    <div class="field">
-                                        <div class="control">
-                                            <div class="select is-fullwidth">
-                                                    {{ selectField('mainReceiver', individuals, enrolmentForm.mainReceiver, true) }}
-                                            </div>
-                                        </div>
-                                        {{ printFieldErrors(getFieldErrors('enrolmentForm', 'mainReceiver')) }}
+                            </div>
+                            <div class="card-content">
+                                <div class="control mb-5">
+                                    <label class="radio">
+                                        <input id="householdMemberBtn" type="radio" name="answer" checked onclick="handleClick(this);" value="1">
+                                        Household Member
+                                    </label>
+                                    <label class="radio">
+                                        <input id="nonHouseholdMemberBtn" type="radio" name="non-household" onclick="handleClick(this);" value="2">
+                                        Non-Household Member
+                                    </label>
+                                </div>
+                                <div id="altMember" class="columns">
+                                    <div class="column is-6">
+                                        <label class="label">Member</label>
                                     </div>
-                                </div>
-                            </div>
-{#                            <div class="columns">#}
-{#                                <div class="column is-6">#}
-{#                                    <label class="label">First Name</label>#}
-{#                                </div>#}
-{#                                <div class="column is-12">#}
-{#                                    <div class="field">#}
-{#                                        <div class="control">#}
-{#                                            <div  class="is-fullwidth">#}
-{#                                                    {{ textField('mainFirstName', enrolmentForm.mainFirstName, 1, 100, true, null) }}#}
-{#                                            </div>#}
-{#                                        </div>#}
-{#                                    </div>#}
-{#                                </div>#}
-{#                            </div>#}
-{#                            <div class="columns">#}
-{#                                <div class="column is-6">#}
-{#                                    <label class="label">Last Name</label>#}
-{#                                </div>#}
-{#                                <div class="column is-12">#}
-{#                                    <div class="field">#}
-{#                                        <div class="control">#}
-{#                                            <div class="is-fullwidth">#}
-{#                                                    {{ textField('mainLastName', enrolmentForm.mainLastName, 1, 100, true, null) }}#}
-{#                                            </div>#}
-{#                                        </div>#}
-{#                                    </div>#}
-{#                                </div>#}
-{#                            </div>#}
-                            <div class="columns">
-                                <div class="column is-6">
-                                    <label class="label">Gender</label>
-                                </div>
-                                <div class="column is-12">
-                                    <div class="field">
-                                        <div class="control">
-                                            <div class="select is-fullwidth">
-                                                    {{ selectField('mainGender', gender, enrolmentForm.mainGender, true) }}
+                                    <div class="column is-12">
+                                        <div class="field">
+                                            <div class="control">
+                                                <div id="altDiv" class="select is-fullwidth">
+                                                        {{ selectField('altReceiver', individuals, enrolmentForm.altReceiver, true) }}
+                                                </div>
                                             </div>
+                                            {{ printFieldErrors(getFieldErrors('enrolmentForm', 'altReceiver')) }}
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="columns">
-                                <div class="column is-6">
-                                    <label class="label">Date of Birth</label>
-                                </div>
-                                <div class="column is-12">
-                                    <div class="field">
-                                        <div class="control">
-                                            <div class=" is-fullwidth">
-                                                    {{ dateField('mainDOB', enrolmentForm.mainDOB, true) }}
+                                <div class="columns" id="altFieldFirst">
+                                    <div class="column is-6">
+                                        <label class="label">First Name</label>
+                                    </div>
+                                    <div class="column is-12">
+                                        <div class="field">
+                                            <div class="control">
+                                                <div id="altDiv" class="is-fullwidth">
+                                                        {{ textField('altFirstName', enrolmentForm.altFirstName, 1, 100, true, null) }}
+                                                </div>
                                             </div>
+                                            {{ printFieldErrors(getFieldErrors('enrolmentForm', 'altReceiver')) }}
                                         </div>
-                                        {{ printFieldErrors(getFieldErrors('enrolmentForm', 'mainDOB')) }}
                                     </div>
                                 </div>
-                            </div>
-                            <div class="columns">
-                                <div class="column is-6">
-                                    <label class="label">National ID</label>
+                                <div class="columns" id="altFieldLast">
+                                    <div class="column is-6">
+                                        <label class="label">Last Name</label>
+                                    </div>
+                                    <div class="column is-12">
+                                        <div class="field">
+                                            <div class="control">
+                                                <div id="altDiv" class="is-fullwidth">
+                                                        {{ textField('altLastName', enrolmentForm.altLastName, 1, 100, true, null) }}
+                                                </div>
+                                            </div>
+                                            {{ printFieldErrors(getFieldErrors('enrolmentForm', 'altReceiver')) }}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="column is-6">
-                                    <input id="mainNationalId" name="mainNationalId" type="text" minlength="1" maxlength="100" class="input" disabled>
+                                <div class="columns">
+                                    <div class="column is-6">
+                                        <label class="label">Gender</label>
+                                    </div>
+                                    <div class="column is-12">
+                                        <div class="field">
+                                            <div class="control">
+                                                <div class="select is-fullwidth">
+                                                        {{ selectField('altGender', gender, enrolmentForm.altGender, true) }}
+                                                </div>
+                                            </div>
+                                            {{ printFieldErrors(getFieldErrors('enrolmentForm', 'altGender')) }}
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="columns">
-                                <div class="column">
-                                    <button id="modal-btn" class="button is-primary modal-button" data-target="modal" aria-haspopup="true">Take picture</button>
+                                <div class="columns">
+                                    <div class="column is-6">
+                                        <label class="label">Date of Birth</label>
+                                    </div>
+                                    <div class="column is-12">
+                                        <div class="field">
+                                            <div class="control">
+                                                <div class=" is-fullwidth">
+                                                        {{ dateField('altDOB', enrolmentForm.altDOB, true) }}
+                                                </div>
+                                            </div>
+                                            {{ printFieldErrors(getFieldErrors('enrolmentForm', 'altDOB')) }}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="column">
-                                    <div class="file">
-                                        <label class="file-label">
-                                            <input class="file-input" type="file" accept="image/*" name="alt-photo" onchange="loadMainFile(event)">
-                                            <span class="file-cta">
+                                <div class="columns">
+                                    <div class="column is-6">
+                                        <label class="label">National ID</label>
+                                    </div>
+                                    <div class="column is-6">
+                                            {{ textField('altNationalId', enrolmentForm.altNationalId, 1, 100, true, null) }}
+                                    </div>
+                                </div>
+                                <div class="columns">
+                                    <div class="column">
+                                        <button id="alt-modal-btn" class="button is-primary modal-button" data-target="modal" aria-haspopup="true">Take picture</button>
+                                    </div>
+                                    <div class="column">
+                                        <div class="file">
+                                            <label class="file-label">
+                                                <input class="file-input" type="file" accept="image/*" name="alt-photo" onchange="loadAltFile(event)">
+                                                <span class="file-cta">
                                               <span class="file-icon">
                                                 <i class="fas fa-upload"></i>
                                               </span>
@@ -227,217 +454,119 @@
                                                 Choose a file…
                                               </span>
                                             </span>
-                                        </label>
+                                            </label>
+                                        </div>
                                     </div>
-                                </div>
 
+
+
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <!--alternative receiver-->
-                <div class="card mt-5">
-                    <header class="card-header">
-                        <p class="card-header-title">
-                            <label class="checkbox">
-                                <input id="hasAlt" type="checkbox" class="is-large">
-                                Alternative Receiver
-                            </label>
-                        </p>
-                    </header>
-
-                    <div id="altCard" class="columns">
-                        <div class="column is-5">
-                            <div class="card-image">
-                                <figure class="image is-4by3">
-                                    <img id="alt-photo" class="p4p obj-fit-contain" src="/assets/img/user-svg.svg" alt="Placeholder image">
-                                </figure>
-                            </div>
-                        </div>
-                        <div class="card-content">
-                            <div class="control mb-5">
-                                <label class="radio">
-                                    <input id="householdMemberBtn" type="radio" name="answer" checked onclick="handleClick(this);" value="1">
-                                    Household Member
-                                </label>
-                                <label class="radio">
-                                    <input id="nonHouseholdMemberBtn" type="radio" name="non-household" onclick="handleClick(this);" value="2">
-                                    Non-Household Member
-                                </label>
-                            </div>
-                            <div id="altMember" class="columns">
-                                <div class="column is-6">
-                                    <label class="label">Member</label>
-                                </div>
-                                <div class="column is-12">
-                                    <div class="field">
-                                        <div class="control">
-                                            <div id="altDiv" class="select is-fullwidth">
-                                                    {{ selectField('altReceiver', individuals, enrolmentForm.altReceiver, true) }}
-                                            </div>
-                                        </div>
-                                        {{ printFieldErrors(getFieldErrors('enrolmentForm', 'altReceiver')) }}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="columns" id="altFieldFirst">
-                                <div class="column is-6">
-                                    <label class="label">First Name</label>
-                                </div>
-                                <div class="column is-12">
-                                    <div class="field">
-                                        <div class="control">
-                                            <div id="altDiv" class="is-fullwidth">
-                                                    {{ textField('altFirstName', enrolmentForm.altFirstName, 1, 100, true, null) }}
-                                            </div>
-                                        </div>
-                                        {{ printFieldErrors(getFieldErrors('enrolmentForm', 'altReceiver')) }}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="columns" id="altFieldLast">
-                                <div class="column is-6">
-                                    <label class="label">Last Name</label>
-                                </div>
-                                <div class="column is-12">
-                                    <div class="field">
-                                        <div class="control">
-                                            <div id="altDiv" class="is-fullwidth">
-                                                    {{ textField('altLastName', enrolmentForm.altLastName, 1, 100, true, null) }}
-                                            </div>
-                                        </div>
-                                        {{ printFieldErrors(getFieldErrors('enrolmentForm', 'altReceiver')) }}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="columns">
-                                <div class="column is-6">
-                                    <label class="label">Gender</label>
-                                </div>
-                                <div class="column is-12">
-                                    <div class="field">
-                                        <div class="control">
-                                            <div class="select is-fullwidth">
-                                                    {{ selectField('altGender', gender, enrolmentForm.altGender, true) }}
-                                            </div>
-                                        </div>
-                                        {{ printFieldErrors(getFieldErrors('enrolmentForm', 'altGender')) }}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="columns">
-                                <div class="column is-6">
-                                    <label class="label">Date of Birth</label>
-                                </div>
-                                <div class="column is-12">
-                                    <div class="field">
-                                        <div class="control">
-                                            <div class=" is-fullwidth">
-                                                    {{ dateField('altDOB', enrolmentForm.altDOB, true) }}
-                                            </div>
-                                        </div>
-                                        {{ printFieldErrors(getFieldErrors('enrolmentForm', 'altDOB')) }}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="columns">
-                                <div class="column is-6">
-                                    <label class="label">National ID</label>
-                                </div>
-                                <div class="column is-6">
-                                        {{ textField('altNationalId', enrolmentForm.altNationalId, 1, 100, true, null) }}
-                                </div>
-                            </div>
-                            <div class="columns">
-                                <div class="column">
-                                    <button id="alt-modal-btn" class="button is-primary modal-button" data-target="modal" aria-haspopup="true">Take picture</button>
-                                </div>
-                                <div class="column">
-                                    <div class="file">
-                                        <label class="file-label">
-                                            <input class="file-input" type="file" accept="image/*" name="alt-photo" onchange="loadAltFile(event)">
-                                            <span class="file-cta">
-                                              <span class="file-icon">
-                                                <i class="fas fa-upload"></i>
-                                              </span>
-                                              <span class="file-label">
-                                                Choose a file…
-                                              </span>
-                                            </span>
-                                        </label>
-                                    </div>
-                                </div>
-
-
-
-                            </div>
+                        <div class="buttons is-right mt-5">
+                            <button id="altReceiverLoad"
+                                    class="button is-info"
+                                    onclick="loadAltReceiver()">Reload</button>
+                            <button id="altReceiverSend"
+                                    class="button is-primary"
+                                    onclick="saveAltReceiver()">Save</button>
                         </div>
                     </div>
 
-                </div>
-
-
-                <!-- School confirmation -->
-                <div class="card mt-5">
-                    <header class="card-header">
-                        <p class="card-header-title">School Confirmation</p>
-                    </header>
-                    <table class="table dataTable is-narrow is-striped is-hoverable">
-                        <thead>
-                        <tr>
-                            <th>Name of child</th>
-                            <th>HH Member Code</th>
-                            <th>Current School</th>
-                            <th>Education Level</th>
-                            <th>Grade</th>
-                            <th>Select School</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                                {% for child in children %}
+                    <div id="school-info" class="content-tab" style="display:none">
+                        {{ showMessages(null, message('enrollment.summary.school.info'), null, null) }}
+                        <table class="table dataTable is-narrow is-striped is-hoverable">
+                            <thead>
                             <tr>
-                                <td>{{ child.getFullName }}</td>
-                                <td>ML-{{ child.individualId }}</td>
-                                <td>{{ child.schoolName}}</td>
-                                <td class="control">
-                                    <select id="el-{{ child.id }}" class="input" onchange="handleEduLevel(this);">
+                                <th>Name of child</th>
+                                <th>HH Member Code</th>
+                                <th>Current School</th>
+                                <th>Education Level</th>
+                                <th>Grade</th>
+                                <th>Select School</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                    {% for child in children %}
+                                <tr>
+                                    <td>{{ child.getFullName }}</td>
+                                    <td>ML-{{ child.individualId }}</td>
+                                    <td>{{ child.schoolName}}</td>
+                                    <td class="control">
+                                        <select id="el-{{ child.id }}" class="input" onchange="handleEduLevel(this);">
                                             <option disabled="disabled" selected="selected">Select Option</option>
                                             {% for el in educationLevel %}
-                                            <option value="{{ el.code }}">{{ el.name() }}</option>
+                                                <option value="{{ el.code }}">{{ el.name() }}</option>
                                             {% endfor %}
-                                    </select>
-                                </td>
-                                <td class="control">
-                                    <select  id="gl-{{ child.id }}" class="input" onchange="saveGrade(this)">
+                                        </select>
+                                    </td>
+                                    <td class="control">
+                                        <select  id="gl-{{ child.id }}" class="input" onchange="saveGrade(this)">
                                             <option disabled="disabled" selected="selected" >Select Option</option>
-{#                                            {% for gl in gradeLevel %}#}
-{#                                            <option value="{{ gl.code }}">{{ gl.name() }}</option>#}
-{#                                            {% endfor %}#}
-                                    </select>
-                                </td>
-                                <td class="columns">
-                                    <div class="column">
-                                        <input class="input" id="sch-{{ child.id }}" disabled/>
-                                    </div>
+                                            {#                                            {% for gl in gradeLevel %}#}
+                                            {#                                            <option value="{{ gl.code }}">{{ gl.name() }}</option>#}
+                                            {#                                            {% endfor %}#}
+                                        </select>
+                                    </td>
+                                    <td class="columns">
+                                        <div class="column">
+                                            <input class="input" id="sch-{{ child.id }}" disabled/>
+                                        </div>
 
-                                    <div class="column">
-                                        <button class="button" id="sc-{{ child.id }}" onclick="openSchModal(this)">
+                                        <div class="column">
+                                            <button class="button" id="sc-{{ child.id }}" onclick="openSchModal(this)">
                                             <span class="icon is-small">
                                               <i class="fas fa-bold"></i>
                                             </span>
-                                        </button>
-                                    </div>
+                                            </button>
+                                        </div>
 
-                                </td>
-                            </tr>
-                                {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                                    </td>
+                                </tr>
+                                    {% endfor %}
+                            </tbody>
+                        </table>
+                        <div class="buttons is-right mt-5">
+                            <button id="schoolChildrenLoad"
+                                    class="button is-info"
+                                    onclick="loadSchoolChildren()">Reload</button>
+                            <button id="schoolChildrenLoad"
+                                    class="button is-primary"
+                                    onclick="saveSchoolChildren()">Save</button>
+                        </div>
+                    </div>
 
-                <div class="mt-5">
-                    <button id="sendData" class="button is-primary" onclick="sendData()">save</button>
+                    <div id="passbook-panel" class="content-tab" style="display:none">
+                        {{ showMessages(null, message('enrollment.summary.passbook.info'), null, null) }}
+                        <div class="buttons is-right mt-5">
+                            <button id="btnReloadPassbook"
+                                    class="button is-info"
+                                    onclick="reloadPassbook()">
+                                <span class="icon is-small">
+                                  <i class="fas fa-refresh"></i>
+                                </span>
+                                <span>Reload</span>
+                            </button>
+                            <button id="btnPrintPassbook"
+                                    class="button is-primary"
+                                    onclick="frames.print()">
+                                <span class="icon is-small">
+                                  <i class="fas fa-print"></i>
+                                </span>
+                                <span>Print Passbook</span>
+                            </button>
+                        </div>
+                        <div class="columns is-6">
+                            <embed id="plugin"
+                                    class="column"
+                                    src="/targeting/enrolment/passbook?enrollment={{ sessionId }}&amp;household={{ details.householdId }}"
+                                    type="application/pdf"
+                                    width="500"
+                                    height="700"
+                                    title="Household passbook">
+                            </embed>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="cameraModal" class="modal">
@@ -544,7 +673,6 @@
                     </div>
 {#                    <button id="modalSchoolCloseBtn" class="modal-close is-large" aria-label="close"></button>#}
                 </div>
-
             </div>
         </div>
     </div>
@@ -554,26 +682,73 @@
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     {% endblock %}
     {% block footerScripts %}
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/barcodes/JsBarcode.code39.min.js"></script>
     <script src="/assets/js/vendor/webcam-easy/jquery.min.js" type="text/javascript"></script>
     <script src="/assets/js/vendor/webcam-easy/webcam-easy.js" type="text/javascript"></script>
     <script src="/assets/js/vendor/webcam-easy/app.js" type="text/javascript"></script>
-        <script>
-            var parent = "{{ parent }}";
-            var returnUrl = "{{ returnUrl }}";
+    <script>
+        (function(){
+            window.toggleTab = function(evt, tabName){
+              var i, x, tablinks;
+              x = queryAll(".content-tab");
+              for (i = 0; i < x.length; i++) {
+                  x[i].style.display = "none";
+              }
+              tablinks = queryAll(".tab");
+              for (i = 0; i < x.length; i++) {
+                  tablinks[i].className = tablinks[i].className.replace(" is-active", "");
+              }
+              query(tabName).style.display = "block";
+              evt.currentTarget.className += " is-active";
+            };
+            window.saveMainReceiver = function(){
+                if(1 > mainCandidates.selectedIndex){
+                    alert('Please select a household member first');
+                    return;
+                }
+                if(!mainPhotoSelection.files.length == 1){
+                    alert('Please select a photo for the selected member');
+                    return;
+                }
+                if(!validateFile(mainPhotoSelection.files[0], 5242880, ['image/jpeg','image/png'])){
+                    alert('Invalid file size or type.');
+                    return;
+                }
+                const household_id = mainCandidates;
+                const opts = {
+                    files: [{file: mainPhotoSelection.files[0], name: 'photo'}],
+                    data: {
+                        id: mainCandidates.options[mainCandidates.selectedIndex].value,
+                        household: mainCandidates.options[mainCandidates.selectedIndex].dataset.hh,
+                        session: sessionId.value
+                    }
+                };
+                postForm(`/targeting/enrolment/update-recipient?type=primary`, opts)
+                    .then(data => {
+                            htmx.trigger("#btnGetMainRecipient", "click");
+                            alert('Changes saved');
+                        }
+                    ).catch(e => {console.log(e); alert('Error saving changes. Please try again')})
+                ;
+            };
+        })();
+    </script>
+    <script>
+        var parent = "{{ parent }}";
+        var returnUrl = "{{ returnUrl }}";
 
+        var isNonMember = 0;
+        var householdId = "{{ details.householdId }}";
+        var enrolledChildren =[];
+        var schoolsList = [];
+        var schoolsTableList = [];
+        var hasAlternate = 0;
 
-            var isNonMember = 0;
-            var householdId = "{{ details.householdId }}";
-            var enrolledChildren =[];
-            var schoolsList = [];
-            var schoolsTableList = [];
-            var hasAlternate = 0;
-
-             window.hideSelectedOption = function(el,selectVal){
-                  $("#"+el+" option[value='"+selectVal+"']").hide();
-                  $("#"+el+" option[value!='"+selectVal+"']").show();
-            }
-        </script>
+         window.hideSelectedOption = function(el,selectVal){
+              $("#"+el+" option[value='"+selectVal+"']").hide();
+              $("#"+el+" option[value!='"+selectVal+"']").show();
+        }
+    </script>
     <script>
         (function(){
             var educationLevelList = [];

@@ -32,24 +32,20 @@
 
 package org.cga.sctp.mis.targeting;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.util.WorkbookUtil;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.cga.sctp.mis.core.BaseController;
+import org.cga.sctp.mis.core.navigation.BreadcrumbDefinition;
+import org.cga.sctp.mis.core.navigation.BreadcrumbPath;
+import org.cga.sctp.mis.core.navigation.ModuleNames;
+import org.cga.sctp.mis.core.navigation.VarBinding;
 import org.cga.sctp.targeting.exchange.DataImportObject;
 import org.cga.sctp.targeting.exchange.DataImportService;
 import org.cga.sctp.targeting.exchange.DataImportView;
 import org.cga.sctp.targeting.importation.ImportTaskService;
-import org.cga.sctp.targeting.importation.UbrHouseholdImport;
-import org.cga.sctp.user.AuthenticatedUser;
-import org.cga.sctp.user.AuthenticatedUserDetails;
-import org.cga.sctp.user.RoleConstants;
+import org.cga.sctp.user.*;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -62,18 +58,15 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/data-import")
 @Secured({RoleConstants.ROLE_STANDARD, RoleConstants.ROLE_ADMINISTRATOR})
+@BreadcrumbDefinition(module = ModuleNames.DATA_IMPORT, index = @BreadcrumbPath(link = "/data-import", title = "Import data from sources", navigable = true))
 public class DataImportController extends BaseController {
 
     @Autowired
@@ -88,13 +81,15 @@ public class DataImportController extends BaseController {
     private String stagingDirectory;
 
     @GetMapping
-    ModelAndView list(@AuthenticatedUserDetails AuthenticatedUser user) {
-        List<DataImportView> imports = dataImportService.getDataImports();
+    ModelAndView list(@AuthenticatedUserDetails AuthenticatedUser user, Pageable pageable) {
+        Page<DataImportView> imports = dataImportService.getDataImports(pageable);
         return view("targeting/import/list")
                 .addObject("imports", imports);
     }
 
     @GetMapping("/{import-id}/details")
+    @AdminAndStandardAccessOnly
+    @BreadcrumbPath(link = "/{import-id}/details", title = "Data import details", bindings = {@VarBinding(variable = "import-id", lookupKey = "import-id")})
     ModelAndView details(@PathVariable("import-id") Long id, RedirectAttributes attributes) {
         DataImportView importView = dataImportService.findDataImportViewById(id);
         if (importView == null) {
@@ -119,6 +114,7 @@ public class DataImportController extends BaseController {
     }
 
     @PostMapping("/{import-id}/{import-source}/merge")
+    @AdminAccessOnly
     ModelAndView merge(
             @AuthenticationPrincipal String username,
             @Valid @ModelAttribute MergeImportsForm form,
@@ -135,6 +131,7 @@ public class DataImportController extends BaseController {
             return redirectToReview(id);
         }
         try {
+            // TODO Run in background
             dataImportService.mergeBatchIntoPopulation(dataImport);
             setSuccessFlashMessage("Data imported successfully", attributes);
             publishGeneralEvent("%s merged data in population from import session %s.", username, dataImport.getTitle());
@@ -148,6 +145,7 @@ public class DataImportController extends BaseController {
     }
 
     @GetMapping("/export-errors/{import-id}")
+    @AdminAndStandardAccessOnly
     ResponseEntity<?> exportErrors(@PathVariable("import-id") Long id, RedirectAttributes attributes) {
         Optional<Path> filePath = dataImportService.exportDataImportErrors(id, importTaskService, stagingDirectory);
         try {

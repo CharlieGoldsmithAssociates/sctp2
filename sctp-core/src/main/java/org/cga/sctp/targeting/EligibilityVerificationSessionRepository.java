@@ -46,6 +46,13 @@ interface EligibilityVerificationSessionRepository extends JpaRepository<Eligibi
     @Procedure(procedureName = "calculateVerificationSessionHouseholdCount")
     void calculateHouseholdCount(@Param("session_id") Long id);
 
-    @Query(nativeQuery = true, value = "{CALL getEligibleHouseholds(:session_id)}")
-    List<EligibleHousehold> getEligibleHouseholds(@Param("session_id") Long id);
+    @Query(nativeQuery = true, value = "{CALL getEligibleHouseholds(:session_id, :page, :pageSize)}")
+    List<EligibleHousehold> getEligibleHouseholds(
+            @Param("session_id") Long id,
+            @Param("page") int page,
+            @Param("pageSize") int pageSize
+    );
+
+    @Query(nativeQuery = true, value = "select count(id) from eligible_households where session_id = :session_id")
+    Long countEligibleHouseholds(@Param("session_id") Long id);
 }

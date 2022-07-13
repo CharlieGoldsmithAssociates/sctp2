@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,15 +30,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting;
+package org.cga.sctp.targeting.enrollment;
 
 import org.cga.sctp.core.TransactionalService;
-import org.cga.sctp.targeting.enrollment.EnrollmentForm;
-import org.cga.sctp.targeting.enrollment.SchoolEnrollmentForm;
+import org.cga.sctp.targeting.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -47,56 +47,74 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EnrollmentService extends TransactionalService {
 
     @Autowired
-    CbtRankingRepository cbtRankingRepository;
+    private EnrolmentSessionRepository enrolmentSessionRepository;
 
     @Autowired
-    EnrolmentSessionRepository enrolmentSessionRepository;
+    private EnrollmentSessionViewRepository sessionViewRepository;
 
     @Autowired
-    EnrollmentSessionViewRepository sessionViewRepository;
+    private HouseholdEnrollmentRepository householdEnrollmentRepository;
 
     @Autowired
-    EnrollmentHouseholdRepository enrollmentHouseholdRepository;
+    private HouseholdEnrollmentViewRepository enrollmentViewRepository;
 
     @Autowired
-    AlternateRecipientRepository alternateRecipientRepository;
+    private AlternateRecipientRepository alternateRecipientRepository;
 
     @Autowired
-    HouseholdRecipientRepository householdRecipientRepository;
+    private HouseholdRecipientRepository householdRecipientRepository;
 
     @Autowired
-    SchoolEnrolledRepository schoolEnrolledRepository;
+    private HouseholdRecipientCandidateRepository recipientCandidateRepository;
+
+    @Autowired
+    private SchoolEnrolledRepository schoolEnrolledRepository;
+
+    @Autowired
+    private MainHouseholdRecipientRepository mainHouseholdRecipientRepository;
+
+    @Autowired
+    private AlternateHouseholdRecipientRepository alternateHouseholdRecipientRepository;
+
+    @Autowired
+    private SchoolChildrenCandidateRepository schoolChildrenCandidateRepository;
+
+    @Autowired
+    private HouseholdEnrollmentSummaryRepository householdEnrollmentSummaryRepository;
 
     @Value("${pictures:beneficiary-images}")
     private String beneficiaryPictureUploadDirectory;
 
+    @Value("classpath:passbook/test.pdf")
+    private Resource passbookTemplate;
 
-    public List<EnrollmentSessionView> getEnrollmentSessions() {
-        return sessionViewRepository.findAll();
+    public Page<EnrollmentSessionView> getEnrollmentSessions(Pageable pageable) {
+        return sessionViewRepository.findAll(pageable);
     }
 
-    public Slice<CbtRankingResult> getEnrolledHouseholds(EnrollmentSessionView session, Pageable pageable) {
-        return cbtRankingRepository.findByCbtSessionId(session.getId(), pageable);
+    public Page<HouseholdEnrollmentView> getEnrolledHouseholds(EnrollmentSessionView session, Pageable pageable) {
+        return enrollmentViewRepository.getBySessionId(session.getId(), pageable);
     }
 
     public EnrollmentSessionView getEnrollmentSession(Long sessionId) {
         return sessionViewRepository.findById(sessionId).orElse(null);
     }
 
-    public EnrollmentHousehold findEnrollmentHousehold(Long sessionId, long householdId) {
-        return enrollmentHouseholdRepository.findBySessionAndHousehold(sessionId, householdId);
+    public HouseholdEnrollment findHouseholdEnrollment(Long sessionId, long householdId) {
+        return householdEnrollmentRepository.findBySessionIdAndHouseholdId(sessionId, householdId);
     }
 
     public HouseholdDetails getHouseholdDetails(Long householdId) {
-        return enrollmentHouseholdRepository.getEnrolledHouseholdDetails(householdId);
+        return householdEnrollmentRepository.getEnrolledHouseholdDetails(householdId);
     }
 
     public void saveAlternateRecipient(AlternateRecipient alternateRecipient) {
@@ -136,7 +154,7 @@ public class EnrollmentService extends TransactionalService {
     }
 
     public void setEnrollmentHouseholdEnrolled(Long householdId) {
-        enrolmentSessionRepository.updateHouseholdEnrollmentStatus(householdId,CbtStatus.Enrolled.code);
+        enrolmentSessionRepository.updateHouseholdEnrollmentStatus(householdId, CbtStatus.Enrolled.code);
     }
 
     public void updateHouseholdEnrollmentStatus(Long householdId, CbtStatus status) {
@@ -180,7 +198,7 @@ public class EnrollmentService extends TransactionalService {
                 householdRecipient.setHouseholdId(enrollmentForm.getHouseholdId());
                 householdRecipient.setMainRecipient(enrollmentForm.getMainReceiver());
                 householdRecipient.setAltRecipient(enrollmentForm.getAltReceiver());
-                householdRecipient.setCreatedAt(LocalDateTime.now());
+                householdRecipient.setCreatedAt(OffsetDateTime.now());
                 householdRecipient.setMainPhoto(mainReceiverPhotoName);
                 householdRecipient.setAltPhoto(altReceiverPhotoName);
                 this.saveHouseholdRecipient(householdRecipient);
@@ -189,7 +207,7 @@ public class EnrollmentService extends TransactionalService {
             householdRecipient.setHouseholdId(enrollmentForm.getHouseholdId());
             householdRecipient.setMainRecipient(enrollmentForm.getMainReceiver());
             householdRecipient.setAltRecipient(enrollmentForm.getAltReceiver());
-            householdRecipient.setCreatedAt(LocalDateTime.now());
+            householdRecipient.setCreatedAt(OffsetDateTime.now());
             householdRecipient.setMainPhoto(mainReceiverPhotoName);
             householdRecipient.setAltPhoto(altReceiverPhotoName);
             this.saveHouseholdRecipient(householdRecipient);
@@ -213,5 +231,48 @@ public class EnrollmentService extends TransactionalService {
             LOG.error("Failure saving beneficiary image", e);
             throw e;
         }
+    }
+
+    public List<SchoolChildrenCandidate> getSchoolGoingChildrenCandidates(Long household) {
+        return schoolChildrenCandidateRepository.findByHouseholdId(household);
+    }
+
+    /**
+     * Returns a household's passbook
+     *
+     * @param enrollment enrollment session id
+     * @param household  household id
+     * @return {@link  Optional} containing the pfd resource or null
+     */
+    public Optional<Resource> getHouseholdPassbookResource(Long enrollment, Long household) {
+        //HouseholdPassbook
+        /*try (OutputStream os = new FileOutputStream(outputPdf)) {
+            PdfRendererBuilder builder = new PdfRendererBuilder();
+            builder.withUri(outputPdf);
+            builder.toStream(os);
+            builder.withW3cDocument(new W3CDom().fromJsoup(doc), "/");
+            builder.run();
+        }*/
+        return Optional.of(passbookTemplate);
+    }
+
+    public HouseholdEnrollmentSummary getHouseholdEnrollmentSummary(Long enrollment, Long household) {
+        return householdEnrollmentSummaryRepository.getBySessionIdAndHouseholdId(enrollment, household);
+    }
+
+    public MainHouseholdRecipient getHouseholdPrimaryRecipient(Long householdId) {
+        return mainHouseholdRecipientRepository.getByHouseholdId(householdId);
+    }
+
+    public MainHouseholdRecipient getHouseholdSecondaryRecipient(Long householdId) {
+        return alternateHouseholdRecipientRepository.getByHouseholdId(householdId);
+    }
+
+    public List<HouseholdRecipientCandidate> getHouseholdRecipientCandidates(Long household) {
+        return recipientCandidateRepository.getByHouseholdId(household);
+    }
+
+    public void saveEnrollment(HouseholdEnrollment enrollment) {
+        householdEnrollmentRepository.save(enrollment);
     }
 }

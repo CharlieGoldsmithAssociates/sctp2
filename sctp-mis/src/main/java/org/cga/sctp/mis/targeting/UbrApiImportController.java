@@ -34,8 +34,11 @@ package org.cga.sctp.mis.targeting;
 
 import org.cga.sctp.location.LocationCode;
 import org.cga.sctp.location.LocationService;
-import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.mis.core.SecuredBaseController;
+import org.cga.sctp.mis.core.navigation.BreadcrumbDefinition;
+import org.cga.sctp.mis.core.navigation.BreadcrumbPath;
+import org.cga.sctp.mis.core.navigation.ModuleNames;
+import org.cga.sctp.mis.core.navigation.VarBinding;
 import org.cga.sctp.mis.targeting.import_tasks.UBRImportService;
 import org.cga.sctp.targeting.exchange.DataImport;
 import org.cga.sctp.targeting.exchange.DataImportObject;
@@ -47,6 +50,7 @@ import org.cga.sctp.user.AuthenticatedUser;
 import org.cga.sctp.user.AuthenticatedUserDetails;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -62,6 +66,7 @@ import static org.cga.sctp.mis.location.LocationCodeUtil.toSelectOptions;
 
 @Controller
 @RequestMapping("/data-import/from-ubr-api")
+@BreadcrumbDefinition(module = ModuleNames.DATA_IMPORT, index = @BreadcrumbPath(link = "/data-import/from-ubr-api", title = "UBR API import results", navigable = true))
 public class UbrApiImportController extends SecuredBaseController {
     @Autowired
     private LocationService locationService;
@@ -109,12 +114,13 @@ public class UbrApiImportController extends SecuredBaseController {
 
     @GetMapping("/{import-id}/review")
     @AdminAndStandardAccessOnly
+    @BreadcrumbPath(link = "/{import-id}/review", title = "Review data", bindings = {@VarBinding(variable = "import-id", lookupKey = "import-id")})
     ModelAndView index(@PathVariable("import-id") Long id, RedirectAttributes attributes, Pageable pageable) {
         DataImportView dataImport = getImport(id, attributes);
         if (dataImport == null) {
             return redirect("/data-import");
         }
-        List<UbrHouseholdImport> imports = ubrImportService.getImportTaskService().getImportsBySessionIdForReview(dataImport.getId(), pageable);
+        Page<UbrHouseholdImport> imports = ubrImportService.getImportTaskService().getImportsBySessionIdForReview(dataImport.getId(), pageable);
         return view("targeting/import/review")
                 .addObject("importSession", dataImport)
                 .addObject("imports", imports);

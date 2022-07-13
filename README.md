@@ -33,6 +33,17 @@ To skip running tests during build, use ``mvn -DskipTests clean package``.
 - **Runtime Environment**: [Java 16](https://adoptopenjdk.net/?variant=openjdk16&jvmVariant=hotspot)
 - **Database**: [MySQL 8](https://dev.mysql.com/downloads/mysql/)
 
+### Known MySQL Issues
+
+- You must enable binary logging before running/deploying any of the binaries (MIS or API) against a fresh database.
+To do so, run the following with a root account
+
+```mysql-sql
+SET GLOBAL log_bin_trust_function_creators = 1;
+```
+
+This is explained here for more information https://dev.mysql.com/doc/refman/8.0/en/stored-programs-logging.html
+
 #### Configuration
 
 Spring supports different configuration methods. The most widely used method is to create a configuration file

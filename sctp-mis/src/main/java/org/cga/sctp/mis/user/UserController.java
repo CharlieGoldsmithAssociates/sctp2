@@ -36,9 +36,7 @@ import org.cga.sctp.auth.AuthService;
 import org.cga.sctp.location.LocationService;
 import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.mis.core.templating.Booleans;
-import org.cga.sctp.user.SystemRole;
 import org.cga.sctp.security.AccessControlService;
-import org.cga.sctp.security.permission.UserRole;
 import org.cga.sctp.user.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
@@ -53,6 +51,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/users")
@@ -134,6 +133,7 @@ public class UserController extends BaseController {
         user.setSystemUser(false);
         user.setEmail(addUserForm.getEmail());
         user.setCreatedAt(LocalDateTime.now());
+        user.setGuid(UUID.randomUUID().toString());
         user.setLastName(addUserForm.getLastName());
         user.setUserName(addUserForm.getUsername());
         user.setFirstName(addUserForm.getFirstName());

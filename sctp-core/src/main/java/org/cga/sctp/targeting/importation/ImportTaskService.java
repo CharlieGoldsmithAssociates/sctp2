@@ -35,6 +35,8 @@ package org.cga.sctp.targeting.importation;
 import org.cga.sctp.core.TransactionalService;
 import org.cga.sctp.targeting.exchange.DataImport;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -97,7 +99,7 @@ public class ImportTaskService extends TransactionalService {
         }
     }
 
-    public List<UbrHouseholdImport> getImportsBySessionIdForReview(Long dataImportId, Pageable pageable) {
+    public Page<UbrHouseholdImport> getImportsBySessionIdForReview(Long dataImportId, Pageable pageable) {
         return householdImportRepository.findByDataImportIdAndArchived(dataImportId, false, pageable);
     }
 
@@ -109,8 +111,11 @@ public class ImportTaskService extends TransactionalService {
         return householdImportRepository.findByIdAndDataImportId(id, dataImportId);
     }
 
-    public List<UbrHouseholdImport> getDataImportDuplicates(Long id, Pageable pageable) {
-        return householdImportRepository.getDataImportDuplicates(id, pageable.getPageNumber(), pageable.getPageSize());
+    public Page<UbrHouseholdImport> getDataImportDuplicates(Long id, Pageable pageable) {
+        List<UbrHouseholdImport> imports = householdImportRepository
+                .getDataImportDuplicates(id, pageable.getPageNumber(), pageable.getPageSize());
+        long count = householdImportRepository.getDataImportDuplicateCount(id);
+        return new PageImpl<>(imports, pageable, count);
     }
 
     public void saveHouseholdImport(UbrHouseholdImport householdImport) {

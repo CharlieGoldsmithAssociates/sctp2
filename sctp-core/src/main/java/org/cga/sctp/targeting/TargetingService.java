@@ -34,6 +34,7 @@ package org.cga.sctp.targeting;
 
 import org.cga.sctp.core.TransactionalService;
 import org.cga.sctp.targeting.criteria.*;
+import org.cga.sctp.targeting.enrollment.EnrolmentSessionRepository;
 import org.cga.sctp.utils.CollectionUtils;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,8 +115,8 @@ public class TargetingService extends TransactionalService {
         }
     }
 
-    public List<TargetingSessionView> targetingSessionViewList() {
-        return targetingSessionViewRepository.findAll();
+    public Page<TargetingSessionView> targetingSessionViewList(Pageable pageable) {
+        return targetingSessionViewRepository.findAll(pageable);
     }
 
     public TargetingSession findSessionById(Long sessionId) {
@@ -124,6 +125,14 @@ public class TargetingService extends TransactionalService {
 
     public Slice<CbtRankingResult> getCbtRanking(TargetingSessionView session, Pageable pageable) {
         return cbtRankingRepository.findByCbtSessionId(session.getId(), pageable);
+    }
+
+    public TargetingSessionView findTargetingSessionViewById(Long districtCode, Long sessionId) {
+        return targetingSessionViewRepository.findByIdAndDistrictCode(sessionId, districtCode);
+    }
+
+    public TargetingSession findTargetingSessionById(Long districtCode, Long sessionId) {
+        return targetingSessionRepository.findByIdAndDistrictCode(sessionId, districtCode);
     }
 
     public TargetingSessionView findTargetingSessionViewById(Long sessionId) {
@@ -138,7 +147,7 @@ public class TargetingService extends TransactionalService {
         targetingSessionRepository.closeSession(session.getId(), userId, LocalDateTime.now(),
                 TargetingSessionBase.SessionStatus.Closed.name());
 
-        enrolmentRepository.sendToEnrolment(session.getId(), (long) 0, userId);
+        enrolmentRepository.createEnrollmentSessionFromCbtOrPev(session.getId(), (long) 0, userId);
     }
 
     public void saveTargetingCriterion(Criterion criterion) {
@@ -334,9 +343,9 @@ public class TargetingService extends TransactionalService {
         List<CriteriaFilterInfo> criteriaFilterInfoList = criteriaFilterRepository
                 .getFilterValuesForCriterion(session.getCriterionId());
 
-        StringBuilder builder = new StringBuilder(" INSERT INTO eligible_households (session_id, household_id, created_at, run_by)")
+        StringBuilder builder = new StringBuilder(" INSERT INTO eligible_households (session_id, household_id, created_at, run_by, selection_status)")
                 .append(" WITH _insert_ AS (").append(criterion.getCompiledQuery()).append(")")
-                .append(" SELECT :sessionId, household_id, :createdAt, :runBy")
+                .append(" SELECT :sessionId, household_id, :createdAt, :runBy, :selectionStatus")
                 .append(" FROM _insert_")
                 .append(" WHERE location_code = :districtCode AND ta_code = :taCode")
                 .append(" AND FIND_IN_SET(cluster_code, :clusterCodes)");
@@ -346,6 +355,7 @@ public class TargetingService extends TransactionalService {
         Query query = entityManager.createNativeQuery(sql);
 
         query.setParameter("runBy", userId)
+                .setParameter("selectionStatus", CbtStatus.PreEligible.name())
                 .setParameter("taCode", session.getTaCode())
                 .setParameter("sessionId", session.getId())
                 .setParameter("createdAt", LocalDateTime.now())
@@ -359,8 +369,8 @@ public class TargetingService extends TransactionalService {
         query.executeUpdate();
     }
 
-    public List<EligibilityVerificationSessionView> getVerificationSessionViews() {
-        return verificationSessionViewRepository.findAll();
+    public Page<EligibilityVerificationSessionView> getVerificationSessionViews(Pageable pageable) {
+        return verificationSessionViewRepository.findAll(pageable);
     }
 
     public Criterion getActiveTargetingCriterionById(Long criterion) {
@@ -379,7 +389,7 @@ public class TargetingService extends TransactionalService {
         // Send to next module if the session did have households that matched
         if (session.getHouseholds() > 0) {
             switch (destination) {
-                case enrolment -> enrolmentRepository.sendToEnrolment(0L, session.getId(), userId);
+                case enrolment -> enrolmentRepository.createEnrollmentSessionFromCbtOrPev(0L, session.getId(), userId);
                 case targeting -> {
                     // 1. Create a targeting session
                     TargetingSession targetingSession = new TargetingSession();
@@ -392,6 +402,7 @@ public class TargetingService extends TransactionalService {
                     targetingSession.setDistrictCode(session.getDistrictCode());
                     targetingSession.setStatus(TargetingSessionBase.SessionStatus.Review);
                     targetingSession.setMeetingPhase(TargetingSessionBase.MeetingPhase.second_community_meeting);
+
                     saveTargetingSession(targetingSession);
 
                     // 2. Run CBT on the households selected
@@ -412,8 +423,11 @@ public class TargetingService extends TransactionalService {
         return criterionRepository.getUsageCount(criterion.getId());
     }
 
-    public List<EligibleHousehold> getEligibleHouseholds(EligibilityVerificationSessionBase session) {
-        return verificationSessionRepository.getEligibleHouseholds(session.getId());
+    public Page<EligibleHousehold> getEligibleHouseholds(EligibilityVerificationSessionBase session, Pageable pageable) {
+        List<EligibleHousehold> householdList = verificationSessionRepository
+                .getEligibleHouseholds(session.getId(), pageable.getPageNumber(), pageable.getPageSize());
+        long total = verificationSessionRepository.countEligibleHouseholds(session.getId());
+        return new PageImpl<>(householdList, pageable, total);
     }
 
     public Page<EligibleHouseholdDetails> getEligibleHouseholdsDetails(Long sessionId, int page) {
@@ -527,12 +541,15 @@ public class TargetingService extends TransactionalService {
                 update targeting_results tr
                 JOIN targeting_sessions ts ON ts.id = tr.targeting_session
                 set tr.status = :newStatus
-                    , tr.ranking = COALESCE(:newRank, tr.ranking)
+                    , tr.ranking = IF(:newRank != tr.ranking AND :newRank != NULL, :newRank, tr.ranking)
                 	, tr.updated_at = :timestamp
-                	, tr.scm_user_id = COALESCE(tr.scm_user_id, :scmUserId)
-                	, tr.scm_user_timestamp = COALESCE (tr.scm_user_timestamp, :scmTimestamp)
-                	, tr.dm_user_id = COALESCE(tr.dm_user_id, :dmUserId)
-                	, tr.dm_user_timestamp  = COALESCE (tr.dm_user_timestamp, :dmTimestamp)
+                	, tr.old_status = IF(:newStatus != NULL AND :newStatus != tr.status, tr.status, tr.old_status)
+                	, tr.old_rank = IF(:newRank != NULL AND :newRank != tr.ranking, tr.ranking, tr.old_rank)
+                	, tr.reason = :changeReason
+                	, tr.scm_user_id = IF(:scmUserId != NULL, :scmUserId, tr.scm_user_id)
+                	, tr.scm_user_timestamp = IF(:scmTimestamp != NULL, :scmTimestamp, tr.scm_user_timestamp)
+                	, tr.dm_user_id = IF(:dmUserId != NULL, :dmUserId, tr.dm_user_id)
+                	, tr.dm_user_timestamp = IF(:dmTimestamp != NULL, :dmTimestamp, tr.dm_user_timestamp)
                 WHERE ts.id = :sessionId AND ts.status = :sessionStatus AND tr.household_id = :householdId
                 """;
         boolean updated = false;
@@ -548,6 +565,7 @@ public class TargetingService extends TransactionalService {
             for (TargetedHouseholdStatus status : statuses) {
                 query.setParameter("timestamp", updatedAt);
                 query.setParameter("sessionId", session.getId());
+                query.setParameter("changeReason", status.getReason());
                 query.setParameter("newStatus", status.getStatus().name());
                 query.setParameter("householdId", status.getHouseholdId());
                 query.setParameter("sessionStatus", TargetingSessionBase.SessionStatus.Review.name());

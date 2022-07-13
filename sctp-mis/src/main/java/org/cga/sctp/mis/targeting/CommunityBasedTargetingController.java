@@ -108,10 +108,11 @@ public class CommunityBasedTargetingController extends BaseController {
         targetingSession.setCreatedBy(user.id());
         targetingSession.setProgramId(form.getProgram());
         targetingSession.setClusters(form.getClusters());
-        targetingSession.setDistrictCode(form.getDistrict());
         targetingSession.setCreatedAt(LocalDateTime.now());
-        targetingSession.setStatus(TargetingSession.SessionStatus.Review);
+        targetingSession.setDistrictCode(form.getDistrict());
         targetingSession.setTaCode(form.getTraditionalAuthority());
+
+        targetingSession.setStatus(TargetingSession.SessionStatus.Review);
         targetingSession.setMeetingPhase(TargetingSessionBase.MeetingPhase.second_community_meeting);
 
         targetingService.saveTargetingSession(targetingSession);
@@ -126,9 +127,9 @@ public class CommunityBasedTargetingController extends BaseController {
 
     @GetMapping
     @AdminAndStandardAccessOnly
-    public ModelAndView community() {
+    public ModelAndView community(Pageable pageable) {
         return view("targeting/community/sessions",
-                "sessions", targetingService.targetingSessionViewList());
+                "sessions", targetingService.targetingSessionViewList(pageable));
     }
 
 
@@ -140,7 +141,6 @@ public class CommunityBasedTargetingController extends BaseController {
             setDangerFlashMessage("Community based targeting session not found.", attributes);
             return redirect("/targeting/community");
         }
-        // TODO Add pagination controls to view
         Slice<CbtRankingResult> rankedList = targetingService.getCbtRanking(session, pageable);
         return view("targeting/community/details")
                 .addObject("isSessionOpen", session.isOpen())

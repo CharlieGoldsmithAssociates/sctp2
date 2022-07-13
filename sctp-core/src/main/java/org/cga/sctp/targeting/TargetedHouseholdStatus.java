@@ -32,6 +32,8 @@
 
 package org.cga.sctp.targeting;
 
+import org.cga.sctp.validation.OptionalString;
+
 import javax.validation.constraints.NotNull;
 
 /**
@@ -57,6 +59,9 @@ public class TargetedHouseholdStatus {
     @NotNull(message = "rank is required")
     private Integer rank;
 
+    @OptionalString(min = 1, max = 100)
+    private String reason;
+
     public EligibilityStatus getStatus() {
         return status;
     }
@@ -79,5 +84,13 @@ public class TargetedHouseholdStatus {
 
     public void setRank(Integer rank) {
         this.rank = rank;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
     }
 }

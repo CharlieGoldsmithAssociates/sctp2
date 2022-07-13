@@ -33,16 +33,23 @@
 package org.cga.sctp.mis.core.navigation;
 
 import org.springframework.lang.NonNull;
+import org.springframework.util.StringUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class BreadcrumbHandlerInterceptor implements HandlerInterceptor {
     private static final String BREADCRUMB_KEY = "breadcrumb_chain";
     private static final String PARENT_BREADCRUMB_KEY = "parent_breadcrumb_chain";
+    private static final Breadcrumb homeNode = new Breadcrumb("/", "Home", true);
 
     static BreadCrumbChain getBeforeBreadcrumbChain(HttpServletRequest request) {
         return getParentBreadcrumbChain(request);
@@ -69,7 +76,7 @@ public class BreadcrumbHandlerInterceptor implements HandlerInterceptor {
     private BreadCrumbChain getBreadcrumbChain(HttpServletRequest request) {
         BreadCrumbChain breadCrumbChain = (BreadCrumbChain) request.getAttribute(BREADCRUMB_KEY);
         if (breadCrumbChain == null) {
-            request.setAttribute(BREADCRUMB_KEY, breadCrumbChain = new BreadCrumbChain());
+            request.setAttribute(BREADCRUMB_KEY, breadCrumbChain = new BreadCrumbChain().add(homeNode));
         }
         return breadCrumbChain;
     }
@@ -92,11 +99,43 @@ public class BreadcrumbHandlerInterceptor implements HandlerInterceptor {
                     .add(new Breadcrumb(root.module()))
                     .add(new Breadcrumb(root.index()));
             if (path != null) {
-                breadCrumbChain.add(new Breadcrumb(path));
+                if (path.bindings().length != 0 && StringUtils.hasText(path.link())) {
+                    String link = path.link();
+                    // noinspection unchecked
+                    Map<String, String> urlParameters = (Map<String, String>) request
+                            .getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
+
+                    for (VarBinding binding : path.bindings()) {
+                        link = link.replace(binding.variable(), urlParameters.get(binding.lookupKey()));
+                    }
+                    breadCrumbChain.add(new Breadcrumb(link, path.title(), path.navigable()));
+                } else {
+                    breadCrumbChain.add(new Breadcrumb(path));
+                }
             }
             if (modelAndView != null) {
                 modelAndView.addObject("navigation_breadcrumbs", breadCrumbChain);
             }
         }
+    }
+
+    private static final Pattern variableMatcher = Pattern.compile("(\\{([a-zA-Z0-9\\-]{1,50})})");
+
+    private Map<String, String> parameters(String path) {
+        if (!StringUtils.hasText(path)) {
+            return Map.of();
+        }
+        Map<String, String> map = new LinkedHashMap<>();
+        try {
+            Matcher matcher = variableMatcher.matcher(path);
+            while (matcher.matches()) {
+                String region = matcher.group(1);
+                String name = matcher.group(2);
+                map.put(name, region);
+            }
+        } catch (Exception ignore) {
+
+        }
+        return map;
     }
 }

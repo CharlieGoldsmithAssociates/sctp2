@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,38 +30,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting;
+package org.cga.sctp.targeting.enrollment;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.query.Procedure;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+/**
+ * A view containing information about a household's main recipient
+ */
 @Repository
-public interface EnrolmentSessionRepository extends JpaRepository<EnrolmentSession, Long> {
-    @Procedure(procedureName = "sendHouseholdToEnrolment")
-    void sendToEnrolment(
-            @Param("targeting_session_id") Long targetingId,
-            @Param("verification_session_id") Long verificationId,
-            @Param("user_id") Long userId
-    );
-
-    @Modifying
-    @Query(value = "UPDATE household_enrollment SET status = :statusCode WHERE household_id = :householdId", nativeQuery = true)
-    void updateHouseholdEnrollmentStatus(@Param("householdId") Long id, @Param("statusCode") int status);
-
-    /**
-     * Counts the households in the enrollment session with the given
-     * @param id Enrollment Session ID
-     * @param cbtStatusCode  the status code
-     * @return the number of households that match the criteria
-     * @see CbtStatus
-     */
-    @Query(nativeQuery=true, value="SELECT count(household_id) FROM household_enrollment WHERE session_id = :id AND status = :cbtStatusCode")
-    Long countHouseholdsInSessionByStatus(@Param("id") Long id, @Param("cbtStatusCode")int cbtStatusCode);
-
-    @Query(nativeQuery=true, value="SELECT count(household_id) FROM household_enrollment WHERE session_id = :id AND (status = 6 OR status <> 5")
-    int countPreEligibleOrNotEnrolled(@Param("id") Long id);
+interface MainHouseholdRecipientRepository extends JpaRepository<MainHouseholdRecipient, Long> {
+    MainHouseholdRecipient getByHouseholdId(Long householdId);
 }

@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,91 +30,78 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting;
+package org.cga.sctp.targeting.enrollment;
+
+import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Table;
-import java.time.LocalDateTime;
 
+@Immutable
 @Entity
-@Table(name = "household_recipient")
-public class HouseholdRecipient {
-    @Id
-    private long householdId;
-    private long mainRecipient;
-    private long altRecipient;
-    private String mainPhoto;
-    private String altPhoto;
-    private long altOther;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
+@Table(name = "enrollment_session_v")
+public class EnrollmentSessionView extends EnrollmentSessionObject {
+    private String taName;
+    private String closerName;
+    private String creatorName;
+    private String programName;
+    private Long householdCount;
+    private String districtName;
+    private Long reviewedHouseholds;
 
-    public long getHouseholdId() {
-        return householdId;
+    public String getTaName() {
+        return taName;
     }
 
-    public void setHouseholdId(long householdId) {
-        this.householdId = householdId;
+    public void setTaName(String taName) {
+        this.taName = taName;
     }
 
-    public long getMainRecipient() {
-        return mainRecipient;
+    public String getCloserName() {
+        return closerName;
     }
 
-    public void setMainRecipient(long mainRecipient) {
-        this.mainRecipient = mainRecipient;
+    public void setCloserName(String closerName) {
+        this.closerName = closerName;
     }
 
-    public long getAltRecipient() {
-        return altRecipient;
+    public String getCreatorName() {
+        return creatorName;
     }
 
-    public void setAltRecipient(long altRecipient) {
-        this.altRecipient = altRecipient;
+    public void setCreatorName(String creatorName) {
+        this.creatorName = creatorName;
     }
 
-    public String getMainPhoto() {
-        return mainPhoto;
+    public String getProgramName() {
+        return programName;
     }
 
-    public void setMainPhoto(String mainPhoto) {
-        this.mainPhoto = mainPhoto;
+    public void setProgramName(String programName) {
+        this.programName = programName;
     }
 
-    public String getAltPhoto() {
-        return altPhoto;
+    public Long getHouseholdCount() {
+        return householdCount;
     }
 
-    public void setAltPhoto(String altPhoto) {
-        this.altPhoto = altPhoto;
+    public void setHouseholdCount(Long householdCount) {
+        this.householdCount = householdCount;
     }
 
-    public long getAltOther() {
-        return altOther;
+    public String getDistrictName() {
+        return districtName;
     }
 
-    public void setAltOther(long altOther) {
-        this.altOther = altOther;
+    public void setDistrictName(String districtName) {
+        this.districtName = districtName;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public Long getReviewedHouseholds() {
+        return reviewedHouseholds;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public boolean getCanSendToTransfers() {
+        return householdCount.longValue() == reviewedHouseholds.longValue();
     }
-
-    public LocalDateTime getModifiedAt() {
-        return modifiedAt;
-    }
-
-    public void setModifiedAt(LocalDateTime modifiedAt) {
-        this.modifiedAt = modifiedAt;
-    }
-
-
-
-
 }

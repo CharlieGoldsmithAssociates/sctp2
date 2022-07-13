@@ -122,9 +122,10 @@ public class CommunityMeetingController extends BaseController {
         return ResponseEntity.ok(new CommunityMeetingSessionResponse(sessions));
     }
 
-    private ResponseEntity<TargetedHouseholdsResponse> getHouseholds(Long sessionId, int page, int pageSize, boolean scm) {
+    private ResponseEntity<TargetedHouseholdsResponse> getHouseholds(Long districtCode,
+                                                                     Long sessionId, int page, int pageSize, boolean scm) {
 
-        TargetingSessionView sessionView = targetingService.findTargetingSessionViewById(sessionId);
+        TargetingSessionView sessionView = targetingService.findTargetingSessionViewById(districtCode, sessionId);
 
         if (sessionView == null) {
             return ResponseEntity.notFound().build();
@@ -160,7 +161,7 @@ public class CommunityMeetingController extends BaseController {
             @RequestParam(value = "targeting-session-id") Long sessionId,
             @Valid @Min(0) @RequestParam(value = "page", defaultValue = "0") int page,
             @Valid @Min(100) @Max(1000) @RequestParam(value = "pageSize", defaultValue = "1000") int pageSize) {
-        return getHouseholds(sessionId, page, pageSize, true);
+        return getHouseholds(apiUserDetails.getAccessTokenClaims().getDistrictCode().longValue(), sessionId, page, pageSize, true);
     }
 
     @GetMapping("/district-meeting-households")
@@ -175,7 +176,7 @@ public class CommunityMeetingController extends BaseController {
             @RequestParam(value = "targeting-session-id") Long sessionId,
             @Valid @Min(0) @RequestParam(value = "page", defaultValue = "0") int page,
             @Valid @Min(100) @Max(1000) @RequestParam(value = "pageSize", defaultValue = "1000") int pageSize) {
-        return getHouseholds(sessionId, page, pageSize, false);
+        return getHouseholds(apiUserDetails.getAccessTokenClaims().getDistrictCode().longValue(), sessionId, page, pageSize, false);
     }
 
     private ResponseEntity<?> updateHouseholds(
@@ -219,7 +220,11 @@ public class CommunityMeetingController extends BaseController {
             return ResponseEntity.badRequest().build();
         }
 
-        TargetingSessionView session = targetingService.findTargetingSessionViewById(sessionId);
+        TargetingSessionView session = targetingService
+                .findTargetingSessionViewById(
+                        apiUserDetails.getAccessTokenClaims().getDistrictCode().longValue(),
+                        sessionId
+                );
 
         if (session == null || !session.isAtSecondCommunityMeeting()) {
             return ResponseEntity.notFound().build();
@@ -244,7 +249,10 @@ public class CommunityMeetingController extends BaseController {
             return ResponseEntity.badRequest().build();
         }
 
-        TargetingSessionView session = targetingService.findTargetingSessionViewById(sessionId);
+        TargetingSessionView session = targetingService.findTargetingSessionViewById(
+                apiUserDetails.getAccessTokenClaims().getDistrictCode().longValue(),
+                sessionId
+        );
 
         if (session == null || !session.isAtDistrictMeeting()) {
             return ResponseEntity.notFound().build();
@@ -258,7 +266,10 @@ public class CommunityMeetingController extends BaseController {
             Long sessionId,
             TargetingSessionBase.MeetingPhase expectedPhase) {
 
-        TargetingSession session = targetingService.findTargetingSessionById(sessionId);
+        TargetingSession session = targetingService.findTargetingSessionById(
+                apiUserDetails.getAccessTokenClaims().getDistrictCode().longValue(),
+                sessionId
+        );
 
         if (session == null) {
             return ResponseEntity.notFound().build();
@@ -274,9 +285,9 @@ public class CommunityMeetingController extends BaseController {
             return ResponseEntity.notFound().build();
         }
 
+        session.setMeetingPhase(session.getMeetingPhase().next());
         session.setCommunityMeetingTimestamp(OffsetDateTime.now());
         session.setCommunityMeetingUserId(apiUserDetails.getUserId());
-        session.setMeetingPhase(TargetingSessionBase.MeetingPhase.district_meeting);
 
         targetingService.saveTargetingSession(session);
 
