@@ -114,15 +114,16 @@ public class TransferAgenciesController extends BaseController {
                                   RedirectAttributes attributes) {
 
         if (result.hasErrors()) {
-            setWarningFlashMessage("Failed to save Agency please fix the errors on the form", attributes);
             LoggerFactory.getLogger(getClass()).error("Failed to update agency: {}", result.getAllErrors());
-            return view("transfers/agencies/new")
+            List<Location> locations = locationService.getActiveDistricts();
+            return withDangerMessage("/transfers/agencies/new", "Failed to save Agency please fix the errors on the form")
+                    .addObject("transferMethods", TransferMethod.values())
                     .addObject("options", Booleans.VALUES)
-                    .addObject("form", form);
+                    .addObject("locations", locations)
+                    .addObject(form);
         }
 
         TransferAgency transferAgency = new TransferAgency();
-
         transferAgency.setName(form.getName());
         transferAgency.setTransferMethod(TransferMethod.valueOf(form.getTransferMethod()));
         transferAgency.setActive(form.isActive().value);
@@ -183,11 +184,13 @@ public class TransferAgenciesController extends BaseController {
 
         TransferAgency transferAgency = transferAgencyService.getTransferAgenciesRepository().getOne(id);
         if (result.hasErrors()) {
-            setWarningFlashMessage("Failed to Update Agency please fix the errors on the form", attributes);
             LoggerFactory.getLogger(getClass()).error("Failed to update agency: {}", attributes);
-            return view("transfers/agencies/new")
+            List<Location> locations = locationService.getActiveDistricts();
+            return withDangerMessage("/transfers/agencies/new", "Failed to save Agency please fix the errors on the form")
+                    .addObject("transferMethods", TransferMethod.values())
                     .addObject("options", Booleans.VALUES)
-                    .addObject("form", form);
+                    .addObject("locations", locations)
+                    .addObject(form);
         }
 
         transferAgency.setName(form.getName());
