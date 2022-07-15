@@ -1,0 +1,91 @@
+{% extends "schools/base" %}
+{% block title %}
+    {{ parent() }} - Add New Education Zone
+{% endblock %}
+
+{% block contextMenu %}
+<div class="container context-nav-container">
+    <div class="buttons is-left">
+        <a href="{{ href('/schools/education-zones') }}" class="button is-danger">
+            <span class="icon-text">
+                <span class="icon">
+                    <i class="fa fa-chevron-left"></i>
+                </span>
+                <span>Back</span>
+            </span>
+        </a>
+    </div>
+</div>
+{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="card no-overlap">
+        <header class="card-header">
+            <p class="card-header-title">Add New Education Zone</p>
+        </header>
+        <form action="/schools/education-zones/new"
+            method="post"
+            enctype="application/x-www-form-urlencoded" >
+            <div class="card-content">
+
+                {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+
+                {{ csrf(_csrf) }}
+                <div class="field">
+                    <label for="name" class="label">Name</label>
+                    <div class="control">
+                            {{ textField('name', form.name, 1, 200, true, null) }}
+                    </div>
+                    {{ printFieldErrors(getFieldErrors('form', 'name')) }}
+                </div>
+                <div class="field">
+                    <label for="name" class="label">Alt. Name</label>
+                    <div class="control">
+                            {{ textField('altName', form.altName, 1, 200, true, null) }}
+                    </div>
+                    {{ printFieldErrors(getFieldErrors('form', 'altName')) }}
+                </div>
+                <div class="field">
+                    <label for="name" class="label">Code</label>
+                    <div class="control">
+                            {{ textField('code', form.code, 1, 100, true, null) }}
+                    </div>
+                    {{ printFieldErrors(getFieldErrors('form', 'code')) }}
+                </div>
+                <div class="field">
+                    <label for="name" class="label">District</label>
+                    <div class="control">
+                        <div class="select is-fullwidth">
+                                {{ selectField('districtId', districts, form.districtId, true) }}
+                        </div>
+                    </div>
+                    {{ printFieldErrors(getFieldErrors('form', 'districtId')) }}
+                </div>
+                <div class="field">
+                    <label for="name" class="label">Traditional Authority</label>
+                    <div class="control">
+                        <div class="select is-fullwidth">
+                                {{ selectField('taId', traditionalAuthorities, form.taId, true) }}
+                        </div>
+                    </div>
+                    {{ printFieldErrors(getFieldErrors('form', 'taId')) }}
+                </div>
+                <div class="field">
+                    <label for="name" class="label">Active</label>
+                    <div class="control">
+                        <div class="select is-fullwidth">
+                                {{ selectField('active', booleans, form.active, true) }}
+                        </div>
+                    </div>
+                    {{ printFieldErrors(getFieldErrors('form', 'active')) }}
+                </div>
+
+                <div class="actions">
+                    <button class="button is-success">Create Education Zone</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock%}
