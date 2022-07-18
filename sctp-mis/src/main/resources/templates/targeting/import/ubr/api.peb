@@ -76,323 +76,333 @@
                         </div>
                     </div>
                 </div>
-                <div class="field is-horizontal">
-                    <div class="field-label is-normal">
-                        <label class="label is-required">Household Status</label>
-                    </div>
-                    <div class="field-body">
-                        <div class="control">
-                            <div class="select is-fullwidth">
-                                <select name="enrolmentStatus" id="enrolmentStatus" required="required">
-                                    <option value="">Select an Option</option>
-                                    <option value="0"> Not Enrolled</option>
-                                    <option value="1"> Enrolled</option>
-                                </select>
+
+            <div class="card is-fullwidth ">
+                <header class="card-header">
+                    <p class="card-header-title">For SCTP only parameters Click Here to show the options.</p>
+                    <a class="card-header-icon card-toggle">
+                        <i class="fa fa-angle-down"></i>
+                    </a>
+                </header>
+                <div class="card-content is-hidden">
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label">Household Status</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                    <select name="enrolmentStatus" id="enrolmentStatus" required="required">
+                                        <option value="">Select an Option</option>
+                                        <option value="0" selected> Not Enrolled</option>
+                                        <option value="1"> Enrolled</option>
+                                    </select>
+                                </div>
+                                {{ printFieldErrors(getFieldErrors('form', 'enrolmentStatus')) }}
                             </div>
-                            {{ printFieldErrors(getFieldErrors('form', 'enrolmentStatus')) }}
                         </div>
                     </div>
+
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label">Lower Percentile</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="control">
+                                <input type="number" class="input" name="lowerPercentileCategory" value="0" required/>
+                                {{ printFieldErrors(getFieldErrors('form', 'lowerPercentileCategory')) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label">Upper Percentile</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="control">
+                                <input type="number" class="input" name="upperPercentileCategory" value="100" required/>
+                                {{ printFieldErrors(getFieldErrors('form', 'upperPercentileCategory')) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <section>
+                        <!-- NEW CONTAINER OF INPUTS, TO SHOW/HIDE ACCORDING TO THE PREVIOUS FILTER -->
+                        <div id="grp_type_data_2">
+                            <div class="field is-horizontal">
+                                <div class="field-label is-normal">
+                                    <label for="head_gender" class="label"
+                                    >Gender of the household head</label
+                                    >
+                                </div>
+
+                                <div class="field-body">
+                                    <div class="control select">
+                                        <select
+                                                id="head_gender"
+                                                name="headGender"
+                                                class="form-control"
+                                        >
+                                            <option value="" selected disabled></option>
+                                            <option value="1">Male</option>
+                                            <option value="2">Female</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="field is-horizontal">
+                                <div class="field-label is-normal">
+                                    <label for="head_lower_age_limit" class="label"
+                                    >Age of the household head</label
+                                    >
+                                </div>
+                                <div class="field-body">
+                                    <div class="col-md-1">
+                                        <label for="head_upper_age_limit" class="field-label"
+                                        >from</label
+                                        >
+                                    </div>
+                                    <div class="control">
+                                        <input
+                                                id="head_lower_age_limit"
+                                                type="number"
+                                                min="1"
+                                                max="150"
+                                                class="input"
+                                                name="headLowerAgeLimit"
+                                        />
+                                    </div>
+                                    <div class="col-md-1">
+                                        <label for="head_upper_age_limit" class="field-label"
+                                        >to</label
+                                        >
+                                    </div>
+                                    <div class="control">
+                                        <input
+                                                id="head_upper_age_limit"
+                                                type="number"
+                                                min="1"
+                                                max="150"
+                                                class="input"
+                                                name="headUpperAgeLimit"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="field is-horizontal">
+                                <div class="field-label is-normal">
+                                    <label
+                                            for="has_member_not_fit_for_work"
+                                            class="label"
+                                    >Household has a member aged 19-64 NOT fit for work?</label
+                                    >
+                                </div>
+
+                                <div class="field-body">
+                                    <div class="control select">
+                                        <select
+                                                id="has_member_not_fit_for_work"
+                                                name="fitForWork"
+                                                class="form-control"
+                                        >
+                                            <option value="" selected disabled></option>
+                                            <option value="1">Yes</option>
+                                            <option value="0">No</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="field is-horizontal">
+                                <div class="field-label is-normal">
+                                    <label
+                                            for="has_school_attending_member"
+                                            class="label is-required"
+                                    >Household has a member aged 19-25 attending school?</label
+                                    >
+                                </div>
+
+                                <div class="field-body">
+                                    <div class="control select">
+                                        <select
+                                                id="has_school_attending_member"
+                                                name="hasSchoolAttendingMember"
+                                                class="form-control"
+                                        >
+                                            <option value="" selected disabled></option>
+                                            <option value="1">Yes</option>
+                                            <option value="0">No</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="field is-horizontal">
+                                <div class="field-label is-normal">
+                                    <label for="labour_constrained" class="label"
+                                    >Household is Labour Constrained?</label
+                                    >
+                                </div>
+                                <div class="field-body">
+                                    <div class="control select">
+                                        <select
+                                                id="labour_constrained"
+                                                name="labourConstrained"
+                                                class="form-control"
+                                        >
+                                            <option value="" selected disabled></option>
+                                            <option value="1">Yes</option>
+                                            <option value="0">No</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="field is-horizontal">
+                                <div class="field-label is-normal">
+                                    <label for="dependency_ratio" class="label"
+                                    >Household has Dependency Ratio greater than?</label
+                                    >
+                                </div>
+                                <div class="field-body">
+                                    <div class="control">
+                                        <input
+                                                id="dependency_ratio"
+                                                type="number"
+                                                min="1"
+                                                max="100"
+                                                class="input"
+                                                name="dependencyRatio"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="field is-horizontal">
+                                <div class="field-label is-normal">
+                                    <label
+                                            for="has_member_with_disability"
+                                            class="label"
+                                    >Household has a member with disability?</label
+                                    >
+                                </div>
+                                <div class="field-body">
+                                    <div class="control select">
+                                        <select
+                                                id="has_member_with_disability"
+                                                name="hasMemberWithDisability"
+                                                class="form-control"
+                                        >
+                                            <option value="" selected disabled></option>
+                                            <option value="1">Yes</option>
+                                            <option value="0">No</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="field is-horizontal">
+                                <div class="field-label is-normal">
+                                    <label
+                                            for="has_member_with_chronic_illness"
+                                            class="label"
+                                    >Household has a member with a chronic illness?</label
+                                    >
+                                </div>
+
+                                <div class="field-body">
+                                    <div class="control select">
+                                        <select
+                                                id="has_member_with_chronic_illness"
+                                                name="hasMemberWithChronicIllness"
+                                                class="form-control"
+                                        >
+                                            <option value="" selected disabled></option>
+                                            <option value="1">Yes</option>
+                                            <option value="0">No</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="field is-horizontal">
+                                <div class="field-label is-normal">
+                                    <label for="orphanhood" class="label"
+                                    >Household has an orphan who is?</label
+                                    >
+                                </div>
+
+                                <div class="field-body">
+                                    <div class="control select">
+                                        <select
+                                                id="orphanhood"
+                                                name="orphanhood"
+                                                class="form-control"
+                                        >
+                                            <option value="" selected disabled></option>
+                                            <option value="1">Single Orphan</option>
+                                            <option value="2">Double Orphan</option>
+                                            <option value="3">Not Orphan</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- <div class="field is-horizontal">
+                                          <div class="col-md-1"></div>
+                                          <fieldset class="my-fieldset col-md-10">
+                                              <legend class="my-fieldset"><b>Households enrolled in other programmes</b></legend>
+
+                                              <div class="field is-horizontal col-sm-12">
+                                                  <label for="enrolled_in_programmes"><strong><u>Select</u></strong> households enrolled in the selected programmes</label>
+                                                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                  <input id="enrolled_in_programmes_yes" type="radio" name="enrolled_in_programmes" value="1">
+                                                  <label for="enrolled_in_programmes_yes">&nbsp;Yes</label>
+                                                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+                                                  <input id="enrolled_in_programmes_no" type="radio" name="enrolled_in_programmes" value="2">
+                                                  <label for="enrolled_in_programmes_no">&nbsp;No</label>
+                                              </div>
+
+                                              <div class="field-body"></div>
+                                              <div class="col-md-10">
+                                                  <label class="field is-horizontal col-sm-6 no-padding-right">
+                                                      <input type="checkbox" name="programmes[]" id="programmes" value="1">
+                                                      &nbsp;&nbsp;&nbsp;&nbsp;Social Cash Transfer
+                                                  </label>
+
+                                                  <label class="field is-horizontal col-sm-6 no-padding-right">
+                                                      <input type="checkbox" name="programmes[]" id="programmes" value="2">
+                                                      &nbsp;&nbsp;&nbsp;&nbsp;Public Works
+                                                  </label>
+
+                                                  <label class="field is-horizontal col-sm-6 no-padding-right">
+                                                      <input type="checkbox" name="programmes[]" id="programmes" value="3">
+                                                      &nbsp;&nbsp;&nbsp;&nbsp;VSL/COMSIP
+                                                  </label>
+
+                                                  <label class="field is-horizontal col-sm-6 no-padding-right">
+                                                      <input type="checkbox" name="programmes[]" id="programmes" value="4">
+                                                      &nbsp;&nbsp;&nbsp;&nbsp;Microfinance
+                                                  </label>
+
+                                                  <label class="field is-horizontal col-sm-6 no-padding-right">
+                                                      <input type="checkbox" name="programmes[]" id="programmes" value="5">
+                                                      &nbsp;&nbsp;&nbsp;&nbsp;Other
+                                                  </label>
+                                              </div>
+                                          </fieldset>
+                                      </div> -->
+                        </div>
+                    </section>
                 </div>
-
-                <div class="field is-horizontal">
-                    <div class="field-label is-normal">
-                        <label class="label is-required">Lower Percentile</label>
-                    </div>
-                    <div class="field-body">
-                        <div class="control">
-                            <input type="number" class="input" name="lowerPercentileCategory" value="0" required/>
-                            {{ printFieldErrors(getFieldErrors('form', 'lowerPercentileCategory')) }}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="field is-horizontal">
-                    <div class="field-label is-normal">
-                        <label class="label is-required">Upper Percentile</label>
-                    </div>
-                    <div class="field-body">
-                        <div class="control">
-                            <input type="number" class="input" name="upperPercentileCategory" value="0" required/>
-                            {{ printFieldErrors(getFieldErrors('form', 'upperPercentileCategory')) }}
-                        </div>
-                    </div>
-                </div>
-
-                <section>
-                    <!-- NEW CONTAINER OF INPUTS, TO SHOW/HIDE ACCORDING TO THE PREVIOUS FILTER -->
-                    <div id="grp_type_data_2">
-                        <div class="field is-horizontal">
-                            <div class="field-label is-normal">
-                                <label for="head_gender" class="label is-required"
-                                >Gender of the household head</label
-                                >
-                            </div>
-
-                            <div class="field-body">
-                                <div class="control select">
-                                    <select
-                                            id="head_gender"
-                                            name="headGender"
-                                            class="form-control"
-                                    >
-                                        <option value="" selected disabled></option>
-                                        <option value="1">Male</option>
-                                        <option value="2">Female</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="field is-horizontal">
-                            <div class="field-label is-normal">
-                                <label for="head_lower_age_limit" class="label is-required"
-                                >Age of the household head</label
-                                >
-                            </div>
-                            <div class="field-body">
-                                <div class="col-md-1">
-                                    <label for="head_upper_age_limit" class="field-label"
-                                    >from</label
-                                    >
-                                </div>
-                                <div class="control">
-                                    <input
-                                            id="head_lower_age_limit"
-                                            type="number"
-                                            min="1"
-                                            max="150"
-                                            class="input"
-                                            name="headLowerAgeLimit"
-                                    />
-                                </div>
-                                <div class="col-md-1">
-                                    <label for="head_upper_age_limit" class="field-label"
-                                    >to</label
-                                    >
-                                </div>
-                                <div class="control">
-                                    <input
-                                            id="head_upper_age_limit"
-                                            type="number"
-                                            min="1"
-                                            max="150"
-                                            class="input"
-                                            name="headUpperAgeLimit"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="field is-horizontal">
-                            <div class="field-label is-normal">
-                                <label
-                                        for="has_member_not_fit_for_work"
-                                        class="label is-required"
-                                >Household has a member aged 19-64 NOT fit for work?</label
-                                >
-                            </div>
-
-                            <div class="field-body">
-                                <div class="control select">
-                                    <select
-                                            id="has_member_not_fit_for_work"
-                                            name="fitForWork"
-                                            class="form-control"
-                                    >
-                                        <option value="" selected disabled></option>
-                                        <option value="1">Yes</option>
-                                        <option value="0">No</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="field is-horizontal">
-                            <div class="field-label is-normal">
-                                <label
-                                        for="has_school_attending_member"
-                                        class="label is-required"
-                                >Household has a member aged 19-25 attending school?</label
-                                >
-                            </div>
-
-                            <div class="field-body">
-                                <div class="control select">
-                                    <select
-                                            id="has_school_attending_member"
-                                            name="hasSchoolAttendingMember"
-                                            class="form-control"
-                                    >
-                                        <option value="" selected disabled></option>
-                                        <option value="1">Yes</option>
-                                        <option value="0">No</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="field is-horizontal">
-                            <div class="field-label is-normal">
-                                <label for="labour_constrained" class="label is-required"
-                                >Household is Labour Constrained?</label
-                                >
-                            </div>
-                            <div class="field-body">
-                                <div class="control select">
-                                    <select
-                                            id="labour_constrained"
-                                            name="labourConstrained"
-                                            class="form-control"
-                                    >
-                                        <option value="" selected disabled></option>
-                                        <option value="1">Yes</option>
-                                        <option value="0">No</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="field is-horizontal">
-                            <div class="field-label is-normal">
-                                <label for="dependency_ratio" class="label is-required"
-                                >Household has Dependency Ratio greater than?</label
-                                >
-                            </div>
-                            <div class="field-body">
-                                <div class="control">
-                                    <input
-                                            id="dependency_ratio"
-                                            type="number"
-                                            min="1"
-                                            max="100"
-                                            class="input"
-                                            name="dependencyRatio"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="field is-horizontal">
-                            <div class="field-label is-normal">
-                                <label
-                                        for="has_member_with_disability"
-                                        class="label is-required"
-                                >Household has a member with disability?</label
-                                >
-                            </div>
-                            <div class="field-body">
-                                <div class="control select">
-                                    <select
-                                            id="has_member_with_disability"
-                                            name="hasMemberWithDisability"
-                                            class="form-control"
-                                    >
-                                        <option value="" selected disabled></option>
-                                        <option value="1">Yes</option>
-                                        <option value="0">No</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="field is-horizontal">
-                            <div class="field-label is-normal">
-                                <label
-                                        for="has_member_with_chronic_illness"
-                                        class="label is-required"
-                                >Household has a member with a chronic illness?</label
-                                >
-                            </div>
-
-                            <div class="field-body">
-                                <div class="control select">
-                                    <select
-                                            id="has_member_with_chronic_illness"
-                                            name="hasMemberWithChronicIllness"
-                                            class="form-control"
-                                    >
-                                        <option value="" selected disabled></option>
-                                        <option value="1">Yes</option>
-                                        <option value="0">No</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="field is-horizontal">
-                            <div class="field-label is-normal">
-                                <label for="orphanhood" class="label is-required"
-                                >Household has an orphan who is?</label
-                                >
-                            </div>
-
-                            <div class="field-body">
-                                <div class="control select">
-                                    <select
-                                            id="orphanhood"
-                                            name="orphanhood"
-                                            class="form-control"
-                                    >
-                                        <option value="" selected disabled></option>
-                                        <option value="1">Single Orphan</option>
-                                        <option value="2">Double Orphan</option>
-                                        <option value="3">Not Orphan</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- <div class="field is-horizontal">
-                                      <div class="col-md-1"></div>
-                                      <fieldset class="my-fieldset col-md-10">
-                                          <legend class="my-fieldset"><b>Households enrolled in other programmes</b></legend>
-
-                                          <div class="field is-horizontal col-sm-12">
-                                              <label for="enrolled_in_programmes"><strong><u>Select</u></strong> households enrolled in the selected programmes</label>
-                                              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                              <input id="enrolled_in_programmes_yes" type="radio" name="enrolled_in_programmes" value="1">
-                                              <label for="enrolled_in_programmes_yes">&nbsp;Yes</label>
-                                              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-                                              <input id="enrolled_in_programmes_no" type="radio" name="enrolled_in_programmes" value="2">
-                                              <label for="enrolled_in_programmes_no">&nbsp;No</label>
-                                          </div>
-
-                                          <div class="field-body"></div>
-                                          <div class="col-md-10">
-                                              <label class="field is-horizontal col-sm-6 no-padding-right">
-                                                  <input type="checkbox" name="programmes[]" id="programmes" value="1">
-                                                  &nbsp;&nbsp;&nbsp;&nbsp;Social Cash Transfer
-                                              </label>
-
-                                              <label class="field is-horizontal col-sm-6 no-padding-right">
-                                                  <input type="checkbox" name="programmes[]" id="programmes" value="2">
-                                                  &nbsp;&nbsp;&nbsp;&nbsp;Public Works
-                                              </label>
-
-                                              <label class="field is-horizontal col-sm-6 no-padding-right">
-                                                  <input type="checkbox" name="programmes[]" id="programmes" value="3">
-                                                  &nbsp;&nbsp;&nbsp;&nbsp;VSL/COMSIP
-                                              </label>
-
-                                              <label class="field is-horizontal col-sm-6 no-padding-right">
-                                                  <input type="checkbox" name="programmes[]" id="programmes" value="4">
-                                                  &nbsp;&nbsp;&nbsp;&nbsp;Microfinance
-                                              </label>
-
-                                              <label class="field is-horizontal col-sm-6 no-padding-right">
-                                                  <input type="checkbox" name="programmes[]" id="programmes" value="5">
-                                                  &nbsp;&nbsp;&nbsp;&nbsp;Other
-                                              </label>
-                                          </div>
-                                      </fieldset>
-                                  </div> -->
-                    </div>
-                </section>
-
-                <div class="buttons is-right">
-                    <button class="button is-primary">Initiate Import</button>
-                </div>
+            </div>
+            <div class="buttons is-right">
+                <button class="button is-primary">Initiate Import</button>
+            </div>
             </form>
         </div>
     </div>
@@ -401,6 +411,14 @@
 {% block footerScripts %}
 <script type="text/javascript">
     (function(){
+        // Functionality for Card Toggling only for this page..
+        let cardToggles = document.getElementsByClassName('card-toggle');
+        for (let i = 0; i < cardToggles.length; i++) {
+            cardToggles[i].addEventListener('click', e => {
+                e.currentTarget.parentElement.parentElement.childNodes[3].classList.toggle('is-hidden');
+            });
+        }
+
         let disabledOpt = new Option('Select Option', -1);
         disabledOpt.disable = true;
         window.renderOptions = function(list, promise, prepend, useExtraField){
@@ -436,5 +454,6 @@
         districtCode.onchange = function(){ traditionalAuthorityCode.length = 0; loadLocations(traditionalAuthorityCode, this, true, true); };
         traditionalAuthorityCode.onchange = function(){ loadLocations(groupVillageHeadCode, this, false, true); };
     })();
+
 </script>
 {% endblock %}
