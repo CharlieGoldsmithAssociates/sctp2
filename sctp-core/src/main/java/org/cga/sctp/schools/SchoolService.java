@@ -32,6 +32,8 @@
 
 package org.cga.sctp.schools;
 
+import org.cga.sctp.schools.educationzone.EducationZone;
+import org.cga.sctp.schools.educationzone.EducationZoneRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +45,9 @@ public class SchoolService {
 
     @Autowired
     SchoolRepository schoolRepository;
+
+    @Autowired
+    EducationZoneRepository educationZoneRepository;
 
     public SchoolRepository getSchoolRepository() {
         return schoolRepository;
@@ -57,6 +62,13 @@ public class SchoolService {
     }
 
     public School save(School school) {
+        if (educationZoneRepository.findById(school.getEducationZoneId()).isEmpty()) {
+            throw new IllegalArgumentException("Invalid School Education Zone");
+        }
         return schoolRepository.save(school);
+    }
+
+    public List<EducationZone> findAllActiveEducationZones() {
+        return educationZoneRepository.findAll();
     }
 }

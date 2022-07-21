@@ -82,6 +82,9 @@
               </span>
                 </a>
                 <div class="navbar-dropdown">
+                    <a class="navbar-item" href="/transfers/home">
+                        Transfers Main Menu
+                    </a>
                     <a class="navbar-item" href="/transfers/sessions/summary">
                         Summary
                     </a>
@@ -93,6 +96,9 @@
                     </a>
                     <a class="navbar-item" href="{{ href('/transfers/beneficiaries') }}">
                         {{ message("navbar.transfers.list-beneficiaries") }}
+                    </a>
+                    <a class="navbar-item" href="/transfers/topups">
+                        Top Ups
                     </a>
 {#                    <a class="navbar-item" href="/transfers/generation">#}
 {#                        Generate Transfers#}

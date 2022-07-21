@@ -37,11 +37,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TransferPeriodRepository extends JpaRepository<TransferPeriod, Long> {
 
     @Query("SELECT COUNT(id) FROM TransferPeriod WHERE programId = :programId AND districtId = :districtId AND closed = false")
     int countAllOpenInProgramAndDistrict(@Param("programId") long programId, @Param("districtId") long districtId);
+
+    @Query("FROM TransferPeriod WHERE programId = :programId AND districtId = :districtId AND closed = false")
+    Optional<TransferPeriod> findFirstByProgramIdAndDistrictIdAndIsOpen(@Param("programId") long programId, @Param("districtId") long districtId);
 
     @Query
     List<TransferPeriod> findAllByDistrictId(Long districtId);

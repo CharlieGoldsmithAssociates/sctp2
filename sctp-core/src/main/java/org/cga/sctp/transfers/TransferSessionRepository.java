@@ -74,6 +74,7 @@ public interface TransferSessionRepository extends JpaRepository<TransferSession
             FROM locations AS district
             LEFT OUTER JOIN transfer_periods tp ON tp.district_id = district.id
             WHERE district.location_type = 'SUBNATIONAL1'
+            GROUP BY districtId
             ORDER BY district.name, tp.end_date
             """)
     List<DistrictTransferSummaryView> fetchDistrictSummary();

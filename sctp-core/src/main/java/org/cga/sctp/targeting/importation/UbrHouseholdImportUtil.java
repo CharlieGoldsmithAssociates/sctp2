@@ -90,10 +90,10 @@ public final class UbrHouseholdImportUtil {
 
             // Default to Other if none matched
             boolean other = record.getSurvivesOnBegging()
-                    | record.getSurvivesOnGanyu()
-                    | record.getSurvivesOnPettyTrading()
-                    | record.getSurvivesOnAgriculture()
-                    | record.getSurvivesOnOther();
+                    || record.getSurvivesOnGanyu()
+                    || record.getSurvivesOnPettyTrading()
+                    || record.getSurvivesOnAgriculture()
+                    || record.getSurvivesOnOther();
             if (!other) {
                 record.setSurvivesOnOther(true);
             }

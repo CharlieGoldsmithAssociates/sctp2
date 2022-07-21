@@ -2,30 +2,85 @@
 {% import "../utils/form" %}
 {% block content %}
 <div class="content-container">
-    <div class="card card-default">
+    <div class="card">
         <div class="card-header">
             <div class="card-title">Transfers Module</div>
         </div>
         <div class="card-content">
-            <div class="navigation-cards">
-                <div class="columns">
-                    <div class="column"><div class="box is-center-aligned">
-                        <i class="fa fa-pencil">&nbsp;</i><a href="/transfers/sessions/summary" class="is-text-4">Summary</a>
-                    </div></div>
-                    <div class="column"><div class="box is-center-aligned">
-                        <i class="fa fa-pencil">&nbsp;</i><a href="{{ href('/transfers/agencies') }}" class="is-text-4">Transfer Agencies</a>
-                    </div></div>
-                    <div class="column"><div class="box is-center-aligned">
-                        <i class="fa fa-pencil">&nbsp;</i><a href="{{ href('/transfers/sessions/initiate/step1') }}" class="is-text-4">Initiate Transfer</a>
-                    </div></div>
-                    <div class="column"><div class="box is-center-aligned">
-                        <i class="fa fa-pencil">&nbsp;</i><a href="{{ href('/transfers/parameters') }}" class="is-text-4">Transfer Parameters</a>
-                    </div></div>
-                    <div class="column"><div class="box is-center-aligned">
-                        <i class="fa fa-pencil">&nbsp;</i><a href="{{ href('/transfers/reports') }}" class="is-text-4">Reports</a>
-                    </div></div>
+            <p>What would you like to do ?</p>
+
+            <div class="columns">
+                <div class="column">
+                    <h4 class="subtitle">Transfer Periods</h4>
+                    <ul>
+                        <li>
+                            <a href="">View Districts Transfer Summary </a>
+                        </li>
+                        <li>
+                            <a href="">Start New Transfer Period in a District</a>
+                        </li>
+                        <li>
+                            <a href="">List Transfer Beneficiaries</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="column">
+                    <h4 class="subtitle">Parameters</h4>
+                    <ul>
+                        <li>
+                            <a href="/transfers/parameters">View All Transfer Parameters</a>
+                        </li>
+                        <li>
+                            <a href="/transfers/parameters/new-household-params">Create New Household Transfer Parameters</a>
+                        </li>
+                        <li>
+                            <a href="/transfers/parameters/new-education-params">Create New Education Bonus Parameters</a>
+                        </li>
+                        <li>
+                            <a href="/transfers/topups">List TopUps</a>
+                        </li>
+                        <li>
+                            <a href="/transfers/topups/new">Add New TopUp</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="column">
+                    <h4 class="subtitle">Transfer Agencies</h4>
+                    <ul>
+                        <li>
+                            <a href="">Assign a Transfer Agency to a Location</a>
+                        </li>
+                        <li>
+                            <a href="">Change a Transfer Agency to another Location</a>
+                        </li>
+                        <li>
+                            <a href="">Assign Account Numbers to Transfer Beneficiaries</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="column">
+                    <h4 class="subtitle">Reconciliations</h4>
+                    <ul class="nav nav-list">
+                        <li>
+                            <a href="">Perform Reconciliations</a>
+                        </li>
+                        <li>
+                            <a href="">View the E-Payments Log</a>
+                        </li>
+                    </ul>
                 </div>
             </div>
+            <div class="columns">
+                <div class="column">
+                    <h4 class="subtitle">Reports</h4>
+                    <ul class="nav nav-list">
+                        <li>
+                            <a href="">View the E-Account Report</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>

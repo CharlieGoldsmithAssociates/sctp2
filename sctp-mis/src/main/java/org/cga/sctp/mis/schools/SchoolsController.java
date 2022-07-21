@@ -72,6 +72,7 @@ public class SchoolsController extends BaseController {
     ModelAndView newSchoolsForm(@ModelAttribute SchoolForm schoolForm) {
         List<Location> districts = locationService.getActiveDistricts();
         return view("schools/new")
+                .addObject("educationZones", schoolsService.findAllActiveEducationZones())
                 .addObject("options", Booleans.VALUES)
                 .addObject("educationLevels", EducationLevel.values())
                 .addObject("districts", districts);
@@ -87,19 +88,19 @@ public class SchoolsController extends BaseController {
             return redirect("/schools");
         }
         School school = schoolOptional.get();
+        List<Location> districts = locationService.getActiveDistricts();
 
         schoolForm.setId(school.getId());
         schoolForm.setName(school.getName());
         schoolForm.setCode(school.getCode());
-        schoolForm.setEducationZone(school.getEducationZone());
+        schoolForm.setEducationZoneId(school.getEducationZoneId());
         schoolForm.setEducationLevel(school.getEducationLevel());
         schoolForm.setContactName(school.getContactName());
         schoolForm.setContactPhone(school.getContactPhone());
         schoolForm.setActive(Booleans.of(school.getActive()));
 
-        List<Location> districts = locationService.getActiveDistricts();
-
         return view("/schools/edit")
+                .addObject("educationZones", schoolsService.findAllActiveEducationZones())
                 .addObject("options", Booleans.VALUES)
                 .addObject("educationLevels", EducationLevel.values())
                 .addObject("districts", districts);
@@ -112,11 +113,16 @@ public class SchoolsController extends BaseController {
             @Validated @ModelAttribute SchoolForm schoolForm,
             BindingResult result,
             RedirectAttributes attributes) {
-        if (result.hasErrors()) {
-            return view("/schools/new")
-                .addObject("options", Booleans.VALUES);
-        }
 
+        List<Location> districts = locationService.getActiveDistricts();
+
+        if (result.hasErrors()) {
+            return withDangerMessage("/schools/edit", "Please fix errors on the form")
+                    .addObject("educationZones", schoolsService.findAllActiveEducationZones())
+                    .addObject("options", Booleans.VALUES)
+                    .addObject("educationLevels", EducationLevel.values())
+                    .addObject("districts", districts);
+        }
         Optional<School> schoolOptional = schoolsService.findById(schoolId);
         if (schoolOptional.isEmpty()) {
             setDangerFlashMessage("Selected school does not exist.", attributes);
@@ -130,7 +136,7 @@ public class SchoolsController extends BaseController {
         school.setName(schoolForm.getName());
         school.setCode(schoolForm.getCode());
         school.setEducationLevel(schoolForm.getEducationLevel());
-        // school.setEducationZone(schoolForm.getEducationZone());
+        school.setEducationZoneId(schoolForm.getEducationZoneId());
         school.setContactName(schoolForm.getContactName());
         school.setContactPhone(schoolForm.getContactPhone());
         school.setModifiedAt(LocalDateTime.now());
@@ -149,16 +155,21 @@ public class SchoolsController extends BaseController {
             BindingResult result,
             RedirectAttributes attributes) {
 
+        List<Location> districts = locationService.getActiveDistricts();
+
         if (result.hasErrors()) {
-            return view("/schools/new")
-                    .addObject("options", Booleans.VALUES);
+            return withDangerMessage("/schools/new", "Please fix errors on the form")
+                    .addObject("educationZones", schoolsService.findAllActiveEducationZones())
+                    .addObject("options", Booleans.VALUES)
+                    .addObject("educationLevels", EducationLevel.values())
+                    .addObject("districts", districts);
         }
 
         School school = new School();
         school.setName(schoolForm.getName());
         school.setCode(schoolForm.getCode());
         school.setEducationLevel(schoolForm.getEducationLevel());
-        school.setEducationZone(schoolForm.getEducationZone());
+        school.setEducationZoneId(schoolForm.getEducationZoneId());
         school.setContactName(schoolForm.getContactName());
         school.setContactPhone(schoolForm.getContactPhone());
         school.setCreatedAt(LocalDateTime.now());

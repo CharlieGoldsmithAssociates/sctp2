@@ -1,0 +1,1 @@
+ALTER TABLE transfers DROP COLUMN enrollment_session_id;

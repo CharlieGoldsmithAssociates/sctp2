@@ -38,6 +38,7 @@ import org.cga.sctp.location.LocationCode;
 import org.cga.sctp.program.Program;
 import org.cga.sctp.program.ProgramUser;
 import org.cga.sctp.program.ProgramUserCandidate;
+import org.cga.sctp.schools.educationzone.EducationZone;
 import org.cga.sctp.security.permission.UserRole;
 import org.cga.sctp.targeting.criteria.CriteriaFilterObject;
 import org.cga.sctp.targeting.criteria.CriteriaFilterTemplate;
@@ -47,6 +48,7 @@ import org.cga.sctp.targeting.importation.parameters.Gender;
 import org.cga.sctp.transfers.agencies.TransferAgency;
 import org.cga.sctp.transfers.agencies.TransferMethod;
 import org.cga.sctp.transfers.parameters.HouseholdParameterCondition;
+import org.cga.sctp.transfers.parameters.TransferParameter;
 import org.cga.sctp.user.AccessLevel;
 import org.cga.sctp.user.Permission;
 import org.cga.sctp.user.SystemRole;
@@ -150,5 +152,15 @@ public class SelectOptionConfigs {
     @Bean
     public SelectOptionEntry transferMethodSelectOption() {
         return new SelectOptionEntry(TransferMethod.class, "name()", "name()");
+    }
+
+    @Bean
+    public SelectOptionEntry educationZones() {
+        return new SelectOptionEntry(EducationZone.class, "getId()", "getName()");
+    }
+
+    @Bean
+    public SelectOptionEntry transferParameterOption() {
+        return new SelectOptionEntry(TransferParameter.class, "getId()", "getTitle()");
     }
 }

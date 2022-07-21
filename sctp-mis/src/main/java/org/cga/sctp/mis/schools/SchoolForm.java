@@ -33,10 +33,13 @@
 package org.cga.sctp.mis.schools;
 
 import org.cga.sctp.mis.core.templating.Booleans;
+import org.cga.sctp.schools.School;
 import org.cga.sctp.targeting.importation.parameters.EducationLevel;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 public class SchoolForm {
     private Long id;
@@ -59,7 +62,8 @@ public class SchoolForm {
 
     private Long districtId;
 
-    private long educationZone;
+    @NotNull(message = "Education Zone must be specified")
+    private Long educationZoneId;
 
     @NotNull
     private Booleans active;
@@ -129,12 +133,12 @@ public class SchoolForm {
         this.districtId = districtId;
     }
 
-    public long getEducationZone() {
-        return educationZone;
+    public Long getEducationZoneId() {
+        return educationZoneId;
     }
 
-    public void setEducationZone(long educationZone) {
-        this.educationZone = educationZone;
+    public void setEducationZoneId(Long educationZone) {
+        this.educationZoneId = educationZone;
     }
 
     public Booleans getActive() {
@@ -143,5 +147,31 @@ public class SchoolForm {
 
     public void setActive(Booleans active) {
         this.active = active;
+    }
+
+    public School toSchoolObject(Optional<School> existingSchool) {
+        SchoolForm schoolForm = this;
+        School school = existingSchool.orElse(new School());
+        school.setName(schoolForm.getName());
+        school.setCode(schoolForm.getCode());
+        school.setEducationLevel(schoolForm.getEducationLevel());
+        // school.setEducationZone(schoolForm.getEducationZone());
+        school.setContactName(schoolForm.getContactName());
+        school.setContactPhone(schoolForm.getContactPhone());
+        school.setModifiedAt(LocalDateTime.now());
+        school.setActive(schoolForm.getActive().value);
+
+        return school;
+    }
+
+    public void fillFieldsFromSchool(School school) {
+        this.setId(school.getId());
+        this.setName(school.getName());
+        this.setCode(school.getCode());
+        this.setEducationZoneId(school.getEducationZoneId());
+        this.setEducationLevel(school.getEducationLevel());
+        this.setContactName(school.getContactName());
+        this.setContactPhone(school.getContactPhone());
+        this.setActive(Booleans.of(school.getActive()));
     }
 }

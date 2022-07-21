@@ -37,9 +37,10 @@ import org.cga.sctp.beneficiaries.Household;
 import org.cga.sctp.location.Location;
 import org.cga.sctp.targeting.CbtStatus;
 import org.cga.sctp.transfers.accounts.BeneficiaryAccountService;
-import org.cga.sctp.transfers.agencies.TransferAgenciesRepository;
 import org.cga.sctp.transfers.accounts.TransferAccountNumberList;
+import org.cga.sctp.transfers.agencies.TransferAgenciesRepository;
 import org.cga.sctp.transfers.periods.TransferPeriod;
+import org.cga.sctp.transfers.periods.TransferPeriodRepository;
 import org.cga.sctp.transfers.reconciliation.TransferReconciliationRequest;
 import org.cga.sctp.user.User;
 import org.slf4j.Logger;
@@ -57,6 +58,9 @@ import java.util.Optional;
 @Service
 public class TransferServiceImpl implements TransferService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TransferServiceImpl.class);
+
+    @Autowired
+    private TransferPeriodRepository transferPeriodRepository;
 
     @Autowired
     private TransfersRepository transfersRepository;
@@ -95,10 +99,16 @@ public class TransferServiceImpl implements TransferService {
         if (getTranferSessionRepository().save(transferSession) == null) {
             throw new IllegalArgumentException("transferSession must be valid to initiate transfers");
         }
-        // transfersRepository.initiateTransfersInDistrict(transferSession.getProgramId(), location.getId(), transferSession.getId(), userId);
+        Optional<TransferPeriod> transferPeriod = transferPeriodRepository.findFirstByProgramIdAndDistrictIdAndIsOpen(transferSession.getProgramId(), location.getId());
+        if (transferPeriod.isEmpty()) {
+            throw new UnsupportedOperationException("Cannot initiate transfers without an open Transfer Period for the program in the given location");
+        }
+
         transfersRepository.initiateTransfersForEnrolledHouseholds(
+                // transferSession.getProgramId(),
                 transferSession.getEnrollmentSessionId(),
                 transferSession.getId(),
+                transferPeriod.get().getId(),
                 location.getId(),
                 userId
         );

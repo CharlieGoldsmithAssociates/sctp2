@@ -32,6 +32,7 @@
 
 package org.cga.sctp.schools;
 
+import org.cga.sctp.schools.educationzone.EducationZone;
 import org.cga.sctp.targeting.importation.converters.EducationLevelParameterValueConverter;
 import org.cga.sctp.targeting.importation.parameters.EducationLevel;
 
@@ -55,8 +56,8 @@ public class School {
     @Convert(converter = EducationLevelParameterValueConverter.class)
     private EducationLevel educationLevel;
 
-    @Column
-    private long educationZone;
+    @Column(name="education_zone")
+    private Long educationZoneId;
 
     @Column
     private String contactName;
@@ -105,12 +106,12 @@ public class School {
         this.educationLevel = educationLevel;
     }
 
-    public long getEducationZone() {
-        return educationZone;
+    public Long getEducationZoneId() {
+        return educationZoneId;
     }
 
-    public void setEducationZone(long educationZone) {
-        this.educationZone = educationZone;
+    public void setEducationZoneId(Long educationZone) {
+        this.educationZoneId = educationZone;
     }
 
     public String getContactName() {

@@ -91,11 +91,12 @@ public interface TransfersRepository extends JpaRepository<Transfer, Long> {
     // of TransferPeriods and other things kept changing. So once the design is solidified, we can move this monster
     // to it's own stored procedure.
     // @Query(nativeQuery = true, value = "CALL initiateTransfersForEnrolledHouseholdsInDistrict(:enrollmentSessionId, :transferSessionId, :userId)")
-
+    // @Query(nativeQuery = true, value = "CALL initiateTransfersForEnrolledHouseholdsInDistrict(:enrollmentSessionId, :transferSessionId, :userId)")
     @Modifying
-    @Query(nativeQuery = true, value ="""
+    @Query(nativeQuery = true, value ="""   
           INSERT INTO transfers (
             transfer_session_id,
+            transfer_period_id,
             program_id,
             household_id,
             receiver_id,
@@ -133,6 +134,7 @@ public interface TransfersRepository extends JpaRepository<Transfer, Long> {
             modified_at
           )
           SELECT
+            :transferPeriodId,
             ts.id as transfer_session_id,
             ts.program_id AS program_id,
             h.household_id,
@@ -180,9 +182,10 @@ public interface TransfersRepository extends JpaRepository<Transfer, Long> {
         LEFT JOIN enrollment_sessions es ON es.id = :enrollmentSessionId 
         LEFT JOIN transfers_sessions ts ON ts.id = :transferSessionId
         WHERE l.id = :districtId AND he.status = 5 ;-- CbtStatus '5' is Enrolled
-    """)
+        """)
     void initiateTransfersForEnrolledHouseholds(@Param("enrollmentSessionId") Long enrollmentSessionId,
                                                 @Param("transferSessionId") Long transferSessionId,
+                                                @Param("transferPeriodId") Long transferPeriodId,
                                                 @Param("districtId") Long districtId,
                                                 @Param("userId") Long userId);
 

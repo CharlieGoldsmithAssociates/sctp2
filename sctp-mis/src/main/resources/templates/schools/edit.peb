@@ -68,9 +68,11 @@
                         <div class="field">
                             <label class="label is-required">Education Zone</label>
                             <div class="control">
-                                    {{ textField('educationZone', schoolForm.educationZone, 1, 100, true, null) }}
+                                <div class="select is-fullwidth">
+                                        {{ selectField('educationZoneId', educationZones, schoolForm.educationZoneId, true) }}
+                                </div>
                             </div>
-                            {{ printFieldErrors(getFieldErrors('schoolForm', 'educationZone')) }}
+                            {{ printFieldErrors(getFieldErrors('schoolForm', 'educationZoneId')) }}
                         </div>
                     </div>
                 </div>
