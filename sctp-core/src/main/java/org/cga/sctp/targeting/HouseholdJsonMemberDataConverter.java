@@ -36,14 +36,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.google.gson.Gson;
+import org.cga.sctp.core.BaseComponent;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
+import java.util.Collections;
 import java.util.List;
 
 @Converter
-public class HouseholdJsonMemberDataConverter implements AttributeConverter<List<IndividualDetails>, String> {
+public class HouseholdJsonMemberDataConverter extends BaseComponent implements AttributeConverter<List<IndividualDetails>, String> {
 
     @Autowired
     private Gson gson;
@@ -63,10 +66,13 @@ public class HouseholdJsonMemberDataConverter implements AttributeConverter<List
 
     @Override
     public List<IndividualDetails> convertToEntityAttribute(String dbData) {
-        try {
-            return List.of(objectMapper.readValue(dbData, IndividualDetails[].class));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        if (StringUtils.hasText(dbData)) {
+            try {
+                return List.of(objectMapper.readValue(dbData, IndividualDetails[].class));
+            } catch (Exception e) {
+                LOG.error("error converting json", e);
+            }
         }
+        return Collections.emptyList();
     }
 }
