@@ -1,0 +1,78 @@
+{% extends "./base" %}
+{% block contextMenu %}
+    {% set canModify = hasRole("ADMINISTRATOR") and isSessionOpen %}
+    {% set useWideContainer = true %}
+    <div class="context-nav-container">
+        <div class="level">
+            <div class="level-right">
+                <a href="/case-management/households" class="button is-success">Back to List</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="card no-overlap">
+        <header class="card-header">
+            <p class="card-header-title">Households in {{ district.districtName }}</p>
+        </header>
+        <div class="card-content">
+            {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+            <div class="content">
+                <table class="table dataTable is-narrow is-striped is-hoverable">
+                    <tr>
+                        <th>ML Code</th>
+                        <td>ML-{{ household.mlCode }}</td>
+                    </tr>
+                    <tr>
+                        <th># of Members</th>
+                        <td>{{ household.memberCount | numberformat("#,###") }}</td>
+                    </tr>
+                    <tr>
+                        <th>Head of Household</th>
+                        <td>{{ household.householdHead }}</td>
+                    </tr>
+                    <tr>
+                        <th>TA</th>
+                        <td>{{ household.taName }}</td>
+                    </tr>
+                    <tr>
+                        <th>GVH Name</th>
+                        <td>{{ household.villageHeadName }}</td>
+                    </tr>
+                    <tr>
+                        <th>VG Cluster</th>
+                        <td>{{ household.clusterName }}</td>
+                    </tr>
+                    <tr>
+                        <th>Zone</th>
+                        <td>{{ household.zoneName }}</td>
+                    </tr>
+                    <tr>
+                        <th>Pre-Printed Num</th>
+                        <td>{{ household.formNumber }}</td>
+                    </tr>
+                    <tr>
+                        <th>Status</th>
+                        <td>{{ household.status }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="card no-overlap">
+            <div class="card-header">
+                <div class="card-header-title">Members</div>
+            </div>
+            <div class="card-content">
+            </div>
+        </div>
+        <div class="card no-overlap">
+            <div class="card-header">
+                <div class="card-header-title">Household Characteristics</div>
+            </div>
+            <div class="card-content">
+
+            </div>
+        </div>
+    </div>
+    {% endblock %}

@@ -34,6 +34,8 @@ package org.cga.sctp.mis.casemanagement;
 
 import org.cga.sctp.beneficiaries.BeneficiaryService;
 import org.cga.sctp.beneficiaries.Household;
+import org.cga.sctp.beneficiaries.HouseholdMember;
+import org.cga.sctp.beneficiaries.Individual;
 import org.cga.sctp.location.Location;
 import org.cga.sctp.location.LocationService;
 import org.cga.sctp.mis.core.SecuredBaseController;
@@ -42,12 +44,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.websocket.server.PathParam;
 import java.util.List;
+import java.util.Objects;
 
 import static java.util.Collections.emptyList;
 
@@ -76,7 +80,14 @@ public class CaseManagementController extends SecuredBaseController {
 
     @GetMapping("/households/view/{household-id}")
     @AdminAndStandardAccessOnly
-    public ModelAndView viewHouseholdId(@PathParam("household-id") Long householdId) {
-        return view("case-management/view_household");
+    public ModelAndView viewHouseholdId(@PathVariable("household-id") Long householdId) {
+        Household household = beneficiaryService.findHouseholdById(householdId);
+        if (Objects.isNull(household)) {
+            return redirect("/case-management/households");
+        }
+        List<Individual> members = beneficiaryService.getHouseholdMembers(householdId);
+        return view("case-management/view_household")
+                .addObject("household", household)
+                .addObject("members", members);
     }
 }
