@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,36 +30,41 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting.importation.converters;
+package org.cga.sctp.transfers.topups;
 
+import org.cga.sctp.targeting.importation.converters.UbrParameterValueConverter;
 import org.cga.sctp.targeting.importation.parameters.UbrParameterValue;
 
-import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
 
-public abstract class UbrParameterValueConverter implements AttributeConverter<UbrParameterValue, Integer> {
-    private final UbrParameterValue[] values;
+/**
+ * TopUp Type determines how the amount to be disbursed to a household is calculated.
+ */
+public enum TopUpType implements UbrParameterValue {
+    FIXED_AMOUNT(1, "Fixed Amount"),
+    PERCENTAGE_OF_RECIPIENT_AMOUNT(2, "% of Recipient Amount"),
+    EQUIVALENT_BENEFICIARY_AMOUNT(3, "Current HH monthly amount"),
+    EPAYMENT_ADMIN_FEE_TOPUP(4, "E-Payment admin/cashout fee");
+    private final int code;
+    private final String description;
 
-    public UbrParameterValueConverter(UbrParameterValue[] values) {
-        this.values = values;
+    TopUpType(int code, String description) {
+        this.code = code;
+        this.description = description;
     }
 
     @Override
-    public Integer convertToDatabaseColumn(UbrParameterValue attribute) {
-        return attribute == null ? null : attribute.getCode();
+    public int getCode() {
+        return code;
     }
 
-    @Override
-    public UbrParameterValue convertToEntityAttribute(Integer dbData) {
-        return dbData == null ? null : codeToValue(dbData);
+    public String getDescription() {
+        return description;
     }
 
-    private UbrParameterValue codeToValue(Integer code) {
-        for (UbrParameterValue value : values) {
-            if (value.getCode() == code) {
-                return value;
-            }
+    static class Converter extends UbrParameterValueConverter {
+        public Converter() {
+            super(TopUpType.values());
         }
-        throw new IllegalArgumentException("Failed to map code " + code + " to a value of type "
-                + values[0].getClass().getCanonicalName());
     }
 }

@@ -91,14 +91,14 @@
                     <a class="navbar-item" href="/transfers/parameters">
                         {{ message("navbar.transfers.transfer-parameters") }}
                     </a>
+                    <a class="navbar-item" href="/transfers/topups">
+                        Top Ups
+                    </a>
                     <a class="navbar-item" href="{{ href('/transfers/sessions/initiate/step1') }}">
                         {{ message("navbar.transfers.calculate-transfers") }}
                     </a>
                     <a class="navbar-item" href="{{ href('/transfers/beneficiaries') }}">
                         {{ message("navbar.transfers.list-beneficiaries") }}
-                    </a>
-                    <a class="navbar-item" href="/transfers/topups">
-                        Top Ups
                     </a>
 {#                    <a class="navbar-item" href="/transfers/generation">#}
 {#                        Generate Transfers#}

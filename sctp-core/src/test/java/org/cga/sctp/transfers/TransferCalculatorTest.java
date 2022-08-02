@@ -41,6 +41,8 @@ import org.cga.sctp.transfers.parameters.HouseholdParameterCondition;
 import org.cga.sctp.transfers.parameters.HouseholdTransferParameter;
 import org.cga.sctp.transfers.parameters.TransferParametersService;
 import org.cga.sctp.transfers.periods.TransferPeriod;
+import org.cga.sctp.transfers.topups.TopUp;
+import org.cga.sctp.transfers.topups.TopUpType;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -93,16 +95,39 @@ class TransferCalculatorTest {
 
         Transfer transfer = new Transfer();
         transfer.setTransferPeriodId(transferPeriod.getId());
-        transfer.setNumberOfMonths(1L);
+        transfer.setNumberOfMonths(transfer.getNumberOfMonths());
         transfer.setHouseholdMemberCount(3);
         transfer.setPrimaryChildrenCount(1L);
         transfer.setPrimaryIncentiveChildrenCount(1L);
         transfer.setSecondaryChildrenCount(1L);
 
-        TransferCalculator transferCalculator = new TransferCalculator(educationTransferParameters, householdTransferParameters);
+        List<TopUp> topUps = Collections.singletonList(createBasicTopUp());
+
+        TransferCalculator transferCalculator = new TransferCalculator(householdTransferParameters, educationTransferParameters, topUps);
         transferCalculator.calculateTransfersUpdate(location, transferPeriod, Collections.singletonList(transfer));
 
-        assertEquals(3000L + 2000L + 1000L, transfer.getTotalAmountToTransfer());
+
+
+        assertEquals(3000, transfer.getBasicSubsidyAmount());
+        assertEquals(1000, transfer.getSecondaryBonusAmount());
+        assertEquals(2000, transfer.getPrimaryBonusAmount());
+        assertEquals(2000, transfer.getPrimaryIncentiveAmount());
+        assertEquals(4000, transfer.getTopupAmount());
+
+        long expectedTotal = 12000;
+        assertEquals(expectedTotal, transfer.getTotalAmountToTransfer());
+    }
+
+    private static TopUp createBasicTopUp() {
+        TopUp topUp = new TopUp();
+        topUp.setName("Basic TopUp");
+        topUp.setAmount(0L);
+        topUp.setDiscountedFromFunds(false);
+        topUp.setTopupType(TopUpType.PERCENTAGE_OF_RECIPIENT_AMOUNT);
+        topUp.setPercentage(50.00);
+        topUp.setExecuted(false);
+        topUp.setActive(true);
+        return topUp;
     }
 
     private static HouseholdTransferParameter createParam(int members, Long amount, HouseholdParameterCondition condition) {

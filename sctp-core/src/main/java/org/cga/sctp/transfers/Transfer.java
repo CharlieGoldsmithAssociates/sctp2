@@ -522,6 +522,6 @@ public class Transfer {
 
     // TODO: Make this a property in the database ? or pre-compute
     public Long getTotalAmountToTransfer() {
-        return this.basicSubsidyAmount + this.secondaryBonusAmount  /* + TODO: this.primaryBonusAmount */ + this.primaryIncentiveAmount;
+        return this.basicSubsidyAmount + this.secondaryBonusAmount  + this.primaryBonusAmount + this.primaryIncentiveAmount + this.topupAmount;
     }
 }

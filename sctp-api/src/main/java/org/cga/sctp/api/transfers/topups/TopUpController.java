@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,36 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting.importation.converters;
+package org.cga.sctp.api.transfers.topups;
 
-import org.cga.sctp.targeting.importation.parameters.UbrParameterValue;
-
-import javax.persistence.AttributeConverter;
-
-public abstract class UbrParameterValueConverter implements AttributeConverter<UbrParameterValue, Integer> {
-    private final UbrParameterValue[] values;
-
-    public UbrParameterValueConverter(UbrParameterValue[] values) {
-        this.values = values;
-    }
-
-    @Override
-    public Integer convertToDatabaseColumn(UbrParameterValue attribute) {
-        return attribute == null ? null : attribute.getCode();
-    }
-
-    @Override
-    public UbrParameterValue convertToEntityAttribute(Integer dbData) {
-        return dbData == null ? null : codeToValue(dbData);
-    }
-
-    private UbrParameterValue codeToValue(Integer code) {
-        for (UbrParameterValue value : values) {
-            if (value.getCode() == code) {
-                return value;
-            }
-        }
-        throw new IllegalArgumentException("Failed to map code " + code + " to a value of type "
-                + values[0].getClass().getCanonicalName());
-    }
+public class TopUpController {
 }

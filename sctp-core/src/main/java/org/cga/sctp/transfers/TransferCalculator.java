@@ -37,8 +37,8 @@ import org.cga.sctp.targeting.importation.parameters.EducationLevel;
 import org.cga.sctp.transfers.parameters.EducationTransferParameter;
 import org.cga.sctp.transfers.parameters.HouseholdParameterCondition;
 import org.cga.sctp.transfers.parameters.HouseholdTransferParameter;
-import org.cga.sctp.transfers.parameters.TransferParametersService;
 import org.cga.sctp.transfers.periods.TransferPeriod;
+import org.cga.sctp.transfers.topups.TopUp;
 
 import java.util.List;
 import java.util.Optional;
@@ -47,9 +47,20 @@ public class TransferCalculator {
     private List<EducationTransferParameter> educationTransferParameters;
     private List<HouseholdTransferParameter> householdTransferParameters;
 
-    public TransferCalculator(List<EducationTransferParameter> educationTransferParameters, List<HouseholdTransferParameter> householdTransferParameters) {
+    private List<TopUp> topUps;
+
+    /**
+     *
+     * @param householdTransferParameters Parameters
+     * @param educationTransferParameters Parameters for education
+     * @param topUps topups that are applicable to the households to calculate transfers for
+     */
+    public TransferCalculator(List<HouseholdTransferParameter> householdTransferParameters,
+                              List<EducationTransferParameter> educationTransferParameters,
+                              List<TopUp> topUps) {
         this.educationTransferParameters = educationTransferParameters;
         this.householdTransferParameters = householdTransferParameters;
+        this.topUps = topUps;
     }
 
 
@@ -124,6 +135,40 @@ public class TransferCalculator {
         return -1L;
     }
 
+    protected long calculateTopUpAmount(Transfer transfer, Long monthlyAmount, List<TopUp> topUpList) {
+        double totalTopupAmout = 0.0;
+        for (var topup : topUpList) {
+            totalTopupAmout += switch (topup.getTopupType()) {
+                case FIXED_AMOUNT -> topup.getAmount();
+                case EQUIVALENT_BENEFICIARY_AMOUNT -> monthlyAmount;
+                case PERCENTAGE_OF_RECIPIENT_AMOUNT -> (monthlyAmount * topup.getPercentage())/100d;
+                default -> topup.getAmount();
+            };
+        }
+        // TODO: avoid conversion to long, we lose fidelity here..
+        return (long) totalTopupAmout;
+    }
+
+    protected void calculateTransferAmount(Transfer transfer,Location location, TransferPeriod transferPeriod) {
+        long monthlyAmount = 0;
+        final long basicAmount = determineAmountByHouseholdSize(transfer.getHouseholdMemberCount(), householdTransferParameters),
+            secondaryBonus = transfer.getSecondaryChildrenCount() * getSecondaryBonusAmount(educationTransferParameters),
+            primaryBonus = transfer.getPrimaryChildrenCount() * getPrimaryBonusAmount(educationTransferParameters),
+            primaryIncentive = transfer.getPrimaryIncentiveChildrenCount() * getPrimaryIncentiveAmount();
+
+        transfer.setAmountDisbursed(0L);
+        transfer.setNumberOfMonths(transferPeriod.countNoOfMonths());
+        transfer.setBasicSubsidyAmount(basicAmount);
+        transfer.setPrimaryIncentiveAmount(primaryIncentive);
+        transfer.setPrimaryBonusAmount(primaryBonus);
+        transfer.setSecondaryBonusAmount(secondaryBonus);
+        // TODO: Should we set this or calculate upon request
+        monthlyAmount = basicAmount + primaryBonus + secondaryBonus + primaryIncentive;
+
+        // Calculate topups
+        transfer.setTopupAmount(calculateTopUpAmount(transfer, monthlyAmount, topUps));
+    }
+
     /**
      * Calculates transfers for all the households in the transfer period for a given location..
      * @param transferPeriod
@@ -135,21 +180,7 @@ public class TransferCalculator {
             if (transfer.getTransferPeriodId() != transferPeriod.getId()) {
                 continue;
             }
-            basicAmount = determineAmountByHouseholdSize(transfer.getHouseholdMemberCount(), householdTransferParameters);
-            secondaryBonus = transfer.getSecondaryChildrenCount() * getSecondaryBonusAmount(educationTransferParameters);
-            primaryBonus = transfer.getPrimaryChildrenCount() * getPrimaryBonusAmount(educationTransferParameters);
-            // TODO: store the number of children that need/want incentives for primary school...
-            primaryIncentive = transfer.getPrimaryIncentiveChildrenCount() * getPrimaryIncentiveAmount();
-
-            transfer.setNumberOfMonths(transferPeriod.countNoOfMonths());
-            transfer.setAmountDisbursed(0L);
-            transfer.setTopupAmount(0L);
-            transfer.setBasicSubsidyAmount(basicAmount);
-            transfer.setPrimaryIncentiveAmount(primaryIncentive);
-            // TODO: transfer.setPrimaryBonusAmount(primaryIncentive);
-            transfer.setSecondaryBonusAmount(secondaryBonus);
-            // TODO: Should we set this or calculate upon request
-            monthlyAmount = basicAmount + primaryBonus + secondaryBonus + primaryIncentive;
+            this.calculateTransferAmount(transfer, location, transferPeriod);
         }
     }
 }

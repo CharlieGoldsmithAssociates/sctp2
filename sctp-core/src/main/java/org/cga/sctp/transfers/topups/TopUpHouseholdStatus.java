@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,36 +30,36 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting.importation.converters;
+package org.cga.sctp.transfers.topups;
 
+import org.cga.sctp.targeting.importation.converters.UbrParameterValueConverter;
 import org.cga.sctp.targeting.importation.parameters.UbrParameterValue;
 
-import javax.persistence.AttributeConverter;
+public enum TopUpHouseholdStatus implements UbrParameterValue {
+    BOTH(0,"Both"),
+    RECERTIFIED(15, "Recertified"),
+    NON_RECERTIFIED(112, "Non-Recertified");
 
-public abstract class UbrParameterValueConverter implements AttributeConverter<UbrParameterValue, Integer> {
-    private final UbrParameterValue[] values;
+    int code;
+    String description;
 
-    public UbrParameterValueConverter(UbrParameterValue[] values) {
-        this.values = values;
+    TopUpHouseholdStatus(int code, String description) {
+        this.code = code;
+        this.description = description;
     }
 
     @Override
-    public Integer convertToDatabaseColumn(UbrParameterValue attribute) {
-        return attribute == null ? null : attribute.getCode();
+    public int getCode() {
+        return code;
     }
 
-    @Override
-    public UbrParameterValue convertToEntityAttribute(Integer dbData) {
-        return dbData == null ? null : codeToValue(dbData);
+    public String getDescription() {
+        return description;
     }
 
-    private UbrParameterValue codeToValue(Integer code) {
-        for (UbrParameterValue value : values) {
-            if (value.getCode() == code) {
-                return value;
-            }
+    public static class Converter extends UbrParameterValueConverter {
+        public Converter() {
+            super(TopUpHouseholdStatus.values());
         }
-        throw new IllegalArgumentException("Failed to map code " + code + " to a value of type "
-                + values[0].getClass().getCanonicalName());
     }
 }

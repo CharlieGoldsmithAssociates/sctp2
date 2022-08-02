@@ -32,11 +32,12 @@
 
 package org.cga.sctp.schools;
 
-import org.cga.sctp.schools.educationzone.EducationZone;
 import org.cga.sctp.targeting.importation.converters.EducationLevelParameterValueConverter;
 import org.cga.sctp.targeting.importation.parameters.EducationLevel;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Entity
@@ -47,15 +48,19 @@ public class School {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @NotEmpty(message = "Name cannot be empty or null")
     @Column
     private String name;
 
+    @NotEmpty(message = "School code cannot be null")
     @Column
     private String code;
 
+    @NotNull(message = "Education Level must be specified")
     @Convert(converter = EducationLevelParameterValueConverter.class)
     private EducationLevel educationLevel;
 
+    @NotNull(message = "Education Zone ID must be specified")
     @Column(name="education_zone")
     private Long educationZoneId;
 
@@ -68,9 +73,11 @@ public class School {
     @Column
     private Boolean active;
 
+    @NotNull(message = "Created At cannot be null")
     @Column
     private LocalDateTime createdAt;
 
+    @NotNull(message = "Modified At cannot be null")
     @Column
     private LocalDateTime modifiedAt;
 

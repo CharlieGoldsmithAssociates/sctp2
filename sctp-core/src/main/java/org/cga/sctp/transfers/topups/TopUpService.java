@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,36 +30,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting.importation.converters;
+package org.cga.sctp.transfers.topups;
 
-import org.cga.sctp.targeting.importation.parameters.UbrParameterValue;
+import org.cga.sctp.location.Location;
 
-import javax.persistence.AttributeConverter;
+import java.util.List;
+import java.util.Optional;
 
-public abstract class UbrParameterValueConverter implements AttributeConverter<UbrParameterValue, Integer> {
-    private final UbrParameterValue[] values;
+public interface TopUpService {
 
-    public UbrParameterValueConverter(UbrParameterValue[] values) {
-        this.values = values;
-    }
+    Optional<TopUp> newTopup(NewTopUpForm params);
 
-    @Override
-    public Integer convertToDatabaseColumn(UbrParameterValue attribute) {
-        return attribute == null ? null : attribute.getCode();
-    }
+    List<TopUp> fetchAllActive(Optional<Location> location);
 
-    @Override
-    public UbrParameterValue convertToEntityAttribute(Integer dbData) {
-        return dbData == null ? null : codeToValue(dbData);
-    }
+    List<TopUp> fetchAllExecuted(Optional<Location> location);
 
-    private UbrParameterValue codeToValue(Integer code) {
-        for (UbrParameterValue value : values) {
-            if (value.getCode() == code) {
-                return value;
-            }
-        }
-        throw new IllegalArgumentException("Failed to map code " + code + " to a value of type "
-                + values[0].getClass().getCanonicalName());
-    }
+    void markAsExecuted(TopUp topUp, Long amount);
+
+    List<TopUp> findAllActive();
 }

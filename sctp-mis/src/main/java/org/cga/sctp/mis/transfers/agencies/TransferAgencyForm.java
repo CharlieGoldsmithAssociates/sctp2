@@ -53,7 +53,7 @@ public class TransferAgencyForm {
     @NotNull(message = "Status is required")
     private Booleans active;
 
-    @NotEmpty
+    @NotEmpty(message = "Phone is required")
     @Length(min=10, max=15)
     private String phone;
 
@@ -73,7 +73,6 @@ public class TransferAgencyForm {
     @Length(min=10, max=15)
     private String representativePhone;
 
-    @NotEmpty
     private String branch;
 
     private Long locationId;

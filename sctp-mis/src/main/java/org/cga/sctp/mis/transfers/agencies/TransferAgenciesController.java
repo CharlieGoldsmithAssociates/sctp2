@@ -130,7 +130,9 @@ public class TransferAgenciesController extends BaseController {
         transferAgency.setAddress(form.getAddress());
         transferAgency.setRepresentativeName(form.getRepresentativeName());
         transferAgency.setRepresentativeEmail(form.getRepresentativeEmail());
+        transferAgency.setRepresentativePhone(form.getRepresentativePhone());
         transferAgency.setWebsite(form.getWebsite());
+        transferAgency.setPhone(form.getPhone());
         transferAgency.setBranch(form.getBranch());
         transferAgency.setCreatedAt(LocalDate.now());
         transferAgency.setModifiedAt(transferAgency.getCreatedAt());

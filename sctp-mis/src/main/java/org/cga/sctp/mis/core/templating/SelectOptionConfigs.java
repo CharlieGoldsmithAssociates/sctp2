@@ -33,8 +33,10 @@
 package org.cga.sctp.mis.core.templating;
 
 import org.cga.sctp.beneficiaries.Individual;
+import org.cga.sctp.funders.Funder;
 import org.cga.sctp.location.Location;
 import org.cga.sctp.location.LocationCode;
+import org.cga.sctp.location.LocationType;
 import org.cga.sctp.program.Program;
 import org.cga.sctp.program.ProgramUser;
 import org.cga.sctp.program.ProgramUserCandidate;
@@ -49,6 +51,8 @@ import org.cga.sctp.transfers.agencies.TransferAgency;
 import org.cga.sctp.transfers.agencies.TransferMethod;
 import org.cga.sctp.transfers.parameters.HouseholdParameterCondition;
 import org.cga.sctp.transfers.parameters.TransferParameter;
+import org.cga.sctp.transfers.topups.TopUpHouseholdStatus;
+import org.cga.sctp.transfers.topups.TopUpType;
 import org.cga.sctp.user.AccessLevel;
 import org.cga.sctp.user.Permission;
 import org.cga.sctp.user.SystemRole;
@@ -160,7 +164,27 @@ public class SelectOptionConfigs {
     }
 
     @Bean
+    public SelectOptionEntry funderOption() {
+        return new SelectOptionEntry(Funder.class, "getId()", "getName()");
+    }
+
+    @Bean
     public SelectOptionEntry transferParameterOption() {
         return new SelectOptionEntry(TransferParameter.class, "getId()", "getTitle()");
+    }
+
+    @Bean
+    public SelectOptionEntry topupTypes() {
+        return new SelectOptionEntry(TopUpType.class, "name()", "getDescription()");
+    }
+
+    @Bean
+    public SelectOptionEntry topupHouseholdStatuses() {
+        return new SelectOptionEntry(TopUpHouseholdStatus.class, "name()", "getDescription()");
+    }
+
+    @Bean
+    public SelectOptionEntry locationTypeOption() {
+        return new SelectOptionEntry(LocationType.class, "name()", "description");
     }
 }
