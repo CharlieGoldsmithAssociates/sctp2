@@ -29,73 +29,91 @@
         <div class="card-content">
             {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
             <form id="addRoleForm" action="/transfers/agencies/{{ form.id }}/edit" method="post"
-                  enctype="application/x-www-form-urlencoded">
+                  enctype="application/x-www-form-urlencoded" >
                 {{ csrf(_csrf) }}
-
+                {{ hiddenField('id', form.id) }}
                 <div class="form-content">
-
-                    <div class="field">
-                        <div class="field"><label class="label is-required">Name</label>
-                            <div class="control">{{ textField('name', form.name, 1, 100, true, nil) }}</div>
-                            {{ printFieldErrors(getFieldErrors('form', 'name')) }}
-                        </div>
-                    </div>
-                    <div class="field">
-                        <div class="field"><label class="label is-required">Active</label>
-                            <div class="control">
-                                <div class="select is-fullwidth">
-                                        {{ selectField('active', options, form.active, true) }}
-                                </div>
+                        <div class="field">
+                            <div class="field"><label class="label is-required">Name</label>
+                                <div class="control">{{ textField('name', form.name, 1, 100, true, nil) }}</div>
+                                {{ printFieldErrors(getFieldErrors('form', 'name')) }}
                             </div>
-                            {{ printFieldErrors(getFieldErrors('form', 'active')) }}
                         </div>
-                    </div>
-                    <div class="field">
-                        <div class="field"><label class="label is-required">Phone</label>
-                            <div class="control">{{ textField('phone', form.phone, 1, 100, true, nil) }}</div>
-                            {{ printFieldErrors(getFieldErrors('form', 'phone')) }}
+                        <div class="field">
+                            <div class="field"><label class="label is-required">Phone</label>
+                                <div class="control">{{ textField('phone', form.phone, 1, 100, true, nil) }}</div>
+                                {{ printFieldErrors(getFieldErrors('form', 'phone')) }}
+                            </div>
                         </div>
-                    </div>
-                    <div class="field">
-                        <div class="field"><label class="label is-required">Website</label>
-                            <div class="control">{{ textField('website', form.website, 1, 100, true, nil) }}</div>
-                            {{ printFieldErrors(getFieldErrors('form', 'website')) }}
+                        <div class="field">
+                            <div class="field"><label class="label is-required">Transfer Method</label>
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                            {{ selectField('transferMethod', transferMethods, form.transferMethod, true) }}
+                                    </div>
+                                </div>
+                                {{ printFieldErrors(getFieldErrors('form', 'transferMethod')) }}
+                            </div>
                         </div>
-                    </div>
-                    <div class="field">
-                        <div class="field"><label class="label is-required">Address</label>
-                            <div class="control">{{ textField('address', form.address, 1, 100, true, nil) }}</div>
-                            {{ printFieldErrors(getFieldErrors('form', 'address')) }}
+                        <div class="field">
+                            <div class="field"><label class="label">Website</label>
+                                <div class="control">{{ textField('website', form.website, 1, 100, true, nil) }}</div>
+                                {{ printFieldErrors(getFieldErrors('form', 'website')) }}
+                            </div>
                         </div>
-                    </div>
-                    <div class="field">
-                        <div class="field"><label class="label is-required">Representative Name</label>
-                            <div class="control">{{ textField('representativeName', form.representativeName, 1, 100, true, nil)
-    }}</div>
-                            {{ printFieldErrors(getFieldErrors('form', 'representativeName')) }}
+                        <div class="field">
+                            <div class="field"><label class="label is-required">Address</label>
+                                <div class="control">{{ textField('address', form.address, 1, 100, true, nil) }}</div>
+                                {{ printFieldErrors(getFieldErrors('form', 'address')) }}
+                            </div>
                         </div>
-                    </div>
-                    <div class="field">
-                        <div class="field"><label class="label is-required">Representative Email</label>
-                            <div class="control">{{ textField('representativeEmail', form.representativeEmail, 1, 100, true,
-                            nil) }}</div>
-                            {{ printFieldErrors(getFieldErrors('form', 'representativeEmail')) }}
+                        <div class="field">
+                            <div class="field"><label class="label is-required">Location</label>
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                            {{ selectField('locationId', locations, form.locationId, true) }}
+                                    </div>
+                                </div>
+                                {{ printFieldErrors(getFieldErrors('form', 'locationId')) }}
+                            </div>
                         </div>
-                    </div>
-                    <div class="field">
-                        <div class="field"><label class="label is-required">Representative Phone</label>
-                            <div class="control">{{ textField('representativePhone', form.representativePhone, 1, 100, true,
-                            nil) }}</div>
-                            {{ printFieldErrors(getFieldErrors('form', 'representativePhone')) }}
+                        <div class="field">
+                            <div class="field"><label class="label is-required">Representative Name</label>
+                                <div class="control">{{ textField('representativeName', form.representativeName, 1, 100, true, nil)
+            }}</div>
+                                {{ printFieldErrors(getFieldErrors('form', 'representativeName')) }}
+                            </div>
                         </div>
-                    </div>
-                    <div class="is-full">
-                        <div class="field"><label class="label is-required">Branch Name</label>
-                            <div class="control">{{ textField('branch', form.branch, 1, 100, true, nil) }}</div>
-                            {{ printFieldErrors(getFieldErrors('form', 'branch')) }}
+                        <div class="field">
+                            <div class="field"><label class="label is-required">Representative Email</label>
+                                <div class="control">{{ textField('representativeEmail', form.representativeEmail, 1, 100, true,
+                                nil) }}</div>
+                                {{ printFieldErrors(getFieldErrors('form', 'representativeEmail')) }}
+                            </div>
                         </div>
-                    </div>
-
+                        <div class="field">
+                            <div class="field"><label class="label is-required">Representative Phone</label>
+                                <div class="control">{{ textField('representativePhone', form.representativePhone, 1, 100, true,
+                                nil) }}</div>
+                                {{ printFieldErrors(getFieldErrors('form', 'representativePhone')) }}
+                            </div>
+                        </div>
+                        <div class="is-full">
+                            <div class="field"><label class="label">Branch Name</label>
+                                <div class="control">{{ textField('branch', form.branch, 1, 100, true, nil) }}</div>
+                                {{ printFieldErrors(getFieldErrors('form', 'branch')) }}
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="field"><label class="label is-required">Active</label>
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                            {{ selectField('active', options, form.active, true) }}
+                                    </div>
+                                </div>
+                                {{ printFieldErrors(getFieldErrors('form', 'active')) }}
+                            </div>
+                        </div>
                 </div>
                 <div class="buttons is-right">
                     <button class="button is-primary">Update Transfer Agency</button>
