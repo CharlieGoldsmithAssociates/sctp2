@@ -61,6 +61,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/transfers/agencies")
@@ -114,7 +115,7 @@ public class TransferAgenciesController extends BaseController {
                                   RedirectAttributes attributes) {
 
         if (result.hasErrors()) {
-            LoggerFactory.getLogger(getClass()).error("Failed to update agency: {}", result.getAllErrors());
+            LoggerFactory.getLogger(getClass()).warn("Failed to1 create agency: {}", result.getAllErrors());
             List<Location> locations = locationService.getActiveDistricts();
             return withDangerMessage("/transfers/agencies/new", "Failed to save Agency please fix the errors on the form")
                     .addObject("transferMethods", TransferMethod.values())
@@ -184,11 +185,16 @@ public class TransferAgenciesController extends BaseController {
                                         BindingResult result,
                                         RedirectAttributes attributes) {
 
-        TransferAgency transferAgency = transferAgencyService.getTransferAgenciesRepository().getOne(id);
+        Optional<TransferAgency> optionalTransferAgency = transferAgencyService.findById(id);
+        if (optionalTransferAgency.isEmpty()) {
+            return redirectWithDangerMessageModelAndView("/transfers/agencies", "Transfer Agency does not exist", attributes);
+        }
+
+        TransferAgency transferAgency = optionalTransferAgency.get();
         if (result.hasErrors()) {
-            LoggerFactory.getLogger(getClass()).error("Failed to update agency: {}", attributes);
+            LoggerFactory.getLogger(getClass()).error("Failed to update agency: {}", result.getAllErrors());
             List<Location> locations = locationService.getActiveDistricts();
-            return withDangerMessage("/transfers/agencies/new", "Failed to save Agency please fix the errors on the form")
+            return withDangerMessage("/transfers/agencies/edit", "Failed to save Agency please fix the errors on the form")
                     .addObject("transferMethods", TransferMethod.values())
                     .addObject("options", Booleans.VALUES)
                     .addObject("locations", locations)
@@ -211,7 +217,7 @@ public class TransferAgenciesController extends BaseController {
 
         publishGeneralEvent("%s updated agency: name=%s", username, transferAgency.getName());
 
-        transferAgencyService.getTransferAgenciesRepository().save(transferAgency);
+        transferAgencyService.save(transferAgency);
 
         return redirect(String.format("/transfers/agencies/%s/view",id));
     }
