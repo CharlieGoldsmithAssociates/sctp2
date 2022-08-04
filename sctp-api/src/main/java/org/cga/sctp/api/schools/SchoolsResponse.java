@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,22 +30,17 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.schools;
+package org.cga.sctp.api.schools;
 
+import org.cga.sctp.api.core.pagination.PagedResponse;
+import org.cga.sctp.schools.School;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
-@Repository
-public interface SchoolRepository extends JpaRepository<School,Long> {
-
-    @Query(nativeQuery = true, value = "select * from schools_v")
-    List<SchoolsView> getSchools();
-
-    @Query
-    Page<School> findAllByActive(boolean value, Pageable pageable);
+/**
+ * Response for fetching Schools information
+ */
+public class SchoolsResponse extends PagedResponse<School> {
+    public SchoolsResponse(Page<School> page) {
+        super(page);
+    }
 }

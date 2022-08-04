@@ -43,19 +43,19 @@ import java.util.Optional;
 
 public class SchoolForm {
     private Long id;
-    @NotEmpty
+    @NotEmpty(message = "Code cannot be empty")
     private String code;
 
-    @NotEmpty
+    @NotEmpty(message = "Name cannot be empty")
     private String name;
 
-    @NotEmpty
+    @NotEmpty(message = "Contact name cannot be empty")
     private String contactName;
 
-    @NotEmpty
+    @NotEmpty(message = "Contact Phone cannot be empty")
     private String contactPhone;
 
-    @NotNull
+    @NotNull(message = "Education Level must be specified")
     private EducationLevel educationLevel;
 
     private Long ta;
@@ -65,7 +65,7 @@ public class SchoolForm {
     @NotNull(message = "Education Zone must be specified")
     private Long educationZoneId;
 
-    @NotNull
+    @NotNull(message = "Active flag must be set.")
     private Booleans active;
 
 

@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,55 +30,43 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.schools;
+package org.cga.sctp.api.schools;
 
-import org.cga.sctp.schools.educationzone.EducationZone;
-import org.cga.sctp.schools.educationzone.EducationZoneRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.cga.sctp.api.core.BaseController;
+import org.cga.sctp.api.core.IncludeGeneralResponses;
+import org.cga.sctp.api.locations.LocationDownloadResponse;
+import org.cga.sctp.schools.SchoolService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
-import java.util.Optional;
-
-@Service
-public class SchoolService {
+@Controller
+@RequestMapping("/schools")
+@Tag(name = "Schools", description = "Schools endpoint")
+public class SchoolsController extends BaseController {
 
     @Autowired
-    SchoolRepository schoolRepository;
+    private SchoolService schoolService;
 
-    @Autowired
-    EducationZoneRepository educationZoneRepository;
-
-    public SchoolRepository getSchoolRepository() {
-        return schoolRepository;
-    }
-
-    public List<SchoolsView> getSchools(){
-        return schoolRepository.getSchools();
-    }
-
-    public Optional<School> findById(Long id) {
-        return schoolRepository.findById(id);
-    }
-
-    public School save(School school) {
-        if (educationZoneRepository.findById(school.getEducationZoneId()).isEmpty()) {
-            throw new IllegalArgumentException("Invalid School Education Zone");
-        }
-        return schoolRepository.save(school);
-    }
-
-    public List<EducationZone> findAllActiveEducationZones() {
-        return educationZoneRepository.findAll();
-    }
-
-    public List<School> getActiveSchools() {
-        return schoolRepository.findAllByActive(true, Pageable.unpaged()).toList();
-    }
-
-    public Page<School> getActiveSchoolsPaged(Pageable pageable) {
-        return schoolRepository.findAllByActive(true, pageable);
+    @GetMapping
+    @Operation(description = "Fetches schools from the database")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = SchoolsResponse.class)))
+    })
+    @IncludeGeneralResponses
+    public ResponseEntity<SchoolsResponse> getAllSchoolsPaged(@RequestParam(value = "page", defaultValue = "0") int page) {
+        var pageable = Pageable.ofSize(500).withPage(page);
+        SchoolsResponse response = new SchoolsResponse(schoolService.getActiveSchoolsPaged(pageable));
+        return ResponseEntity.ok(response);
     }
 }
