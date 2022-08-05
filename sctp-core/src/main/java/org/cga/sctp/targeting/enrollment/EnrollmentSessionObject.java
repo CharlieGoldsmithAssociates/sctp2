@@ -36,6 +36,7 @@ import org.cga.sctp.targeting.LongSetConverter;
 
 import javax.persistence.*;
 import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.Set;
 
 @MappedSuperclass
@@ -87,6 +88,11 @@ public class EnrollmentSessionObject {
 
     @Column(name = "program_id")
     private Long program;
+
+    @Column
+    private Boolean mobileReview;
+    private Long mobileReviewer;
+    private ZonedDateTime mobileReviewAt;
 
     public Long getId() {
         return id;
@@ -192,4 +198,27 @@ public class EnrollmentSessionObject {
         this.program = program;
     }
 
+    public Boolean getMobileReview() {
+        return mobileReview;
+    }
+
+    public void setMobileReview(Boolean mobileReview) {
+        this.mobileReview = mobileReview;
+    }
+
+    public Long getMobileReviewer() {
+        return mobileReviewer;
+    }
+
+    public void setMobileReviewer(Long mobileReviewer) {
+        this.mobileReviewer = mobileReviewer;
+    }
+
+    public ZonedDateTime getMobileReviewAt() {
+        return mobileReviewAt;
+    }
+
+    public void setMobileReviewAt(ZonedDateTime mobileReviewAt) {
+        this.mobileReviewAt = mobileReviewAt;
+    }
 }

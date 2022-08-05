@@ -30,40 +30,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting.enrollment;
+package org.cga.sctp.api.enrollment;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.query.Procedure;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+import org.cga.sctp.api.core.pagination.PagedResponse;
+import org.cga.sctp.targeting.enrollment.EnrollmentSessionView;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
-@Repository
-public interface EnrollmentSessionViewRepository extends JpaRepository<EnrollmentSessionView, Long> {
+public class EnrollmentSessionListResponse extends PagedResponse<EnrollmentSessionView> {
+    public EnrollmentSessionListResponse(Page<EnrollmentSessionView> page) {
+        super(page);
+    }
 
-    @Procedure(procedureName = "getEnrollmentSessionsForMobileReview")
-    List<EnrollmentSessionView> getEnrollmentSessionsForMobileReview(
-            @Param("district") long districtCode,
-            @Param("ta") Long taCode,
-            @Param("cluster") Long clusterCode,
-            @Param("page") int page,
-            @Param("pageSize") int pageSize
-    );
-
-    @Query(
-            value = """
-                    CALL countEnrollmentSessionsForMobileReview(
-                        :_districtCode
-                       ,:_taCode
-                       ,:_clusterCode)
-                    """
-            , nativeQuery = true
-    )
-    Long countEnrollmentSessionsForMobileReview(
-            @Param("_districtCode") long districtCode,
-            @Param("_taCode") Long taCode,
-            @Param("_clusterCode") Long clusterCode
-    );
+    public EnrollmentSessionListResponse(int page, long totalItems, int totalPages, List<EnrollmentSessionView> items) {
+        super(page, totalItems, totalPages, items);
+    }
 }

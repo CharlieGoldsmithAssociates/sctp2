@@ -33,18 +33,31 @@
 package org.cga.sctp.api.enrollment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.cga.sctp.api.core.BaseController;
 import org.cga.sctp.api.core.IncludeGeneralResponses;
-import org.cga.sctp.targeting.enrollment.EnrollmentService;
+import org.cga.sctp.api.user.ApiUserDetails;
+import org.cga.sctp.api.utils.LangUtils;
 import org.cga.sctp.targeting.enrollment.EnrollmentForm;
+import org.cga.sctp.targeting.enrollment.EnrollmentService;
+import org.cga.sctp.targeting.enrollment.EnrollmentSessionView;
+import org.cga.sctp.user.AuthenticatedUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.io.IOException;
 
 @RestController
@@ -101,5 +114,29 @@ public class EnrollmentController extends BaseController {
         }
         // TODO: return type
         return new ResponseEntity<>("File is uploaded successfully", HttpStatus.OK);
+    }
+
+    @GetMapping("/sessions")
+    @Operation(description = "Returns enrollment sessions")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = EnrollmentSessionListResponse.class)))
+    })
+    @IncludeGeneralResponses
+    public ResponseEntity<EnrollmentSessionListResponse> getEnrollmentSessions(
+            @AuthenticatedUserDetails ApiUserDetails apiUserDetails,
+            @Valid @Min(0) @RequestParam(value = "page", defaultValue = "0") int page,
+            @Valid @Min(100) @Max(1000) @RequestParam(value = "pageSize", defaultValue = "1000") int pageSize,
+            @RequestParam(value = "traditional-authority-code", required = false) Long taCode,
+            @RequestParam(value = "village-cluster-code", required = false) Long villageCluster
+    ) {
+        Page<EnrollmentSessionView> sessions = enrollmentService
+                .getEnrollmentSessionsForMobileReview(
+                        apiUserDetails.getAccessTokenClaims().getDistrictCode().longValue(),
+                        LangUtils.nullIfZeroOrLess(taCode),
+                        LangUtils.nullIfZeroOrLess(villageCluster),
+                        page,
+                        pageSize
+                );
+        return ResponseEntity.ok(new EnrollmentSessionListResponse(sessions));
     }
 }

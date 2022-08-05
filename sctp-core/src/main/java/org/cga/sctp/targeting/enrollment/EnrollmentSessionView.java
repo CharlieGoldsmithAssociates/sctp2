@@ -32,6 +32,7 @@
 
 package org.cga.sctp.targeting.enrollment;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Entity;
@@ -48,6 +49,9 @@ public class EnrollmentSessionView extends EnrollmentSessionObject {
     private Long householdCount;
     private String districtName;
     private Long reviewedHouseholds;
+
+    // mobile reviewer name
+    private String reviewerName;
 
     public String getTaName() {
         return taName;
@@ -101,7 +105,20 @@ public class EnrollmentSessionView extends EnrollmentSessionObject {
         return reviewedHouseholds;
     }
 
+    @JsonIgnore
     public boolean getCanSendToTransfers() {
         return householdCount.longValue() == reviewedHouseholds.longValue();
+    }
+
+    public void setReviewedHouseholds(Long reviewedHouseholds) {
+        this.reviewedHouseholds = reviewedHouseholds;
+    }
+
+    public String getReviewerName() {
+        return reviewerName;
+    }
+
+    public void setReviewerName(String reviewerName) {
+        this.reviewerName = reviewerName;
     }
 }
