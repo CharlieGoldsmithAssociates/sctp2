@@ -32,6 +32,8 @@
 
 package org.cga.sctp.targeting.importation.parameters;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum HouseOwnership implements UbrParameterValue {
    /* Owned(1),
     Rented(2),
@@ -69,5 +71,10 @@ public enum HouseOwnership implements UbrParameterValue {
     @Override
     public String toString() {
         return text;
+    }
+
+    @JsonValue
+    public String getValueLiteral() {
+        return name();
     }
 }

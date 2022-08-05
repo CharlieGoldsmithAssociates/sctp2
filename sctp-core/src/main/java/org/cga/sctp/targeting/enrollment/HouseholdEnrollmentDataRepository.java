@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,37 +30,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting.importation.parameters;
+package org.cga.sctp.targeting.enrollment;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public enum HouseType implements UbrParameterValue {
-    Permanent(1, null),
-    SemiPermanent(2, "Semi - Permanent"),
-    Traditional(3, null),
-    Shelter(4, null);
-
-    public final int code;
-    public final String otherName;
-    public static final HouseType[] VALUES = values();
-
-    HouseType(int code, String otherName) {
-        this.code = code;
-        this.otherName = otherName;
-    }
-
-    @Override
-    public int getCode() {
-        return code;
-    }
-
-    @Override
-    public String toString() {
-        return otherName != null ? otherName : name();
-    }
-
-    @JsonValue
-    public String getValueLiteral() {
-        return name();
-    }
+@Repository
+interface HouseholdEnrollmentDataRepository extends JpaRepository<HouseholdEnrollmentData, Long> {
+    Page<HouseholdEnrollmentData> findBySessionId(Long sessionId, Pageable pageable);
 }

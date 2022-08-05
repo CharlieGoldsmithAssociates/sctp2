@@ -32,6 +32,8 @@
 
 package org.cga.sctp.targeting.importation.parameters;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum WaterSource implements UbrParameterValue {
     PipedIntoDwelling(1, "Piped into Dwelling"),
     PipedIntoYardOrPlot(2, "Piped into Yard/Plot"),
@@ -67,5 +69,10 @@ public enum WaterSource implements UbrParameterValue {
     @Override
     public int getCode() {
         return code;
+    }
+
+    @JsonValue
+    public String getValueLiteral() {
+        return name();
     }
 }

@@ -8,3 +8,5 @@ application-dev.properties
 target/
 staging/
 src/main/javascript
+*.log
+logs/

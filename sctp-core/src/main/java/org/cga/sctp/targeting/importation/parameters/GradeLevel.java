@@ -33,6 +33,7 @@
 package org.cga.sctp.targeting.importation.parameters;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum GradeLevel implements UbrParameterValue {
     Standard1(1, "Std. 1"),
@@ -76,5 +77,10 @@ public enum GradeLevel implements UbrParameterValue {
     @Override
     public String toString() {
         return text != null ? text : name();
+    }
+
+    @JsonValue
+    public String getValueLiteral() {
+        return name();
     }
 }

@@ -33,6 +33,7 @@
 package org.cga.sctp.targeting.importation.parameters;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum Orphanhood implements UbrParameterValue {
     SingleOrphan(1, "Single orphan"),
@@ -70,4 +71,9 @@ public enum Orphanhood implements UbrParameterValue {
     }
 
     public static final Orphanhood[] VALUES = values();
+
+    @JsonValue
+    public String getValueLiteral() {
+        return name();
+    }
 }

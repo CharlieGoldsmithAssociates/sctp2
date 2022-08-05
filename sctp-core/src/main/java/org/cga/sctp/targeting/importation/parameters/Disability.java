@@ -33,6 +33,7 @@
 package org.cga.sctp.targeting.importation.parameters;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum Disability implements UbrParameterValue {
     Blind(1, null),
@@ -75,5 +76,10 @@ public enum Disability implements UbrParameterValue {
         }
 
         return null;
+    }
+
+    @JsonValue
+    public String getValueLiteral() {
+        return name();
     }
 }

@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,37 +30,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting.importation.parameters;
+package org.cga.sctp.api.enrollment;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import org.cga.sctp.api.core.pagination.PagedResponse;
+import org.cga.sctp.targeting.enrollment.EnrollmentSessionView;
+import org.springframework.data.domain.Page;
 
-public enum HouseType implements UbrParameterValue {
-    Permanent(1, null),
-    SemiPermanent(2, "Semi - Permanent"),
-    Traditional(3, null),
-    Shelter(4, null);
+import java.util.List;
 
-    public final int code;
-    public final String otherName;
-    public static final HouseType[] VALUES = values();
-
-    HouseType(int code, String otherName) {
-        this.code = code;
-        this.otherName = otherName;
+public class EnrollmentSessionListResponse extends PagedResponse<EnrollmentSessionView> {
+    public EnrollmentSessionListResponse(Page<EnrollmentSessionView> page) {
+        super(page);
     }
 
-    @Override
-    public int getCode() {
-        return code;
-    }
-
-    @Override
-    public String toString() {
-        return otherName != null ? otherName : name();
-    }
-
-    @JsonValue
-    public String getValueLiteral() {
-        return name();
+    public EnrollmentSessionListResponse(int page, long totalItems, int totalPages, List<EnrollmentSessionView> items) {
+        super(page, totalItems, totalPages, items);
     }
 }

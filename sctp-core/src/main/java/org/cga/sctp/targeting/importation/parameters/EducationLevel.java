@@ -33,6 +33,7 @@
 package org.cga.sctp.targeting.importation.parameters;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum EducationLevel implements UbrParameterValue {
     Nursery(1, null),
@@ -66,6 +67,11 @@ public enum EducationLevel implements UbrParameterValue {
     @Override
     public int getCode() {
         return code;
+    }
+
+    @JsonValue
+    public String getValueLiteral() {
+        return name();
     }
 
     @Override

@@ -32,6 +32,8 @@
 
 package org.cga.sctp.targeting.enrollment;
 
+// TODO Needs validation annotations
+
 public class SchoolEnrollmentForm {
     private long householdId;
 

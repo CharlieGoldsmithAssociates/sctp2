@@ -32,38 +32,46 @@
 
 package org.cga.sctp.targeting.enrollment;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.query.Procedure;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.google.gson.Gson;
+import org.cga.sctp.core.BaseComponent;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 
-import java.util.List;
+import javax.persistence.AttributeConverter;
 
-@Repository
-public interface EnrollmentSessionViewRepository extends JpaRepository<EnrollmentSessionView, Long> {
+public class HouseholdRecipientJsonConverter extends BaseComponent implements AttributeConverter<HouseholdEnrollmentData.HouseholdRecipientInfo, String> {
 
-    @Procedure(procedureName = "getEnrollmentSessionsForMobileReview")
-    List<EnrollmentSessionView> getEnrollmentSessionsForMobileReview(
-            @Param("district") long districtCode,
-            @Param("ta") Long taCode,
-            @Param("cluster") Long clusterCode,
-            @Param("page") int page,
-            @Param("pageSize") int pageSize
-    );
+    @Autowired
+    private Gson gson;
 
-    @Query(
-            value = """
-                    CALL countEnrollmentSessionsForMobileReview(
-                        :_districtCode
-                       ,:_taCode
-                       ,:_clusterCode)
-                    """
-            , nativeQuery = true
-    )
-    Long countEnrollmentSessionsForMobileReview(
-            @Param("_districtCode") long districtCode,
-            @Param("_taCode") Long taCode,
-            @Param("_clusterCode") Long clusterCode
-    );
+    private ObjectMapper objectMapper;
+
+    @Override
+    public String convertToDatabaseColumn(HouseholdEnrollmentData.HouseholdRecipientInfo attribute) {
+        return null;
+    }
+
+    public HouseholdRecipientJsonConverter() {
+        objectMapper = new JsonMapper();
+        objectMapper.findAndRegisterModules();
+        objectMapper.disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
+        objectMapper.disable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    }
+
+    @Override
+    public HouseholdEnrollmentData.HouseholdRecipientInfo convertToEntityAttribute(String dbData) {
+        if (StringUtils.hasText(dbData)) {
+            try {
+                return objectMapper.readValue(dbData, HouseholdEnrollmentData.HouseholdRecipientInfo.class);
+            } catch (Exception e) {
+                LOG.error("error converting json", e);
+            }
+        }
+        return null;
+    }
 }

@@ -38,6 +38,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
@@ -54,6 +56,8 @@ import java.util.Optional;
 
 @Service
 public class EnrollmentService extends TransactionalService {
+
+    private static final int PAGE_SIZE = 1_000;
 
     @Autowired
     private EnrolmentSessionRepository enrolmentSessionRepository;
@@ -91,6 +95,9 @@ public class EnrollmentService extends TransactionalService {
     @Autowired
     private HouseholdEnrollmentSummaryRepository householdEnrollmentSummaryRepository;
 
+    @Autowired
+    private HouseholdEnrollmentDataRepository enrollmentDataRepository;
+
     @Value("${pictures:beneficiary-images}")
     private String beneficiaryPictureUploadDirectory;
 
@@ -99,6 +106,26 @@ public class EnrollmentService extends TransactionalService {
 
     public Page<EnrollmentSessionView> getEnrollmentSessions(Pageable pageable) {
         return sessionViewRepository.findAll(pageable);
+    }
+
+    public Page<EnrollmentSessionView> getEnrollmentSessionsForMobileReview(
+            Long districtCode
+            , Long taCode
+            , Long clusterCode
+            , int page
+            , int pageSize) {
+        List<EnrollmentSessionView> slice = sessionViewRepository
+                .getEnrollmentSessionsForMobileReview(districtCode, taCode, clusterCode, page, Math.max(pageSize, PAGE_SIZE));
+
+        // TODO this is necessary for paging on the android front but can be removed to improve performance
+        //  just that the app would have to be changed to use optimistic paging.
+        Long totalResults = sessionViewRepository.countEnrollmentSessionsForMobileReview(
+                districtCode
+                , taCode
+                , clusterCode
+        );
+
+        return new PageImpl<>(slice, PageRequest.of(page, pageSize), totalResults);
     }
 
     public Page<HouseholdEnrollmentView> getEnrolledHouseholds(EnrollmentSessionView session, Pageable pageable) {
@@ -274,5 +301,10 @@ public class EnrollmentService extends TransactionalService {
 
     public void saveEnrollment(HouseholdEnrollment enrollment) {
         householdEnrollmentRepository.save(enrollment);
+    }
+
+    public Page<HouseholdEnrollmentData> getHouseholdEnrollmentData(Long sessionId, int page, int pageSize) {
+        return enrollmentDataRepository.findBySessionId(sessionId,
+                PageRequest.of(page, Math.max(pageSize, PAGE_SIZE)));
     }
 }

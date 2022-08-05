@@ -32,6 +32,8 @@
 
 package org.cga.sctp.targeting.importation.parameters;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum HarvestedProduceDuration implements UbrParameterValue {
     LESS_THAN_THREE_MONTHS(1, "0 < 3 months"),
     THREE_TO_FIVE_MONTHS(2, "3 - 5 months"),
@@ -67,5 +69,10 @@ public enum HarvestedProduceDuration implements UbrParameterValue {
     @Override
     public String toString() {
         return title;
+    }
+
+    @JsonValue
+    public String getValueLiteral() {
+        return name();
     }
 }

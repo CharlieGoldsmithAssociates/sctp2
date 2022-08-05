@@ -32,6 +32,8 @@
 
 package org.cga.sctp.targeting.importation.parameters;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum LatrineType implements UbrParameterValue {
     NoToilet(1, "No Toilet"),
     FlushToilet(2, "Flush Toilet"),
@@ -68,5 +70,10 @@ public enum LatrineType implements UbrParameterValue {
     @Override
     public String toString() {
         return title;
+    }
+
+    @JsonValue
+    public String getValueLiteral() {
+        return name();
     }
 }
