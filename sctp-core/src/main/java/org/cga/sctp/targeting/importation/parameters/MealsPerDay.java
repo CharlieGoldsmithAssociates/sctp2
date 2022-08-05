@@ -32,6 +32,8 @@
 
 package org.cga.sctp.targeting.importation.parameters;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum MealsPerDay implements UbrParameterValue {
     OneMealPerDay(1, "1 meal per day"),
     TwoMealsPerDay(2, "2 meals per day"),
@@ -68,5 +70,10 @@ public enum MealsPerDay implements UbrParameterValue {
     @Override
     public String toString() {
         return title;
+    }
+
+    @JsonValue
+    public String getValueLiteral() {
+        return name();
     }
 }

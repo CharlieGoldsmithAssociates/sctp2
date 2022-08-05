@@ -32,6 +32,8 @@
 
 package org.cga.sctp.targeting.importation.parameters;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum RoofType implements UbrParameterValue {
     Grass(1, null),
     IronSheets(2, "Iron Sheets"),
@@ -63,5 +65,10 @@ public enum RoofType implements UbrParameterValue {
     @Override
     public int getCode() {
         return code;
+    }
+
+    @JsonValue
+    public String getValueLiteral() {
+        return name();
     }
 }

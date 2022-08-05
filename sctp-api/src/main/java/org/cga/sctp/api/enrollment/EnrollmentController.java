@@ -46,6 +46,7 @@ import org.cga.sctp.api.utils.LangUtils;
 import org.cga.sctp.targeting.enrollment.EnrollmentForm;
 import org.cga.sctp.targeting.enrollment.EnrollmentService;
 import org.cga.sctp.targeting.enrollment.EnrollmentSessionView;
+import org.cga.sctp.targeting.enrollment.HouseholdEnrollmentData;
 import org.cga.sctp.user.AuthenticatedUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -138,5 +139,23 @@ public class EnrollmentController extends BaseController {
                         pageSize
                 );
         return ResponseEntity.ok(new EnrollmentSessionListResponse(sessions));
+    }
+
+    @GetMapping("/sessions/{session-id}/households")
+    @Operation(description = "Returns household information under the given session")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = EnrollmentSessionHouseholdResponse.class)))
+    })
+    @IncludeGeneralResponses
+    public ResponseEntity<EnrollmentSessionHouseholdResponse> getEnrollmentSessionHouseholds(
+            @AuthenticatedUserDetails ApiUserDetails apiUserDetails,
+            @Valid @Min(0) @RequestParam(value = "page", defaultValue = "0") int page,
+            @Valid @Min(100) @Max(1000) @RequestParam(value = "pageSize", defaultValue = "1000") int pageSize,
+            @PathVariable(value = "session-id") Long sessionId
+    ) {
+        // TODO Restrict session based on location (permission module)
+        Page<HouseholdEnrollmentData> enrollmentData = enrollmentService
+                .getHouseholdEnrollmentData(sessionId, page, pageSize);
+        return ResponseEntity.ok(new EnrollmentSessionHouseholdResponse(enrollmentData));
     }
 }

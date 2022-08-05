@@ -95,6 +95,9 @@ public class EnrollmentService extends TransactionalService {
     @Autowired
     private HouseholdEnrollmentSummaryRepository householdEnrollmentSummaryRepository;
 
+    @Autowired
+    private HouseholdEnrollmentDataRepository enrollmentDataRepository;
+
     @Value("${pictures:beneficiary-images}")
     private String beneficiaryPictureUploadDirectory;
 
@@ -298,5 +301,10 @@ public class EnrollmentService extends TransactionalService {
 
     public void saveEnrollment(HouseholdEnrollment enrollment) {
         householdEnrollmentRepository.save(enrollment);
+    }
+
+    public Page<HouseholdEnrollmentData> getHouseholdEnrollmentData(Long sessionId, int page, int pageSize) {
+        return enrollmentDataRepository.findBySessionId(sessionId,
+                PageRequest.of(page, Math.max(pageSize, PAGE_SIZE)));
     }
 }

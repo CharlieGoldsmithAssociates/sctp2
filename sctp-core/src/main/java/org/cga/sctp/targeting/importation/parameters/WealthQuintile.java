@@ -32,6 +32,7 @@
 
 package org.cga.sctp.targeting.importation.parameters;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.univocity.parsers.conversions.Conversion;
 
 public enum WealthQuintile implements UbrParameterValue {
@@ -91,5 +92,10 @@ public enum WealthQuintile implements UbrParameterValue {
             }
             return input.toString();
         }
+    }
+
+    @JsonValue
+    public String getValueLiteral() {
+        return name();
     }
 }

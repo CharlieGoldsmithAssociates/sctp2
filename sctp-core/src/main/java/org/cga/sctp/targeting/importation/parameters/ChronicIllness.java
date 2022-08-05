@@ -33,6 +33,7 @@
 package org.cga.sctp.targeting.importation.parameters;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum ChronicIllness implements UbrParameterValue {
     ChronicMalaria(1, "Chronic Malaria"),
@@ -74,5 +75,10 @@ public enum ChronicIllness implements UbrParameterValue {
         }
 
         return null;
+    }
+
+    @JsonValue
+    public String getValueLiteral() {
+        return name();
     }
 }

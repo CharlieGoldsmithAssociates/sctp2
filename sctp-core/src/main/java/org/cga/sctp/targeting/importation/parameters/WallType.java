@@ -32,6 +32,8 @@
 
 package org.cga.sctp.targeting.importation.parameters;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum WallType implements UbrParameterValue {
     Grass(1, "Grass"),
     Mud(2, "Mud"),
@@ -69,5 +71,10 @@ public enum WallType implements UbrParameterValue {
     @Override
     public String toString() {
         return title;
+    }
+
+    @JsonValue
+    public String getValueLiteral() {
+        return name();
     }
 }

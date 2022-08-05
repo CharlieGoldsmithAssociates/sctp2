@@ -33,6 +33,7 @@
 package org.cga.sctp.targeting.importation.parameters;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum RelationshipToHead implements UbrParameterValue {
     // We can't rely on the intrinsic ordinal because the structure of the enum could be rearranged
@@ -70,5 +71,10 @@ public enum RelationshipToHead implements UbrParameterValue {
     @Override
     public int getCode() {
         return code;
+    }
+
+    @JsonValue
+    public String getValueLiteral() {
+        return name();
     }
 }

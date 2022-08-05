@@ -30,7 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting;
+package org.cga.sctp.targeting.enrollment;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,12 +42,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
-import java.util.Collections;
-import java.util.List;
 
-@Converter
-public class HouseholdJsonMemberDataConverter extends BaseComponent implements AttributeConverter<List<IndividualDetails>, String> {
+public class HouseholdRecipientJsonConverter extends BaseComponent implements AttributeConverter<HouseholdEnrollmentData.HouseholdRecipientInfo, String> {
 
     @Autowired
     private Gson gson;
@@ -55,11 +51,11 @@ public class HouseholdJsonMemberDataConverter extends BaseComponent implements A
     private ObjectMapper objectMapper;
 
     @Override
-    public String convertToDatabaseColumn(List<IndividualDetails> attribute) {
-        return "[]";
+    public String convertToDatabaseColumn(HouseholdEnrollmentData.HouseholdRecipientInfo attribute) {
+        return null;
     }
 
-    public HouseholdJsonMemberDataConverter() {
+    public HouseholdRecipientJsonConverter() {
         objectMapper = new JsonMapper();
         objectMapper.findAndRegisterModules();
         objectMapper.disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
@@ -68,14 +64,14 @@ public class HouseholdJsonMemberDataConverter extends BaseComponent implements A
     }
 
     @Override
-    public List<IndividualDetails> convertToEntityAttribute(String dbData) {
+    public HouseholdEnrollmentData.HouseholdRecipientInfo convertToEntityAttribute(String dbData) {
         if (StringUtils.hasText(dbData)) {
             try {
-                return List.of(objectMapper.readValue(dbData, IndividualDetails[].class));
+                return objectMapper.readValue(dbData, HouseholdEnrollmentData.HouseholdRecipientInfo.class);
             } catch (Exception e) {
                 LOG.error("error converting json", e);
             }
         }
-        return Collections.emptyList();
+        return null;
     }
 }
