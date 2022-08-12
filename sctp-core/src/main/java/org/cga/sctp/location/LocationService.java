@@ -50,6 +50,9 @@ public class LocationService extends BaseService {
     @Autowired
     private LocationRepository locationRepository;
 
+    @Autowired
+    private LocationStatusRepository locationStatusRepository;
+
     public Page<Location> getLocations(Pageable pageable) {
         return locationRepository.findAll(pageable);
     }
@@ -134,9 +137,14 @@ public class LocationService extends BaseService {
         return locationRepository.findByActiveAndCodeAndLocationType(true, code, type);
     }
 
+    public Page<LocationStatus> getLocationStatuses(Pageable pageable) {
+        return locationStatusRepository.findAll(pageable);
+    }
+
     /**
      * Checks whether the location has any Transfer Agencies assigned either directly or hierarchically, i.e.
      * there is a Transfer Agency assigned to a parent or grand-parent of the location.
+     *
      * @param location location to check
      * @return whether transfer agency has been assigned to this location
      */
