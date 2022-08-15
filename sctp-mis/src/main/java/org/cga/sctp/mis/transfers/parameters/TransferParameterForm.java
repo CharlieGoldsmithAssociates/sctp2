@@ -33,6 +33,7 @@
 package org.cga.sctp.mis.transfers.parameters;
 
 import org.cga.sctp.mis.core.templating.Booleans;
+import org.cga.sctp.validation.AlphaNumeric;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotEmpty;
@@ -42,10 +43,11 @@ import javax.validation.constraints.NotNull;
 public class TransferParameterForm {
     private Long id;
 
+    @AlphaNumeric
     @NotEmpty(message = "Parameter cannot have an empty title")
     private String title;
 
-    @NotNull
+    @NotNull(message = "Active flag must be set")
     private Booleans active;
 
     public Long getId() {

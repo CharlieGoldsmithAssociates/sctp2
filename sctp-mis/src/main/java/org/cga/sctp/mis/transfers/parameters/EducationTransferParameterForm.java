@@ -35,23 +35,22 @@ package org.cga.sctp.mis.transfers.parameters;
 import org.cga.sctp.mis.core.templating.Booleans;
 import org.cga.sctp.targeting.importation.parameters.EducationLevel;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 
 public class EducationTransferParameterForm {
     private Long id;
 
+    @NotNull(message = "Transfer Parameter ID must be set")
     private Long transferParameterId;
 
-    @NotNull
+    @NotNull(message = "Education Level cannot be null")
     private EducationLevel educationLevel;
 
-    @Min(0)
-    @Max(1_000_000)
-    private Long amount;
+    @NotNull(message = "Amount cannot be null")
+    private BigDecimal amount;
 
-    @NotNull
+    @NotNull(message = "Active flag must be set")
     private Booleans active;
 
     public Long getId() {
@@ -78,11 +77,11 @@ public class EducationTransferParameterForm {
         this.educationLevel = educationLevel;
     }
 
-    public Long getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Long amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

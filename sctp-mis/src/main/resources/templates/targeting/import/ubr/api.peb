@@ -68,11 +68,11 @@
                     <div class="field-body">
                         <div class="control">
                             <div class="select is-multiple is-fullwidth"">
-                                <select name="groupVillageHeadCode" id="groupVillageHeadCode" multiple>
+                                <select name="clusterCode" id="clusterCode" multiple>
                                     {#  to be loaded via JavaScript here #}
                                 </select>
                             </div>
-                            {{ printFieldErrors(getFieldErrors('form', 'groupVillageHeadCode')) }}
+                            {{ printFieldErrors(getFieldErrors('form', 'clusterCode')) }}
                         </div>
                     </div>
                 </div>
@@ -452,7 +452,7 @@
              );
         };
         districtCode.onchange = function(){ traditionalAuthorityCode.length = 0; loadLocations(traditionalAuthorityCode, this, true, true); };
-        traditionalAuthorityCode.onchange = function(){ loadLocations(groupVillageHeadCode, this, false, true); };
+        traditionalAuthorityCode.onchange = function(){ loadLocations(clusterCode, this, false, true); };
     })();
 
 </script>

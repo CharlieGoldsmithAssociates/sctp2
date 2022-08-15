@@ -33,6 +33,7 @@
 package org.cga.sctp.mis.transfers.agencies;
 
 import org.cga.sctp.mis.core.templating.Booleans;
+import org.cga.sctp.validation.AlphaNumeric;
 import org.cga.sctp.validation.SimpleName;
 import org.hibernate.validator.constraints.Length;
 
@@ -42,7 +43,7 @@ import javax.validation.constraints.NotNull;
 public class TransferAgencyForm {
     private Long id;
 
-    @NotEmpty
+    @AlphaNumeric
     @Length(min=2, max=100)
     private String name;
 
@@ -57,19 +58,19 @@ public class TransferAgencyForm {
     @Length(min=10, max=15)
     private String phone;
 
-    @NotEmpty
+    @NotEmpty()
     private String website;
 
-    @NotEmpty
+    @NotEmpty()
     private String address;
 
-    @NotEmpty
+    @AlphaNumeric
     private String representativeName;
 
-    @NotEmpty
+    @NotEmpty()
     private String representativeEmail;
 
-    @NotEmpty
+    @NotEmpty()
     @Length(min=10, max=15)
     private String representativePhone;
 

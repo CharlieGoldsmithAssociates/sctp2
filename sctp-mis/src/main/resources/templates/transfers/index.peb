@@ -2,6 +2,7 @@
 {% import "../utils/form" %}
 {% block content %}
 <div class="content-container">
+    {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
     <div class="card">
         <div class="card-header">
             <div class="card-title">Transfers Module</div>
@@ -14,13 +15,13 @@
                     <h4 class="subtitle">Transfer Periods</h4>
                     <ul>
                         <li>
-                            <a href="">View Districts Transfer Summary </a>
+                            <a href="/transfers/periods">List Open Transfer Periods</a>
                         </li>
                         <li>
-                            <a href="">Start New Transfer Period in a District</a>
+                            <a href="/transfers/periods/new">Open New Transfer Period</a>
                         </li>
                         <li>
-                            <a href="">List Transfer Beneficiaries</a>
+                            <a href="/transfers/summary">View Districts Transfer Period Summary </a>
                         </li>
                     </ul>
                 </div>
@@ -28,13 +29,10 @@
                     <h4 class="subtitle">Parameters</h4>
                     <ul>
                         <li>
-                            <a href="/transfers/parameters">View All Transfer Parameters</a>
+                            <a href="/transfers/parameters">List Transfer Parameters</a>
                         </li>
                         <li>
-                            <a href="/transfers/parameters/new-household-params">Create New Household Transfer Parameters</a>
-                        </li>
-                        <li>
-                            <a href="/transfers/parameters/new-education-params">Create New Education Bonus Parameters</a>
+                            <a href="/transfers/parameters/new">Add New Transfer Parameter</a>
                         </li>
                         <li>
                             <a href="/transfers/topups">List TopUps</a>
@@ -48,14 +46,29 @@
                     <h4 class="subtitle">Transfer Agencies</h4>
                     <ul>
                         <li>
+                            <a href="">List All Agencies</a>
+                        </li>
+                        <li>
                             <a href="">Assign a Transfer Agency to a Location</a>
                         </li>
                         <li>
                             <a href="">Change a Transfer Agency to another Location</a>
                         </li>
+                    </ul>
+                </div>
+                <div class="column">
+                    <h4 class="subtitle">Beneficiaries</h4>
+                    <ul class="nav nav-list">
+                        <li>
+                            <a href="">List Transfer Beneficiaries</a>
+                        </li>
                         <li>
                             <a href="">Assign Account Numbers to Transfer Beneficiaries</a>
                         </li>
+                        <li>
+                            <a href="">List-Non Recertified Beneficiaries</a>
+                        </li>
+                        <li></li>
                     </ul>
                 </div>
                 <div class="column">

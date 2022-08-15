@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,21 +30,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.schools;
+package org.cga.sctp.utils;
 
-public interface SchoolsView {
+import java.math.BigDecimal;
+import java.util.Objects;
 
-    Long getId();
+public final class BigDecimalUtils {
+    private BigDecimalUtils() {}
 
-    String getName();
+    public static BigDecimal addAll(BigDecimal... amounts) {
+        BigDecimal sum = new BigDecimal("0.0");
+        for(BigDecimal amount: amounts) {
+            sum.add(Objects.requireNonNull(amount, "amount"));
+        }
 
-    String getCode();
-
-   // @Convert(converter = EducationLevelParameterValueConverter.class)
-   //  EducationLevel getEducationLevel();
-    Long getEducationLevel();
-
-    String getEducationZone();
-
-    String getDistrictName();
+        return sum;
+    }
 }

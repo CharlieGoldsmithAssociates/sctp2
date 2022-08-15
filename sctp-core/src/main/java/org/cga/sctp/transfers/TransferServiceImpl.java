@@ -66,6 +66,9 @@ public class TransferServiceImpl implements TransferService {
     private TransfersRepository transfersRepository;
 
     @Autowired
+    private InitiateTransfersRepository initiateRepo;
+
+    @Autowired
     private TransferAgenciesRepository transferAgenciesRepository;
 
     @Autowired
@@ -104,7 +107,7 @@ public class TransferServiceImpl implements TransferService {
             throw new UnsupportedOperationException("Cannot initiate transfers without an open Transfer Period for the program in the given location");
         }
 
-        transfersRepository.initiateTransfersForEnrolledHouseholds(
+        initiateRepo.initiateTransfersForEnrolledHouseholds(
                 // transferSession.getProgramId(),
                 transferSession.getEnrollmentSessionId(),
                 transferSession.getId(),
@@ -187,7 +190,7 @@ public class TransferServiceImpl implements TransferService {
                 LOGGER.warn("Transfer reconciliation has different household than database record. transfer.householdId={} reconciliation.householdId={}", transfer.getHouseholdId(), reconciliation.getHouseholdId());
                 continue;
             }
-            if (reconciliation.getAmountTransferred() < 0L) {
+            if (reconciliation.getAmountTransferred().doubleValue() < 0.0) {
                 LOGGER.warn("Transfer reconciliation has invalid amount transfer.id={} reconciliation.amountTransferred={}", transfer.getId(), reconciliation.getAmountTransferred());
                 continue;
             }
@@ -197,7 +200,7 @@ public class TransferServiceImpl implements TransferService {
             transfer.setAmountDisbursed(reconciliation.getAmountTransferred());
             transfer.setCollected(true);
             // TODO: Calculate the arrears for each transfer
-            transfer.setArrearsAmount(transfer.getAmountDisbursed() - transfer.getTotalAmountToTransfer());
+            transfer.setArrearsAmount(transfer.getAmountDisbursed().subtract(transfer.getTotalAmountToTransfer()));
             // TODO: we need to have somewhere else to track arrears?
             transfer.setDisbursedByUserId(reconciliation.getReconcilingUserId());
         }

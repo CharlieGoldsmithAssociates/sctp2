@@ -38,6 +38,7 @@ import org.cga.sctp.transfers.parameters.HouseholdParameterCondition;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 
 public class HouseholdTransferParameterForm {
 
@@ -51,11 +52,8 @@ public class HouseholdTransferParameterForm {
 
     @NotNull
     private HouseholdParameterCondition condition;
-    @NotNull
 
-    @Min(0)
-    @Max(1_000_000)
-    private Long amount;
+    private BigDecimal amount;
 
     @NotNull
     private Booleans active;
@@ -84,11 +82,11 @@ public class HouseholdTransferParameterForm {
         this.condition = condition;
     }
 
-    public Long getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Long amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

@@ -36,6 +36,7 @@ import org.cga.sctp.targeting.importation.parameters.EducationLevel;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -54,7 +55,7 @@ public class EducationTransferParameter {
     private EducationLevel educationLevel;
 
     @Column
-    private Long amount;
+    private BigDecimal amount;
 
     @Column
     private Boolean active;
@@ -89,11 +90,11 @@ public class EducationTransferParameter {
         this.educationLevel = educationLevel;
     }
 
-    public Long getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Long amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

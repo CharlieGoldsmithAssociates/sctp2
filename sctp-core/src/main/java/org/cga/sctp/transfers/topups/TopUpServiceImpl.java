@@ -51,8 +51,8 @@ public class TopUpServiceImpl implements TopUpService {
         topUp.setProgramId(params.getProgramId());
         topUp.setActive(params.isActive());
         topUp.setAmount(params.getAmount());
-        topUp.setAmountExecuted(0L);
-        topUp.setAmountProjected(0L);
+        topUp.setAmountExecuted(null);
+        topUp.setAmountProjected(null);
         topUp.setCategorical(params.isCategorical());
         topUp.setCategoricalTargetingCriteriaId(params.getCategoricalTargetingCriteriaId());
 

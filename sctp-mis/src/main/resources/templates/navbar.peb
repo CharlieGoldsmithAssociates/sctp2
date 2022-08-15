@@ -53,23 +53,23 @@
             </div>
             {% endif %}
 
-            {% if hasRole("ADMINISTRATOR", "STANDARD") %}
-            <div class="navbar-item has-dropdown is-hoverable">
-                <a class="navbar-link">
-              <span class="icon-text">
-                <span class="icon">
-                  <i class="far fa-address-book">&nbsp;</i>
-                </span>
-                <span>Recipient Management</span>
-              </span>
-                </a>
-                <div class="navbar-dropdown">
-                    <a class="navbar-item" href="/case-management/households">
-                        Households
-                    </a>
-                </div>
-            </div>
-            {% endif %}
+{#            {% if hasRole("ADMINISTRATOR", "STANDARD") %}#}
+{#            <div class="navbar-item has-dropdown is-hoverable">#}
+{#                <a class="navbar-link">#}
+{#              <span class="icon-text">#}
+{#                <span class="icon">#}
+{#                  <i class="far fa-address-book">&nbsp;</i>#}
+{#                </span>#}
+{#                <span>Recipient Management</span>#}
+{#              </span>#}
+{#                </a>#}
+{#                <div class="navbar-dropdown">#}
+{#                    <a class="navbar-item" href="/case-management/households">#}
+{#                        Households#}
+{#                    </a>#}
+{#                </div>#}
+{#            </div>#}
+{#            {% endif %}#}
 
             {% if hasRole("ADMINISTRATOR", "STANDARD") %}
             <div class="navbar-item has-dropdown is-hoverable">
@@ -85,9 +85,9 @@
                     <a class="navbar-item" href="/transfers/home">
                         Transfers Main Menu
                     </a>
-                    <a class="navbar-item" href="/transfers/sessions/summary">
-                        Summary
-                    </a>
+{#                    <a class="navbar-item" href="/transfers/sessions/summary">#}
+{#                        Summary#}
+{#                    </a>#}
                     <a class="navbar-item" href="/transfers/parameters">
                         {{ message("navbar.transfers.transfer-parameters") }}
                     </a>

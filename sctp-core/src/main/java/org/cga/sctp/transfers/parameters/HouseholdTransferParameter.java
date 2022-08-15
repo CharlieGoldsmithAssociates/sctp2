@@ -33,6 +33,7 @@
 package org.cga.sctp.transfers.parameters;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -53,7 +54,7 @@ public class HouseholdTransferParameter {
     private HouseholdParameterCondition condition;
 
     @Column
-    private Long amount;
+    private BigDecimal amount;
 
     @Column
     private Boolean active;
@@ -96,11 +97,11 @@ public class HouseholdTransferParameter {
         this.condition = condition;
     }
 
-    public Long getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Long amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

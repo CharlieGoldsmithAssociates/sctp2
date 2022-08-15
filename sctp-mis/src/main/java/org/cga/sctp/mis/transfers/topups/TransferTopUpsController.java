@@ -84,7 +84,7 @@ public class TransferTopUpsController extends SecuredBaseController {
         List<Funder> funders = fundersService.getActiveFunders();
 
         if (programs.isEmpty()) {
-            return redirectOnFailedCondition("/transfers/topups", "Cannot create TopUps when there are not Programmes registered", attributes);
+            return redirectOnFailedCondition("/transfers/topups", "Cannot create TopUps when there are no Programmes registered", attributes);
         }
 
         if (districts.isEmpty()) {

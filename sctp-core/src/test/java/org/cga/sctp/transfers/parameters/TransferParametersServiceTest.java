@@ -34,12 +34,13 @@ package org.cga.sctp.transfers.parameters;
 
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TransferParametersServiceTest {
-    private static HouseholdTransferParameter createParam(int members, Long amount, HouseholdParameterCondition condition) {
+    private static HouseholdTransferParameter createParam(int members, BigDecimal amount, HouseholdParameterCondition condition) {
         HouseholdTransferParameter p = new HouseholdTransferParameter();
         p.setAmount(amount);
         p.setNumberOfMembers(members);
@@ -52,20 +53,20 @@ class TransferParametersServiceTest {
         TransferParametersService service = new TransferParametersService();
 
         List<HouseholdTransferParameter> params = List.of(
-                createParam(1, 1000L, HouseholdParameterCondition.EQUALS),
-                createParam(2, 2000L, HouseholdParameterCondition.EQUALS),
-                createParam(3, 3000L, HouseholdParameterCondition.EQUALS),
-                createParam(4, 4000L, HouseholdParameterCondition.GREATER_THAN_OR_EQUALS)
+                createParam(1, BigDecimal.valueOf(1000L), HouseholdParameterCondition.EQUALS),
+                createParam(2, BigDecimal.valueOf(2000L), HouseholdParameterCondition.EQUALS),
+                createParam(3, BigDecimal.valueOf(3000L), HouseholdParameterCondition.EQUALS),
+                createParam(4, BigDecimal.valueOf(4000L), HouseholdParameterCondition.GREATER_THAN_OR_EQUALS)
         );
 
-        assertEquals(1000, service.determineAmountByHouseholdSize(1, params));
+        assertEquals(BigDecimal.valueOf(1000), service.determineAmountByHouseholdSize(1, params));
 
-        assertEquals(2000, service.determineAmountByHouseholdSize(2, params));
+        assertEquals(BigDecimal.valueOf(2000), service.determineAmountByHouseholdSize(2, params));
 
-        assertEquals(3000, service.determineAmountByHouseholdSize(3, params));
+        assertEquals(BigDecimal.valueOf(3000), service.determineAmountByHouseholdSize(3, params));
 
-        assertEquals(4000, service.determineAmountByHouseholdSize(4, params));
+        assertEquals(BigDecimal.valueOf(4000), service.determineAmountByHouseholdSize(4, params));
 
-        assertEquals(4000, service.determineAmountByHouseholdSize(5, params));
+        assertEquals(BigDecimal.valueOf(4000), service.determineAmountByHouseholdSize(5, params));
     }
 }

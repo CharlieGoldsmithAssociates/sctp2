@@ -33,6 +33,7 @@
 package org.cga.sctp.mis.transfers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.cga.sctp.funders.Funder;
 import org.cga.sctp.location.Location;
 import org.cga.sctp.location.LocationService;
 import org.cga.sctp.mis.core.BaseController;
@@ -103,9 +104,17 @@ public class TransferSessionsController extends BaseController {
 
     @GetMapping("/initiate/step1")
     @AdminAndStandardAccessOnly
-    public ModelAndView getInitiateStep1() {
+    public ModelAndView getInitiateStep1(RedirectAttributes attributes) {
         List<Program> programs = programService.getActivePrograms();
         List<Location> districts = locationService.getActiveDistricts();
+
+        if (programs.isEmpty()) {
+            return redirectOnFailedCondition("/transfers/home", "Cannot calculate Transfers when there are no Programmes registered", attributes);
+        }
+
+        if (districts.isEmpty()) {
+            return redirectOnFailedCondition("/transfers/home", "Cannot calculate Transfers when there are no Locations registered", attributes);
+        }
 
         return view("/transfers/initiate/step1")
                 .addObject("programs", programs)

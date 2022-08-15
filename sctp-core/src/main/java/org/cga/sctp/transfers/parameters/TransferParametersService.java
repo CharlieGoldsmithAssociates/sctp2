@@ -32,10 +32,10 @@
 
 package org.cga.sctp.transfers.parameters;
 
-import org.cga.sctp.transfers.parameters.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -62,7 +62,7 @@ public class TransferParametersService {
      * @param householdSize number of members in the household
      * @return amount to give
      */
-    public Long determineAmountByHouseholdSize(int householdSize) {
+    public BigDecimal determineAmountByHouseholdSize(int householdSize) {
         List<HouseholdTransferParameter> householdParams = householdTransferParametersRepository.findAll();
         return determineAmountByHouseholdSize(householdSize, householdParams);
     }
@@ -73,7 +73,7 @@ public class TransferParametersService {
      * @param householdParams household params
      * @return amount
      */
-    Long determineAmountByHouseholdSize(int householdSize, List<HouseholdTransferParameter> householdParams) {
+    BigDecimal determineAmountByHouseholdSize(int householdSize, List<HouseholdTransferParameter> householdParams) {
         for(var param : householdParams) {
             if (param.getCondition().equals(HouseholdParameterCondition.GREATER_THAN) &&
                     householdSize > param.getNumberOfMembers()) {
@@ -91,6 +91,6 @@ public class TransferParametersService {
             }
         }
 
-        return -1L;
+        return null;
     }
 }

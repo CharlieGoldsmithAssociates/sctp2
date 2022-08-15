@@ -34,6 +34,7 @@ package org.cga.sctp.transfers.reconciliation;
 
 import org.cga.sctp.transfers.TransferStatus;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 public class TransferUpdateDto {
@@ -41,7 +42,7 @@ public class TransferUpdateDto {
     private Long transferId;
     private Long transferAgencyId;
     private Long recipientId;
-    private Long amountTransferred;
+    private BigDecimal amountTransferred;
     private Long reconcilingUserId;
     private TransferStatus status;
     private Timestamp timestamp;
@@ -70,11 +71,11 @@ public class TransferUpdateDto {
         this.transferAgencyId = transferAgencyId;
     }
 
-    public Long getAmountTransferred() {
+    public BigDecimal getAmountTransferred() {
         return amountTransferred;
     }
 
-    public void setAmountTransferred(Long amountTransferred) {
+    public void setAmountTransferred(BigDecimal amountTransferred) {
         this.amountTransferred = amountTransferred;
     }
 

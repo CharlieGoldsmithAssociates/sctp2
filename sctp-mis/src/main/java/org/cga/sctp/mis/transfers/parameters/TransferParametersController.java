@@ -115,7 +115,7 @@ public class TransferParametersController extends BaseController {
         transferParameter.setUpdatedAt(LocalDateTime.now());
 
         if (transferParameterRepository.save(transferParameter) != null) {
-            return redirect(format("/transfers/parameters/add/%s/household-parameters", transferParameter.getId()));
+            return redirect(format("/transfers/parameters/view/%s", transferParameter.getId()));
         }
 
         return view("transfers/parameters/new")
