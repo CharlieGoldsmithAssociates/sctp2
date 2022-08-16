@@ -43,16 +43,16 @@ import org.cga.sctp.api.core.BaseController;
 import org.cga.sctp.api.core.IncludeGeneralResponses;
 import org.cga.sctp.api.user.ApiUserDetails;
 import org.cga.sctp.api.utils.LangUtils;
-import org.cga.sctp.targeting.enrollment.EnrollmentForm;
-import org.cga.sctp.targeting.enrollment.EnrollmentService;
-import org.cga.sctp.targeting.enrollment.EnrollmentSessionView;
-import org.cga.sctp.targeting.enrollment.HouseholdEnrollmentData;
+import org.cga.sctp.data.ResourceService;
+import org.cga.sctp.targeting.enrollment.*;
 import org.cga.sctp.user.AuthenticatedUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -72,19 +72,8 @@ public class EnrollmentController extends BaseController {
     @Autowired
     private EnrollmentService enrollmentService;
 
-    /*@GetMapping
-    public ResponseEntity<GetEnrollmentSessionResponse> getEnrollmentSessions(
-            @AuthenticatedUserDetails ApiUserDetails apiUserDetails,
-            @RequestParam(value = "traditional-authority-code", required = false) Long taCode,
-            @RequestParam(value = "village-cluster-code", required = false) Long villageCluster,
-            @RequestParam(value = "zone-code", required = false) Long zone,
-            @RequestParam(value = "village-code", required = false) Long village,
-            @Valid @Min(0) @RequestParam(value = "page", defaultValue = "0") int page,
-            @Valid @Min(100) @Max(1000) @RequestParam(value = "pageSize", defaultValue = "1000") int pageSize) {
-
-
-        enrollmentService.get
-    }*/
+    @Autowired
+    private ResourceService resourceService;
 
     @PostMapping
     @RequestMapping(value = "/{session-id}/enroll/single-household", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -157,5 +146,41 @@ public class EnrollmentController extends BaseController {
         Page<HouseholdEnrollmentData> enrollmentData = enrollmentService
                 .getHouseholdEnrollmentData(sessionId, page, pageSize);
         return ResponseEntity.ok(new EnrollmentSessionHouseholdResponse(enrollmentData));
+    }
+
+    @GetMapping(value = "/get-household-recipient-picture", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE})
+    @Operation(description = "Returns a household's recipient picture.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Recipient picture"),
+            @ApiResponse(responseCode = "404", description = "Picture does not exist. Resort to offline")
+    })
+    @IncludeGeneralResponses
+    public ResponseEntity<Resource> getHouseholdRecipientPicture(
+            @AuthenticatedUserDetails ApiUserDetails apiUserDetails,
+            @RequestParam(value = "recipient-type") HouseholdRecipientType recipientType,
+            @RequestParam(value = "household-id") Long householdId) {
+
+        HouseholdRecipient recipient = enrollmentService.getHouseholdRecipient(householdId);
+        if (recipient != null) {
+            String name = switch (recipientType) {
+                case primary -> recipient.getMainPhoto();
+                case secondary -> recipient.getAltPhoto();
+            };
+            String contentType = switch (recipientType) {
+                case primary -> recipient.getMainPhotoType();
+                case secondary -> recipient.getAltPhotoType();
+            };
+            if (StringUtils.hasText(name)) {
+                Resource resource = resourceService
+                        .getRecipientPhotoResource(householdId, recipientType == HouseholdRecipientType.primary);
+                if (resource != null && resource.exists()) {
+                    return ResponseEntity
+                            .ok()
+                            .contentType(MediaType.valueOf(contentType))
+                            .body(resource);
+                }
+            }
+        }
+        return ResponseEntity.notFound().build();
     }
 }

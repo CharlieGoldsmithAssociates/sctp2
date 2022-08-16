@@ -80,7 +80,7 @@ public class EnrollmentController extends SecuredBaseController {
     private static final HouseholdRecipientSummary EMPTY_RECIPIENT = new HouseholdRecipientSummary() {
     };
 
-    enum RecipientType {
+    enum _RecipientType {
         primary,
         secondary
     }
@@ -275,7 +275,7 @@ public class EnrollmentController extends SecuredBaseController {
 
     @GetMapping(value = "/recipient-photo")
     @AdminAndStandardAccessOnly
-    ResponseEntity<Resource> getHouseholdRecipientPhoto(@RequestParam(value = "household") Long household, @RequestParam RecipientType type) {
+    ResponseEntity<Resource> getHouseholdRecipientPhoto(@RequestParam(value = "household") Long household, @RequestParam HouseholdRecipientType type) {
         HouseholdRecipient recipient = enrollmentService.getHouseholdRecipient(household);
         if (recipient != null) {
             String name = switch (type) {
@@ -288,7 +288,7 @@ public class EnrollmentController extends SecuredBaseController {
             };
             if (StringUtils.hasText(name)) {
                 Resource resource = fileUploadService.getResourceService()
-                        .getRecipientPhotoResource(household, type == RecipientType.primary);
+                        .getRecipientPhotoResource(household, type == HouseholdRecipientType.primary);
                 if (resource != null && resource.exists()) {
                     return ResponseEntity
                             .ok()
@@ -316,7 +316,7 @@ public class EnrollmentController extends SecuredBaseController {
     @PostMapping(value = "/update-recipient", produces = MediaType.APPLICATION_JSON_VALUE)
     @AdminAndStandardAccessOnly
     ResponseEntity<?> updateHouseholdRecipient(
-            @RequestParam(value = "type") RecipientType type,
+            @RequestParam(value = "type") HouseholdRecipientType type,
             @RequestParam(value = "photo") MultipartFile photo,
             @Valid @ModelAttribute UpdateHouseholdRecipientForm form,
             BindingResult bindingResult,
