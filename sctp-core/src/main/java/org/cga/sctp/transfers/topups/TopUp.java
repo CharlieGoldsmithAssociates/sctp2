@@ -35,6 +35,7 @@ package org.cga.sctp.transfers.topups;
 import org.cga.sctp.location.LocationType;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -81,19 +82,19 @@ public class TopUp {
     private TopUpHouseholdStatus householdStatus;
 
     @Column(name = "percentage")
-    private double percentage; // percentage DOUBLE COMMENT 'For percentage based topups, the percentage to use for calculation',
+    private BigDecimal percentage; // percentage DOUBLE COMMENT 'For percentage based topups, the percentage to use for calculation',
 
     @Column(name = "categorical_targeting_criteria_id")
     private Long categoricalTargetingCriteriaId; // categorical_targeting_criteria_id BIGINT(19) NULL COMMENT 'For categorical topups, the criteria to use.',
 
     @Column(name = "amount")
-    private Long amount; // amount BIGINT(19) NULL DEFAULT NULL COMMENT 'Amount to topup',
+    private BigDecimal amount; // amount BIGINT(19) NULL DEFAULT NULL COMMENT 'Amount to topup',
 
     @Column(name = "amount_projected")
-    private Long amountProjected; // amount_projected BIGINT(19) NULL DEFAULT NULL COMMENT 'Amount projected',
+    private BigDecimal amountProjected; // amount_projected BIGINT(19) NULL DEFAULT NULL COMMENT 'Amount projected',
 
     @Column(name = "amount_executed")
-    private Long amountExecuted; // amount_executed BIGINT(19) NULL DEFAULT NULL COMMENT 'Amount executed i.e. disbursed',
+    private BigDecimal amountExecuted; // amount_executed BIGINT(19) NULL DEFAULT NULL COMMENT 'Amount executed i.e. disbursed',
 
     @Column(name = "created_by")
     private Long createdBy; // created_by BIGINT(19) NOT NULL COMMENT 'User who created the topup',
@@ -203,11 +204,11 @@ public class TopUp {
         this.householdStatus = householdStatus;
     }
 
-    public double getPercentage() {
+    public BigDecimal getPercentage() {
         return percentage;
     }
 
-    public void setPercentage(double percentage) {
+    public void setPercentage(BigDecimal percentage) {
         this.percentage = percentage;
     }
 
@@ -219,27 +220,27 @@ public class TopUp {
         this.categoricalTargetingCriteriaId = categoricalTargetingCriteriaId;
     }
 
-    public Long getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Long amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
-    public Long getAmountProjected() {
+    public BigDecimal getAmountProjected() {
         return amountProjected;
     }
 
-    public void setAmountProjected(Long amountProjected) {
+    public void setAmountProjected(BigDecimal amountProjected) {
         this.amountProjected = amountProjected;
     }
 
-    public Long getAmountExecuted() {
+    public BigDecimal getAmountExecuted() {
         return amountExecuted;
     }
 
-    public void setAmountExecuted(Long amountExecuted) {
+    public void setAmountExecuted(BigDecimal amountExecuted) {
         this.amountExecuted = amountExecuted;
     }
 

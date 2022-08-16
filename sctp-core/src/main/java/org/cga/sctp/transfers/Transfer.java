@@ -33,6 +33,8 @@
 package org.cga.sctp.transfers;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -86,7 +88,7 @@ public class Transfer {
 
     /** BIGINT COMMENT 'Amount to receive based on program basic amount or number of household members', */
     @Column
-    private Long basicSubsidyAmount;
+    private BigDecimal basicSubsidyAmount;
 
     /** INT NOT NULL COMMENT 'Number of months in the transfer period', */
     @Column
@@ -106,7 +108,7 @@ public class Transfer {
 
     /** BIGINT COMMENT 'Amount to add based on number of primary going children', */
     @Column
-    private Long primaryIncentiveAmount;
+    private BigDecimal primaryIncentiveAmount;
 
     /** INT COMMENT 'Number of children in secondary education', */
     @Column
@@ -114,11 +116,11 @@ public class Transfer {
 
     /** BIGINT COMMENT 'Amount to add based on number of primary going children', */
     @Column
-    private Long primaryBonusAmount;
+    private BigDecimal primaryBonusAmount;
 
     /** BIGINT COMMENT 'Amount to add based on number of primary going children', */
     @Column
-    private Long secondaryBonusAmount;
+    private BigDecimal secondaryBonusAmount;
 
     /** TINYINT(1) DEFAULT 1 COMMENT 'Whether it is the first transfer for the household or not', */
     @Column(name = "is_first_transfer")
@@ -142,7 +144,7 @@ public class Transfer {
 
     /** BIGINT DEFAULT 0 COMMENT 'Amount received by the household', */
     @Column
-    private Long amountDisbursed;
+    private BigDecimal amountDisbursed;
 
     /** TINYINT(1) DEFAULT 0 COMMENT 'Whether the amount was disbursed/delivered to the household', */
     @Column(name = "is_collected")
@@ -154,7 +156,7 @@ public class Transfer {
 
     /** BIGINT null COMMENT 'Amount that is pending from this transfer', */
     @Column
-    private Long arrearsAmount;
+    private BigDecimal arrearsAmount;
 
     /** BIGINT NULL COMMENT 'User who disbursed the amount for Manual transfers', */
     @Column
@@ -166,7 +168,7 @@ public class Transfer {
 
     /** BIGINT COMMENT 'Amount to be disbursed for topup', */
     @Column
-    private Long topupAmount;
+    private BigDecimal topupAmount;
 
     @Column(name = "is_reconciled")
     private Boolean isReconciled;
@@ -296,11 +298,11 @@ public class Transfer {
         this.recipientId = recipientId;
     }
 
-    public Long getBasicSubsidyAmount() {
+    public BigDecimal getBasicSubsidyAmount() {
         return basicSubsidyAmount;
     }
 
-    public void setBasicSubsidyAmount(Long basicSubsidyAmount) {
+    public void setBasicSubsidyAmount(BigDecimal basicSubsidyAmount) {
         this.basicSubsidyAmount = basicSubsidyAmount;
     }
 
@@ -328,11 +330,11 @@ public class Transfer {
         this.primaryChildrenCount = primaryChildrenCount;
     }
 
-    public Long getPrimaryIncentiveAmount() {
+    public BigDecimal getPrimaryIncentiveAmount() {
         return primaryIncentiveAmount;
     }
 
-    public void setPrimaryIncentiveAmount(Long primaryIncentiveAmount) {
+    public void setPrimaryIncentiveAmount(BigDecimal primaryIncentiveAmount) {
         this.primaryIncentiveAmount = primaryIncentiveAmount;
     }
 
@@ -352,19 +354,19 @@ public class Transfer {
         this.primaryIncentiveChildrenCount = primaryIncentiveChildrenCount;
     }
 
-    public void setPrimaryBonusAmount(Long primaryBonusAmount) {
+    public void setPrimaryBonusAmount(BigDecimal primaryBonusAmount) {
         this.primaryBonusAmount = primaryBonusAmount;
     }
 
-    public Long getPrimaryBonusAmount() {
+    public BigDecimal getPrimaryBonusAmount() {
         return primaryBonusAmount;
     }
 
-    public Long getSecondaryBonusAmount() {
+    public BigDecimal getSecondaryBonusAmount() {
         return secondaryBonusAmount;
     }
 
-    public void setSecondaryBonusAmount(Long secondaryBonusAmount) {
+    public void setSecondaryBonusAmount(BigDecimal secondaryBonusAmount) {
         this.secondaryBonusAmount = secondaryBonusAmount;
     }
 
@@ -408,11 +410,11 @@ public class Transfer {
         this.accountNumber = accountNumber;
     }
 
-    public Long getAmountDisbursed() {
+    public BigDecimal getAmountDisbursed() {
         return amountDisbursed;
     }
 
-    public void setAmountDisbursed(Long amountDisbursed) {
+    public void setAmountDisbursed(BigDecimal amountDisbursed) {
         this.amountDisbursed = amountDisbursed;
     }
 
@@ -432,11 +434,11 @@ public class Transfer {
         this.disbursementDate = disbursementDate;
     }
 
-    public Long getArrearsAmount() {
+    public BigDecimal getArrearsAmount() {
         return arrearsAmount;
     }
 
-    public void setArrearsAmount(Long arrearsAmount) {
+    public void setArrearsAmount(BigDecimal arrearsAmount) {
         this.arrearsAmount = arrearsAmount;
     }
 
@@ -456,11 +458,11 @@ public class Transfer {
         this.topupEventId = topupEventId;
     }
 
-    public Long getTopupAmount() {
+    public BigDecimal getTopupAmount() {
         return topupAmount;
     }
 
-    public void setTopupAmount(Long topupAmount) {
+    public void setTopupAmount(BigDecimal topupAmount) {
         this.topupAmount = topupAmount;
     }
 
@@ -521,7 +523,14 @@ public class Transfer {
     }
 
     // TODO: Make this a property in the database ? or pre-compute
-    public Long getTotalAmountToTransfer() {
-        return this.basicSubsidyAmount + this.secondaryBonusAmount  + this.primaryBonusAmount + this.primaryIncentiveAmount + this.topupAmount;
+    public BigDecimal getTotalAmountToTransfer() {
+        BigDecimal total = new BigDecimal("0.0");
+        total.add(this.basicSubsidyAmount);
+        total.add(this.secondaryBonusAmount);
+        total.add(this.primaryBonusAmount);
+        total.add(this.primaryIncentiveAmount);
+        total.add(this.topupAmount);
+
+        return total;
     }
 }

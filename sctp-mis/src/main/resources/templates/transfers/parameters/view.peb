@@ -27,8 +27,8 @@
             {% if (householdParameters == null or householdParameters.isEmpty()) %}
                 <p class="notification">This Parameter is not Linked to any Subsidy Calculation Options</p>
             {% endif %}
-            <a href="{{ href("/transfers/parameters/household/new") }}" class="button is-primary is-small">Add New Parameter</a>
-            <table class="table is-narrow is-striped is-hoverable">
+            <a href="{{ href("/transfers/parameters/households/new") }}" class="button is-primary is-small">Add New Parameter</a>
+            <table class="table is-fullwidth is-narrow is-striped is-hoverable">
                 <thead>
                 <tr>
                     <th>Number Of Members</th>
@@ -74,7 +74,7 @@
             <p class="notification">This Parameter is not Linked to any Education Bonus options</p>
             {% endif %}
             <a href="{{ href("/transfers/parameters/education/new") }}" class="button is-primary is-small">Add New Parameter</a>
-            <table class="table is-narrow is-striped is-hoverable">
+            <table class="table is-fullwidth is-narrow is-striped is-hoverable">
                 <thead>
                 <tr>
                     <th>Education Level</th>

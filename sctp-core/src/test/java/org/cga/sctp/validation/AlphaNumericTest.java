@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,21 +30,48 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.schools;
+package org.cga.sctp.validation;
 
-public interface SchoolsView {
+import org.assertj.core.util.Lists;
+import org.junit.jupiter.api.Test;
 
-    Long getId();
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
+import java.util.Set;
 
-    String getName();
+import static org.junit.jupiter.api.Assertions.*;
 
-    String getCode();
+public class AlphaNumericTest {
+    private ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
+    @Test
+    public void testAlphaNumeric() {
+        Entry e = new Entry();
+        e.name = "@!@!@!##@!@!!@@!";
 
-   // @Convert(converter = EducationLevelParameterValueConverter.class)
-   //  EducationLevel getEducationLevel();
-    Long getEducationLevel();
+        Set<ConstraintViolation<Entry>> violationList = validatorFactory.getValidator().validate(e);
 
-    String getEducationZone();
+        assertFalse(violationList.isEmpty());
 
-    String getDistrictName();
+        e.name = "Some Name 9";
+
+        violationList = validatorFactory.getValidator().validate(e);
+        assertTrue(violationList.isEmpty());
+
+        e.name = "";
+
+        violationList = validatorFactory.getValidator().validate(e);
+        assertEquals("Valid characters are: a-z, A-Z, 0-9, SPACE, and -.", Lists.newArrayList(violationList).get(0).getMessage());
+
+        e.name = " ";
+        violationList = validatorFactory.getValidator().validate(e);
+
+        assertFalse(violationList.isEmpty());
+        assertEquals("Value cannot be blank", Lists.newArrayList(violationList).get(0).getMessage());
+    }
+
+    static class Entry {
+        @AlphaNumeric
+        String name;
+    }
 }

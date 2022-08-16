@@ -34,6 +34,8 @@ package org.cga.sctp.mis.transfers.parameters;
 
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
 import static org.cga.sctp.mis.test.ValidationUtils.validateAndGetErrors;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -44,7 +46,7 @@ class HouseholdTransferParameterFormTest {
     public void testValidationRules() {
         HouseholdTransferParameterForm form = new HouseholdTransferParameterForm();
         form.setNumberOfMembers(-1);
-        form.setAmount(-1L);
+        form.setAmount(BigDecimal.valueOf(-1L));
         form.setActive(null);
 
         assertFalse(validateAndGetErrors(form).isEmpty());

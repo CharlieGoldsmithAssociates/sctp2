@@ -37,6 +37,7 @@ import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 
 public class NewTopUpForm {
     @NotNull
@@ -56,7 +57,7 @@ public class NewTopUpForm {
     private LocationType locationType;
 
     @Nullable
-    private Double percentage;
+    private BigDecimal percentage;
 
     @NotNull(message = "Type of TopUp must be specified")
     private TopUpType topupType;
@@ -67,7 +68,7 @@ public class NewTopUpForm {
     @NotNull
     private boolean active;
 
-    private Long amount;
+    private BigDecimal amount;
 
     @NotNull(message = "Specify whether the topup is categorical or not")
     private boolean categorical;
@@ -120,11 +121,11 @@ public class NewTopUpForm {
         this.locationType = locationType;
     }
 
-    public double getPercentage() {
+    public BigDecimal getPercentage() {
         return percentage;
     }
 
-    public void setPercentage(double percentage) {
+    public void setPercentage(BigDecimal percentage) {
         this.percentage = percentage;
     }
 
@@ -152,11 +153,11 @@ public class NewTopUpForm {
         this.active = active;
     }
 
-    public Long getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Long amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
@@ -192,11 +193,10 @@ public class NewTopUpForm {
         this.userId = userId;
     }
 
-
     public static class Validator {
         public boolean isValid(NewTopUpForm form) {
             if (form.getTopupType() == TopUpType.PERCENTAGE_OF_RECIPIENT_AMOUNT) {
-                if (form.getPercentage() < 0.00 || form.getPercentage() > 100.00) {
+                if (form.getPercentage().doubleValue() < 0.00 || form.getPercentage().doubleValue() > 100.00) {
                     // invalid percentage range
                     return false;
                 }

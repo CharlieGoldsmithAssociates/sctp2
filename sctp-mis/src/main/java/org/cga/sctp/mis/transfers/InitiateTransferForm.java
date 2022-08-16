@@ -44,11 +44,6 @@ public class InitiateTransferForm {
     @NotNull(message = "District must be specified")
     private Long districtId;
 
-    // TODO: do we need this? re-evaluate
-    private boolean applySchoolBonusParameter = true;
-    // TODO: do we need this? re-evaluate
-    private boolean applySchoolIncentiveParameter = true;
-
     public Long getProgramId() {
         return programId;
     }
@@ -71,21 +66,5 @@ public class InitiateTransferForm {
 
     public void setDistrictId(Long districtId) {
         this.districtId = districtId;
-    }
-
-    public boolean isApplySchoolBonusParameter() {
-        return applySchoolBonusParameter;
-    }
-
-    public void setApplySchoolBonusParameter(boolean applySchoolBonusParameter) {
-        this.applySchoolBonusParameter = applySchoolBonusParameter;
-    }
-
-    public boolean isApplySchoolIncentiveParameter() {
-        return applySchoolIncentiveParameter;
-    }
-
-    public void setApplySchoolIncentiveParameter(boolean applySchoolIncentiveParameter) {
-        this.applySchoolIncentiveParameter = applySchoolIncentiveParameter;
     }
 }

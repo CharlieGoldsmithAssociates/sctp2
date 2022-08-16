@@ -34,12 +34,14 @@ package org.cga.sctp.validation;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.lang.annotation.*;
 
 @Documented
 @Constraint(validatedBy = {})
+@NotBlank(message = "Value cannot be blank")
 @Pattern(regexp = "^[\\w\\s\\d]+$", message = "Valid characters are: a-z, A-Z, 0-9, SPACE, and -.")
 @Target({ElementType.PARAMETER, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)

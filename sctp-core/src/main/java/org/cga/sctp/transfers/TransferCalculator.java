@@ -39,7 +39,9 @@ import org.cga.sctp.transfers.parameters.HouseholdParameterCondition;
 import org.cga.sctp.transfers.parameters.HouseholdTransferParameter;
 import org.cga.sctp.transfers.periods.TransferPeriod;
 import org.cga.sctp.transfers.topups.TopUp;
+import org.cga.sctp.utils.BigDecimalUtils;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,47 +66,47 @@ public class TransferCalculator {
     }
 
 
-    public Long getSecondaryBonusAmount() {
+    public BigDecimal getSecondaryBonusAmount() {
         // TODO: don't fetch from the db on every call/invocation of this method
         return getSecondaryBonusAmount(educationTransferParameters);
     }
 
-    public Long getSecondaryBonusAmount(List<EducationTransferParameter> parameters) {
+    public BigDecimal getSecondaryBonusAmount(List<EducationTransferParameter> parameters) {
         Optional<EducationTransferParameter> educationTransferParameterOptional = parameters.stream()
                 .filter(e -> e.getEducationLevel().equals(EducationLevel.Secondary))
                 .findFirst();
 
         if (educationTransferParameterOptional.isEmpty()) {
-            return 0L;
+            return BigDecimal.ZERO;
         }
 
         return educationTransferParameterOptional.get().getAmount();
     }
 
-    public Long getPrimaryBonusAmount() {
+    public BigDecimal getPrimaryBonusAmount() {
         // TODO: don't fetch from the db on every call/invocation of this method
         return this.getPrimaryBonusAmount(educationTransferParameters);
     }
 
-    public Long getPrimaryBonusAmount(List<EducationTransferParameter> educationTransferParameters) {
+    public BigDecimal getPrimaryBonusAmount(List<EducationTransferParameter> educationTransferParameters) {
         Optional<EducationTransferParameter> educationTransferParameterOptional = educationTransferParameters
                 .stream()
                 .filter(e -> e.getEducationLevel().equals(EducationLevel.Primary))
                 .findFirst();
 
         if (educationTransferParameterOptional.isEmpty()) {
-            return 0L;
+            return BigDecimal.ZERO;
         }
 
         return educationTransferParameterOptional.get().getAmount();
     }
 
-    public Long getPrimaryIncentiveAmount() {
+    public BigDecimal getPrimaryIncentiveAmount() {
         // NOTE: At the moment the primary bonus amount is the same as the incentive.
         return getPrimaryBonusAmount();
     }
 
-    public Long getPrimaryIncentiveAmount(List<EducationTransferParameter> educationTransferParameters) {
+    public BigDecimal getPrimaryIncentiveAmount(List<EducationTransferParameter> educationTransferParameters) {
         return getPrimaryBonusAmount(educationTransferParameters);
     }
 
@@ -114,7 +116,7 @@ public class TransferCalculator {
      * @param householdParams household params
      * @return amount
      */
-    public Long determineAmountByHouseholdSize(int householdSize, List<HouseholdTransferParameter> householdParams) {
+    public BigDecimal determineAmountByHouseholdSize(int householdSize, List<HouseholdTransferParameter> householdParams) {
         for(var param : householdParams) {
             if (param.getCondition().equals(HouseholdParameterCondition.GREATER_THAN) &&
                     householdSize > param.getNumberOfMembers()) {
@@ -132,38 +134,40 @@ public class TransferCalculator {
             }
         }
 
-        return -1L;
+        return BigDecimal.ZERO;
     }
 
-    protected long calculateTopUpAmount(Transfer transfer, Long monthlyAmount, List<TopUp> topUpList) {
-        double totalTopupAmout = 0.0;
+    protected BigDecimal calculateTopUpAmount(Transfer transfer, BigDecimal monthlyAmount, List<TopUp> topUpList) {
+        BigDecimal totalTopupAmout = new BigDecimal("0.0");
+        BigDecimal curTopUp = null;
         for (var topup : topUpList) {
-            totalTopupAmout += switch (topup.getTopupType()) {
+            curTopUp = switch (topup.getTopupType()) {
                 case FIXED_AMOUNT -> topup.getAmount();
                 case EQUIVALENT_BENEFICIARY_AMOUNT -> monthlyAmount;
-                case PERCENTAGE_OF_RECIPIENT_AMOUNT -> (monthlyAmount * topup.getPercentage())/100d;
+                case PERCENTAGE_OF_RECIPIENT_AMOUNT -> monthlyAmount.multiply(topup.getPercentage()).divide(new BigDecimal("100.00"));
                 default -> topup.getAmount();
             };
+            totalTopupAmout.add(curTopUp);
         }
-        // TODO: avoid conversion to long, we lose fidelity here..
-        return (long) totalTopupAmout;
+
+        return totalTopupAmout;
     }
 
     protected void calculateTransferAmount(Transfer transfer,Location location, TransferPeriod transferPeriod) {
-        long monthlyAmount = 0;
-        final long basicAmount = determineAmountByHouseholdSize(transfer.getHouseholdMemberCount(), householdTransferParameters),
-            secondaryBonus = transfer.getSecondaryChildrenCount() * getSecondaryBonusAmount(educationTransferParameters),
-            primaryBonus = transfer.getPrimaryChildrenCount() * getPrimaryBonusAmount(educationTransferParameters),
-            primaryIncentive = transfer.getPrimaryIncentiveChildrenCount() * getPrimaryIncentiveAmount();
+        BigDecimal monthlyAmount = null;
+        final BigDecimal basicAmount = determineAmountByHouseholdSize(transfer.getHouseholdMemberCount(), householdTransferParameters);
+        final BigDecimal secondaryBonus =  getSecondaryBonusAmount(educationTransferParameters).multiply(BigDecimal.valueOf(transfer.getSecondaryChildrenCount()));
+        final BigDecimal primaryBonus = getPrimaryBonusAmount(educationTransferParameters).multiply(BigDecimal.valueOf(transfer.getPrimaryChildrenCount()));
+        final BigDecimal primaryIncentive =  getPrimaryIncentiveAmount().multiply(BigDecimal.valueOf(transfer.getPrimaryIncentiveChildrenCount()));
 
-        transfer.setAmountDisbursed(0L);
+        transfer.setAmountDisbursed(null);
         transfer.setNumberOfMonths(transferPeriod.countNoOfMonths());
         transfer.setBasicSubsidyAmount(basicAmount);
         transfer.setPrimaryIncentiveAmount(primaryIncentive);
         transfer.setPrimaryBonusAmount(primaryBonus);
         transfer.setSecondaryBonusAmount(secondaryBonus);
         // TODO: Should we set this or calculate upon request
-        monthlyAmount = basicAmount + primaryBonus + secondaryBonus + primaryIncentive;
+        monthlyAmount = BigDecimalUtils.addAll(basicAmount, primaryBonus, secondaryBonus, primaryIncentive);
 
         // Calculate topups
         transfer.setTopupAmount(calculateTopUpAmount(transfer, monthlyAmount, topUps));

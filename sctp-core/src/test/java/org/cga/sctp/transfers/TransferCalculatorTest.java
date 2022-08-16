@@ -32,7 +32,6 @@
 
 package org.cga.sctp.transfers;
 
-import org.apache.poi.ss.formula.functions.T;
 import org.cga.sctp.location.Location;
 import org.cga.sctp.location.LocationType;
 import org.cga.sctp.targeting.importation.parameters.EducationLevel;
@@ -45,11 +44,11 @@ import org.cga.sctp.transfers.topups.TopUp;
 import org.cga.sctp.transfers.topups.TopUpType;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -60,14 +59,14 @@ class TransferCalculatorTest {
         TransferParametersService service = new TransferParametersService();
 
         List<HouseholdTransferParameter> householdTransferParameters = List.of(
-                createParam(1, 1000L, HouseholdParameterCondition.EQUALS),
-                createParam(2, 2000L, HouseholdParameterCondition.EQUALS),
-                createParam(3, 3000L, HouseholdParameterCondition.EQUALS),
-                createParam(4, 4000L, HouseholdParameterCondition.GREATER_THAN_OR_EQUALS)
+                createParam(1, BigDecimal.valueOf(1000L), HouseholdParameterCondition.EQUALS),
+                createParam(2, BigDecimal.valueOf(2000L), HouseholdParameterCondition.EQUALS),
+                createParam(3, BigDecimal.valueOf(3000L), HouseholdParameterCondition.EQUALS),
+                createParam(4, BigDecimal.valueOf(4000L), HouseholdParameterCondition.GREATER_THAN_OR_EQUALS)
         );
         List<EducationTransferParameter> educationTransferParameters = List.of(
-                createEducationParam(2000L, EducationLevel.Primary),
-                createEducationParam(1000L, EducationLevel.Secondary)
+                createEducationParam(BigDecimal.valueOf(2000L), EducationLevel.Primary),
+                createEducationParam(BigDecimal.valueOf(1000L), EducationLevel.Secondary)
         );
 
         Location location = new Location();
@@ -108,29 +107,29 @@ class TransferCalculatorTest {
 
 
 
-        assertEquals(3000, transfer.getBasicSubsidyAmount());
-        assertEquals(1000, transfer.getSecondaryBonusAmount());
-        assertEquals(2000, transfer.getPrimaryBonusAmount());
-        assertEquals(2000, transfer.getPrimaryIncentiveAmount());
-        assertEquals(4000, transfer.getTopupAmount());
+        assertEquals(BigDecimal.valueOf(3000), transfer.getBasicSubsidyAmount());
+        assertEquals(BigDecimal.valueOf(1000), transfer.getSecondaryBonusAmount());
+        assertEquals(BigDecimal.valueOf(2000), transfer.getPrimaryBonusAmount());
+        assertEquals(BigDecimal.valueOf(2000), transfer.getPrimaryIncentiveAmount());
+        assertEquals(BigDecimal.valueOf(4000), transfer.getTopupAmount());
 
-        long expectedTotal = 12000;
+        BigDecimal expectedTotal = BigDecimal.valueOf(12000);
         assertEquals(expectedTotal, transfer.getTotalAmountToTransfer());
     }
 
     private static TopUp createBasicTopUp() {
         TopUp topUp = new TopUp();
         topUp.setName("Basic TopUp");
-        topUp.setAmount(0L);
+        topUp.setAmount(BigDecimal.ZERO);
         topUp.setDiscountedFromFunds(false);
         topUp.setTopupType(TopUpType.PERCENTAGE_OF_RECIPIENT_AMOUNT);
-        topUp.setPercentage(50.00);
+        topUp.setPercentage(BigDecimal.valueOf(50.00));
         topUp.setExecuted(false);
         topUp.setActive(true);
         return topUp;
     }
 
-    private static HouseholdTransferParameter createParam(int members, Long amount, HouseholdParameterCondition condition) {
+    private static HouseholdTransferParameter createParam(int members, BigDecimal amount, HouseholdParameterCondition condition) {
         HouseholdTransferParameter p = new HouseholdTransferParameter();
         p.setAmount(amount);
         p.setNumberOfMembers(members);
@@ -138,7 +137,7 @@ class TransferCalculatorTest {
         return p;
     }
 
-    private static EducationTransferParameter createEducationParam(Long amount, EducationLevel level) {
+    private static EducationTransferParameter createEducationParam(BigDecimal amount, EducationLevel level) {
         EducationTransferParameter p = new EducationTransferParameter();
         p.setAmount(amount);
         p.setEducationLevel(level);
