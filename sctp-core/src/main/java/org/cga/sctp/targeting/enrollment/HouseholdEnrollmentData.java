@@ -227,6 +227,9 @@ public class HouseholdEnrollmentData extends BaseHouseholdEnrollmentSummary {
         @JsonProperty("education_level")
         private EducationLevel educationLevel;
 
+        @JsonIgnore
+        private String internalId;
+
         public Long getId() {
             return id;
         }
@@ -281,6 +284,14 @@ public class HouseholdEnrollmentData extends BaseHouseholdEnrollmentSummary {
 
         public void setEducationLevel(EducationLevel educationLevel) {
             this.educationLevel = educationLevel;
+        }
+
+        public String getInternalId() {
+            return internalId;
+        }
+
+        public void setInternalId(String internalId) {
+            this.internalId = internalId;
         }
     }
 

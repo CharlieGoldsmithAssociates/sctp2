@@ -40,7 +40,8 @@ public enum CbtStatus {
     Ineligible(2),
     Eligible(1),
     Selected(3),
-    Enrolled(5);
+    Enrolled(5),
+    Beneficiary(7);
 
     public final int code;
     public static final CbtStatus[] VALUES = values();

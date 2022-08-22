@@ -69,6 +69,11 @@ public enum GradeLevel implements UbrParameterValue {
         throw new IllegalArgumentException("Invalid code");
     }
 
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    public static GradeLevel fromName(String name) {
+        return GradeLevel.valueOf(name);
+    }
+
     @Override
     public int getCode() {
         return code;

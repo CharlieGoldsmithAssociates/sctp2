@@ -32,6 +32,8 @@
 
 package org.cga.sctp.targeting;
 
+import org.cga.sctp.targeting.importation.parameters.Gender;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 
@@ -44,8 +46,13 @@ public class AlternateRecipient {
     private String firstName;
     private String lastName;
     private String nationalId;
-    private int gender;
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
     private LocalDate dateOfBirth;
+
+    private LocalDate idIssueDate;
+    private LocalDate idExpiryDate;
+    private Long householdId;
 
     public long getId() {
         return id;
@@ -79,11 +86,11 @@ public class AlternateRecipient {
         this.nationalId = nationalId;
     }
 
-    public int getGender() {
+    public Gender getGender() {
         return gender;
     }
 
-    public void setGender(int gender) {
+    public void setGender(Gender gender) {
         this.gender = gender;
     }
 
@@ -91,9 +98,32 @@ public class AlternateRecipient {
         return dateOfBirth;
     }
 
+    public LocalDate getIdIssueDate() {
+        return idIssueDate;
+    }
+
+    public void setIdIssueDate(LocalDate idIssueDate) {
+        this.idIssueDate = idIssueDate;
+    }
+
+    public LocalDate getIdExpiryDate() {
+        return idExpiryDate;
+    }
+
+    public void setIdExpiryDate(LocalDate idExpiryDate) {
+        this.idExpiryDate = idExpiryDate;
+    }
+
     public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
 
+    public void setHouseholdId(Long householdId) {
+        this.householdId = householdId;
+    }
+
+    public Long getHouseholdId() {
+        return householdId;
+    }
 }

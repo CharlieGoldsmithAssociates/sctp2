@@ -54,6 +54,11 @@ public enum Gender implements UbrParameterValue {
         return null;
     }
 
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    public static Gender fromName(String name) {
+        return Gender.valueOf(name);
+    }
+
     @Override
     public int getCode() {
         return code;

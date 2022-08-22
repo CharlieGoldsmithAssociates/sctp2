@@ -30,12 +30,21 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting.enrollment;
+package org.cga.sctp.targeting.enrollment.validators;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.validation.Constraint;
+import javax.validation.Payload;
+import java.lang.annotation.*;
 
-@Entity
-@Table(name = "enrollment_sessions")
-public class EnrollmentSession extends EnrollmentSessionObject {
+
+@Documented
+@Target({ElementType.TYPE, ElementType.FIELD})
+@Retention(RetentionPolicy.RUNTIME)
+@Constraint(validatedBy = {HouseholdRecipientsValidator.class})
+public @interface ValidRecipients {
+    String message() default "Invalid";
+
+    Class<?>[] groups() default {};
+
+    Class<? extends Payload>[] payload() default {};
 }

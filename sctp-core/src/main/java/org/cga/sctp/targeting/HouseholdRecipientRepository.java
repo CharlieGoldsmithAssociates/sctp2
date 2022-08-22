@@ -33,6 +33,7 @@
 package org.cga.sctp.targeting;
 
 import org.cga.sctp.targeting.enrollment.HouseholdRecipient;
+import org.cga.sctp.targeting.importation.parameters.Gender;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
@@ -54,7 +55,7 @@ public interface HouseholdRecipientRepository extends JpaRepository<HouseholdRec
             @Param("firstName") String firstName,
             @Param("lastName") String lastName,
             @Param("nationalId") String nationalId,
-            @Param("gender") int gender,
+            @Param("gender") Gender gender,
             @Param("dob") LocalDate dob
     );
 }
