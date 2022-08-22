@@ -60,6 +60,11 @@ public enum EducationLevel implements UbrParameterValue {
         return null;
     }
 
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    public static EducationLevel fromName(String name) {
+        return EducationLevel.valueOf(name);
+    }
+
     public static EducationLevel parseCode(String code) {
         return parseIntCode(Integer.parseInt(code));
     }

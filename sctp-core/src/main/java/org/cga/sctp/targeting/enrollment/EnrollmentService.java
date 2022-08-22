@@ -34,6 +34,7 @@ package org.cga.sctp.targeting.enrollment;
 
 import org.cga.sctp.core.TransactionalService;
 import org.cga.sctp.targeting.*;
+import org.cga.sctp.targeting.importation.parameters.Gender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -42,14 +43,19 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.EntityManager;
+import javax.persistence.ParameterMode;
+import javax.persistence.StoredProcedureQuery;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -58,6 +64,9 @@ import java.util.Optional;
 public class EnrollmentService extends TransactionalService {
 
     private static final int PAGE_SIZE = 1_000;
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Autowired
     private EnrolmentSessionRepository enrolmentSessionRepository;
@@ -159,9 +168,13 @@ public class EnrollmentService extends TransactionalService {
                                                 String firstName,
                                                 String lastName,
                                                 String nationalId,
-                                                int gender,
+                                                Gender gender,
                                                 LocalDate dob) {
         householdRecipientRepository.addHouseholdRecipient(householdId, mainRecipientId, mainPhoto, altPhoto, firstName, lastName, nationalId, gender, dob);
+    }
+
+    public EnrollmentSession getSessionById(Long sessionId) {
+        return enrolmentSessionRepository.findById(sessionId).orElse(null);
     }
 
     public void saveChildrenEnrolledSchool(List<SchoolEnrolled> schoolEnrolled) {
@@ -306,5 +319,132 @@ public class EnrollmentService extends TransactionalService {
     public Page<HouseholdEnrollmentData> getHouseholdEnrollmentData(Long sessionId, int page, int pageSize) {
         return enrollmentDataRepository.findBySessionId(sessionId,
                 PageRequest.of(page, Math.max(pageSize, PAGE_SIZE)));
+    }
+
+    @Transactional
+    public void updateEnrollmentHouseholdStatuses(Long sessionId, Long userId, List<EnrollmentUpdateForm.HouseholdEnrollment> list) {
+        ZonedDateTime timestamp = ZonedDateTime.now();
+        String householdSqlTemplate = """
+                UPDATE household_enrollment SET reviewer_id = :user_id
+                , reviewed_at = :timestamp
+                , status = :status
+                 WHERE session_id = :session_id AND reviewer_id IS NULL AND household_id = :household_id
+                ;""";
+        String schoolEnrollmentSqlTemplate = """
+                INSERT INTO school_enrolled(household_id, individual_id, education_level, grade, school_id, status, created_at)
+                 VALUES(:household_id, :individual_id, :education_level, :grade_level, :school_id, :status, :timestamp)
+                 ON DUPLICATE KEY
+                 UPDATE education_level = :education_level, grade = :grade_level, school_id = :school_id
+                 , status = :status, updated_at = :timestamp
+                ;""";
+        String recipientSqlTemplate = """
+                INSERT INTO household_recipient(
+                household_id
+                , main_recipient
+                , alt_recipient
+                , main_photo
+                , alt_photo
+                , alt_other
+                , created_at
+                , modified_at
+                , enrollment_session
+                , main_photo_type
+                , alt_photo_type)
+                 VALUES (
+                :household_id
+                , :main_recipient
+                , :alt_recipient
+                , NULL
+                , NULL
+                , :alt_other
+                , :timestamp
+                , :timestamp
+                , :enrollment_session
+                , NULL
+                , NULL
+                ) ON DUPLICATE KEY
+                 UPDATE main_recipient = :main_recipient
+                 ,alt_recipient = :alt_recipient
+                 ,alt_other = :alt_other
+                 ,modified_at = :timestamp
+                 ,enrollment_session = :enrollment_session
+                 ;
+                """;
+        for (EnrollmentUpdateForm.HouseholdEnrollment enrollment : list) {
+            entityManager.createNativeQuery(householdSqlTemplate)
+                    .setParameter("timestamp", timestamp)
+                    .setParameter("user_id", userId)
+                    .setParameter("session_id", sessionId)
+                    .setParameter("household_id", enrollment.getHouseholdId())
+                    .setParameter("status", enrollment.getStatus().name())
+                    .executeUpdate();
+
+            EnrollmentUpdateForm.HouseholdRecipients recipients = enrollment.getRecipients();
+
+            //
+            Long alterRecipientId = null, altOtherId = null;
+
+            // if alternate receiver is not a household member, add/update details
+            if (recipients.getAlternateMemberId() == null) {
+                StoredProcedureQuery query =
+                        entityManager.createStoredProcedureQuery("AddOrUpdateNonHouseholdAlternateRecipient")
+                                .registerStoredProcedureParameter(1, Long.class, ParameterMode.IN)
+                                .registerStoredProcedureParameter(2, String.class, ParameterMode.IN)
+                                .registerStoredProcedureParameter(3, String.class, ParameterMode.IN)
+                                .registerStoredProcedureParameter(4, String.class, ParameterMode.IN)
+                                .registerStoredProcedureParameter(5, LocalDate.class, ParameterMode.IN)
+                                .registerStoredProcedureParameter(6, LocalDate.class, ParameterMode.IN)
+                                .registerStoredProcedureParameter(7, String.class, ParameterMode.IN)
+                                .registerStoredProcedureParameter(8, LocalDate.class, ParameterMode.IN)
+                                .registerStoredProcedureParameter(9, ZonedDateTime.class, ParameterMode.IN)
+                                .registerStoredProcedureParameter(10, Long.class, ParameterMode.OUT)
+
+                                /*.setParameter("householdId", enrollment.getHouseholdId())
+                                .setParameter("firstName", recipients.getOtherDetails().getFirstNane())
+                                .setParameter("lastName", recipients.getOtherDetails().getLastName())
+                                .setParameter("nationalId", recipients.getOtherDetails().getNationalId())
+                                .setParameter("nationalIdIssDate", recipients.getOtherDetails().getIssueDate())
+                                .setParameter("nationalIdExpDate", recipients.getOtherDetails().getExpiryDate())
+                                .setParameter("_gender", recipients.getOtherDetails().getGender().name())
+                                .setParameter("dob", recipients.getOtherDetails().getDateOfBirth())
+                                .setParameter("ts", timestamp);*/
+
+                                .setParameter(1, enrollment.getHouseholdId())
+                                .setParameter(2, recipients.getOtherDetails().getFirstNane())
+                                .setParameter(3, recipients.getOtherDetails().getLastName())
+                                .setParameter(4, recipients.getOtherDetails().getNationalId())
+                                .setParameter(5, recipients.getOtherDetails().getIssueDate())
+                                .setParameter(6, recipients.getOtherDetails().getExpiryDate())
+                                .setParameter(7, recipients.getOtherDetails().getGender().name())
+                                .setParameter(8, recipients.getOtherDetails().getDateOfBirth())
+                                .setParameter(9, timestamp);
+                query.execute();
+                // returns the primary Auto value key
+                altOtherId = (Long) query.getOutputParameterValue(10);
+            } else {
+                alterRecipientId = recipients.getAlternateMemberId();
+            }
+
+            entityManager.createNativeQuery(recipientSqlTemplate)
+                    .setParameter("household_id", enrollment.getHouseholdId())
+                    .setParameter("main_recipient", recipients.getPrimaryMemberId())
+                    .setParameter("alt_recipient", alterRecipientId)
+                    .setParameter("alt_other", altOtherId)
+                    .setParameter("timestamp", timestamp)
+                    .setParameter("enrollment_session", sessionId)
+                    .executeUpdate();
+
+            for (EnrollmentUpdateForm.SchoolEnrollment se : enrollment.getSchoolEnrollment()) {
+                entityManager.createNativeQuery(schoolEnrollmentSqlTemplate)
+                        .setParameter("household_id", se.getHouseholdId())
+                        .setParameter("timestamp", timestamp)
+                        .setParameter("individual_id", se.getMemberId())
+                        .setParameter("education_level", se.getEducationLevel().name())
+                        .setParameter("grade_level", se.getGradeLevel().name())
+                        .setParameter("school_id", se.getSchoolId())
+                        .setParameter("status", se.getActive())
+                        .executeUpdate();
+            }
+        }
     }
 }

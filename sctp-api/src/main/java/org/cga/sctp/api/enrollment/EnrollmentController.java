@@ -54,7 +54,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
@@ -75,20 +74,31 @@ public class EnrollmentController extends BaseController {
     @Autowired
     private ResourceService resourceService;
 
-    @PostMapping
-    @RequestMapping(value = "/{session-id}/enroll/single-household", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/{session-id}/update-households")
+    @Operation(description = "Updates household enrollment data, specifically status and school enrollment")
+    @ApiResponses({
+            @ApiResponse(responseCode = "404", description = "Enrollment session does not exist"),
+            @ApiResponse(responseCode = "409", description = "Enrollment session cannot be updated at the moment")
+    })
     @IncludeGeneralResponses
-    public ResponseEntity<Object> postEnrollHouseholds(@PathVariable("session-id") Long sessionId,
-                                                       @RequestParam(required = true, value = "file") MultipartFile file,
-                                                       @RequestParam(required = false, value = "altPhoto") MultipartFile alternate,
-                                                       @RequestParam(required = true, value = "jsondata") String jsondata)
-            throws IOException {
+    public ResponseEntity<?> updateHouseholdEnrollment(
+            @AuthenticatedUserDetails ApiUserDetails user,
+            @PathVariable("session-id") Long sessionId,
+            @Valid @RequestBody EnrollmentUpdateForm updateRequest) {
 
-        EnrollmentForm enrollmentForm = objectMapper.readValue(jsondata, EnrollmentForm.class);
-        // TODO: How do we get the image files? Do we request Base64 encoded images??
-        enrollmentService.processEnrollment(enrollmentForm, file, alternate);
-        // TODO: return type
-        return new ResponseEntity<>("File is uploaded successfully", HttpStatus.OK);
+        EnrollmentSession session = enrollmentService.getSessionById(sessionId);
+
+        if (session == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (session.getStatus() == EnrollmentSessionObject.SessionStatus.review && session.getMobileReview()) {
+            enrollmentService.updateEnrollmentHouseholdStatuses(sessionId,
+                    user.getUserId(), updateRequest.getHouseholdEnrollment());
+            return ResponseEntity.ok().build();
+        }
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
     }
 
     @PostMapping
@@ -181,6 +191,32 @@ public class EnrollmentController extends BaseController {
                 }
             }
         }
+        return ResponseEntity.notFound().build();
+    }
+
+    @PostMapping(value = "/mobile-review-completed")
+    @Operation(description = "Marks an enrollment session as having been reviewed on the mobile app.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "404", description = "Session does not exist")
+    })
+    @IncludeGeneralResponses
+    public ResponseEntity<?> markEnrollmentSessionMobileReviewAsDone(
+            @AuthenticatedUserDetails ApiUserDetails user,
+            @RequestParam(value = "session-id") Long sessionId) {
+        EnrollmentSession session = enrollmentService.getSessionById(sessionId);
+
+        // todo at some point, isolate by location
+
+        if (session != null) {
+            // update only if previous status was true. Otherwise ignore
+            if (session.getStatus() == EnrollmentSessionObject.SessionStatus.review && session.getMobileReview()) {
+                publishGeneralEvent("mobile review for session %d marked as done by %s",
+                        session.getId(), user.getUserName());
+                session.setMobileReview(false);
+            }
+            return ResponseEntity.ok().build();
+        }
+
         return ResponseEntity.notFound().build();
     }
 }

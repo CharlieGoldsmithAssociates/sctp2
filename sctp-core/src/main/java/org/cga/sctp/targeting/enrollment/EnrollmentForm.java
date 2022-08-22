@@ -32,6 +32,8 @@
 
 package org.cga.sctp.targeting.enrollment;
 
+import org.cga.sctp.targeting.importation.parameters.Gender;
+
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -63,7 +65,7 @@ public class EnrollmentForm {
 
 //    private long mainGender;
 
-    private int altGender;
+    private Gender altGender;
 
     private long nonHouseholdMember;
 
@@ -150,11 +152,11 @@ public class EnrollmentForm {
         this.altFirstName = altName;
     }
 
-    public int getAltGender() {
+    public Gender getAltGender() {
         return altGender;
     }
 
-    public void setAltGender(int altGender) {
+    public void setAltGender(Gender altGender) {
         this.altGender = altGender;
     }
 
