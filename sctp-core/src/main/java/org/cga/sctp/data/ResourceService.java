@@ -121,7 +121,7 @@ public class ResourceService extends TransactionalService {
             return new UpdateResult(true, name, getFileType(photo).getMime());
         } catch (Exception e) {
             LOG.error("Failed to store recipient photo for household {}", household);
-            return new UpdateResult(false, null, null);
+            return new UpdateResult(false, null, null, "error processing file");
         }
     }
 
@@ -130,8 +130,10 @@ public class ResourceService extends TransactionalService {
         return photo.exists() ? getFileAsResource(photo) : null;
     }
 
-    public record UpdateResult(boolean stored, String name, String type) {
-
+    public record UpdateResult(boolean stored, String name, String type, String error) {
+        public UpdateResult(boolean stored, String name, String type) {
+            this(stored, name, type, null);
+        }
     }
 
     public UpdateResult storeMainRecipientPhoto(MultipartFile photo, long household) {

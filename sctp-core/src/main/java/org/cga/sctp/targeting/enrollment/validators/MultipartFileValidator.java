@@ -30,62 +30,44 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.api.core;
+package org.cga.sctp.targeting.enrollment.validators;
 
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
-public class ErrorResponse {
-    private int code;
-    private String message;
-    private Map<String, List<String>> fieldErrors;
+public class MultipartFileValidator implements ConstraintValidator<ValidFile, MultipartFile> {
 
-    public ErrorResponse(int code) {
-        this(code, "n/a");
+    private ValidFile validFile;
+
+    @Override
+    public void initialize(ValidFile constraintAnnotation) {
+        this.validFile = constraintAnnotation;
     }
 
-    public ErrorResponse(int code, String message) {
-        this.code = code;
-        this.message = message;
-        this.fieldErrors = new LinkedHashMap<>();
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public Map<String, List<String>> getFieldErrors() {
-        return fieldErrors;
-    }
-
-    public void addFieldError(String field, String error) {
-        fieldErrors.computeIfAbsent(field, s -> new LinkedList<>()).add(error);
-    }
-
-    public static ErrorResponse fromBindingResult(BindingResult bindingResult, int code, String message) {
-        ErrorResponse errorResponse = new ErrorResponse(code, message);
-        if (bindingResult.hasErrors()) {
-            for (FieldError fieldError : bindingResult.getFieldErrors()) {
-                errorResponse.addFieldError(fieldError.getField(), fieldError.getDefaultMessage());
+    @Override
+    public boolean isValid(MultipartFile value, ConstraintValidatorContext context) {
+        context.disableDefaultConstraintViolation();
+        if (value == null || value.isEmpty()) {
+            boolean valid = !validFile.required();
+            if(validFile.required()){
+                context.buildConstraintViolationWithTemplate("this field is required")
+                        .addPropertyNode(validFile.label())
+                        .addConstraintViolation();
             }
+            return valid;
         }
-        return errorResponse;
+        final List<String> types = Arrays.asList(validFile.types());
+        if (!types.contains(value.getContentType())) {
+            context.buildConstraintViolationWithTemplate("invalid file type: expected " + types)
+                    .addPropertyNode(validFile.label())
+                    .addConstraintViolation();
+            return false;
+        }
+        // FIXME Proper server side validation requires inspecting the file contents
+        return true;
     }
 }

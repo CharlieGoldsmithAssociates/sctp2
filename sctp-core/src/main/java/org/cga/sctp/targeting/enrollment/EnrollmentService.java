@@ -33,6 +33,7 @@
 package org.cga.sctp.targeting.enrollment;
 
 import org.cga.sctp.core.TransactionalService;
+import org.cga.sctp.data.ResourceService;
 import org.cga.sctp.targeting.*;
 import org.cga.sctp.targeting.importation.parameters.Gender;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
+import javax.persistence.Query;
 import javax.persistence.StoredProcedureQuery;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -446,5 +448,98 @@ public class EnrollmentService extends TransactionalService {
                         .executeUpdate();
             }
         }
+    }
+
+    public void saveSession(EnrollmentSession session) {
+        enrolmentSessionRepository.save(session);
+    }
+
+    @Autowired
+    private ResourceService resourceService;
+
+    /**
+     * Processes the uploaded pictures and returns the status of the uploaded files
+     *
+     * @param sessionId The session under which the update is being done (may be null)
+     * @param userId    User id performing the update.
+     * @param data      Picture update and metadata
+     */
+    public RecipientPictureUpdateStatus updateHouseholdRecipientPictures(Long sessionId, Long userId, List<RecipientPictureUpdateRequest.RecipientInformation> data) {
+        final ZonedDateTime timestamp = ZonedDateTime.now();
+        final RecipientPictureUpdateStatus status = new RecipientPictureUpdateStatus();
+
+        status.setFailed(0);
+        status.setUpdated(0);
+        status.setReceived(data.size());
+        status.setReceivedAt(timestamp);
+
+        for (final RecipientPictureUpdateRequest.RecipientInformation info : data) {
+            RecipientPictureUpdateStatus.UpdateStatus updateStatus
+                    = updateRecipientPictures(info, timestamp, sessionId);
+
+            if (updateStatus != null) {
+                status.setFailed(status.getFailed() + 1);
+                status.getFailedStatuses().add(updateStatus);
+            } else {
+                status.setUpdated(status.getUpdated() + 1);
+            }
+        }
+
+        status.setCompletedAt(ZonedDateTime.now());
+        return status;
+    }
+
+    private RecipientPictureUpdateStatus.UpdateStatus updateRecipientPictures(
+            RecipientPictureUpdateRequest.RecipientInformation info, ZonedDateTime timestamp, long sessionId) {
+        boolean alternateHasError = false, alternatePresent = false;
+        ResourceService.UpdateResult primaryResult;
+        ResourceService.UpdateResult alternateResult = null;
+        RecipientPictureUpdateStatus.UpdateStatus status = null;
+
+        primaryResult = resourceService.storeMainRecipientPhoto(info.getPrimaryReceiverPicture(), info.getHouseholdId());
+
+        if (info.getAlternateReceiverPicture() != null && !info.getAlternateReceiverPicture().isEmpty()) {
+            alternateResult = resourceService
+                    .storeAlternateRecipientPhoto(info.getAlternateReceiverPicture(), info.getHouseholdId());
+            alternatePresent = alternateResult.stored();
+        }
+
+        if (!primaryResult.stored() || (alternateHasError = (alternateResult != null && !alternateResult.stored()))) {
+            status = new RecipientPictureUpdateStatus.UpdateStatus();
+            status.setHouseholdId(info.getHouseholdId());
+
+            if (!primaryResult.stored()) {
+                status.setPrimaryRecipientPictureError(primaryResult.error());
+            }
+            if (alternateHasError) {
+                status.setAlternateRecipientPictureError(alternateResult.error());
+            }
+        }
+
+        if (status == null) {
+            String sql = """
+                    UPDATE household_recipient
+                     SET modified_at = :timestamp
+                     , main_photo = :main_photo
+                     , main_photo_type = :main_photo_type
+                     , enrollment_session = :session_id
+                     , alt_photo = :alt_photo
+                     , alt_photo_type = :alt_photo_type
+                     WHERE household_id = :household_id
+                    """;
+            Query query = entityManager.createNativeQuery(sql);
+
+            query.setParameter("household_id", info.getHouseholdId())
+                    .setParameter("timestamp", timestamp)
+                    .setParameter("main_photo", primaryResult.name())
+                    .setParameter("main_photo_type", primaryResult.type())
+                    .setParameter("alt_photo", alternatePresent ? alternateResult.name() : null)
+                    .setParameter("alt_photo_type", alternatePresent ? alternateResult.type() : null)
+                    .setParameter("session_id", sessionId)
+            ;
+            query.executeUpdate();
+        }
+
+        return status;
     }
 }
