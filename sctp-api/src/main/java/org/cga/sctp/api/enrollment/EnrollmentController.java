@@ -32,7 +32,6 @@
 
 package org.cga.sctp.api.enrollment;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -53,20 +52,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import java.io.IOException;
 
 @RestController
 @RequestMapping("/enrollment")
 @Tag(name = "Enrollment", description = "Endpoint for enrollment tasks")
 public class EnrollmentController extends BaseController {
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Autowired
     private EnrollmentService enrollmentService;
@@ -101,19 +98,39 @@ public class EnrollmentController extends BaseController {
         return ResponseEntity.status(HttpStatus.CONFLICT).build();
     }
 
-    @PostMapping
-    @RequestMapping(value = "/{session-id}/enroll/bulk", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/{session-id}/update-recipient-photos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(description = "Updates a household recipient pictures. The returned response ")
+    @ApiResponses({
+            @ApiResponse(responseCode = "404", description = "Enrollment session does not exist"),
+            @ApiResponse(responseCode = "409", description = "Enrollment session cannot be updated at the moment")
+    })
     @IncludeGeneralResponses
-    public ResponseEntity<Object> postEnrollHouseholdsBulk(@PathVariable("session-id") Long sessionId,
-                                                           @RequestBody BulkEnrollmentForm request)
-            throws IOException {
+    public ResponseEntity<RecipientPictureUpdateStatus> updateRecipientPictures(
+            @AuthenticatedUserDetails ApiUserDetails user,
+            @PathVariable("session-id") Long sessionId,
+            @Valid @Validated @ModelAttribute RecipientPictureUpdateRequest request,
+            BindingResult bindingResult) {
 
-        for (EnrollmentForm enrollmentForm : request.getItems()) {
-            // TODO: How do we get the image files? Do we request Base64 encoded images??
-            enrollmentService.processEnrollment(enrollmentForm, null, null);
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().build();
         }
-        // TODO: return type
-        return new ResponseEntity<>("File is uploaded successfully", HttpStatus.OK);
+
+        final EnrollmentSession session = enrollmentService.getSessionById(sessionId);
+
+        // todo at some point, isolate by location
+
+        if (session != null) {
+            RecipientPictureUpdateStatus updateStatus;
+            if (session.getStatus() == EnrollmentSessionObject.SessionStatus.review && session.getMobileReview()) {
+                updateStatus = enrollmentService
+                        .updateHouseholdRecipientPictures(sessionId, user.getUserId(), request.getData());
+                return ResponseEntity.ok(updateStatus);
+            } else {
+                return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            }
+        }
+
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/sessions")
@@ -213,6 +230,7 @@ public class EnrollmentController extends BaseController {
                 publishGeneralEvent("mobile review for session %d marked as done by %s",
                         session.getId(), user.getUserName());
                 session.setMobileReview(false);
+                enrollmentService.saveSession(session);
             }
             return ResponseEntity.ok().build();
         }

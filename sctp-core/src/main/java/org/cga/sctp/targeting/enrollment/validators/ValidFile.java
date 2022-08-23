@@ -30,62 +30,33 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.api.core;
+package org.cga.sctp.targeting.enrollment.validators;
 
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
+import javax.validation.Constraint;
+import javax.validation.Payload;
+import java.lang.annotation.*;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
-public class ErrorResponse {
-    private int code;
-    private String message;
-    private Map<String, List<String>> fieldErrors;
+@Documented
+@Target({ElementType.TYPE, ElementType.FIELD})
+@Retention(RetentionPolicy.RUNTIME)
+@Constraint(validatedBy = {MultipartFileValidator.class})
+public @interface ValidFile {
+    String message() default "Invalid file type";
 
-    public ErrorResponse(int code) {
-        this(code, "n/a");
-    }
+    boolean required() default true;
 
-    public ErrorResponse(int code, String message) {
-        this.code = code;
-        this.message = message;
-        this.fieldErrors = new LinkedHashMap<>();
-    }
+    /**
+     * Content types.
+     *
+     * @return .
+     * @see org.springframework.http.MediaType
+     */
+    String[] types();
 
-    public int getCode() {
-        return code;
-    }
+    String label() default "Uploaded file";
 
-    public void setCode(int code) {
-        this.code = code;
-    }
+    Class<?>[] groups() default {};
 
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public Map<String, List<String>> getFieldErrors() {
-        return fieldErrors;
-    }
-
-    public void addFieldError(String field, String error) {
-        fieldErrors.computeIfAbsent(field, s -> new LinkedList<>()).add(error);
-    }
-
-    public static ErrorResponse fromBindingResult(BindingResult bindingResult, int code, String message) {
-        ErrorResponse errorResponse = new ErrorResponse(code, message);
-        if (bindingResult.hasErrors()) {
-            for (FieldError fieldError : bindingResult.getFieldErrors()) {
-                errorResponse.addFieldError(fieldError.getField(), fieldError.getDefaultMessage());
-            }
-        }
-        return errorResponse;
-    }
+    Class<? extends Payload>[] payload() default {};
 }
