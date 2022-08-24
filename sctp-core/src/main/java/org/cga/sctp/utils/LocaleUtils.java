@@ -44,4 +44,8 @@ public final class LocaleUtils {
         final int length = value.length();
         return length >= min && length <= max;
     }
+
+    public static boolean isNumber(String txt) {
+        return txt.matches("^\\d+$");
+    }
 }

@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,41 +30,25 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting.importation.parameters;
+package org.cga.sctp.persistence;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import org.cga.sctp.utils.LocaleUtils;
+import org.cga.sctp.core.BaseComponent;
+import org.hibernate.cfg.AvailableSettings;
+import org.hibernate.resource.jdbc.spi.StatementInspector;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernatePropertiesCustomizer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-public enum Gender implements UbrParameterValue {
-    Male(1),
-    Female(2);
+public class UserIdInjector {
 
-    public final int code;
+    @Configuration
+    public static class HibernateConfig extends BaseComponent {
 
-    Gender(int code) {
-        this.code = code;
-    }
-
-    public static final Gender[] VALUES = values();
-
-    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static Gender fromCode(int code) {
-        for (Gender gender : VALUES) {
-            if (gender.code == code) return gender;
+        @Bean
+        public HibernatePropertiesCustomizer configureStatementInspector() {
+            return (properties) -> properties.put(AvailableSettings.STATEMENT_INSPECTOR, (StatementInspector) sql -> {
+                return sql;
+            });
         }
-        return null;
-    }
-
-    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static Gender fromName(String name) {
-        if (LocaleUtils.isNumber(name)) {
-            return fromCode(Integer.parseInt(name));
-        }
-        return Gender.valueOf(name);
-    }
-
-    @Override
-    public int getCode() {
-        return code;
     }
 }
