@@ -34,6 +34,7 @@ package org.cga.sctp.targeting.importation;
 
 import org.cga.sctp.core.TransactionalService;
 import org.cga.sctp.targeting.exchange.DataImport;
+import org.cga.sctp.targeting.importation.ubrapi.UbrHouseholdImportProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -89,6 +90,12 @@ public class ImportTaskService extends TransactionalService {
 
     public void saveImports(List<UbrHouseholdImport> imports) {
         householdImportRepository.saveAll(imports);
+    }
+
+    public void saveImports(UbrHouseholdImportProducer producer) {
+        while (producer.hasNext()) {
+            saveImports(producer.getNext(4));
+        }
     }
 
     public void deleteFileImportTask(FileImportTaskView task) {
