@@ -40,11 +40,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Duration;
 
 /**
@@ -95,10 +98,14 @@ public class UbrApiClientImpl implements UbrApiClient {
                     .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                     .build();
 
-            //HttpResponse.BodyHandlers.ofFile(Paths.get("staging/ubrimport.json"))
-            byte[] responseData = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofByteArray()).body();
-            UbrApiDataResponse ubrApiDataResponse = objectMapper.readValue(responseData, UbrApiDataResponse.class);
-            return ubrApiDataResponse;
+            // TODO: store imported data file in a standard directory
+            var fileHandler = HttpResponse.BodyHandlers.ofFile(Files.createTempFile("sctp-import", ".json"));
+            var filePath = httpClient.send(httpRequest, fileHandler).body();
+            LoggerFactory.getLogger(getClass()).info("Reading imported data from {}", filePath);
+            try(BufferedInputStream buf = new BufferedInputStream(Files.newInputStream(filePath))) {
+                UbrApiDataResponse ubrApiDataResponse = objectMapper.readValue(buf, UbrApiDataResponse.class);
+                return ubrApiDataResponse;
+            }
         } catch (IOException | InterruptedException e) {
             LoggerFactory.getLogger(getClass()).error("Failed to fetch data from UBR", e);
         }
