@@ -35,6 +35,7 @@ package org.cga.sctp.targeting.exchange;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -49,4 +50,7 @@ interface DataImportRepository extends JpaRepository<DataImport, Long> {
     @Modifying
     @Query(nativeQuery = true, value = "call mergeBatchIntoPopulation(:id, :newStatus)")
     void mergeBatchIntoPopulation(@Param("id") Long id, @Param("newStatus") String newStatus);
+
+    @Procedure(value = "verifyDataImportSessionIsReadyToMerge")
+    boolean checkIfReadyForMerge(@Param("id") Long id);
 }

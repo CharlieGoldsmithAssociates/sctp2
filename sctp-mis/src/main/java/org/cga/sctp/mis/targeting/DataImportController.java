@@ -105,7 +105,8 @@ public class DataImportController extends BaseController {
         return redirect(format("/data-import/from-ubr-api/%d/review", id));
     }
 
-    private DataImportView getImport(Long id, DataImportObject.ImportSource importSource, RedirectAttributes attributes) {
+
+    private DataImportView getImportInReviewStatus(Long id, DataImportObject.ImportSource importSource, RedirectAttributes attributes) {
         DataImportView dataImport = dataImportService.findImportViewByIdAndStatus(id, importSource, DataImportObject.ImportStatus.Review);
         if (dataImport == null) {
             setDangerFlashMessage("Cannot find this session import.", attributes);
@@ -122,7 +123,7 @@ public class DataImportController extends BaseController {
             @PathVariable("import-id") Long id,
             @PathVariable("import-source") DataImportObject.ImportSource importSource,
             RedirectAttributes attributes) {
-        DataImportView dataImport = getImport(id, importSource, attributes);
+        DataImportView dataImport = getImportInReviewStatus(id, importSource, attributes);
         if (dataImport == null) {
             return redirect("/data-import");
         }
@@ -133,8 +134,8 @@ public class DataImportController extends BaseController {
         try {
             // TODO Run in background
             dataImportService.mergeBatchIntoPopulation(dataImport);
-            setSuccessFlashMessage("Data imported successfully", attributes);
-            publishGeneralEvent("%s merged data in population from import session %s.", username, dataImport.getTitle());
+            setSuccessFlashMessage("Data imported has been queued successfully", attributes);
+            publishGeneralEvent("%s queued data merge to population from import session %s.", username, dataImport.getTitle());
             return redirect("/data-import");
         } catch (Exception e) {
             setDangerFlashMessage("There was an error when importing the data.", attributes);

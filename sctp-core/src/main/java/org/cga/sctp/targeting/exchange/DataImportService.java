@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,6 +54,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -65,6 +67,9 @@ public class DataImportService extends TransactionalService {
 
     @Autowired
     private DataImportRepository importRepository;
+
+    @Autowired
+    private TaskScheduler taskScheduler;
 
     public List<DataImportView> getDataImportsByImporter(Long userId) {
         return viewRepository.findByImporterUserId(userId);
@@ -118,7 +123,26 @@ public class DataImportService extends TransactionalService {
     }
 
     public void mergeBatchIntoPopulation(DataImportView dataImport) {
-        importRepository.mergeBatchIntoPopulation(dataImport.getId(), DataImportObject.ImportStatus.Merged.name());
+        if (dataImport.getStatus() == DataImportObject.ImportStatus.Review) {
+            taskScheduler.scheduleWithFixedDelay(() -> {
+                DataImport di = importRepository.getById(dataImport.id);
+
+                di.setStatus(DataImportObject.ImportStatus.Merging);
+                di.setStatusText(di.getStatus().description);
+                saveDataImport(di);
+                if (importRepository.checkIfReadyForMerge(dataImport.getId())) {
+                    importRepository.mergeBatchIntoPopulation(dataImport.getId(), DataImportObject.ImportStatus.Merged.name());
+                    di.setStatusText("Households successfully imported");
+                    di.setMergeDate(ZonedDateTime.now());
+                } else {
+                    di.setStatus(DataImportObject.ImportStatus.Review);
+                    di.setStatusText("Some households need to be reviewed before importing.");
+                }
+                saveDataImport(di);
+            }, 0L);
+        } else {
+            throw new IllegalStateException(format("Can only merge data whe session is in review. Current status is %s", dataImport.getStatus()));
+        }
     }
 
     // TODO: remove importTaskService and directoryToSaveFile from parameters and make them part of this service?
