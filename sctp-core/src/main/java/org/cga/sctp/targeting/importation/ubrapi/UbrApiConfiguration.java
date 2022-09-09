@@ -32,14 +32,16 @@
 
 package org.cga.sctp.targeting.importation.ubrapi;
 
+import org.cga.sctp.core.BaseComponent;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 @Component
-public class UbrApiConfiguration {
+public class UbrApiConfiguration extends BaseComponent {
 
     private final String baseUrl;
 
@@ -49,14 +51,28 @@ public class UbrApiConfiguration {
 
     private final int clientTimeoutSeconds;
 
+    private final File tmp;
+
     public UbrApiConfiguration(@Value("${ubr.api.baseUrl}") String baseUrl,
                                @Value("${ubr.api.username}") String username,
                                @Value("${ubr.api.password}") String password,
-                               @Value("${ubr.api.timeout:300}") int clientTimeoutSeconds) {
+                               @Value("${ubr.api.timeout:300}") int clientTimeoutSeconds,
+                               @Value("${ubr.api.tmp:./staging}") File tmp) {
         this.baseUrl = baseUrl;
         this.username = username;
         this.password = password;
         this.clientTimeoutSeconds = clientTimeoutSeconds;
+        this.tmp = tmp.getAbsoluteFile().toPath().normalize().toFile();
+
+        if (!this.tmp.isDirectory()) {
+            if (!this.tmp.mkdirs()) {
+                LOG.error("failed to create temporary directory for UBR imports on {}", tmp.getAbsolutePath());
+            }
+        }
+    }
+
+    public File getTmp() {
+        return tmp;
     }
 
     public String getBaseUrl() {

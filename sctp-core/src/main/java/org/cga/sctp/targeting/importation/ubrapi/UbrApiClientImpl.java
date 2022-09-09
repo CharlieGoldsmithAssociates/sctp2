@@ -33,30 +33,26 @@
 package org.cga.sctp.targeting.importation.ubrapi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.cga.sctp.targeting.importation.ubrapi.data.UbrApiDataResponse;
+import org.cga.sctp.core.BaseComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
+import java.io.File;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.Duration;
 
 /**
  * Implements a UBR API Client using the built in {@link HttpClient}.
  * Data is serialized using Jackson's {@link ObjectMapper}
- *
  */
 @Service
-public class UbrApiClientImpl implements UbrApiClient {
+public class UbrApiClientImpl extends BaseComponent implements UbrApiClient {
+    private static final Logger LOGGER = LoggerFactory.getLogger(UbrApiClientImpl.class);
     private static final String fetchHouseholdsTemplate = "%s/api/v2/get_households_data";
 
     @Autowired
@@ -72,7 +68,8 @@ public class UbrApiClientImpl implements UbrApiClient {
      * @return data fetched from the API or <code>null</code>
      */
     @Override
-    public UbrApiDataResponse fetchNewHouseholds(UbrRequest request) {
+    public UbrApiClientRequestResult fetchNewHouseholds(UbrRequest request) {
+        UbrApiClientRequestResult result;
         String baseUrl = apiConfiguration.getBaseUrl();
         if (baseUrl.endsWith("/")) {
             baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
@@ -86,7 +83,7 @@ public class UbrApiClientImpl implements UbrApiClient {
         try {
             String url = String.format(fetchHouseholdsTemplate, baseUrl);
             String requestBody = objectMapper.writeValueAsString(request);
-            LoggerFactory.getLogger(getClass()).info("Sending request to {} with following parameters: {}", url, requestBody);
+            LOGGER.info("Sending request to {} with following parameters: {}", url, requestBody);
 
             HttpRequest httpRequest = HttpRequest.newBuilder()
                     .uri(URI.create(url))
@@ -98,22 +95,23 @@ public class UbrApiClientImpl implements UbrApiClient {
                     .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                     .build();
 
-            // TODO: store imported data file in a standard directory
-            var fileHandler = HttpResponse.BodyHandlers.ofFile(Files.createTempFile("sctp-import", ".json"));
+
+            File file = File.createTempFile(format("ubr-api-import"),".json", apiConfiguration.getTmp());
+            LOGGER.info("will download data to {}", file);
+
+            var fileHandler = HttpResponse.BodyHandlers.ofFile(file.toPath());
             var filePath = httpClient.send(httpRequest, fileHandler).body();
-            LoggerFactory.getLogger(getClass()).info("Reading imported data from {}", filePath);
-            try(BufferedInputStream buf = new BufferedInputStream(Files.newInputStream(filePath))) {
-                UbrApiDataResponse ubrApiDataResponse = objectMapper.readValue(buf, UbrApiDataResponse.class);
-                return ubrApiDataResponse;
-            }
-        } catch (IOException | InterruptedException e) {
-            LoggerFactory.getLogger(getClass()).error("Failed to fetch data from UBR", e);
+
+            result = new UbrApiClientRequestResult(false, filePath.normalize().toAbsolutePath().toFile(), null);
+        } catch (Exception e) {
+            LOGGER.error("Failed to fetch data from UBR", e);
+            result = new UbrApiClientRequestResult(true, null, "Failed to download household data from UBR");
         }
-        return null;
+        return result;
     }
 
     @Override
-    public UbrApiDataResponse fetchExistingHouseholds(UbrRequest request) {
+    public UbrApiClientRequestResult fetchExistingHouseholds(UbrRequest request) {
         return fetchNewHouseholds(request);
     }
 }

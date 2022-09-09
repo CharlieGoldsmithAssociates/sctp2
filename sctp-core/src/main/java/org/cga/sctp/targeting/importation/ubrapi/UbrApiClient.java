@@ -32,15 +32,15 @@
 
 package org.cga.sctp.targeting.importation.ubrapi;
 
-import org.cga.sctp.targeting.importation.ubrapi.data.UbrApiDataResponse;
-
 /**
  * API Client for fetching data from the UBR API
  *
  * @date 2022-03-09
  */
 public interface UbrApiClient {
-    UbrApiDataResponse fetchNewHouseholds(UbrRequest request);
+    //UbrApiDataResponse fetchNewHouseholds(UbrRequest request);
+    UbrApiClientRequestResult fetchNewHouseholds(UbrRequest request);
 
-    UbrApiDataResponse fetchExistingHouseholds(UbrRequest request);
+    //UbrApiDataResponse fetchExistingHouseholds(UbrRequest request);
+    UbrApiClientRequestResult fetchExistingHouseholds(UbrRequest request);
 }

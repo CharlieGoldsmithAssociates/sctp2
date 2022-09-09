@@ -32,12 +32,28 @@
 
 package org.cga.sctp.targeting.importation.ubrapi;
 
-import org.cga.sctp.targeting.importation.UbrHouseholdImport;
+import java.io.File;
 
-import java.util.List;
+public class UbrApiClientRequestResult {
+    private final String status;
+    private final boolean error;
+    private final File file;
 
-public interface UbrHouseholdImportProducer {
-    boolean hasNext();
+    public UbrApiClientRequestResult(boolean error, File jsonFile, String status) {
+        this.status = status;
+        this.file = jsonFile;
+        this.error = error;
+    }
 
-    List<UbrHouseholdImport> getNext(int count);
+    public File getFile() {
+        return file;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public boolean error() {
+        return error;
+    }
 }

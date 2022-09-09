@@ -39,28 +39,26 @@ import org.cga.sctp.targeting.exchange.DataImport;
 import org.cga.sctp.targeting.exchange.DataImportObject;
 import org.cga.sctp.targeting.exchange.DataImportService;
 import org.cga.sctp.targeting.importation.ImportTaskService;
-import org.cga.sctp.targeting.importation.ubrapi.UbrApiDataToHouseholdImportMapper;
-import org.cga.sctp.targeting.importation.ubrapi.UbrApiClient;
-import org.cga.sctp.targeting.importation.ubrapi.UbrRequest;
-import org.cga.sctp.targeting.importation.ubrapi.data.UbrApiDataResponse;
-import org.slf4j.LoggerFactory;
+import org.cga.sctp.targeting.importation.UbrHouseholdImport;
+import org.cga.sctp.targeting.importation.ubrapi.*;
+import org.cga.sctp.targeting.importation.ubrapi.data.TargetingData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
  * Handles importing of data from UBR API
- *
+ * <p>
  * TODO: Keep a list of running jobs to prevent/avoid duplicate jobs
  * TODO: Use taskqueue similarly to how it's done in FileImportService
  * TODO: Re-use functionality between this class and FileImportService
- *
  */
 @Service
 public class UBRImportService extends TransactionalService {
@@ -98,10 +96,10 @@ public class UBRImportService extends TransactionalService {
 
     private static final UbrApiDataToHouseholdImportMapper mapper = new UbrApiDataToHouseholdImportMapper();
 
-    public DataImport queueImportFromUBRAPI(final UbrRequest ubrRequest, final long userId){
+    public DataImport queueImportFromUBRAPI(final UbrRequest ubrRequest, final long userId) {
         ubrRequest.setProgrammes(UbrRequest.UBR_SCTP_PROGRAMME_CODE);
 
-        String importSessionTitle = format("%s - %s @%s", ubrRequest.getDistrictCode(),ubrRequest.getTraditionalAuthorityCode(), LocalDate.now().format(DateTimeFormatter.ISO_DATE));
+        String importSessionTitle = format("%s - %s @%s", ubrRequest.getDistrictCode(), ubrRequest.getTraditionalAuthorityCode(), LocalDate.now().format(DateTimeFormatter.ISO_DATE));
         DataImport dataImport = new DataImport();
         dataImport.setTitle(importSessionTitle);
         dataImport.setDataSource(DataImportObject.ImportSource.UBR_API);
@@ -130,25 +128,61 @@ public class UBRImportService extends TransactionalService {
         publishGeneralEvent("User:%s initiated Import from UBR API with parameters: %s", userId, requestJson);
 
         dataImport.setStatus(DataImportObject.ImportStatus.Processing);
+        dataImport.setStatusText("Downloading data from UBR...");
 
         // TODO: use the taskParameterQueue similarly to how it's being used in the FileImportService
         importTaskExecutor.submit(() -> {
-            LoggerFactory.getLogger(getClass()).info("Initiating import from UBR using {}", ubrRequest);
+            LOG.info("Initiating import from UBR using {}", ubrRequest);
             // TODO: initiate the data import in another thread via the import service
-            UbrApiDataResponse response = ubrApiClient.fetchExistingHouseholds(ubrRequest);
-            if (response == null) {
+            UbrApiClientRequestResult result = ubrApiClient.fetchExistingHouseholds(ubrRequest);
+            if (result.error()) {
+                dataImport.setStatusText(result.getStatus());
                 dataImport.setStatus(DataImportObject.ImportStatus.Error);
                 dataImportService.saveDataImport(dataImport);
-                publishGeneralEvent("Data Import UBR API FAILED with parameters: %s, initiated by User:%s", ubrRequest, dataImport.getImporterUserId());
+                publishGeneralEvent("Data Import UBR API FAILED with parameters: %s, initiated by User:%s",
+                        ubrRequest, dataImport.getImporterUserId());
                 return dataImport;
             }
 
-            importTaskService.saveImports(mapper.mapFromApiData(dataImport, response));
-            dataImport.setStatus(DataImportObject.ImportStatus.Review);
-
-            dataImportService.closeImportSession(dataImport);
-
-            publishGeneralEvent("Data Import Complete from UBR API with parameters: %s, initiated by User:%s", ubrRequest, dataImport.getImporterUserId());
+            // import data in streaming mode off the disk, in chunks
+            final long importBatchNumber = Long.parseLong(
+                    format("%d%d%d", dataImport.getId(), dataImport.getImporterUserId(), System.currentTimeMillis())
+            );
+            UbrHouseholdImportStreamer streamer = new UbrHouseholdImportStreamer(result.getFile(), objectMapper);
+            streamer.batchsize(10)
+                    .total(-1) // read all records
+                    .erroroccurred(args -> {
+                        dataImport.setStatusText("UBR server reported an internal error");
+                        dataImport.setStatus(DataImportObject.ImportStatus.Error);
+                    })
+                    .sizeavailable(size -> {
+                        dataImport.setStatusText(format("Importing %,d household(s) into temporary table...", size));
+                        dataImportService.saveDataImport(dataImport);
+                    })
+                    .exception(args -> {
+                        LOG.error("Exception during import from disk", args);
+                        dataImport.setStatusText("Data was downloaded from UBR successfully but could not be imported into temporary table");
+                        dataImport.setStatus(DataImportObject.ImportStatus.Error);
+                    })
+                    .completed(total -> {
+                        dataImport.setCompletionDate(LocalDateTime.now());
+                        if (dataImport.getStatus() == DataImportObject.ImportStatus.Processing) {
+                            dataImport.setStatusText(format("Successfully imported %,d household(s)", total));
+                            dataImport.setStatus(DataImportObject.ImportStatus.Review);
+                            dataImportService.closeImportSession(dataImport);
+                            publishGeneralEvent("Data Import Complete from UBR API with parameters: %s, initiated by User:%s",
+                                    ubrRequest, dataImport.getImporterUserId());
+                        } else {
+                            dataImportService.saveDataImport(dataImport);
+                        }
+                    })
+                    .stream(args -> {
+                        for (TargetingData targetingData : args) {
+                            List<UbrHouseholdImport> imports
+                                    = mapper.interpolateTargetingData(dataImport, targetingData, importBatchNumber);
+                            importTaskService.saveImports(imports);
+                        }
+                    });
 
             return dataImport;
         });

@@ -59,7 +59,7 @@ public class UbrApiDataToHouseholdImportMapper {
             return Collections.emptyList();
         }
 
-        for (TargetingData entry: ubrApiDataResponse.getData()) {
+        for (TargetingData entry : ubrApiDataResponse.getData()) {
             try {
                 result.addAll(mapEntry(dataImport, entry));
             } catch (Exception e) {
@@ -68,6 +68,20 @@ public class UbrApiDataToHouseholdImportMapper {
         }
 
         return result;
+    }
+
+    /**
+     * <p>Convert the household info into member info, each containing the same (and mapped to the) household information</p>
+     *
+     * @param dataImport       .
+     * @param targetingData    .
+     * @param groupBatchNumber This batch number is the same for all records that came together in from an import source.
+     * @return list of import
+     * @throws Exception .
+     */
+    public List<UbrHouseholdImport> interpolateTargetingData(DataImport dataImport, TargetingData targetingData, long groupBatchNumber) throws Exception {
+        UbrHouseholdImport i;
+        return mapEntry(dataImport, targetingData);
     }
 
     private List<UbrHouseholdImport> mapEntry(DataImport dataImport, TargetingData targetingData) throws Exception {
@@ -95,7 +109,7 @@ public class UbrApiDataToHouseholdImportMapper {
         // Households that don't have an ML Code may come with an empty String.
         // We want to allow households without ML codes to be inserted with null so that the
         // Assign ML code trigger can run successfully
-        if (! ("" + targetingData.household_code).isEmpty()) {
+        if (!("" + targetingData.household_code).isEmpty()) {
             common.setHouseholdCode(targetingData.household_code);
         }
         common.setPmtScore(new BigDecimal(targetingData.pmt_score));
@@ -106,7 +120,7 @@ public class UbrApiDataToHouseholdImportMapper {
         common.setVillageCode(Long.parseLong(targetingData.village.village_code));
         common.setVillageName(targetingData.village.village_name);
 
-        List<Cluster> taClusters =  targetingData.village.group_village_head.traditional_authority.clusters;
+        List<Cluster> taClusters = targetingData.village.group_village_head.traditional_authority.clusters;
         if (taClusters.size() > 1) {
             LoggerFactory.getLogger(getClass()).warn("Found more than one cluster");
         }
@@ -130,7 +144,6 @@ public class UbrApiDataToHouseholdImportMapper {
 
         common.setDistrictCode(Long.parseLong(targetingData.village.group_village_head.traditional_authority.district.district_code));
         common.setDistrictName(targetingData.village.group_village_head.traditional_authority.district.district_name);
-
 
 
         common.setAssistanceReceived(targetingData.household_food_reserve.assistance_received != 0);
@@ -158,7 +171,7 @@ public class UbrApiDataToHouseholdImportMapper {
 
         common.setLivelihoodSources(livelihoodSources);
 
-        for (HouseholdMember householdMember: targetingData.household_members) {
+        for (HouseholdMember householdMember : targetingData.household_members) {
             UbrHouseholdImport member = (UbrHouseholdImport) common.clone();
 
             member.setHouseholdId(householdMember.household_id);

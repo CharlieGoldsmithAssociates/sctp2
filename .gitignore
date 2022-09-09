@@ -103,3 +103,5 @@ notes/
 sctp-common-local.yaml
 
 passbook-test.pdf
+
+.attach_*

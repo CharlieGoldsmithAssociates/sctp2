@@ -44,7 +44,10 @@
                         <div class="info-list">
                             <div class="info-row">
                                 <div class="item-label">Status</div>
-                                <div class="item-value">{{ importStatusTag(import.status) }}</div>
+                                <div class="item-value">
+                                        {{ importStatusTag(import.status) }}
+                                    <p>{{ import.statusText }}</p>
+                                </div>
                             </div>
 
                             <div class="info-row">
