@@ -1,0 +1,1 @@
+ALTER TABLE ubr_csv_imports ADD INDEX(`household_id`);

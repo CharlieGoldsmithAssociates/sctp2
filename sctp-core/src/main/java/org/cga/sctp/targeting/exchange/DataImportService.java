@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,6 +71,9 @@ public class DataImportService extends TransactionalService {
 
     @Autowired
     private TaskScheduler taskScheduler;
+
+    @Autowired
+    private HouseholdImportRepository householdImportRepository;
 
     public List<DataImportView> getDataImportsByImporter(Long userId) {
         return viewRepository.findByImporterUserId(userId);
@@ -156,16 +160,19 @@ public class DataImportService extends TransactionalService {
         try {
             Path filePath = exportHouseholdsWithErrors(householdList.toList(), directoryToSaveFile);
             return Optional.of(filePath);
-        } catch (IOException e) {
+        } catch (Exception e) {
             LoggerFactory.getLogger(getClass()).error("Failed to export beneficiaries", e);
         }
         return Optional.empty();
     }
 
     private Path exportHouseholdsWithErrors(List<UbrHouseholdImport> householdList, String directoryToSaveFile) throws IOException {
-        try (Workbook workbook = new XSSFWorkbook()) {
-            Path filePath = Files.createTempFile(Paths.get(directoryToSaveFile), "imported-households", ".xlsx");
-            FileOutputStream fos = new FileOutputStream(filePath.toFile());
+        Path filePath;
+        try (
+                Workbook workbook = new XSSFWorkbook();
+                FileOutputStream fos = new FileOutputStream((filePath = Files.createTempFile(Paths.get(directoryToSaveFile), "imported-households", ".xlsx")).toFile())
+        ) {
+            // moved fos up to avoid leaks
             Sheet sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName("Households"));
             // Create file headers
             Row tmpExcelRow = sheet.createRow(0);
@@ -180,6 +187,7 @@ public class DataImportService extends TransactionalService {
             addCell(tmpExcelRow, 3, "HH Code");
             addCell(tmpExcelRow, 4, "HH Head");
             addCell(tmpExcelRow, 5, "Errors");
+            addCell(tmpExcelRow, 6, "Form number");
             // Add other rows
             int currentRow = 2;
             for (UbrHouseholdImport household : householdList) {
@@ -190,6 +198,7 @@ public class DataImportService extends TransactionalService {
                 addCell(tmpExcelRow, 3, household.getHouseholdCode());
                 addCell(tmpExcelRow, 4, household.getHouseholdHeadName());
                 addCell(tmpExcelRow, 5, household.getErrors().stream().collect(Collectors.joining(",")));
+                addCell(tmpExcelRow, 6, Long.toString(household.getFormNumber()));
                 currentRow++;
             }
 
@@ -198,7 +207,8 @@ public class DataImportService extends TransactionalService {
             sheet = null;
 
             return filePath;
-        } catch (IOException exception) {
+        } catch (Exception exception) {
+            LOG.error("Error generating excel", exception);
             throw exception;
         }
     }
@@ -206,5 +216,23 @@ public class DataImportService extends TransactionalService {
     private void addCell(Row row, int index, String data) {
         Cell cell = row.createCell(index);
         cell.setCellValue(data);
+    }
+
+    public Page<HouseholdImport> getHouseholdImportsPage(long importId, Pageable pageable) {
+        return householdImportRepository
+                .getPageByDataImportId(importId, pageable);
+    }
+
+    public Slice<HouseholdImport> getHouseholdImportsSlice(long importId, Pageable pageable) {
+        return householdImportRepository
+                .getSliceByDataImportId(importId, pageable);
+    }
+
+    public void archiveHousehold(Long householdId, Long importId, Boolean archive) {
+        householdImportRepository.archiveHousehold(householdId, importId, archive);
+    }
+
+    public HouseholdImport getHouseholdImport(Long householdId, Long id) {
+        return householdImportRepository.getByHouseholdIdAndDataImportId(householdId, id);
     }
 }

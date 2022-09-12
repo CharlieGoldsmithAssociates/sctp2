@@ -58,7 +58,7 @@
         <!-- /end-bottom nav -->
     </div>
 
-    <section class="section">
+    <section id="vapp" class="section">
     <!-- Context Nav -->
         {% block contextMenu %}{% endblock %}
     <!-- /End Context Nav -->
