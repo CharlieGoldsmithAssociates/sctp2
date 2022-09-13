@@ -9,16 +9,27 @@
 {% endblock %}
 
 {% block content %}
-    <div id="transfers:newTopupFormApp"></div>
+    <div>
+        <new-topup-form />
+    </div>
 {% endblock %}
 {% block footerScripts %}
     <script type="text/javascript">
         window.__pageData = {{ toJSON(pageData) | raw }};
     </script>
-    {# 1. This loads the vue template #}
-    <script type="text/html" id="newTopupFormTemplate">
-        {% include "./vue-templates/NewTopUp.vue" %}
+    <script type="module">
+    const App = {
+        el: '#vapp',
+        mounted() {
+        },
+        created() {
+        },
+        components: {
+            'NewTopupForm': httpVueLoader('/components/transfers/NewTopUp.vue')
+        }
+    };
+    domready(() => {
+        var app = new Vue(App);
+    });
     </script>
-    {# 2. This loads the actual VueJS JavaScript, the two can be combined into a Vue SFC later #}
-    <script src="/assets/js/transfers/create-topup.js"></script>
 {% endblock %}

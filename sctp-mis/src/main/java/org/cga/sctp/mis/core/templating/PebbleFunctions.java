@@ -191,4 +191,9 @@ public class PebbleFunctions {
     public Function formCsrf() {
         return new FormCSRF();
     }
+
+    @Bean
+    public Function toJSON() {
+        return new ToJSON();
+    }
 }
