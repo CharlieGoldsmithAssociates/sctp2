@@ -12,48 +12,14 @@
     <div class="card">
         <div class="card-header">
             <div class="column">
-                <h2 class="title">Create a Transfer Period in {{ district.name }}</h2>
+                <h2 class="title">Open a New Transfer Period</h2>
             </div>
         </div>
-        <form method="post" action="/transfers/periods/open-new?district-id={{ district.id }}"
-              enctype="application/x-www-form-urlencoded">
+        <form method="post" action="/transfers/periods/open-new" enctype="application/x-www-form-urlencoded">
             {{ csrf(_csrf) }}
-            <input type="hidden" name="districtId" value="{{ district.id }}">
             <div class="card-content">
-                {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
-            <div class="columns">
-                <div class="column is-one-third">
-                    <div class="district location">
-                        <label class="label">District</label>
-                        <span>{{ district.name }}</span>
-                        <div class="block">
-                            <a href="" class="is-size-7">Select different District</a>
-                        </div>
-                    </div>
-                    <div class="district location">
-                        <label class="label">Program</label>
-                        <span>{{ program.name }}</span>
-                    </div>
-                </div>
-                <div class="column">
-                    <h3 class="subtitle">Transfer Period Parameters</h3>
-                    <div class="columns">
-                        <div class="column is-half">
-                            <div class="last-period">
-                                <label for="" class="label">Last Transfer Period Ended</label>
-                                <span>{{ lastPeriod.endDate }}</span>
-                            </div>
-                        </div>
-                        <div class="column is-half">
-                            <div class="field">
-                                <label for="" class="label">Number of Months in New Period</label>
-                                <div class="control">
-                                    <input type="number" value="1" class="input is-numeric" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+            {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
+            <div class="columns-stuff">
             <div class="field">
                 <div class="is-normal">
                     <label class="label is-required">Program</label>
@@ -66,6 +32,21 @@
                             </div>
                         </div>
                         {{ printFieldErrors(getFieldErrors('form', 'programId')) }}
+                    </div>
+                </div>
+            </div>
+            <div class="field">
+                <div class="is-normal">
+                    <label class="label is-required">District</label>
+                </div>
+                <div class="field-body">
+                    <div class="field">
+                        <div class="control">
+                            <div class="select is-fullwidth">
+                                    {{ selectField('districtId', districts, form.districtId, true) }}
+                            </div>
+                        </div>
+                        {{ printFieldErrors(getFieldErrors('form', 'districtId')) }}
                     </div>
                 </div>
             </div>
@@ -157,8 +138,7 @@
                     </div>
                 </div>
             </div>
-        </div>
-        </form>
+            </form>
     </div>
 </div>
 {% endblock %}

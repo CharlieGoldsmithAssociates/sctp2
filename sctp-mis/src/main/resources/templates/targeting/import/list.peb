@@ -19,14 +19,10 @@
                     <div class="dropdown-menu" id="ibd" role="menu">
                         <div class="dropdown-content">
                             <a href="/data-import/from-ubr-api" class="dropdown-item">Import From UBR - API</a>
-                            <a href="/data-import/from-ubr-csv" class="dropdown-item">Import From UBR - CSV</a>
-                            {#
-                            <hr class="dropdown-divider" />
-                            <a href="/data-import/from-ubr" class="dropdown-item">Upload CSV</a> #}
+{#                            <a href="/data-import/from-ubr-csv" class="dropdown-item">Import From UBR - CSV</a>#}
                         </div>
                     </div>
                 </div>
-                {#<a href="{{ href('/data-import/new') }}" class="button is-primary">Get New Data</a>#}
             </div>
         </div>
         {% endif %}

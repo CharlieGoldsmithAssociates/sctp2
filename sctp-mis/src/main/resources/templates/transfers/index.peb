@@ -18,7 +18,7 @@
                             <a href="/transfers/periods">List Open Transfer Periods</a>
                         </li>
                         <li>
-                            <a href="/transfers/periods/new">Open New Transfer Period</a>
+                            <a href="/transfers/periods/open-new">Open New Transfer Period</a>
                         </li>
                         <li>
                             <a href="/transfers/summary">View Districts Transfer Period Summary </a>
@@ -46,10 +46,10 @@
                     <h4 class="subtitle">Transfer Agencies</h4>
                     <ul>
                         <li>
-                            <a href="">List All Agencies</a>
+                            <a href="/transfers/agencies">List All Agencies</a>
                         </li>
                         <li>
-                            <a href="">Assign a Transfer Agency to a Location</a>
+                            <a href="/transfers/agencies/assign">Assign a Transfer Agency to a Location</a>
                         </li>
                         <li>
                             <a href="">Change a Transfer Agency to another Location</a>

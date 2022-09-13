@@ -9,53 +9,16 @@
 {% endblock %}
 
 {% block content %}
-
-<div class="card card-default">
-    <div class="card-header">
-        <div class="card-header-title">New Top Up</div>
-    </div>
-    <div class="card-content">
-        {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
-        <form action="" method="post" enctype="application/x-www-form-urlencoded">
-            {{ csrf(_csrf) }}
-
-            {{ validatedSelectField('Program', 'programId', programs, form.programId, true, '') }}
-            {{ validatedTextField('Name', 'name', form.name, 1, 100, true, '') }}
-            {{ validatedSelectField('TopUp Types', 'topupType', topupTypes, form.topupType, true, '') }}
-            <div class="optional-collapsible field">
-                {{ validatedTextField('Percentage', 'percentage', form.percentage, 0, 3, false, '') }}
-            </div>
-            {{ validatedSelectField('Funder / Sponsor', 'funderId', funders, form.funderId, true, '') }}
-            {{ validatedSelectField('Household Status', 'householdStatus', householdStatuses, form.householdStatus, true, '') }}
-            {{ validatedSelectField('Active', 'active', booleans, form.active, true, '') }}
-
-            <div class="geolocation-level field">
-                {{ validatedSelectField('Location Type', 'locationType', locationTypes, form.locationType, true, '') }}
-                {{ validatedSelectField('Location', 'locationId', districts, form.locationId, true, '') }}
-{#                TODO: partial areas#}
-{#                <label for="partialAreas" class="label">#}
-{#                    <input type="checkbox" name="" id=""> Only for Partial Areas</label>#}
-            </div>
-{#            TODO: Funds discounted and categorical targeting criteria#}
-{#            <div class="field">#}
-{#                <label for="partialAreas" class="label">#}
-{#                    <input type="checkbox" name="" id=""> Funds Discounted?</label>#}
-{#            </div>#}
-
-{#            <div class="geolocation-level field">#}
-{#                <label for="partialAreas" class="label">#}
-{#                    <input type="checkbox" name="" id=""> Categorical Targeting</label>#}
-{#                    {{ validatedSelectField('Categorical Criteria', 'categoricalTargetingCriteriaId', categoricalCriterias, form.categoricalTargetingCriteriaId, false, '') }}#}
-{#            </div>#}
-
-
-            <div class="action-buttons">
-                <p class="notification is-info">
-                    Please note that created Topups will affect subsequent transfer calculations.
-                </p>
-                <button class="button is-success">Create TopUp</button>
-            </div>
-        </form>
-    </div>
-</div>
+    <div id="transfers:newTopupFormApp"></div>
+{% endblock %}
+{% block footerScripts %}
+    <script type="text/javascript">
+        window.__pageData = {{ toJSON(pageData) | raw }};
+    </script>
+    {# 1. This loads the vue template #}
+    <script type="text/html" id="newTopupFormTemplate">
+        {% include "./vue-templates/NewTopUp.vue" %}
+    </script>
+    {# 2. This loads the actual VueJS JavaScript, the two can be combined into a Vue SFC later #}
+    <script src="/assets/js/transfers/create-topup.js"></script>
 {% endblock %}
