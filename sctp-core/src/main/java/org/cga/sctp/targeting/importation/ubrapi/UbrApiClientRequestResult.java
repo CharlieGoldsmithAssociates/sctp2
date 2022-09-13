@@ -32,15 +32,28 @@
 
 package org.cga.sctp.targeting.importation.ubrapi;
 
-/**
- * API Client for fetching data from the UBR API
- *
- * @date 2022-03-09
- */
-public interface UbrApiClient {
-    //UbrApiDataResponse fetchNewHouseholds(UbrRequest request);
-    UbrApiClientRequestResult fetchNewHouseholds(UbrRequest request);
+import java.io.File;
 
-    //UbrApiDataResponse fetchExistingHouseholds(UbrRequest request);
-    UbrApiClientRequestResult fetchExistingHouseholds(UbrRequest request);
+public class UbrApiClientRequestResult {
+    private final String status;
+    private final boolean error;
+    private final File file;
+
+    public UbrApiClientRequestResult(boolean error, File jsonFile, String status) {
+        this.status = status;
+        this.file = jsonFile;
+        this.error = error;
+    }
+
+    public File getFile() {
+        return file;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public boolean error() {
+        return error;
+    }
 }

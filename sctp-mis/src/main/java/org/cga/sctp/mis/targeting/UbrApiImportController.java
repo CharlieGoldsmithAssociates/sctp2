@@ -48,7 +48,6 @@ import org.cga.sctp.user.AdminAccessOnly;
 import org.cga.sctp.user.AdminAndStandardAccessOnly;
 import org.cga.sctp.user.AuthenticatedUser;
 import org.cga.sctp.user.AuthenticatedUserDetails;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -96,7 +95,7 @@ public class UbrApiImportController extends SecuredBaseController {
             setDangerFlashMessage("Cannot import data, the form has errors please correct them.", attributes);
             return view("targeting/import/ubr/api");
         }
-        LoggerFactory.getLogger(getClass()).info("UBR Import village clusters {}", form.getGroupVillageHeadCode());
+        LOG.info("UBR Import village clusters {}", form.getGroupVillageHeadCode());
 
         DataImport dataImport = ubrImportService.queueImportFromUBRAPI(form, user.id());
 
