@@ -110,7 +110,7 @@ public class TransferAgenciesController extends BaseController {
     @PostMapping("/new")
     @AdminAccessOnly
     public ModelAndView processCreatePage(@AuthenticationPrincipal String username,
-                                  @Validated @ModelAttribute TransferAgencyForm form,
+                                  @Validated @ModelAttribute("form") TransferAgencyForm form,
                                   BindingResult result,
                                   RedirectAttributes attributes) {
 
@@ -266,5 +266,13 @@ public class TransferAgenciesController extends BaseController {
             return redirect("/transfers/agencies/assign");
         }
         return redirect("/transfers/agencies/assign");
+    }
+
+    @GetMapping("/assigned")
+    @AdminAndStandardAccessOnly
+    public ModelAndView listAssignedAgencies(Long locationId) {
+        // TODO: implement me!
+        return view("transfers/agencies/assigned")
+                .addObject("transferAgencyAssignments", null);
     }
 }

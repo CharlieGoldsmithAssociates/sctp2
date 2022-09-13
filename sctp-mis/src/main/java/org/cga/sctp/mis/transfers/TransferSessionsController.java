@@ -100,11 +100,9 @@ public class TransferSessionsController extends BaseController {
                 .addObject("transferSummaries", new Object()); // FIXME: fetch summary
     }
 
-
-
-    @GetMapping("/initiate/step1")
+    @GetMapping("/initiate")
     @AdminAndStandardAccessOnly
-    public ModelAndView getInitiateStep1(RedirectAttributes attributes) {
+    public ModelAndView getInitiateTransfersPage(RedirectAttributes attributes) {
         List<Program> programs = programService.getActivePrograms();
         List<Location> districts = locationService.getActiveDistricts();
 
@@ -116,27 +114,12 @@ public class TransferSessionsController extends BaseController {
             return redirectOnFailedCondition("/transfers/home", "Cannot calculate Transfers when there are no Locations registered", attributes);
         }
 
-        return view("/transfers/initiate/step1")
+        return view("/transfers/initiate")
                 .addObject("programs", programs)
                 .addObject("districts", districts);
     }
 
-    @GetMapping("/initiate/step2")
-    @AdminAndStandardAccessOnly
-    public ModelAndView viewCalculationStep2(@RequestParam("programId") Long programId,
-                                             @RequestParam("districtId") Long districtId) {
-        Program program = programService.getProgramById(programId);
-        Location district = locationService.findById(districtId);
-
-        return view("/transfers/initiate/step2")
-                .addObject("program", program)
-                .addObject("district", district)
-                .addObject("householdParameters", transferParametersService.findAllActiveHouseholdParameters())
-                .addObject("educationBonuses", transferParametersService.findAllEducationTransferParameters())
-                .addObject("educationIncentives", transferParametersService.findAllEducationTransferParameters());
-    }
-
-    @PostMapping("/initiate/step3")
+    @PostMapping("/initiate")
     @AdminAndStandardAccessOnly
     public ModelAndView postInitiateStep2(@AuthenticatedUserDetails AuthenticatedUser user,
                                           @Validated @ModelAttribute InitiateTransferForm form,

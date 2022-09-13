@@ -41,9 +41,13 @@ public interface TopUpService {
 
     Optional<TopUp> newTopup(NewTopUpForm params);
 
-    List<TopUp> fetchAllActive(Optional<Location> location);
+    List<TopUp> fetchAllActive();
 
-    List<TopUp> fetchAllExecuted(Optional<Location> location);
+    List<TopUp> fetchAllActive(Location location);
+
+    List<TopUp> fetchAllExecuted();
+
+    List<TopUp> fetchAllExecuted(Location location);
 
     void markAsExecuted(TopUp topUp, Long amount);
 

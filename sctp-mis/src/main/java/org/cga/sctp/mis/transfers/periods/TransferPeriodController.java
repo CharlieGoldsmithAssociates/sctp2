@@ -81,13 +81,21 @@ public class TransferPeriodController extends BaseController {
 
     @GetMapping("/open-new")
     @AdminAndStandardAccessOnly
-    public ModelAndView viewCreateTransferPeriod(@RequestParam("district-id") Long districtId) {
-        Location district = locationService.findById(districtId);
+    public ModelAndView viewCreateTransferPeriod(@RequestParam(value="district-id", required = false) Long districtId) {
+        Location district = null;
+        TransferPeriod lastPeriod = null;
+        if (districtId != null) {
+            district = locationService.findById(districtId);
+//            lastPeriod = transferPeriodService.findLastPeriodInLocation(districtId);
+        }
+        // TODO: open a period with a session!
+        List<Location> districts = locationService.getActiveDistricts();
         List<Program> programs = programService.getActivePrograms();
         return view("/transfers/periods/new")
-                .addObject("district", district)
                 .addObject("programs", programs)
-                .addObject("lastPeriod", null);
+                .addObject("districts", districts)
+                .addObject("district", district)
+                .addObject("lastPeriod", lastPeriod);
     }
 
     @PostMapping("/open-new")

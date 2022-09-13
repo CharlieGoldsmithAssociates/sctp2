@@ -76,13 +76,23 @@ public class TopUpServiceImpl implements TopUpService {
     }
 
     @Override
-    public List<TopUp> fetchAllActive(Optional<Location> location) {
-        throw  new RuntimeException("not implemented");
+    public List<TopUp> fetchAllActive() {
+        return null;
     }
 
     @Override
-    public List<TopUp> fetchAllExecuted(Optional<Location> location) {
-        throw  new RuntimeException("not implemented");
+    public List<TopUp> fetchAllActive(Location location) {
+        return null;
+    }
+
+    @Override
+    public List<TopUp> fetchAllExecuted() {
+        return null;
+    }
+
+    @Override
+    public List<TopUp> fetchAllExecuted(Location location) {
+        return null;
     }
 
     @Override
