@@ -68,11 +68,6 @@ import java.util.concurrent.ExecutionException;
 @BreadcrumbDefinition(module = ModuleNames.DATA_IMPORT, index = @BreadcrumbPath(link = "/data-import", title = "Import data from sources", navigable = true))
 public class DataImportController extends BaseController {
 
-    private static final String[] CORS_HEADERS = {"X-Is-Slice",
-            "X-Data-Total",
-            "X-Data-Pages",
-            "X-Data-Size",
-            "X-Data-Page"};
     private static final HouseholdImportStat EMPTY_HOUSEHOLD_STATS = new HouseholdImportStat() {
         @Override
         public Long getArchived() {
@@ -173,10 +168,6 @@ public class DataImportController extends BaseController {
                 .body(new FileSystemResource(filePath.get()));
     }
 
-    @CrossOrigin(
-            allowedHeaders = {"X-Is-Slice", "X-Data-Total", "X-Data-Pages", "X-Data-Size", "X-Data-Page"},
-            exposedHeaders = {"X-Is-Slice", "X-Data-Total", "X-Data-Pages", "X-Data-Size", "X-Data-Page"}
-    )
     @GetMapping(value = "/{import-id}/household-imports", produces = MediaType.APPLICATION_JSON_VALUE)
     @AdminAndStandardAccessOnly
     public ResponseEntity<List<HouseholdImport>> getHouseholdImports(
