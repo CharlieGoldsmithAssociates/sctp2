@@ -81,6 +81,9 @@ public class HouseholdImport {
     @Column(name = "household_head_id")
     private String householdHeadId;
 
+    @Column(name = "household_head_member_id")
+    private Long householdHeadMemberId;
+
     public Boolean getArchived() {
         return archived;
     }
@@ -133,6 +136,10 @@ public class HouseholdImport {
 
     public String getHouseholdHeadId() {
         return householdHeadId;
+    }
+
+    public Long getHouseholdHeadMemberId() {
+        return householdHeadMemberId;
     }
 
     public Long getDataImportId() {

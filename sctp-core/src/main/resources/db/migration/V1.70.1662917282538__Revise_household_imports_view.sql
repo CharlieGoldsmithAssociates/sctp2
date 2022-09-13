@@ -14,6 +14,7 @@ SELECT uci.household_id
 , ANY_VALUE(CASE WHEN relationship_to_head = 1 THEN gender end) household_head_gender
 , ANY_VALUE(CASE WHEN relationship_to_head = 1 THEN date_of_birth end) household_head_dob
 , ANY_VALUE(CASE WHEN relationship_to_head = 1 THEN national_id end) household_head_id
+, ANY_VALUE(CASE WHEN relationship_to_head = 1 THEN household_member_id END) household_head_member_id
 , ANY_VALUE(district_name) district_name
 , ANY_VALUE(traditional_authority_name) traditional_authority_name
 , ANY_VALUE(village_name) village_name

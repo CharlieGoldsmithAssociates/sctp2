@@ -45,6 +45,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -181,7 +182,7 @@ public class DataImportController extends BaseController {
             @Valid @Min(1) @RequestParam("page") int page,
             @Valid @Min(10) @Max(100) @RequestParam(value = "size", defaultValue = "50", required = false) int size,
             @Valid @RequestParam(value = "order", required = false, defaultValue = "ASC") Sort.Direction sortDirection,
-            @Valid @SortFields({"formNumber", "mlCode", "errorCount", "memberCount", "archived"})
+            @Valid @SortFields({"formNumber", "mlCode", "errorCount", "memberCount", "archived", "hasHouseholdHead"})
             @RequestParam(value = "sort", required = false, defaultValue = "formNumber") String sort,
             @RequestParam(value = "slice", required = false, defaultValue = "false") boolean useSlice) {
         DataImport dataImport = dataImportService.findDataImportById(importId);
@@ -245,5 +246,69 @@ public class DataImportController extends BaseController {
                 user.username(), householdId, dataImport.getTitle());
 
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(value = "/{import-id}/household-members", produces = MediaType.APPLICATION_JSON_VALUE)
+    @AdminAndStandardAccessOnly
+    public ResponseEntity<List<HouseholdMemberImport>> getHouseholdMemberImports(
+            @PathVariable("import-id") Long importId,
+            @RequestParam("household-id") Long householdId) {
+        final DataImport dataImport = dataImportService.findDataImportById(importId);
+        if (dataImport == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (dataImport.getStatus() != DataImportObject.ImportStatus.Review) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return ResponseEntity.ok(dataImportService.getHouseholdMemberImports(householdId, importId));
+    }
+
+    @PostMapping(value = "/{import-id}/update-household-head",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_FORM_URLENCODED_VALUE}
+    )
+    @AdminAndStandardAccessOnly
+    public ResponseEntity<?> updateHouseholdHead(
+            @AuthenticatedUserDetails AuthenticatedUser user,
+            @PathVariable("import-id") Long importId,
+            @RequestParam("household") Long householdId,
+            @RequestParam("member-id") Long memberId) {
+        final DataImport dataImport = dataImportService.findDataImportById(importId);
+        if (dataImport == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (dataImport.getStatus() != DataImportObject.ImportStatus.Review) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        final HouseholdImport householdImport = dataImportService.getHouseholdImport(householdId, dataImport.getId());
+
+        if (householdImport == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (householdImport.getHasHouseholdHead()) {
+            // already has a defined household
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+
+        dataImportService.setHouseholdHead(householdId, importId, memberId);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(value = "/{import-id}/household-stats", produces = MediaType.APPLICATION_JSON_VALUE)
+    @AdminAndStandardAccessOnly
+    public ResponseEntity<HouseholdImportStat> getHouseholdImportStats(
+            @PathVariable("import-id") Long importId) {
+        final DataImport dataImport = dataImportService.findDataImportById(importId);
+        if (dataImport == null) {
+            return ResponseEntity.notFound().build();
+        }
+        final HouseholdImportStat stat = dataImportService.getHouseholdCountWithoutHead(importId);
+        return ResponseEntity.ok(stat);
     }
 }

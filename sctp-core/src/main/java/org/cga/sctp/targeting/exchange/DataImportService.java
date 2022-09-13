@@ -75,6 +75,12 @@ public class DataImportService extends TransactionalService {
     @Autowired
     private HouseholdImportRepository householdImportRepository;
 
+    @Autowired
+    private HouseholdMemberImportRepository memberImportRepository;
+
+    @Autowired
+    private HouseholdImportStatRepository statsRepository;
+
     public List<DataImportView> getDataImportsByImporter(Long userId) {
         return viewRepository.findByImporterUserId(userId);
     }
@@ -234,5 +240,17 @@ public class DataImportService extends TransactionalService {
 
     public HouseholdImport getHouseholdImport(Long householdId, Long id) {
         return householdImportRepository.getByHouseholdIdAndDataImportId(householdId, id);
+    }
+
+    public List<HouseholdMemberImport> getHouseholdMemberImports(Long householdId, Long dataImportId) {
+        return memberImportRepository.getByHouseholdIdAndDataImportId(householdId, dataImportId);
+    }
+
+    public void setHouseholdHead(Long householdId, Long importId, Long memberId) {
+        memberImportRepository.updateHouseholdHead(householdId, importId, memberId);
+    }
+
+    public HouseholdImportStat getHouseholdCountWithoutHead(long dataImportId) {
+        return statsRepository.findById(dataImportId).orElse(null);
     }
 }

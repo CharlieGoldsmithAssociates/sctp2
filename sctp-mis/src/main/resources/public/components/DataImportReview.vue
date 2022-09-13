@@ -10,16 +10,16 @@
         </b-field>
 
         <b-message type="is-info">
-            Households: {{total}}<br /><br />
             <b>NOTE</b>: Archiving a household will skip importation of that household.
         </b-message>
 
-        <b-table paginated backend-pagination :total="total" :current-page.sync="currentPage" pagination-position="both"
-            :pagination-simple="false" sort-icon="menu-up" :per-page="pageSize" @page-change="onPageChange"
-            backend-sorting :default-sort-direction="sortOrder" :default-sort="[sortField, sortOrder]" @sort="onSort"
-            aria-next-label="Next page" aria-previous-label="Previous page" aria-page-label="Page"
-            aria-current-label="Current page" :data="isEmpty ? [] : data" :striped="true" :narrowed="true"
-            :hoverable="true" :loading="isLoading">
+        <b-table :has-detailed-visible="(row) => !row.archiveHousehold" detailed :opened-detailed="openedDetailed"
+            detail-key="householdId" @details-open="memberDetails" paginated backend-pagination :total="total"
+            :current-page.sync="currentPage" pagination-position="both" :pagination-simple="false" sort-icon="menu-up"
+            :per-page="pageSize" @page-change="onPageChange" backend-sorting :default-sort-direction="sortOrder"
+            :default-sort="[sortField, sortOrder]" @sort="onSort" aria-next-label="Next page"
+            aria-previous-label="Previous page" aria-page-label="Page" aria-current-label="Current page"
+            :data="isEmpty ? [] : data" :striped="true" :narrowed="true" :hoverable="true" :loading="isLoading">
 
             <b-table-column field="formNumber" label="Form number" sortable v-slot="props" width="8%">
                 {{ props.row.formNumber }}
@@ -28,7 +28,6 @@
             <b-table-column field="mlCode" label="ML Code" sortable v-slot="props" width="8%">
                 {{ mlCode(props.row.mlCode) }}
             </b-table-column>
-
 
             <b-table-column field="memberCount" label="Members" sortable v-slot="props" width="6%">
                 {{ props.row.memberCount }}
@@ -43,7 +42,7 @@
                 ]">{{ props.row.errorCount }}</span>
             </b-table-column>
 
-            <b-table-column field="householdHeadName" label="Household Head" v-slot="props" width="10%">
+            <b-table-column field="hasHouseholdHead" label="Household Head" sortable v-slot="props" width="10%">
                 {{ props.row.householdHeadName }}
             </b-table-column>
 
@@ -66,6 +65,7 @@
             <b-table-column field="villageName" label="Village" v-slot="props">
                 {{ props.row.villageName }}
             </b-table-column>
+
             <b-table-column field="archived" label="Archive" sortable v-slot="props">
                 <template :v-slot="column">
                     <b-switch :ref="`switch${props.row.householdId}`" v-model="props.row.archived"
@@ -76,8 +76,87 @@
             </b-table-column>
 
 
+            <template slot="detail" slot-scope="props">
+
+                <section class="section">
+                    <h3 class="subtitle">Select a member to make the head of the household</h3>
+
+                    <b-table :bordered="true" :striped="true" :narrowed="true" :hoverable="true" :loading="isLoading"
+                        :data="(props.row.memberList || [])">
+                        <b-table-column field="name" label="Name" v-slot="p">
+                            <b-radio :expanded="true" v-model="props.row.householdHeadMemberId" name="member"
+                                @input="setHouseholdHead(p.row, props.row)" :disabled="props.row.hasHouseholdHead"
+                                :native-value="p.row.householdMemberId">
+                                {{ p.row.name }}
+                            </b-radio>
+                        </b-table-column>
+
+                        <b-table-column field="gender" label="Gender" v-slot="props">
+                            {{ props.row.gender }}
+                        </b-table-column>
+
+                        <b-table-column field="dateOfBirth" label="D.O.B" v-slot="props">
+                            {{ props.row.dateOfBirth }}
+                        </b-table-column>
+
+                        <b-table-column field="nationalId" label="National ID" v-slot="props">
+                            {{ props.row.nationaId }}
+                        </b-table-column>
+
+                        <b-table-column field="relationship" label="Relationship" v-slot="props">
+                            {{ props.row.relationship }}
+                        </b-table-column>
+
+                        <template #empty>
+                            <div class="has-text-centered">No data to show</div>
+                        </template>
+                    </b-table>
+                </section>
+
+            </template>
+
             <template #empty>
                 <div class="has-text-centered">No records</div>
+            </template>
+
+            <template #bottom-left>
+                <div class="level-item">
+                    <p>
+                        <strong>Total</strong> {{total}}
+                    </p>
+                </div>
+
+                <div class="level-item">
+                    <p>
+                        <strong>Without a head</strong> {{householdStats.noHead}}
+                    </p>
+                </div>
+
+                <div class="level-item">
+                    <p>
+                        <strong>Archived</strong> {{householdStats.archived}}
+                    </p>
+                </div>
+            </template>
+
+            <template #top-left>
+                <div class="level-item">
+                    <p>
+                        <strong>Total</strong> {{total}}
+                    </p>
+                </div>
+
+                <div class="level-item">
+                    <p>
+                        <strong>Without a head</strong> {{householdStats.noHead}}
+                    </p>
+                </div>
+
+                <div class="level-item">
+                    <p>
+                        <strong>Archived</strong> {{householdStats.archived}}
+                    </p>
+                </div>
             </template>
 
         </b-table>
@@ -107,11 +186,14 @@ module.exports = {
             sortOrder: 'ASC',
             pageSize: 50,
             currentPage: 1,
-            slice: false
+            slice: false,
+            openedDetailed: [],
+            householdStats: { noHead: 0, archived: 0 }
         }
     },
     mounted() {
         this.getHouseholdImports();
+        this.getHouseholdCountWithoutHead();
     },
     methods: {
         archiveHousehold(household_id, archived) {
@@ -128,6 +210,8 @@ module.exports = {
             axios.post(`/data-import/${vm.importId}/archive-household?${params}`, null, config)
                 .then(function (response) {
                     if (response.status === 200) {
+                        vm.householdStats.archived =
+                            archived ? vm.householdStats.archived + 1 : Math.max(0, vm.householdStats.archived - 1);
                         vm.snackbar(`Successfully ${archived ? 'archived' : 'un-archived'} household`, 'success');
                     } else {
                         throw `Status: ${response.status}`;
@@ -186,17 +270,85 @@ module.exports = {
         mlCode(code) {
             return code && `ML-${code}`;
         },
-        genderLabel(code) {
-            if (typeof (code) === 'string' && code.length > 0) {
-                switch (code.split(',')[0]) {
-                    case '1': return 'Male';
-                    case '2': return 'Female';
-                }
-            }
-            return null;
+        memberDetails(row) {
+            let vm = this;
+
+            vm.isLoading = true;
+
+            axios.get(`/data-import/${vm.importId}/household-members?household-id=${row.householdId}`)
+                .then(function (response) {
+                    if (response.status === 200 && isJsonContentType(response.headers['content-type'])) {
+                        if (response.data.length > 0) {
+                            row.memberList = response.data;
+                            vm.openedDetailed[0] = row.householdId;
+                        } else {
+                            row.memberList = [];
+                            delete vm.openedDetailed[0]
+                            vm.snackbar('Household does not have any members.', 'warning')
+                        }
+                    } else {
+                        vm.snackbar('Server returned invalid data', 'warning');
+                    }
+                })
+                .catch(function (error) {
+                    vm.snackbar('Error getting household members', 'danger');
+                })
+                .then(function () {
+                    vm.isLoading = false
+                });
         },
-        archiveStatusChanged(hhid, status, b) {
-            console.info(hhid, status, b);
+        setHouseholdHead(row, household) {
+            let vm = this;
+            vm.isLoading = true;
+
+            const params = [
+                `household=${row.householdId}`,
+                `member-id=${row.householdMemberId}`
+            ].join('&');
+
+            const config = { headers: { 'X-CSRF-TOKEN': csrf()['token'] } };
+
+            axios.post(`/data-import/${vm.importId}/update-household-head?${params}`, null, config)
+                .then(function (response) {
+                    if (response.status === 200) {
+                        vm.snackbar('Updated succesfully household', 'success');
+                        household.householdHeadName = row.name;
+                        household.hasHouseholdHead = true;
+                        vm.householdStats.noHead = Math.max(0, vm.householdStats.noHead - 1);
+                        // TODO copy the other properties if/when needed
+                    } else {
+                        throw `Status: ${response.status}`;
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error);
+                    vm.errorDialog('Error updating data');
+                })
+                .then(function () {
+                    vm.isLoading = false;
+                });
+        },
+        getHouseholdCountWithoutHead() {
+            let vm = this;
+            let error_message = 'Error getting count of households without heads'
+            vm.isLoading = true;
+
+            axios.get(`/data-import/${vm.importId}/household-stats`)
+                .then(function (response) {
+                    if (response.status === 200 && isJsonContentType(response.headers['content-type'])) {
+                        vm.householdStats = response.data;
+                    } else {
+                        vm.snackbar(error_message, 'warning');
+                    }
+                })
+                .catch(function (error) {
+                    vm.snackbar(error_message, 'danger');
+                })
+                .then(function () {
+                    vm.isLoading = false
+                });
+        },
+        archiveStatusChanged(hhid, status) {
             this.archiveHousehold(hhid, status)
         },
         onPageChange(page) {
@@ -227,9 +379,6 @@ module.exports = {
                 ariaRole: 'alertdialog',
                 ariaModal: true
             })
-        },
-        tdAttrs(row, column) {
-            console.log(row, column, this.$refs, this.$ref);
         }
     }
 }
