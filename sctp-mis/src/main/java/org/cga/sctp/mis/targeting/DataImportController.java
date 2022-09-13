@@ -49,9 +49,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -62,6 +60,7 @@ import javax.validation.constraints.Min;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 @Controller
 @RequestMapping("/data-import")
@@ -74,6 +73,22 @@ public class DataImportController extends BaseController {
             "X-Data-Pages",
             "X-Data-Size",
             "X-Data-Page"};
+    private static final HouseholdImportStat EMPTY_HOUSEHOLD_STATS = new HouseholdImportStat() {
+        @Override
+        public Long getArchived() {
+            return 0L;
+        }
+
+        @Override
+        public Long getNoHead() {
+            return 0L;
+        }
+
+        @Override
+        public Long getDataImportId() {
+            return 0L;
+        }
+    };
 
     @Autowired
     private DataImportService dataImportService;
@@ -111,7 +126,6 @@ public class DataImportController extends BaseController {
         return redirect(format("/data-import/from-ubr-api/%d/review", id));
     }
 
-
     private DataImportView getImportInReviewStatus(Long id, DataImportObject.ImportSource importSource, RedirectAttributes attributes) {
         DataImportView dataImport = dataImportService.findImportViewByIdAndStatus(id, importSource, DataImportObject.ImportStatus.Review);
         if (dataImport == null) {
@@ -122,33 +136,21 @@ public class DataImportController extends BaseController {
 
     @PostMapping("/{import-id}/{import-source}/merge")
     @AdminAccessOnly
-    ModelAndView merge(
-            @AuthenticationPrincipal String username,
-            @Valid @ModelAttribute MergeImportsForm form,
-            BindingResult bindingResult,
+    ResponseEntity<?> merge(
             @PathVariable("import-id") Long id,
             @PathVariable("import-source") DataImportObject.ImportSource importSource,
-            RedirectAttributes attributes) {
+            RedirectAttributes attributes) throws ExecutionException, InterruptedException {
+
         DataImportView dataImport = getImportInReviewStatus(id, importSource, attributes);
+
         if (dataImport == null) {
-            return redirect("/data-import");
-        }
-        if (bindingResult.hasErrors()) {
-            setDangerFlashMessage("Cannot merge data at this moment.", attributes);
-            return redirectToReview(id);
-        }
-        try {
-            // TODO Run in background
-            dataImportService.mergeBatchIntoPopulation(dataImport);
-            setSuccessFlashMessage("Data imported has been queued successfully", attributes);
-            publishGeneralEvent("%s queued data merge to population from import session %s.", username, dataImport.getTitle());
-            return redirect("/data-import");
-        } catch (Exception e) {
-            setDangerFlashMessage("There was an error when importing the data.", attributes);
-            LOG.error("Exception during merge", e);
+            return ResponseEntity.notFound().build();
         }
 
-        return redirectToReview(id);
+        return switch (dataImportService.queueDataImportMerge(dataImport)) {
+            case Queued -> ResponseEntity.ok().build();
+            case InvalidSessionState -> ResponseEntity.badRequest().build();
+        };
     }
 
     @GetMapping("/export-errors/{import-id}")
@@ -223,7 +225,7 @@ public class DataImportController extends BaseController {
     public ResponseEntity<HouseholdImport> archiveHousehold(
             @AuthenticatedUserDetails AuthenticatedUser user,
             @PathVariable("import-id") Long importId,
-            @RequestParam("household") Long householdId,
+            @RequestParam("household-id") Long householdId,
             @RequestParam("archive") Boolean archive) {
         final DataImport dataImport = dataImportService.findDataImportById(importId);
         if (dataImport == null) {
@@ -273,7 +275,7 @@ public class DataImportController extends BaseController {
     public ResponseEntity<?> updateHouseholdHead(
             @AuthenticatedUserDetails AuthenticatedUser user,
             @PathVariable("import-id") Long importId,
-            @RequestParam("household") Long householdId,
+            @RequestParam("household-id") Long householdId,
             @RequestParam("member-id") Long memberId) {
         final DataImport dataImport = dataImportService.findDataImportById(importId);
         if (dataImport == null) {
@@ -308,7 +310,7 @@ public class DataImportController extends BaseController {
         if (dataImport == null) {
             return ResponseEntity.notFound().build();
         }
-        final HouseholdImportStat stat = dataImportService.getHouseholdCountWithoutHead(importId);
-        return ResponseEntity.ok(stat);
+        final HouseholdImportStat stat = dataImportService.getHouseholdImportStat(importId);
+        return ResponseEntity.ok(stat == null ? EMPTY_HOUSEHOLD_STATS : stat);
     }
 }

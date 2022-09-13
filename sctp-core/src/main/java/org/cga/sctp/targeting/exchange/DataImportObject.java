@@ -40,13 +40,15 @@ import java.time.ZonedDateTime;
 public class DataImportObject {
 
     public enum ImportSource {
-        UBR_CSV("UBR (CSV)"),
-        UBR_API("UBR (API)");
+        UBR_CSV("UBR (CSV)", "UBR"),
+        UBR_API("UBR (API)", "UBR");
 
         public final String title;
+        public final String provider;
 
-        ImportSource(String title) {
+        ImportSource(String title, String provider) {
             this.title = title;
+            this.provider = provider;
         }
     }
 

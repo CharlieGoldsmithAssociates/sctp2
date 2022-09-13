@@ -1,13 +1,34 @@
 <template>
     <section>
-        <b-field grouped group-multiline>
-            <b-select v-model="pageSize" :loading="isLoading">
-                <option value="15">15 per page</option>
-                <option value="25">25 per page</option>
-                <option value="50">50 per page</option>
-                <option value="100">100 per page</option>
-            </b-select>
-        </b-field>
+
+        <nav class="level">
+            <!-- Left side -->
+            <div class="level-left">
+                <div class="level-item">
+                    <b-select v-model="pageSize" :loading="isLoading">
+                        <option value="15">15 per page</option>
+                        <option value="25">25 per page</option>
+                        <option value="50">50 per page</option>
+                        <option value="100">100 per page</option>
+                    </b-select>
+                </div>
+            </div>
+
+            <!-- Right side -->
+            <div v-if="canModify" class="level-right">
+                <div class="level-item">
+                    <div v-if="canModify" class="level-right buttons">
+                        <b-button :loading="isLoading" tag="a" icon-left="microsoft-excel"
+                            :href="`/data-import/export-errors/${importId}`" target="_blank" type="is-primary">Export
+                            Errors To Excel</b-button>
+                        <b-button @click="queueImportMerge" icon-left="database-import" :loading="isLoading"
+                            type="is-danger">
+                            Finish & Merge
+                        </b-button>
+                    </div>
+                </div>
+            </div>
+        </nav>
 
         <b-message type="is-info">
             <b>NOTE</b>: Archiving a household will skip importation of that household.
@@ -55,7 +76,7 @@
             </b-table-column>
 
             <b-table-column field="cluserName" label="Cluster" v-slot="props">
-                {{ props.row.cluserName }}
+                {{ props.row.clusterName }}
             </b-table-column>
 
             <b-table-column field="groupVillageHeadName" label="GVH" v-slot="props">
@@ -69,7 +90,7 @@
             <b-table-column field="archived" label="Archive" sortable v-slot="props">
                 <template :v-slot="column">
                     <b-switch :ref="`switch${props.row.householdId}`" v-model="props.row.archived"
-                        :value="props.row.archived"
+                        :value="props.row.archived" :disabled="!canModify"
                         @input="archiveStatusChanged(props.row.householdId, props.row.archived)" type="is-danger"
                         passive-type='passiveType'></b-switch>
                 </template>
@@ -85,7 +106,8 @@
                         :data="(props.row.memberList || [])">
                         <b-table-column field="name" label="Name" v-slot="p">
                             <b-radio :expanded="true" v-model="props.row.householdHeadMemberId" name="member"
-                                @input="setHouseholdHead(p.row, props.row)" :disabled="props.row.hasHouseholdHead"
+                                @input="setHouseholdHead(p.row, props.row)"
+                                :disabled="props.row.hasHouseholdHead"
                                 :native-value="p.row.householdMemberId">
                                 {{ p.row.name }}
                             </b-radio>
@@ -171,9 +193,14 @@ module.exports = {
             type: Number,
             required: true
         },
-        totalRecords: {
-            type: Number,
-            default: 0
+        importSource: {
+            type: String,
+            required: true
+        },
+        canModify: {
+            type: Boolean,
+            required: true,
+            default: false
         }
     },
     data() {
@@ -201,7 +228,7 @@ module.exports = {
             vm.isLoading = true;
 
             const params = [
-                `household=${household_id}`,
+                `household-id=${household_id}`,
                 `archive=${archived}`
             ].join('&');
 
@@ -267,6 +294,53 @@ module.exports = {
                     vm.isLoading = false;
                 });
         },
+        queueImportMerge() {
+            let vm = this;
+            if (vm.householdStats.noHead > 0) {
+                const words = vm.plural([['is', 'are'], ['household'], ["doesn't", "don't"]], vm.householdStats.noHead);
+                vm.errorDialog(`There ${words[0]} still ${vm.householdStats.noHead} ${words[1]} that ${words[2]} have a household head.`);
+            } else {
+                vm.confirm(
+                    '<p>Proceed merging data?</p><br /><p>This action cannot be undone</p>',
+                    function () {
+                        const errorMessage = 'Merging cannot be done at the momemnt. Please try again';
+                        const config = { headers: { 'X-CSRF-TOKEN': csrf()['token'] } };
+
+                        vm.isLoading = true;
+
+                        axios.post(`/data-import/${vm.importId}/${vm.importSource}/merge`, null, config)
+                            .then(function (response) {
+                                if (response.status == 200) {
+                                    vm.msgDialog('Merging has been queued and will be done in the background.', '', 'success', 'check')
+                                    window.location.href = '/data-import';
+                                } else {
+                                    vm.isLoading = false;
+                                    vm.errorDialog(errorMessage);
+                                }
+                            })
+                            .catch(function (error) {
+                                vm.isLoading = false;
+                                vm.errorDialog(errorMessage);
+                            });
+                    },
+                    () => vm.snackbar('Merging cancelled', 'info'),
+                    'Confirm merging data',
+                    'danger'
+                )
+            }
+        },
+        plural(words, count) {
+            res = [];
+            for (v in words) {
+                w = words[v];
+                if (count != 1) {
+                    res.push(w.length > 1 ? w[1] : w[0] + 's');
+                } else {
+                    res.push(w[0]);
+                }
+            }
+            return res;
+        },
         mlCode(code) {
             return code && `ML-${code}`;
         },
@@ -302,7 +376,7 @@ module.exports = {
             vm.isLoading = true;
 
             const params = [
-                `household=${row.householdId}`,
+                `household-id=${row.householdId}`,
                 `member-id=${row.householdMemberId}`
             ].join('&');
 
@@ -311,7 +385,7 @@ module.exports = {
             axios.post(`/data-import/${vm.importId}/update-household-head?${params}`, null, config)
                 .then(function (response) {
                     if (response.status === 200) {
-                        vm.snackbar('Updated succesfully household', 'success');
+                        vm.snackbar('Updated household succesfully', 'success');
                         household.householdHeadName = row.name;
                         household.hasHouseholdHead = true;
                         vm.householdStats.noHead = Math.max(0, vm.householdStats.noHead - 1);
@@ -375,6 +449,28 @@ module.exports = {
                 type: 'is-danger',
                 hasIcon: true,
                 icon: 'times-circle',
+                iconPack: 'fa',
+                ariaRole: 'alertdialog',
+                ariaModal: true
+            })
+        },
+        confirm(msg, yesfn, nofn = null, title = null, type = 'primary', hasIcon = true) {
+            this.$buefy.dialog.confirm({
+                message: msg,
+                title: title,
+                hasIcon: hasIcon,
+                type: 'is-' + type,
+                onConfirm: () => yesfn(),
+                onCancel: () => nofn && nofn()
+            })
+        },
+        msgDialog(msg, titleText = '', dlgType = 'info', icon = '') {
+            this.$buefy.dialog.alert({
+                title: titleText,
+                message: msg,
+                type: 'is-' + dlgType,
+                hasIcon: icon !== '',
+                icon: icon,
                 iconPack: 'fa',
                 ariaRole: 'alertdialog',
                 ariaModal: true

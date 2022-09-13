@@ -104,6 +104,11 @@
                                 <div class="item-value">{{ isEmpty(import.oldHouseholds) ? 0 : import.oldHouseholds | numberformat("#,###") }}</div>
                             </div>
 
+                            <div class="info-row">
+                                <div class="item-label">Merged On</div>
+                                <div class="item-value">{{ (import.mergeDate == null) ? '-' : printDate(import.mergeDate) }}</div>
+                            </div>
+
                             {#
                             <div class="info-row">
                                 <div class="item-label">Duplicates Against Population</div>

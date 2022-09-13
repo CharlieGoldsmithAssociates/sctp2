@@ -43,10 +43,10 @@ import org.cga.sctp.targeting.importation.ImportTaskService;
 import org.cga.sctp.targeting.importation.UbrHouseholdImport;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,6 +63,11 @@ import java.util.stream.Collectors;
 @Service
 public class DataImportService extends TransactionalService {
 
+    public enum MergeStatus {
+        Queued,
+        InvalidSessionState
+    }
+
     @Autowired
     private DataImportsViewRepository viewRepository;
 
@@ -70,7 +75,7 @@ public class DataImportService extends TransactionalService {
     private DataImportRepository importRepository;
 
     @Autowired
-    private TaskScheduler taskScheduler;
+    private TaskExecutor taskExecutor;
 
     @Autowired
     private HouseholdImportRepository householdImportRepository;
@@ -80,6 +85,9 @@ public class DataImportService extends TransactionalService {
 
     @Autowired
     private HouseholdImportStatRepository statsRepository;
+
+    @Autowired
+    private ImportMergeService mergeService;
 
     public List<DataImportView> getDataImportsByImporter(Long userId) {
         return viewRepository.findByImporterUserId(userId);
@@ -132,26 +140,50 @@ public class DataImportService extends TransactionalService {
         importRepository.closeDataImportSession(dataImport.getId());
     }
 
-    public void mergeBatchIntoPopulation(DataImportView dataImport) {
+    /*@Transactional
+    @Async
+    public MergeStatus queueDataImportMerge(DataImportView dataImport) {
+        MergeStatus mergeStatus = MergeStatus.InvalidSessionState;
         if (dataImport.getStatus() == DataImportObject.ImportStatus.Review) {
-            taskScheduler.scheduleWithFixedDelay(() -> {
-                DataImport di = importRepository.getById(dataImport.id);
-
-                di.setStatus(DataImportObject.ImportStatus.Merging);
-                di.setStatusText(di.getStatus().description);
-                saveDataImport(di);
-                if (importRepository.checkIfReadyForMerge(dataImport.getId())) {
+            final HouseholdImportStat stat = getHouseholdImportStat(dataImport.getId());
+            if (stat.getNoHead() == 0) {
+                final DataImport di = importRepository.getById(dataImport.id);
+                taskExecutor.execute(() -> {
+                    di.setStatus(DataImportObject.ImportStatus.Merging);
+                    di.setStatusText(di.getStatus().description);
+                    saveDataImport(di);
                     importRepository.mergeBatchIntoPopulation(dataImport.getId(), DataImportObject.ImportStatus.Merged.name());
                     di.setStatusText("Households successfully imported");
                     di.setMergeDate(ZonedDateTime.now());
-                } else {
-                    di.setStatus(DataImportObject.ImportStatus.Review);
-                    di.setStatusText("Some households need to be reviewed before importing.");
-                }
-                saveDataImport(di);
-            }, 0L);
+                    saveDataImport(di);
+                });
+                mergeStatus = MergeStatus.Queued;
+            }
+            return mergeStatus;
         } else {
-            throw new IllegalStateException(format("Can only merge data whe session is in review. Current status is %s", dataImport.getStatus()));
+            return mergeStatus;
+        }
+    }*/
+
+    public MergeStatus queueDataImportMerge(DataImportView dataImport) {
+        DataImportService.MergeStatus mergeStatus = DataImportService.MergeStatus.InvalidSessionState;
+        if (dataImport.getStatus() == DataImportObject.ImportStatus.Review) {
+            final HouseholdImportStat stat = getHouseholdImportStat(dataImport.getId());
+            if (stat == null || dataImport.getHouseholds() == 0) {
+                // quickly close the session here since there is nothing to import
+                DataImport di = importRepository.getById(dataImport.getId());
+                di.setStatus(DataImportObject.ImportStatus.Merged);
+                di.setStatusText(format("No households were imported because there were no matching households from %s", dataImport.getDataSource().provider));
+                di.setMergeDate(ZonedDateTime.now());
+                saveDataImport(di);
+                mergeStatus = MergeStatus.Queued;
+            } else {
+                mergeService.mergeHouseholds(dataImport.getId());
+                mergeStatus = DataImportService.MergeStatus.Queued;
+            }
+            return mergeStatus;
+        } else {
+            return mergeStatus;
         }
     }
 
@@ -250,7 +282,7 @@ public class DataImportService extends TransactionalService {
         memberImportRepository.updateHouseholdHead(householdId, importId, memberId);
     }
 
-    public HouseholdImportStat getHouseholdCountWithoutHead(long dataImportId) {
+    public HouseholdImportStat getHouseholdImportStat(long dataImportId) {
         return statsRepository.findById(dataImportId).orElse(null);
     }
 }

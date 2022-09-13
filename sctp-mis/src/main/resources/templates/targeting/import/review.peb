@@ -12,7 +12,7 @@
         {{ parent() }} | UBR Data Import | {{ importSession.title }} | Review
     {% endblock %}
 
-    {% set canModify = hasRole("ADMINISTRATOR") %}
+    {% set canModify = hasRole("ADMINISTRATOR") and importSession.status == 'Review' %}
 
     {% block contextMenu %}
         {% set useWideContainer = true %}
@@ -26,22 +26,6 @@
                         <span>Back</span>
                     </span>
                 </a>
-                {% if canModify %}
-                <div class="dropdown is-hoverable is-right">
-                    <form id="mergeForm"
-                          action="/data-import/{{ importSession.id }}/{{ importSession.dataSource }}/merge"
-                          method="post">
-                        {{ csrf(_csrf) }}
-                        <input name="id" value="{{ importSession.id }}" type="hidden"/>
-                    </form>
-                    <a href="/data-import/export-errors/{{ importSession.id }}" class="button is-primary">
-                        Export Errors to Excel
-                    </a>
-                    <button onclick="merge(mergeForm)" class="button is-primary">
-                        Finish And Merge
-                    </button>
-                </div>
-                {% endif %}
             </div>
         </div>
     {% endblock %}
@@ -52,7 +36,7 @@
             <p class="card-header-title">{{ importSession.title }} | Data Import Review</p>
         </header>
         <div class="card-content">
-            <Data-Import-Review :import-id="{{ importSession.id }}" />
+            <Data-Import-Review :import-id="{{ importSession.id }}" :can-modify="{{ canModify }}" import-source="{{ importSession.dataSource }}" />
         </div>
     </div>
     {% endblock %}
