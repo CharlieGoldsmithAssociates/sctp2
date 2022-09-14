@@ -1,12 +1,18 @@
     {% extends "targeting/import/base" %}
 
-    {% block head %}<link rel="stylesheet" type="text/css" href="/assets/css/info-list.css"/>{% endblock %}
+    {% block head %}
+    {% set skipVue3 = true %}
+    <link rel="stylesheet" type="text/css" href="/assets/css/info-list.css"/>
+    <link rel="stylesheet" type="text/css" href="/assets/css/buefy.min.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/css/fa-all.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/css/mdi.min.css" />
+    {% endblock %}
 
     {% block title %}
         {{ parent() }} | UBR Data Import | {{ importSession.title }} | Review
     {% endblock %}
 
-    {% set canModify = hasRole("ADMINISTRATOR") %}
+    {% set canModify = hasRole("ADMINISTRATOR") and importSession.status == 'Review' %}
 
     {% block contextMenu %}
         {% set useWideContainer = true %}
@@ -20,110 +26,46 @@
                         <span>Back</span>
                     </span>
                 </a>
-                {% if canModify %}
-                <div class="dropdown is-hoverable is-right">
-                    <form id="mergeForm"
-                          action="/data-import/{{ importSession.id }}/{{ importSession.dataSource }}/merge"
-                          method="post">
-                        {{ csrf(_csrf) }}
-                        <input name="id" value="{{ importSession.id }}" type="hidden"/>
-                    </form>
-                    <a href="/data-import/export-errors/{{ importSession.id }}" class="button is-primary">
-                        Export Errors to Excel
-                    </a>
-                    <button onclick="merge(mergeForm)" class="button is-primary">
-                        Finish And Merge
-                    </button>
-                </div>
-                {% endif %}
             </div>
         </div>
     {% endblock %}
 
     {% block content %}
-    <div>
     <div class="card no-overlap">
         <header class="card-header">
             <p class="card-header-title">{{ importSession.title }} | Data Import Review</p>
         </header>
         <div class="card-content">
-            {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
-            <div class="content">
-                <table class="table dataTable is-narrow is-striped is-hoverable">
-                    <thead>
-                    <tr>
-                        <th>Errors</th>
-                        <th>Form Number</th>
-                        <th>Member Name</th>
-                        <th>Head of Household</th>
-                        <th>TA</th>
-                        <th>GVH Name</th>
-                        <th>Cluster</th>
-                        <th>Zone</th>
-                        <th data-sortable="false">Options</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                        {% for import in imports %}
-                        <tr>
-                            <td>{{ import.errorCount }}</td>
-                            <td>UBR-{{ import.formNumber }}</td>
-                            <td>{{ import.firstName }} {{ import.lastName }}</td>
-                            <td>{{ import.householdHeadName }}</td>
-                            <td>{{ import.traditionalAuthorityName }}</td>
-                            <td>{{ import.groupVillageHeadName }}</td>
-                            <td>{{ import.clusterName }}</td>
-                            <td>{{ import.zoneName }}</td>
-                            <td data-sortable="false">
-                                <div class="dropdown is-hoverable is-right">
-                                    <div class="dropdown-trigger">
-                                        <button class="button button is-info is-inverted is-options"
-                                                aria-haspopup="true" aria-controls="ddm{{ import.id }}">
-                                            <span>Options</span>
-                                            <span class="icon is-small">
-                                                 <i class="fas fa-angle-down" aria-hidden="true"></i>
-                                            </span>
-                                        </button>
-                                    </div>
-                                    <div class="dropdown-menu" id="ddm{{ import.id }}" role="menu">
-                                        <div class="dropdown-content">
-                                            <form id="frm{{ import.id }}"
-                                                  method="post"
-                                                  enctype="application/x-www-form-urlencoded"
-                                                  action="/data-import/from-ubr-csv/{{ importSession.id }}/review/delete">
-                                                {{ csrf(_csrf) }}
-                                                <input name="id" value="{{ import.id }}" type="hidden"/>
-                                            </form>
-                                            <a class="dropdown-item has-text-danger"
-                                               onclick="deleteRecord(frm{{ import.id }})">Archive Record</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            <hr />
-            {{ paginate(imports, request) | raw }}
+            <Data-Import-Review :import-id="{{ importSession.id }}" :can-modify="{{ canModify }}" import-source="{{ importSession.dataSource }}" />
         </div>
-    </div>
     </div>
     {% endblock %}
     {% block footerScripts %}
-    <script>
-        (function(){
-            window.deleteRecord = function(targetForm){
-                if(confirm('Are you sure you want to archive this record?')){
-                    targetForm.submit();
-                }
-            };
-            window.merge = function(targetForm){
-                if(confirm('Import data into population set?')){
-                    targetForm.submit();
-                }
-            };
-        })();
+    <script src="/assets/js/vue.js"></script>
+    <script src="/assets/js/vue-router.js"></script>
+    <script src="/assets/js/httpVueLoader.js"></script>
+    <script src="/assets/js/buefy.min.js"></script>
+
+            <!-- Individual components -->
+    <script type="module">
+        const App = {
+            el: '#vapp',
+
+            mounted() {
+                console.log('application mounted. ')
+            },
+
+            created() {
+                console.log('application created')
+            },
+
+            components: {
+                'DataImportReview': httpVueLoader('/components/DataImportReview.vue')
+            }
+        };
+
+        window.addEventListener('load', () => {
+            var app = new Vue(App);
+        });
     </script>
     {% endblock %}

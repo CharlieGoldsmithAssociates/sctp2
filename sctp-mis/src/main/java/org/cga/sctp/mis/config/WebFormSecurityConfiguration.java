@@ -43,10 +43,12 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
 @EnableWebSecurity
@@ -56,6 +58,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
         jsr250Enabled = true
 )
 public class WebFormSecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+    private static final String[] CORS_HEADERS = {"X-Is-Slice",
+            "X-Data-Total",
+            "X-Data-Pages",
+            "X-Data-Size",
+            "X-Data-Page"};
 
     @Value("${server.servlet.session.cookie.name}")
     private String cookieName;
@@ -97,11 +105,26 @@ public class WebFormSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .headers().frameOptions().sameOrigin()
                 .and()
+                .cors(this::configureCors)
                 .formLogin(this::configureLoginForm)
                 .logout(this::configureLogout)
                 .addFilterBefore(customLoginForwardFilter(), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling()
                 .accessDeniedHandler(accessDeniedHandler());
+    }
+
+    private void configureCors(CorsConfigurer<HttpSecurity> cors) {
+        CorsConfiguration config = cors(new CorsConfiguration()
+                .applyPermitDefaultValues());
+        cors.configurationSource(request -> config);
+    }
+
+    private CorsConfiguration cors(CorsConfiguration cc) {
+        for (String header : CORS_HEADERS) {
+            cc.addAllowedHeader(header);
+            cc.addExposedHeader(header);
+        }
+        return cc;
     }
 
     private void configureLoginForm(FormLoginConfigurer<HttpSecurity> config) {

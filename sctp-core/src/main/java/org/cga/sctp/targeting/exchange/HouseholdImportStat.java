@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,38 +30,41 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.mis.targeting.import_tasks;
+package org.cga.sctp.targeting.exchange;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
-import org.springframework.scheduling.annotation.EnableScheduling;
+import org.hibernate.annotations.Immutable;
 
-import java.io.File;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
-@Configuration
-@EnableScheduling
-public class FileImportConfig {
+/**
+ * Mapping for DB view
+ */
+@Entity
+@Immutable
+@Table(name = "household_import_stats")
+public class HouseholdImportStat {
+    @Id
+    @Column(name = "data_import_id", nullable = false)
+    private Long dataImportId;
 
-    @Value("${imports.staging}")
-    private File stagingDirectory;
+    @Column(name = "no_head")
+    private Long noHead;
 
-    @Value("classpath:import-templates/ubr_household_import_template.csv")
-    private Resource ubrHouseholdTemplate;
+    @Column(name = "archived")
+    private Long archived;
 
-    @Bean
-    ExecutorService importTaskExecutor() {
-        return Executors.newCachedThreadPool();
+    public Long getDataImportId() {
+        return dataImportId;
     }
 
-    public File getStagingDirectory() {
-        return stagingDirectory;
+    public Long getNoHead() {
+        return noHead;
     }
 
-    public Resource getUbrHouseholdTemplate() {
-        return ubrHouseholdTemplate;
+    public Long getArchived() {
+        return archived;
     }
 }

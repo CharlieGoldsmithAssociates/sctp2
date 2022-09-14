@@ -33,10 +33,12 @@
 package org.cga.sctp.mis.config;
 
 import org.cga.sctp.mis.utils.SpringUtils;
+import org.cga.sctp.utils.LocaleUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -81,6 +83,14 @@ public class SmartErrorHandler implements ErrorController {
         }
         model.put("status", httpStatus.value());
         model.put("error", httpStatus.getReasonPhrase());
+
+        final String accept = request.getHeader("Accept");
+        if (!LocaleUtils.isStringNullOrEmpty(accept)) {
+            if (accept.startsWith(MediaType.APPLICATION_JSON_VALUE)) {
+                return new ModelAndView(null, model, httpStatus);
+            }
+        }
+
         return switch (httpStatus) {
             case NOT_FOUND -> view("404").addAllObjects(model);
             case INTERNAL_SERVER_ERROR -> view("500").addAllObjects(model);

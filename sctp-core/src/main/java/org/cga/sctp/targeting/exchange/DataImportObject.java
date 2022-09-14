@@ -34,18 +34,21 @@ package org.cga.sctp.targeting.exchange;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @MappedSuperclass
 public class DataImportObject {
 
     public enum ImportSource {
-        UBR_CSV("UBR (CSV)"),
-        UBR_API("UBR (API)");
+        UBR_CSV("UBR (CSV)", "UBR"),
+        UBR_API("UBR (API)", "UBR");
 
         public final String title;
+        public final String provider;
 
-        ImportSource(String title) {
+        ImportSource(String title, String provider) {
             this.title = title;
+            this.provider = provider;
         }
     }
 
@@ -54,7 +57,8 @@ public class DataImportObject {
         Processing("Processing", "Waiting for data analysis process to finish"),
         Review("In Review", "Import data is under review."),
         Error("Error", "Import process encountered an error. Refer to import process log."),
-        Merged("Merged", "Data was successfully imported from source into population");
+        Merged("Merged", "Data was successfully imported from source into population"),
+        Merging("Merging", "Data is currently being imported from temporary table into population set");
 
         public final String title;
         public final String description;
@@ -84,6 +88,10 @@ public class DataImportObject {
     private Long populationDuplicates;
     private LocalDateTime importDate;
     private LocalDateTime completionDate;
+    private ZonedDateTime mergeDate;
+
+    @Column(updatable = false, insertable = false, columnDefinition = "boolean default false")
+    private Boolean readyToMerge;
     private Long newHouseholds;
     private Long oldHouseholds;
 
@@ -205,6 +213,18 @@ public class DataImportObject {
 
     public void setOldHouseholds(Long oldHouseholds) {
         this.oldHouseholds = oldHouseholds;
+    }
+
+    public ZonedDateTime getMergeDate() {
+        return mergeDate;
+    }
+
+    public Boolean getReadyToMerge() {
+        return readyToMerge;
+    }
+
+    public void setMergeDate(ZonedDateTime mergeDate) {
+        this.mergeDate = mergeDate;
     }
 
     @Override

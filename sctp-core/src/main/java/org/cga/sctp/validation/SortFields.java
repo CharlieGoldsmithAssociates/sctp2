@@ -30,38 +30,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.mis.targeting.import_tasks;
+package org.cga.sctp.validation;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
-import org.springframework.scheduling.annotation.EnableScheduling;
+import javax.validation.Constraint;
+import javax.validation.Payload;
+import java.lang.annotation.*;
 
-import java.io.File;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+@Documented
+@Constraint(validatedBy = {SortFieldsValidator.class})
+@Target({ElementType.PARAMETER, ElementType.FIELD})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface SortFields {
+    String[] value();
 
-@Configuration
-@EnableScheduling
-public class FileImportConfig {
+    String message() default "Invalid sort field value";
 
-    @Value("${imports.staging}")
-    private File stagingDirectory;
+    Class<?>[] groups() default {};
 
-    @Value("classpath:import-templates/ubr_household_import_template.csv")
-    private Resource ubrHouseholdTemplate;
-
-    @Bean
-    ExecutorService importTaskExecutor() {
-        return Executors.newCachedThreadPool();
-    }
-
-    public File getStagingDirectory() {
-        return stagingDirectory;
-    }
-
-    public Resource getUbrHouseholdTemplate() {
-        return ubrHouseholdTemplate;
-    }
+    Class<? extends Payload>[] payload() default {};
 }

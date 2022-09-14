@@ -188,6 +188,7 @@ public class UbrHouseholdImportStreamer {
         }
         dirty.set(true);
         Objects.requireNonNull(fn, "Callback function cannot be null");
+        boolean emptyRecords = false;
         try (JsonParser parser = objectMapper.getFactory().createParser(path)) {
             expectToken(parser, JsonToken.START_OBJECT);
             for (int i = 0; i < 3; i++) {
@@ -199,9 +200,18 @@ public class UbrHouseholdImportStreamer {
                             return;
                         }
                     }
-                    case "total_records" ->
-                            applyFunction(this.records, expectToken(parser, JsonToken.VALUE_NUMBER_INT).getLongValue());
+                    case "total_records" -> {
+                        long totalRecords = expectToken(parser, JsonToken.VALUE_NUMBER_INT).getLongValue();
+                        applyFunction(this.records, totalRecords);
+                        if (totalRecords == 0) {
+                            emptyRecords = true;
+                        }
+                    }
                     case "targeting_data" -> {
+                        if (emptyRecords) {
+                            logger.warn("found no households");
+                            break;
+                        }
                         expectToken(parser, JsonToken.START_ARRAY);
                         expectToken(parser, JsonToken.START_OBJECT);
                         while ((this.total <= 0 || this.offset < this.total)) {

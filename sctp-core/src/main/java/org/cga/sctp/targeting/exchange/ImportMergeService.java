@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,38 +30,45 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.mis.targeting.import_tasks;
+package org.cga.sctp.targeting.exchange;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
-import org.springframework.scheduling.annotation.EnableScheduling;
+import org.cga.sctp.core.TransactionalService;
+import org.hibernate.validator.internal.util.logging.formatter.DurationFormatter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.time.Duration;
+import java.time.ZonedDateTime;
+import java.util.concurrent.CompletableFuture;
 
-@Configuration
-@EnableScheduling
-public class FileImportConfig {
+@Component
+class ImportMergeService extends TransactionalService {
 
-    @Value("${imports.staging}")
-    private File stagingDirectory;
+    @Autowired
+    private DataImportRepository importRepository;
 
-    @Value("classpath:import-templates/ubr_household_import_template.csv")
-    private Resource ubrHouseholdTemplate;
+    @Async
+    @Transactional
+    public void mergeHouseholds(Long id) {
+        ZonedDateTime start = ZonedDateTime.now();
+        LOG.info("starting merge...");
+        final DataImport di = importRepository.getById(id);
 
-    @Bean
-    ExecutorService importTaskExecutor() {
-        return Executors.newCachedThreadPool();
-    }
+        di.setStatus(DataImportObject.ImportStatus.Merging);
+        di.setStatusText(di.getStatus().description);
+        importRepository.save(di);
 
-    public File getStagingDirectory() {
-        return stagingDirectory;
-    }
+        importRepository.mergeBatchIntoPopulation(id, DataImportObject.ImportStatus.Merged.name());
 
-    public Resource getUbrHouseholdTemplate() {
-        return ubrHouseholdTemplate;
+        di.setStatusText("Merging completed successfully!");
+        di.setStatus(DataImportObject.ImportStatus.Merged);
+        di.setMergeDate(ZonedDateTime.now());
+        importRepository.save(di);
+
+        ZonedDateTime end = ZonedDateTime.now();
+        LOG.info("merging done. duration: {}", new DurationFormatter(Duration.between(start, end)));
+        CompletableFuture.completedFuture(null);
     }
 }

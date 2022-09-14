@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,38 +30,27 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.mis.targeting.import_tasks;
+package org.cga.sctp.targeting.exchange;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
-import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
-import java.io.File;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.List;
 
-@Configuration
-@EnableScheduling
-public class FileImportConfig {
+@Repository
+interface HouseholdMemberImportRepository extends JpaRepository<HouseholdMemberImport, Long> {
+    List<HouseholdMemberImport> getByHouseholdIdAndDataImportId(Long householdId, Long dataImportId);
 
-    @Value("${imports.staging}")
-    private File stagingDirectory;
-
-    @Value("classpath:import-templates/ubr_household_import_template.csv")
-    private Resource ubrHouseholdTemplate;
-
-    @Bean
-    ExecutorService importTaskExecutor() {
-        return Executors.newCachedThreadPool();
-    }
-
-    public File getStagingDirectory() {
-        return stagingDirectory;
-    }
-
-    public Resource getUbrHouseholdTemplate() {
-        return ubrHouseholdTemplate;
-    }
+    @Modifying
+    @Query(
+            nativeQuery = true,
+            value = """
+                    update ubr_csv_imports set relationship_to_head = 1
+                     where household_id = :hhid AND data_import_id = :did AND household_member_id = :mid
+                    """
+    )
+    void updateHouseholdHead(@Param("hhid") Long householdId, @Param("did") Long importId, @Param("mid") Long memberId);
 }

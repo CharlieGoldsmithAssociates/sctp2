@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,38 +30,42 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.mis.targeting.import_tasks;
+package org.cga.sctp.validation;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
-import org.springframework.scheduling.annotation.EnableScheduling;
+import org.cga.sctp.utils.LocaleUtils;
 
-import java.io.File;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
 
-@Configuration
-@EnableScheduling
-public class FileImportConfig {
+public class SortFieldsValidator implements ConstraintValidator<SortFields, String> {
+    private SortFields sortFields;
 
-    @Value("${imports.staging}")
-    private File stagingDirectory;
-
-    @Value("classpath:import-templates/ubr_household_import_template.csv")
-    private Resource ubrHouseholdTemplate;
-
-    @Bean
-    ExecutorService importTaskExecutor() {
-        return Executors.newCachedThreadPool();
+    @Override
+    public void initialize(SortFields sortFields) {
+        this.sortFields = sortFields;
+        for (String v : sortFields.value()) {
+            if (LocaleUtils.isStringNullOrEmpty(v)) {
+                throw new IllegalArgumentException("Sort values cannot be empty or null");
+            }
+        }
     }
 
-    public File getStagingDirectory() {
-        return stagingDirectory;
-    }
-
-    public Resource getUbrHouseholdTemplate() {
-        return ubrHouseholdTemplate;
+    @Override
+    public boolean isValid(String value, ConstraintValidatorContext context) {
+        context.disableDefaultConstraintViolation();
+        if (LocaleUtils.isStringNullOrEmpty(value)) {
+            context.buildConstraintViolationWithTemplate("Required value missing")
+                    .addConstraintViolation()
+            ;
+            return false;
+        }
+        for (String field : sortFields.value()) {
+            if (field.equalsIgnoreCase(value)) {
+                return true;
+            }
+        }
+        context.buildConstraintViolationWithTemplate("Sort field must one of {value}.")
+                .addConstraintViolation();
+        return false;
     }
 }
