@@ -33,6 +33,7 @@
 package org.cga.sctp.mis.system;
 
 import org.cga.sctp.core.BaseService;
+import org.cga.sctp.mis.config.HostConfigOverride;
 import org.cga.sctp.mis.config.ServerConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -65,15 +66,41 @@ public class SystemService extends BaseService {
     }
 
     public String makeUrl(Object... paths) {
+        if (getServerConfig().getHostInfo() == null) {
+            StringBuilder builder = new StringBuilder();
+            if (getServerConfig().isSslEnabled()) {
+                builder.append("https://");
+            } else {
+                builder.append("http://");
+            }
+            builder.append(serverConfig.getHost());
+            if (!serverConfig.isStandardPort()) {
+                builder.append(":").append(serverConfig.getPort());
+            }
+            for (Object pathObject : paths) {
+                String path = Objects.toString(pathObject);
+                if (!path.startsWith("/")) {
+                    builder.append('/');
+                }
+                builder.append(path);
+            }
+            return builder.toString();
+        } else {
+            return makeUrlWithDownstreamProxyConfig(paths);
+        }
+    }
+
+    private String makeUrlWithDownstreamProxyConfig(Object... paths) {
         StringBuilder builder = new StringBuilder();
-        if (getServerConfig().isSslEnabled()) {
+        HostConfigOverride config = getServerConfig().getHostInfo();
+        if (config.isSslOn()) {
             builder.append("https://");
         } else {
             builder.append("http://");
         }
-        builder.append(serverConfig.getHost());
-        if (!serverConfig.isStandardPort()) {
-            builder.append(":").append(serverConfig.getPort());
+        builder.append(config.getHost());
+        if (!config.isStandardPort()) {
+            builder.append(":").append(config.getPort());
         }
         for (Object pathObject : paths) {
             String path = Objects.toString(pathObject);

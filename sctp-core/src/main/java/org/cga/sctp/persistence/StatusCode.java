@@ -54,4 +54,15 @@ public enum StatusCode {
      * The actual status code. This is for tracking the code in case the ordering of the enum values changes.
      */
     public final int code;
+
+    public static final StatusCode[] CODES = values();
+
+    public static StatusCode valueOf(int code) {
+        for (StatusCode statusCode : CODES) {
+            if (statusCode.code == code) {
+                return statusCode;
+            }
+        }
+        throw new IllegalArgumentException("Invalid code " + code);
+    }
 }

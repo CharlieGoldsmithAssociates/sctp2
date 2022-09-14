@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,32 +32,13 @@
 
 package org.cga.sctp.mis.config;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
-
-@Configuration
-@ConfigurationProperties(prefix = "server")
-public class ServerConfiguration {
-
-    @Value("${security.require-ssl:false}")
-    private boolean sslEnabled;
-
-    @Value("${server.host}")
-    private String host;
-
-    @Value("${server.port}")
-    private int port;
-
-    private HostConfigOverride hostInfo;
-
-    public boolean isSslEnabled() {
-        return sslEnabled;
-    }
-
-    public void setSslEnabled(boolean sslEnabled) {
-        this.sslEnabled = sslEnabled;
-    }
+/**
+ * settings to be configured if the application is running behind a proxy
+ */
+public class HostConfigOverride {
+    private String host = "";
+    private int port = 0;
+    private boolean sslOn = false;
 
     public String getHost() {
         return host;
@@ -75,15 +56,15 @@ public class ServerConfiguration {
         this.port = port;
     }
 
+    public boolean isSslOn() {
+        return sslOn;
+    }
+
+    public void setSslOn(boolean sslOn) {
+        this.sslOn = sslOn;
+    }
+
     public boolean isStandardPort() {
-        return port == 80 || port == 443;
-    }
-
-    public HostConfigOverride getHostInfo() {
-        return hostInfo;
-    }
-
-    public void setHostInfo(HostConfigOverride hostInfo) {
-        this.hostInfo = hostInfo;
+        return port == 80 || port == 43;
     }
 }

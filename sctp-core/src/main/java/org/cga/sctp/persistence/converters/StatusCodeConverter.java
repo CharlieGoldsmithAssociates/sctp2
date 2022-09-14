@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,60 +30,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.mis.config;
+package org.cga.sctp.persistence.converters;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
+import org.cga.sctp.persistence.StatusCode;
 
-@Configuration
-@ConfigurationProperties(prefix = "server")
-public class ServerConfiguration {
+import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
 
-    @Value("${security.require-ssl:false}")
-    private boolean sslEnabled;
-
-    @Value("${server.host}")
-    private String host;
-
-    @Value("${server.port}")
-    private int port;
-
-    private HostConfigOverride hostInfo;
-
-    public boolean isSslEnabled() {
-        return sslEnabled;
+@Converter(autoApply = true)
+public class StatusCodeConverter implements AttributeConverter<StatusCode, Integer> {
+    @Override
+    public Integer convertToDatabaseColumn(StatusCode attribute) {
+        return attribute.code;
     }
 
-    public void setSslEnabled(boolean sslEnabled) {
-        this.sslEnabled = sslEnabled;
-    }
-
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public boolean isStandardPort() {
-        return port == 80 || port == 443;
-    }
-
-    public HostConfigOverride getHostInfo() {
-        return hostInfo;
-    }
-
-    public void setHostInfo(HostConfigOverride hostInfo) {
-        this.hostInfo = hostInfo;
+    @Override
+    public StatusCode convertToEntityAttribute(Integer dbData) {
+        return StatusCode.valueOf(dbData);
     }
 }

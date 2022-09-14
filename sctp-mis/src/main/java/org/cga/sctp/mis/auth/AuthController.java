@@ -165,6 +165,7 @@ public class AuthController extends BaseController {
 
         user = new User();
         user.setActive(true);
+        user.setBlocked(true);
         user.setSystemUser(false);
         user.setRole(SystemRole.ROLE_GUEST);
         user.setLastName(form.getLastName());
@@ -248,6 +249,9 @@ public class AuthController extends BaseController {
         if (authService.isValidToken(form.getToken(), user.getPassword())) {
             user.setPassword(authService.hashPassword(form.getPassword()));
             user.setModifiedAt(LocalDateTime.now());
+            user.setBlocked(false);
+            user.setAuthAttempts(0);
+            user.setStatusText(format("Account password reset from %s", request.getRemoteAddr()));
             userService.saveUser(user);
 
             Map<String, Object> context = Map.of(
@@ -258,7 +262,7 @@ public class AuthController extends BaseController {
 
             messagingService.sendEmail(new EmailMessage(
                     new EmailRecipient(user.makeFullName(), user.getEmail()),
-                    new EmailBody(templateService.renderView("messaging/email/password-updated",context), true),
+                    new EmailBody(templateService.renderView("messaging/email/password-updated", context), true),
                     "SCTP MIS: Password Updated"
             ));
             return setSuccessMessage(view("auth/action-done"), "Password changed successfully");
