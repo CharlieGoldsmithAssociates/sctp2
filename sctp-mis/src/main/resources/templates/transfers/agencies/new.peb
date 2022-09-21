@@ -57,7 +57,7 @@
                     </div>
                     <div class="field">
                         <div class="field"><label class="label">Website</label>
-                            <div class="control">{{ textField('website', form.website, 1, 100, true, nil) }}</div>
+                            <div class="control">{{ textField('website', form.website, 1, 100, false, nil) }}</div>
                             {{ printFieldErrors(getFieldErrors('form', 'website')) }}
                         </div>
                     </div>
@@ -67,16 +67,7 @@
                             {{ printFieldErrors(getFieldErrors('form', 'address')) }}
                         </div>
                     </div>
-                    <div class="field">
-                        <div class="field"><label class="label is-required">Location</label>
-                            <div class="control">
-                                <div class="select is-fullwidth">
-                                        {{ selectField('locationId', locations, form.locationId, true) }}
-                                </div>
-                            </div>
-                            {{ printFieldErrors(getFieldErrors('form', 'locationId')) }}
-                        </div>
-                    </div>
+
                     <div class="field">
                         <div class="field"><label class="label is-required">Representative Name</label>
                             <div class="control">{{ textField('representativeName', form.representativeName, 1, 100, true, nil)
@@ -86,7 +77,7 @@
                     </div>
                     <div class="field">
                         <div class="field"><label class="label is-required">Representative Email</label>
-                            <div class="control">{{ textField('representativeEmail', form.representativeEmail, 1, 100, true,
+                            <div class="control">{{ textField('representativeEmail', form.representativeEmail, 1, 255, false,
                             nil) }}</div>
                             {{ printFieldErrors(getFieldErrors('form', 'representativeEmail')) }}
                         </div>
@@ -100,7 +91,7 @@
                     </div>
                     <div class="is-full">
                         <div class="field"><label class="label">Branch Name</label>
-                            <div class="control">{{ textField('branch', form.branch, 1, 100, true, nil) }}</div>
+                            <div class="control">{{ textField('branch', form.branch, 1, 100, false, nil) }}</div>
                             {{ printFieldErrors(getFieldErrors('form', 'branch')) }}
                         </div>
                     </div>

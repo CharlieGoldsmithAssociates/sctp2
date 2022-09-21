@@ -36,6 +36,7 @@ import org.cga.sctp.transfers.TransferService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -60,6 +61,7 @@ public class TransferPeriodService {
      * @param newPeriod
      * @return
      */
+    @Transactional
     public TransferPeriod openNewPeriod(TransferPeriod newPeriod) throws TransferPeriodException {
         if (newPeriod.getStartDate().isAfter(newPeriod.getEndDate())) {
             throw new TransferPeriodException("Transfer Period duration is invalid");

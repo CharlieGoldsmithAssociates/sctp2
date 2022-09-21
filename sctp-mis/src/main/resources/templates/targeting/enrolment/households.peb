@@ -3,6 +3,7 @@
     {% block contextMenu %}
         {% set isSessionOpen = sessionInfo.status == 'review' %}
         {% set canModify = hasRole("ADMINISTRATOR") and isSessionOpen %}
+        {% set canSendToTransfers = hasRole("ADMINISTRATOR") and sessionInfo.status == 'closed' %}
         {% set useWideContainer = true %}
         <div class="context-nav-container">
             <div class="level">
@@ -39,12 +40,12 @@
                             </div>
                         </div>
                     </div>
-                    {% if canModify %}
+                    {% if canSendToTransfers %}
                         {% import "../../utils/form" %}
                         {#{% if sessionInfo.canSendToTransfers %}#}
                         <div class="level-item">
-                            <form method="post"
-                                  action="/transfers/sessions/initiate/step2?enrollment={{ sessionInfo.id }}&programId={{ sessionInfo.id }}&district={{ sessionInfo.districtId }}"
+                            <form method="get"
+                                  action="/transfers/periods/open-new?enrollment={{ sessionInfo.id }}&programId={{ sessionInfo.id }}&district={{ sessionInfo.districtId }}"
                                   enctype="application/x-www-form-urlencoded">
                                 {{ csrf(_csrf) }}
                                 <input type="hidden" value="{{ sessionInfo.id }}" name="enrollment"/>

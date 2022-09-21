@@ -34,6 +34,8 @@ package org.cga.sctp.mis.transfers.parameters;
 
 import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.mis.core.templating.Booleans;
+import org.cga.sctp.program.Program;
+import org.cga.sctp.program.ProgramService;
 import org.cga.sctp.transfers.parameters.EducationTransferParameterRepository;
 import org.cga.sctp.transfers.parameters.HouseholdTransferParametersRepository;
 import org.cga.sctp.transfers.parameters.TransferParameter;
@@ -56,6 +58,9 @@ import java.util.Optional;
 @Controller
 @RequestMapping("/transfers/parameters")
 public class TransferParametersController extends BaseController {
+
+    @Autowired
+    private ProgramService programService;
 
     @Autowired
     private TransferParametersRepository transferParameterRepository;
@@ -91,7 +96,9 @@ public class TransferParametersController extends BaseController {
     @GetMapping("/new")
     @AdminAndStandardAccessOnly
     public ModelAndView viewNew() {
+        List<Program> programs = programService.getActivePrograms();
         return view("transfers/parameters/new")
+                .addObject("programs", programs)
                 .addObject("booleans", Booleans.VALUES);
     }
 
@@ -108,6 +115,7 @@ public class TransferParametersController extends BaseController {
         }
 
         TransferParameter transferParameter = new TransferParameter();
+        transferParameter.setProgramId(form.getProgramId());
         transferParameter.setTitle(form.getTitle());
         transferParameter.setActive(form.getActive().value);
         transferParameter.setCreatedBy(user.id());
@@ -118,7 +126,52 @@ public class TransferParametersController extends BaseController {
             return redirect(format("/transfers/parameters/view/%s", transferParameter.getId()));
         }
 
+        List<Program> programs = programService.getActivePrograms();
         return view("transfers/parameters/new")
+                .addObject("programs", programs)
+                .addObject("booleans", Booleans.VALUES);
+    }
+
+    @GetMapping("/edit/{parameter-id}")
+    @AdminAndStandardAccessOnly
+    public ModelAndView getEditPage(@PathVariable("parameter-id") Long parameterId) {
+        Optional<TransferParameter> transferParameterOptional = transferParameterRepository.findById(parameterId);
+        if (transferParameterOptional.isEmpty()) {
+            return redirect("/transfers/parameters");
+        }
+
+        return view("transfers/parameters/edit")
+                .addObject("transferParameter", transferParameterOptional.get())
+                .addObject("householdParameters", householdTransferParametersRepository.findByTransferParameterId(parameterId))
+                .addObject("educationBonuses", educationTransferParameterRepository.findByTransferParameterId(parameterId));
+    }
+
+    @PostMapping("/edit/{parameter-id}")
+    @AdminAndStandardAccessOnly
+    public ModelAndView processEdit(@AuthenticatedUserDetails AuthenticatedUser user,
+                                   @PathVariable("parameter-id") Long parameterId,
+                                   @Validated @ModelAttribute TransferParameterForm form,
+                                   BindingResult result,
+                                   RedirectAttributes attributes) {
+        if (result.hasErrors()) {
+            setWarningFlashMessage("Failed to Save Parameter. Please fix the errors on the form", attributes);
+            return view("/transfers/parameters/edit")
+                    .addObject("booleans", Booleans.VALUES);
+        }
+
+        TransferParameter transferParameter = transferParameterRepository.getById(parameterId);
+        transferParameter.setProgramId(form.getProgramId());
+        transferParameter.setTitle(form.getTitle());
+        transferParameter.setActive(form.getActive().value);
+        transferParameter.setUpdatedAt(LocalDateTime.now());
+
+        if (transferParameterRepository.save(transferParameter) != null) {
+            return redirect(format("/transfers/parameters/view/%s", transferParameter.getId()));
+        }
+
+        List<Program> programs = programService.getActivePrograms();
+        return view("transfers/parameters/edit")
+                .addObject("programs", programs)
                 .addObject("booleans", Booleans.VALUES);
     }
 }

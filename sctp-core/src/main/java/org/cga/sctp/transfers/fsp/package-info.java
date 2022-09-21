@@ -30,26 +30,4 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.transfers.topups;
-
-import org.cga.sctp.location.Location;
-
-import java.util.List;
-import java.util.Optional;
-
-public interface TopUpService {
-
-    Optional<TopUp> newTopup(NewTopUpForm params);
-
-    List<TopUp> fetchAllActive();
-
-    List<TopUp> fetchAllActive(Location location);
-
-    List<TopUp> fetchAllExecuted();
-
-    List<TopUp> fetchAllExecuted(Location location);
-
-    void markAsExecuted(TopUp topUp, Long amount);
-
-    List<TopUp> findAllActive();
-}
+package org.cga.sctp.transfers.fsp;

@@ -10,7 +10,6 @@
             <div class="container context-nav-container">
                 <div class="buttons is-right">
                     <a href="{{ href('/transfers/periods/open-new') }}" class="button is-primary">Open New Transfer Period</a>
-                    <a href="{{ href('/transfers/agencies/assign') }}" class="button is-primary">Assign Transfer Agency</a>
                 </div>
             </div>
             {% endif %}
@@ -43,16 +42,19 @@
                         <tbody>
                             {% for p in transferPeriods %}
                             <tr>
-                                <th>{{ p.name }}</th>
-                                <th>{{ p.districtName }}</th>
-                                <th>{{ p.startDate }}</th>
-                                <th>{{ p.endDate }}</th>
-                                <th>{{ p.transferAgencyName }}</th>
-                                <th>{{ p.transferMethod }}</th>
-                                <th>{{ p.numHouseholds }}</th>
-                                <th>{{ p.totalDisbursed }}</th>
-                                <th>{{ p.totalArrears }}</th>
-                                <th>{{ p.active }}</th>
+                                <td>{{ p.name }}</td>
+                                <td>{{ p.districtName }}</td>
+                                <td>{{ p.startDate }}</td>
+                                <td>{{ p.endDate }}</td>
+                                <td>{{ p.transferAgencyName }}</td>
+                                <td>{{ p.transferMethod }}</td>
+                                <td>{{ p.numHouseholds }}</td>
+                                <td>{{ p.totalDisbursed }}</td>
+                                <td>{{ p.totalArrears }}</td>
+                                <td>{{ p.active }}</td>
+                                <td>
+                                    <a href="/transfers/periods/{{ p.id }}/calculate-transfers">View / Perform Calculations</a>
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>

@@ -42,7 +42,8 @@ import javax.validation.constraints.NotNull;
 @Validated
 public class TransferParameterForm {
     private Long id;
-
+    @NotNull
+    private Long programId;
     @AlphaNumeric
     @NotEmpty(message = "Parameter cannot have an empty title")
     private String title;
@@ -56,6 +57,14 @@ public class TransferParameterForm {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getProgramId() {
+        return programId;
+    }
+
+    public void setProgramId(Long programId) {
+        this.programId = programId;
     }
 
     public String getTitle() {

@@ -3,7 +3,7 @@
     {% block contextMenu %}
     <div class="container context-nav-container">
         <div class="buttons is-right">
-            <a href="{{ href('/transfers/parameters/households/new') }}" class="button is-primary">Add New</a>
+            <a href="{{ href('/transfers/parameters') }}" class="button is-danger">Back to Parameters List</a>
         </div>
     </div>
     {% endblock %}

@@ -32,6 +32,7 @@
 
 package org.cga.sctp.mis.transfers.topups;
 
+import org.apache.commons.collections4.map.HashedMap;
 import org.cga.sctp.funders.Funder;
 import org.cga.sctp.funders.FundersService;
 import org.cga.sctp.location.Location;
@@ -42,24 +43,29 @@ import org.cga.sctp.mis.core.templating.Booleans;
 import org.cga.sctp.program.Program;
 import org.cga.sctp.program.ProgramService;
 import org.cga.sctp.transfers.topups.*;
+import org.cga.sctp.user.AdminAccessOnly;
 import org.cga.sctp.user.AdminAndStandardAccessOnly;
 import org.cga.sctp.user.AuthenticatedUser;
 import org.cga.sctp.user.AuthenticatedUserDetails;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.validation.ConstraintViolationException;
+import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+@RestController
 @Controller
 @RequestMapping("/transfers/topups")
 public class TransferTopUpsController extends SecuredBaseController {
@@ -77,10 +83,10 @@ public class TransferTopUpsController extends SecuredBaseController {
     private TopUpService topUpService;
 
     @GetMapping("/new")
-    @AdminAndStandardAccessOnly
+    @AdminAccessOnly
     public ModelAndView getNewPage(RedirectAttributes attributes) {
         List<Program> programs = programService.getActivePrograms();
-        List<Location> districts =  locationService.getActiveDistricts();
+        List<Location> districts = locationService.getActiveDistricts();
         List<Funder> funders = fundersService.getActiveFunders();
 
         if (programs.isEmpty()) {
@@ -95,63 +101,60 @@ public class TransferTopUpsController extends SecuredBaseController {
             return redirectOnFailedCondition("/transfers/topups", "Cannot create TopUps when there are no Funders registered", attributes);
         }
 
+        // The page is handled by VueJS, we only need to send pageData obj
+        Map<String, Object> pageData = new HashedMap<>();
+        pageData.put("booleans", Booleans.values());
+        pageData.put("topupTypes", TopUpType.values());
+        pageData.put("householdStatuses", TopUpHouseholdStatus.values());
+        pageData.put("locationTypes", LocationType.values());
+        pageData.put("districts", districts);
+        pageData.put("programs", programs);
+        pageData.put("funders", funders);
+
         return view("transfers/topups/new")
-            .addObject("booleans", Booleans.values())
-            .addObject("topupTypes", TopUpType.values())
-            .addObject("householdStatuses", TopUpHouseholdStatus.values())
-            .addObject("locationTypes", LocationType.values())
-            .addObject("districts", districts)
-            .addObject("programs", programs)
-            .addObject("funders", funders);
+                .addObject("booleans", Booleans.values())
+                .addObject("topupTypes", TopUpType.values())
+                .addObject("householdStatuses", TopUpHouseholdStatus.values())
+                .addObject("locationTypes", LocationType.values())
+                .addObject("districts", districts)
+                .addObject("programs", programs)
+                .addObject("funders", funders)
+                .addObject("pageData", pageData);
     }
 
-    @PostMapping("/new")
+    @GetMapping("/new/preview")
+    @AdminAccessOnly
+    public ResponseEntity<Object> getTopupAmountPreview() {
+        // this action returns a preview of the topup applied to the given location and households there-in
+        return null;
+    }
+
+    @PostMapping(value = "/new",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_FORM_URLENCODED_VALUE}
+    )
     @AdminAndStandardAccessOnly
-    public ModelAndView postNewPage(@AuthenticatedUserDetails AuthenticatedUser user,
-                                    @ModelAttribute("form") @Validated NewTopUpForm form,
-                                    BindingResult result,
-                                    RedirectAttributes redirectAttributes) {
-        List<Program> programs = programService.getActivePrograms();
-        List<Location> districts =  locationService.getActiveDistricts();
-        List<Funder> funders = fundersService.getActiveFunders();
-
-        if (result.hasErrors()) {
-            LoggerFactory.getLogger(getClass()).warn("Validation errors on creating topup {}", result.getAllErrors());
-            return withDangerMessage("transfers/topups/new", "Please correct errors on the form")
-                .addObject(form)
-                .addObject("booleans", Booleans.values())
-                .addObject("topupTypes", TopUpType.values())
-                .addObject("householdStatuses", TopUpHouseholdStatus.values())
-                .addObject("locationTypes", LocationType.values())
-                .addObject("districts", districts)
-                .addObject("programs", programs)
-                .addObject("funders", funders);
+    public ResponseEntity<Object> postNewPage(@AuthenticatedUserDetails AuthenticatedUser user,
+                                              @RequestBody NewTopUpForm form) {
+        try {
+            form.setUserId(user.id());
+            Optional<TopUp> topUp = topUpService.newTopup(form);
+            if (topUp.isPresent()) {
+                return ResponseEntity.ok(topUp.get());
+            }
+        } catch (ConstraintViolationException e) {
+            return ResponseEntity.badRequest().build();
         }
 
-        form.setUserId(user.id());
-
-        Optional<TopUp> topUp = topUpService.newTopup(form);
-        if (topUp.isPresent()) {
-            return view(redirectWithSuccessMessage("/transfers/topups", "TopUp created successfully", redirectAttributes));
-        }
-
-        return withDangerMessage( "transfers/topups/new", "Failed to create topups due to unknown error")
-                .addObject(form)
-                .addObject("booleans", Booleans.values())
-                .addObject("topupTypes", TopUpType.values())
-                .addObject("householdStatuses", TopUpHouseholdStatus.values())
-                .addObject("locationTypes", LocationType.values())
-                .addObject("districts", districts)
-                .addObject("programs", programs)
-                .addObject("funders", funders);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping
-    @AdminAndStandardAccessOnly
+    @AdminAccessOnly
     public ModelAndView getIndex() {
         List<TopUp> topups = topUpService.findAllActive();
         return view("transfers/topups/list")
-            .addObject("topups", topups);
+                .addObject("topups", topups);
     }
 
 }

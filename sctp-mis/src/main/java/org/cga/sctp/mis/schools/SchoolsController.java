@@ -38,7 +38,9 @@ import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.mis.core.templating.Booleans;
 import org.cga.sctp.schools.School;
 import org.cga.sctp.schools.SchoolService;
+import org.cga.sctp.schools.educationzone.EducationZone;
 import org.cga.sctp.targeting.importation.parameters.EducationLevel;
+import org.cga.sctp.user.AdminAccessOnly;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -69,17 +71,25 @@ public class SchoolsController extends BaseController {
     }
 
     @GetMapping("/new")
-    ModelAndView newSchoolsForm(@ModelAttribute SchoolForm schoolForm) {
+    @AdminAccessOnly
+    ModelAndView newSchoolsForm(@ModelAttribute SchoolForm schoolForm, RedirectAttributes attributes) {
+
+        List<EducationZone> educationZones = schoolsService.findAllActiveEducationZones();
+        if (educationZones.isEmpty()) {
+            return redirectWithDangerMessageModelAndView("/schools", "Cannot create School when no Education Zones are registered in system", attributes);
+        }
+
         List<Location> districts = locationService.getActiveDistricts();
         return view("schools/new")
-                .addObject("educationZones", schoolsService.findAllActiveEducationZones())
+                .addObject("educationZones", educationZones)
                 .addObject("options", Booleans.VALUES)
                 .addObject("educationLevels", EducationLevel.values())
                 .addObject("districts", districts);
     }
 
     @GetMapping("/{school-id}/edit")
-    ModelAndView editSchool(@PathVariable("school-id") Long schoolId,
+    @AdminAccessOnly
+    public ModelAndView editSchool(@PathVariable("school-id") Long schoolId,
                             @ModelAttribute("schoolForm") SchoolForm schoolForm,
                             RedirectAttributes attributes) {
         Optional<School> schoolOptional = schoolsService.findById(schoolId);
@@ -107,7 +117,8 @@ public class SchoolsController extends BaseController {
     }
 
     @PostMapping("/{school-id}/edit")
-    ModelAndView updateSchool(
+    @AdminAccessOnly
+    public ModelAndView updateSchool(
             @AuthenticationPrincipal String username,
             @PathVariable("school-id") Long schoolId,
             @Validated @ModelAttribute SchoolForm schoolForm,
@@ -121,7 +132,8 @@ public class SchoolsController extends BaseController {
                     .addObject("educationZones", schoolsService.findAllActiveEducationZones())
                     .addObject("options", Booleans.VALUES)
                     .addObject("educationLevels", EducationLevel.values())
-                    .addObject("districts", districts);
+                    .addObject("districts", districts)
+                    .addObject(schoolForm);
         }
         Optional<School> schoolOptional = schoolsService.findById(schoolId);
         if (schoolOptional.isEmpty()) {
@@ -149,20 +161,25 @@ public class SchoolsController extends BaseController {
     }
 
     @PostMapping("/new")
-    ModelAndView addSchool(
+    @AdminAccessOnly
+    public ModelAndView addSchool(
             @AuthenticationPrincipal String username,
             @Validated @ModelAttribute SchoolForm schoolForm,
             BindingResult result,
             RedirectAttributes attributes) {
 
+        List<EducationZone> educationZones = schoolsService.findAllActiveEducationZones();
         List<Location> districts = locationService.getActiveDistricts();
-
+        if (educationZones.isEmpty()) {
+            return redirectWithDangerMessageModelAndView("/schools", "Cannot create School when no Education Zones are registered in system", attributes);
+        }
         if (result.hasErrors()) {
             return withDangerMessage("/schools/new", "Please fix errors on the form")
-                    .addObject("educationZones", schoolsService.findAllActiveEducationZones())
+                    .addObject("educationZones", educationZones)
                     .addObject("options", Booleans.VALUES)
                     .addObject("educationLevels", EducationLevel.values())
-                    .addObject("districts", districts);
+                    .addObject("districts", districts)
+                    .addObject(schoolForm);
         }
 
         School school = new School();

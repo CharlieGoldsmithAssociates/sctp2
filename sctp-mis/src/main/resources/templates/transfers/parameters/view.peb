@@ -18,8 +18,8 @@
     <div class="card-content">
         <div class="display-content">
             <div class="field-display">
-                <label for="">Parameter Title</label>
-                <span>{{ transferParameter.title }}</span>
+                <label class="label">Parameter Title</label>
+                <h3 class="subtitle">{{ transferParameter.title }}</h3>
             </div>
         </div>
 
@@ -27,7 +27,7 @@
             {% if (householdParameters == null or householdParameters.isEmpty()) %}
                 <p class="notification">This Parameter is not Linked to any Subsidy Calculation Options</p>
             {% endif %}
-            <a href="{{ href("/transfers/parameters/households/new") }}" class="button is-primary is-small">Add New Parameter</a>
+            <a href="{{ href("/transfers/parameters/households/new?parameter-id=" + transferParameter.id) }}" class="button is-primary is-small">Add New Parameter</a>
             <table class="table is-fullwidth is-narrow is-striped is-hoverable">
                 <thead>
                 <tr>
@@ -73,7 +73,7 @@
             {% if (educationBonuses == null or educationBonuses.isEmpty()) %}
             <p class="notification">This Parameter is not Linked to any Education Bonus options</p>
             {% endif %}
-            <a href="{{ href("/transfers/parameters/education/new") }}" class="button is-primary is-small">Add New Parameter</a>
+            <a href="{{ href("/transfers/parameters/education/new?parameter-id=" + transferParameter.id) }}" class="button is-primary is-small">Add New Parameter</a>
             <table class="table is-fullwidth is-narrow is-striped is-hoverable">
                 <thead>
                 <tr>

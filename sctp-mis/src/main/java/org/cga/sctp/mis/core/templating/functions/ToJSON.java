@@ -30,26 +30,31 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.transfers.topups;
+package org.cga.sctp.mis.core.templating.functions;
 
-import org.cga.sctp.location.Location;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mitchellbosecke.pebble.template.EvaluationContext;
+import com.mitchellbosecke.pebble.template.PebbleTemplate;
+import org.cga.sctp.mis.core.templating.PebbleFunctionImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
-public interface TopUpService {
+public class ToJSON extends PebbleFunctionImpl {
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    Optional<TopUp> newTopup(NewTopUpForm params);
+    public ToJSON() {
+        super("toJson", List.of("value"));
+    }
 
-    List<TopUp> fetchAllActive();
-
-    List<TopUp> fetchAllActive(Location location);
-
-    List<TopUp> fetchAllExecuted();
-
-    List<TopUp> fetchAllExecuted(Location location);
-
-    void markAsExecuted(TopUp topUp, Long amount);
-
-    List<TopUp> findAllActive();
+    @Override
+    public Object execute(Map<String, Object> args, PebbleTemplate pebbleTemplate, EvaluationContext evaluationContext, int i) {
+        try {
+            return objectMapper.writeValueAsString(args.get("value"));
+        } catch (Exception e) {
+            return "null";
+        }
+    }
 }

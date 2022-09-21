@@ -30,91 +30,74 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.transfers.parameters;
+package org.cga.sctp.transfers.fsp;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.util.List;
 
-@Entity
-@Table(name = "transfer_parameters")
-public class TransferParameter {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class TransferRequest {
+    /**
+     * ID of the transfer period
+     */
+    private String transferPeriodID;
 
-    @Column
-    @NotNull
-    private Long programId;
+    /**
+     * List of TransferRequestEntry
+     * The list of Transfer request entries which represents a request to disburse funds into a beneficiary account managed by the Transfer Agency or FSP
+     */
+    private List<TransferRequestEntry> transferList;
 
-    @Column
-    private String title;
+    /**
+     * The Timestamp when the process was initiated
+     */
+    private Long dateInitiated;
 
-    @Column
-    private Long createdBy;
+    /**
+     * User who initiated the process on the Target MIS
+     */
+    private String userID;
 
-    @Column
-    private LocalDateTime createdAt;
+    /**
+     * System generated ID of the process
+     */
+    private String transactionID;
 
-    @Column
-    private LocalDateTime updatedAt;
-
-    @Column
-    private boolean active;
-
-    public Long getId() {
-        return id;
+    public String getTransferPeriodID() {
+        return transferPeriodID;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setTransferPeriodID(String transferPeriodID) {
+        this.transferPeriodID = transferPeriodID;
     }
 
-    public Long getProgramId() {
-        return programId;
+    public List<TransferRequestEntry> getTransferList() {
+        return transferList;
     }
 
-    public void setProgramId(Long programId) {
-        this.programId = programId;
+    public void setTransferList(List<TransferRequestEntry> transferList) {
+        this.transferList = transferList;
     }
 
-    public String getTitle() {
-        return title;
+    public Long getDateInitiated() {
+        return dateInitiated;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setDateInitiated(Long dateInitiated) {
+        this.dateInitiated = dateInitiated;
     }
 
-    public Long getCreatedBy() {
-        return createdBy;
+    public String getUserID() {
+        return userID;
     }
 
-    public void setCreatedBy(Long createdBy) {
-        this.createdBy = createdBy;
+    public void setUserID(String userID) {
+        this.userID = userID;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public String getTransactionID() {
+        return transactionID;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
+    public void setTransactionID(String transactionID) {
+        this.transactionID = transactionID;
     }
 }
