@@ -387,7 +387,7 @@ public class EnrollmentService extends TransactionalService {
             Long alterRecipientId = null, altOtherId = null;
 
             // if alternate receiver is not a household member, add/update details
-            if (recipients.getAlternateMemberId() == null) {
+            if (recipients.getAlternateMemberId() == null && recipients.getOtherDetails() != null) {
                 StoredProcedureQuery query =
                         entityManager.createStoredProcedureQuery("AddOrUpdateNonHouseholdAlternateRecipient")
                                 .registerStoredProcedureParameter(1, Long.class, ParameterMode.IN)

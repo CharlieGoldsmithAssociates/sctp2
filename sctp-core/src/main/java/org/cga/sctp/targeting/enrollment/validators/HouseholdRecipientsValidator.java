@@ -52,6 +52,10 @@ public class HouseholdRecipientsValidator implements ConstraintValidator<ValidRe
             return false;
         }
         context.disableDefaultConstraintViolation();
+        if (value.getPrimaryMemberId() == null) {
+            addConstraintViolation(context, "Missing primary receiver");
+            return false;
+        }
         if (value.getAlternateMemberId() != null && value.getOtherDetails() != null) {
             context.buildConstraintViolationWithTemplate(format("Alternate receiver information must either be a household member id or non-household member details."))
                     .addConstraintViolation();
@@ -61,30 +65,32 @@ public class HouseholdRecipientsValidator implements ConstraintValidator<ValidRe
             return true;
         }
         // validate details
-        EnrollmentUpdateForm.HouseholdRecipients.NonHouseholdMemberDetails details = value.getOtherDetails();
-        if (!LocaleUtils.checkLengthBounds(details.getFirstNane(), 1, 30)) {
-            addStringLengthViolation(context, "NonHouseholdMemberDetails.firstName", 1, 30);
-            return false;
-        }
-        if (!LocaleUtils.checkLengthBounds(details.getLastName(), 1, 30)) {
-            addStringLengthViolation(context, "NonHouseholdMemberDetails.lastName", 1, 30);
-            return false;
-        }
-        if (LocaleUtils.isStringNullOrEmpty(details.getNationalId()) || !details.getNationalId().matches("^[0-9A-Za-z]{8}$")) {
-            addConstraintViolation(context, "NonHouseholdMemberDetails.nationalId: Invalid format");
-            return false;
-        }
-        if (details.getExpiryDate() == null) {
-            addNotNullConstraintViolation(context, "NonHouseholdMemberDetails.expiryDate");
-            return false;
-        }
-        if (details.getIssueDate() == null) {
-            addNotNullConstraintViolation(context, "NonHouseholdMemberDetails.issueDate");
-            return false;
-        }
-        if (details.getDateOfBirth() == null) {
-            addNotNullConstraintViolation(context, "NonHouseholdMemberDetails.dateOfBirth");
-            return false;
+        final EnrollmentUpdateForm.HouseholdRecipients.NonHouseholdMemberDetails details = value.getOtherDetails();
+        if (details != null) {
+            if (!LocaleUtils.checkLengthBounds(details.getFirstNane(), 1, 30)) {
+                addStringLengthViolation(context, "NonHouseholdMemberDetails.firstName", 1, 30);
+                return false;
+            }
+            if (!LocaleUtils.checkLengthBounds(details.getLastName(), 1, 30)) {
+                addStringLengthViolation(context, "NonHouseholdMemberDetails.lastName", 1, 30);
+                return false;
+            }
+            if (LocaleUtils.isStringNullOrEmpty(details.getNationalId()) || !details.getNationalId().matches("^[0-9A-Za-z]{8}$")) {
+                addConstraintViolation(context, "NonHouseholdMemberDetails.nationalId: Invalid format");
+                return false;
+            }
+            if (details.getExpiryDate() == null) {
+                addNotNullConstraintViolation(context, "NonHouseholdMemberDetails.expiryDate");
+                return false;
+            }
+            if (details.getIssueDate() == null) {
+                addNotNullConstraintViolation(context, "NonHouseholdMemberDetails.issueDate");
+                return false;
+            }
+            if (details.getDateOfBirth() == null) {
+                addNotNullConstraintViolation(context, "NonHouseholdMemberDetails.dateOfBirth");
+                return false;
+            }
         }
         return true;
     }

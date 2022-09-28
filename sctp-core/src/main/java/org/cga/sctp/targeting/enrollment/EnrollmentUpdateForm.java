@@ -65,7 +65,7 @@ public class EnrollmentUpdateForm {
      */
     public enum EnrollmentStatus {
         NonRecertified,
-        Beneficiary;
+        Enrolled;
     }
 
     public static class HouseholdRecipients {

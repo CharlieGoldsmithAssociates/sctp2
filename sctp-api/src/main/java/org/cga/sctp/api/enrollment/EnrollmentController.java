@@ -112,6 +112,7 @@ public class EnrollmentController extends BaseController {
             BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
+            LOG.error("Bad request {}", bindingResult.getModel());
             return ResponseEntity.badRequest().build();
         }
 
