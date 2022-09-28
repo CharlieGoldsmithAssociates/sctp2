@@ -43,6 +43,7 @@ import org.cga.sctp.schools.SchoolsView;
 import org.cga.sctp.targeting.AlternateRecipient;
 import org.cga.sctp.targeting.HouseholdDetails;
 import org.cga.sctp.targeting.SchoolEnrolled;
+import org.cga.sctp.targeting.enrollment.SchoolEnrollmentForm;
 import org.cga.sctp.targeting.enrollment.*;
 import org.cga.sctp.targeting.importation.parameters.EducationLevel;
 import org.cga.sctp.targeting.importation.parameters.Gender;
@@ -313,6 +314,7 @@ public class EnrollmentController extends SecuredBaseController {
                 .body(response);
     }
 
+    /*
     @PostMapping(value = "/update-recipient", produces = MediaType.APPLICATION_JSON_VALUE)
     @AdminAndStandardAccessOnly
     ResponseEntity<?> updateHouseholdRecipient(
@@ -380,4 +382,196 @@ public class EnrollmentController extends SecuredBaseController {
 
         return ResponseEntity.ok("{}");
     }
+    */
+
+
+    @PostMapping("/update-recipient")
+    public ResponseEntity<?> updateRecipient(
+            @RequestParam HouseholdRecipientType type,
+            @Valid @ModelAttribute UpdateHouseholdRecipientForm form,
+            BindingResult bindingResult
+            ){
+        
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        HouseholdEnrollment enrollment = enrollmentService
+                .findHouseholdEnrollment(form.getSession(), form.getHousehold());
+
+        if (enrollment == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // verify household member existence
+        if (!beneficiaryService.householdMemberExists(form.getHousehold(), form.getId())) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // HouseholdRecipient recipient = enrollmentService.getHouseholdRecipient(form.getHousehold());
+
+    //    if (recipient == null) {
+            HouseholdRecipient recipient = new HouseholdRecipient();
+            recipient.setCreatedAt(OffsetDateTime.now());
+            recipient.setHouseholdId(form.getHousehold());
+            recipient.setEnrollmentSession(form.getSession());
+    //    }
+
+        LOG.error("FORM DATA HHID: "+form.getHousehold());
+        LOG.error("FORM DATA SSID: "+form.getSession());
+        
+        recipient.setModifiedAt(OffsetDateTime.now());
+        enrollment.setUpdatedAt(recipient.getModifiedAt());
+        
+        MultipartFile photo = form.getPhoto();
+
+        if (!fileUploadService.getResourceService().isAcceptedImageFile(photo)) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        ResourceService.UpdateResult updateResult = switch (type) {
+            case primary -> fileUploadService.getResourceService().storeMainRecipientPhoto(photo, form.getHousehold());
+            case secondary -> fileUploadService.getResourceService().storeAlternateRecipientPhoto(photo, form.getHousehold());
+        };
+
+        if (!updateResult.stored()) {
+            LOG.error("Failure uploading photo file");
+        }
+
+        switch (type) {
+            case primary -> {
+                recipient.setMainRecipient(form.getId());
+                recipient.setMainPhoto(updateResult.name());
+                recipient.setMainPhotoType(updateResult.type());
+            }
+            case secondary -> {
+                recipient.setAltPhoto(updateResult.name());
+                recipient.setAltPhotoType(updateResult.type());
+                // check if recipient is member or other
+                if(form.getAltType().equals(AlternateRecipientType.member)){
+                    recipient.setAltRecipient(form.getId());
+                } else {  // type is other
+                    AlternateRecipient altRecipient = new AlternateRecipient();
+                    altRecipient.setFirstName(form.getFirstName());
+                    altRecipient.setLastName(form.getLastName());
+                    altRecipient.setNationalId(form.getNationalId());
+                    altRecipient.setGender(form.getGender());
+                    altRecipient.setDateOfBirth(form.getDateOfBirth());
+
+                    enrollmentService.saveAlternateRecipient(altRecipient);
+                    recipient.setAltRecipient(altRecipient.getId());
+                }
+                
+            }
+        }
+
+        enrollmentService.saveEnrollment(enrollment);
+        enrollmentService.saveHouseholdRecipient(recipient);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(value = "/school-children", produces = MediaType.APPLICATION_JSON_VALUE)
+    @AdminAndStandardAccessOnly
+    ResponseEntity<Map<String, Object>> getSchoolChildren(@RequestParam(value = "household") Long householdId) {
+        List<Individual> children = beneficiaryService.findSchoolChildren(householdId);
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("children", children);
+        return ResponseEntity
+                .ok()
+                .body(response);
+    }
+
+    @GetMapping(value = "/schools", produces = MediaType.APPLICATION_JSON_VALUE)
+    @AdminAndStandardAccessOnly
+    ResponseEntity<Map<String, Object>> getSchools() {
+        List<SchoolsView> schools = schoolService.getSchools();
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("schools", schools);
+        return ResponseEntity
+                .ok()
+                .body(response);
+    }
+
+    @GetMapping(value = "/education-levels", produces = MediaType.APPLICATION_JSON_VALUE)
+    @AdminAndStandardAccessOnly
+    ResponseEntity<Map<String, Object>> getEducationLevels() {
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("educationLevels", EducationLevel.VALUES);
+        return ResponseEntity
+                .ok()
+                .body(response);
+    }
+
+    @GetMapping(value = "/grade-levels", produces = MediaType.APPLICATION_JSON_VALUE)
+    @AdminAndStandardAccessOnly
+    ResponseEntity<Map<String, Object>> getGradeLevels() {
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("gradeLevels", GradeLevel.VALUES);
+        return ResponseEntity
+                .ok()
+                .body(response);
+    }
+    @PostMapping("/update-school")
+    public ResponseEntity<?> updateSchool(
+            @Valid @ModelAttribute SchoolEnrollmentForm form,
+            BindingResult bindingResult
+    ){
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        HouseholdEnrollment enrollment = enrollmentService
+                .findHouseholdEnrollment(form.getSessionId() , form.getHouseholdId());
+
+        if (enrollment == null) {
+            return ResponseEntity.notFound().build();
+        }
+        if (schoolService.findById( form.getSchoolId()).isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        SchoolEnrolled schoolEnrolled = new SchoolEnrolled();
+        schoolEnrolled.setEducationLevel(form.getEducationLevel());
+        schoolEnrolled.setGrade(form.getGrade());
+        schoolEnrolled.setHouseholdId(form.getSchoolId());
+        schoolEnrolled.setSchoolId(form.getSchoolId());
+        schoolEnrolled.setIndividualId(form.getIndividualId());
+        schoolEnrolled.setStatus(form.getStatus());
+
+        enrollmentService.saveChildrenEnrolledSchool(schoolEnrolled);
+        return ResponseEntity.ok().build();
+    }
+   /* @PostMapping("/update-school")
+    public ResponseEntity<?> updateSchool(
+            @Valid @ModelAttribute SchoolEnrollmentForm form,
+            BindingResult bindingResult
+            ){
+        
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        HouseholdEnrollment enrollment = enrollmentService
+                .findHouseholdEnrollment(form.getSessionId() , form.getHouseholdId());
+
+        if (enrollment == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // verify household member existence
+        if (schoolService.findById( form.getSchoolId()).isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        SchoolEnrolled schoolEnrolled = new SchoolEnrolled();
+        schoolEnrolled.setEducationLevel(form.getEducationLevel());
+        schoolEnrolled.setGrade(form.getGrade());
+        schoolEnrolled.setHouseholdId(form.getSchoolId());
+        schoolEnrolled.setSchoolId(form.getSchoolId());
+        schoolEnrolled.setIndividualId(form.getIndividualId());
+        schoolEnrolled.setStatus(form.getStatus());
+
+        enrollmentService.saveChildrenEnrolledSchool(schoolEnrolled);
+        return ResponseEntity.ok().build();
+    } */
+
 }

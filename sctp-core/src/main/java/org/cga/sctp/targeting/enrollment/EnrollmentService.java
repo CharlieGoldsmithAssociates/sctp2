@@ -183,6 +183,10 @@ public class EnrollmentService extends TransactionalService {
         schoolEnrolledRepository.saveAll(schoolEnrolled);
     }
 
+    public void saveChildrenEnrolledSchool(SchoolEnrolled schoolEnrolled) {
+        schoolEnrolledRepository.save(schoolEnrolled);
+    }
+
     public HouseholdRecipient getHouseholdRecipient(Long householdId) {
         return householdRecipientRepository.findById(householdId).orElse(null);
     }

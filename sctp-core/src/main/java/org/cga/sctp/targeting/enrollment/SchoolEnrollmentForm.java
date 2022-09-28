@@ -40,6 +40,8 @@ public class SchoolEnrollmentForm {
     private long individualId;
 
     private long schoolId;
+    
+    private long sessionId;
 
     private int educationLevel;
 
@@ -93,5 +95,13 @@ public class SchoolEnrollmentForm {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public long getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(long sessionId) {
+        this.sessionId = sessionId;
     }
 }

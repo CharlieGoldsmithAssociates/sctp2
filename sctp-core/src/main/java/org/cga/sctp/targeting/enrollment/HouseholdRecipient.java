@@ -84,6 +84,30 @@ public class HouseholdRecipient {
         this.mainPhoto = mainPhoto;
     }
 
+    public String getMainPhotoType() {
+        return mainPhotoType;
+    }
+
+    public void setMainPhotoType(String mainPhotoType) {
+        this.mainPhotoType = mainPhotoType;
+    }
+
+    public String getAltPhotoType() {
+        return altPhotoType;
+    }
+
+    public void setAltPhotoType(String altPhotoType) {
+        this.altPhotoType = altPhotoType;
+    }
+
+    public Long getEnrollmentSession() {
+        return enrollmentSession;
+    }
+
+    public void setEnrollmentSession(Long enrollmentSession) {
+        this.enrollmentSession = enrollmentSession;
+    }
+
     public String getAltPhoto() {
         return altPhoto;
     }
@@ -114,29 +138,5 @@ public class HouseholdRecipient {
 
     public void setModifiedAt(OffsetDateTime modifiedAt) {
         this.modifiedAt = modifiedAt;
-    }
-
-    public String getMainPhotoType() {
-        return mainPhotoType;
-    }
-
-    public void setMainPhotoType(String mainPhotoType) {
-        this.mainPhotoType = mainPhotoType;
-    }
-
-    public String getAltPhotoType() {
-        return altPhotoType;
-    }
-
-    public void setAltPhotoType(String altPhotoType) {
-        this.altPhotoType = altPhotoType;
-    }
-
-    public Long getEnrollmentSession() {
-        return enrollmentSession;
-    }
-
-    public void setEnrollmentSession(Long enrollmentSession) {
-        this.enrollmentSession = enrollmentSession;
     }
 }
