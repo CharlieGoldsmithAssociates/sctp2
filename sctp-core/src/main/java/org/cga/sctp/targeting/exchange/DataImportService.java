@@ -46,10 +46,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -67,6 +68,9 @@ public class DataImportService extends TransactionalService {
         Queued,
         InvalidSessionState
     }
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Autowired
     private DataImportsViewRepository viewRepository;
@@ -261,17 +265,105 @@ public class DataImportService extends TransactionalService {
                 .getPageByDataImportId(importId, pageable);
     }
 
-    public Slice<HouseholdImport> getHouseholdImportsSlice(long importId, Pageable pageable) {
-        return householdImportRepository
-                .getSliceByDataImportId(importId, pageable);
+    public List<HouseholdImport> getHouseholdImports(long importId, int page, int pageSize,
+                                                     String sortColumn, Sort.Direction sortOrder) {
+        // FIXME For some reason, calling the stored procedure using JPA returns empty results, yet calling
+        //  from database it does return data. So for now this works
+        var sql = """
+                SELECT
+                	`uci`.`household_id` AS `household_id`,
+                    any_value(`uci`.`form_number`) AS `form_number`,
+                    any_value(`uci`.`household_ml_code`) AS `ml_code`,
+                    (sum((CASE WHEN (`uci`.`relationship_to_head` = 1) THEN `uci`.`relationship_to_head` ELSE 0 END)) > 0) AS `has_household_head`,
+                    sum((CASE WHEN (`uci`.`validation_status` = 'Error') THEN 1 ELSE 0 END)) AS `error_count`,
+                    (sum((CASE WHEN `uci`.`archived` THEN 1 ELSE 0 END)) > 0) AS `archived`,
+                    count(`uci`.`household_id`) AS `member_count`,
+                    any_value(`uci`.`data_import_id`) AS `data_import_id`,
+                    any_value((CASE WHEN (`uci`.`relationship_to_head` = 1) THEN concat(`uci`.`first_name`, ' ', `uci`.`last_name`) END)) AS `household_head_name`,
+                    any_value((CASE WHEN (`uci`.`relationship_to_head` = 1) THEN `uci`.`gender` END)) AS `household_head_gender`,
+                    any_value((CASE WHEN (`uci`.`relationship_to_head` = 1) THEN `uci`.`date_of_birth` END)) AS `household_head_dob`,
+                    any_value((CASE WHEN (`uci`.`relationship_to_head` = 1) THEN `uci`.`national_id` END)) AS `household_head_id`,
+                    any_value((CASE WHEN (`uci`.`relationship_to_head` = 1) THEN `uci`.`household_member_id` END)) AS `household_head_member_id`,
+                    any_value(`uci`.`district_name`) AS `district_name`,
+                    any_value(`uci`.`traditional_authority_name`) AS `traditional_authority_name`,
+                    any_value(`uci`.`village_name`) AS `village_name`,
+                    any_value(`uci`.`group_village_head_name`) AS `group_village_head_name`,
+                    any_value(`uci`.`cluster_name`) AS `cluster_name`
+                FROM `ubr_csv_imports` `uci`\s
+                WHERE data_import_id = :did
+                GROUP BY `uci`.`household_id`
+                ORDER BY\s
+                (CASE WHEN :sort = 'formNumber' AND :sortOrder = 'ASC' THEN any_value(form_number) END) ASC\s
+                ,(CASE WHEN :sort = 'formNumber' AND :sortOrder= 'DESC' THEN any_value(form_number) END) DESC\s
+                ,(CASE WHEN :sort = 'mlCode' AND :sortOrder = 'ASC' THEN ml_code END) ASC\s
+                ,(CASE WHEN :sort = 'mlCode' AND :sortOrder = 'DESC' THEN ml_code END) DESC\s
+                ,(CASE WHEN :sort = 'memberCount' AND :sortOrder = 'ASC' THEN member_count END) ASC\s
+                ,(CASE WHEN :sort = 'memberCount' AND :sortOrder = 'DESC' THEN member_count END) DESC
+                ,(CASE WHEN :sort = 'errorCount' AND :sortOrder = 'ASC' THEN error_count END) ASC\s
+                ,(CASE WHEN :sort = 'errorCount' AND :sortOrder = 'DESC' THEN error_count END) DESC
+                ,(CASE WHEN :sort = 'householdHeadName' AND :sortOrder = 'ASC' THEN any_value((CASE WHEN (`uci`.`relationship_to_head` = 1) THEN concat(`uci`.`first_name`, ' ', `uci`.`last_name`) END)) END) ASC\s
+                ,(CASE WHEN :sort = 'householdHeadName' AND :sortOrder = 'DESC' THEN any_value((CASE WHEN (`uci`.`relationship_to_head` = 1) THEN concat(`uci`.`first_name`, ' ', `uci`.`last_name`) END)) END) DESC
+                ,(CASE WHEN :sort = 'archived' AND :sortOrder = 'ASC' THEN (sum((CASE WHEN `uci`.`archived` THEN 1 ELSE 0 END)) > 0) END) ASC\s
+                ,(CASE WHEN :sort = 'archived' AND :sortOrder = 'DESC' THEN (sum((CASE WHEN `uci`.`archived` THEN 1 ELSE 0 END)) > 0) END) DESC
+                LIMIT :page, :size
+                """;
+        var query = entityManager.createNativeQuery(sql, HouseholdImport.class);
+
+        query.setParameter("did", importId)
+                .setParameter("page", page)
+                .setParameter("size", pageSize)
+                .setParameter("sort", sortColumn)
+                .setParameter("sortOrder", sortOrder.name());
+
+        var results = query.getResultList();
+
+        return results;
+
+        //return householdImportRepository.getHouseholdImports(importId, page, pageSize, sortColumn, sortOrder.name());
+    }
+
+    public long countHouseholdImports(Long dataImportId) {
+        return householdImportRepository.countHouseholdImports(dataImportId);
     }
 
     public void archiveHousehold(Long householdId, Long importId, Boolean archive) {
         householdImportRepository.archiveHousehold(householdId, importId, archive);
     }
 
-    public HouseholdImport getHouseholdImport(Long householdId, Long id) {
-        return householdImportRepository.getByHouseholdIdAndDataImportId(householdId, id);
+    public HouseholdImport getHouseholdImport(Long householdId, Long dataImportId) {
+        // FIXME For some reason, calling the stored procedure using JPA returns empty results, yet calling
+        //  from database it does return data. So for now this works
+        var sql = """
+                SELECT
+                	`uci`.`household_id` AS `household_id`,
+                    any_value(`uci`.`form_number`) AS `form_number`,
+                    any_value(`uci`.`household_ml_code`) AS `ml_code`,
+                    (sum((CASE WHEN (`uci`.`relationship_to_head` = 1) THEN `uci`.`relationship_to_head` ELSE 0 END)) > 0) AS `has_household_head`,
+                    sum((CASE WHEN (`uci`.`validation_status` = 'Error') THEN 1 ELSE 0 END)) AS `error_count`,
+                    (sum((CASE WHEN `uci`.`archived` THEN 1 ELSE 0 END)) > 0) AS `archived`,
+                    count(`uci`.`household_id`) AS `member_count`,
+                    any_value(`uci`.`data_import_id`) AS `data_import_id`,
+                    any_value((CASE WHEN (`uci`.`relationship_to_head` = 1) THEN concat(`uci`.`first_name`, ' ', `uci`.`last_name`) END)) AS `household_head_name`,
+                    any_value((CASE WHEN (`uci`.`relationship_to_head` = 1) THEN `uci`.`gender` END)) AS `household_head_gender`,
+                    any_value((CASE WHEN (`uci`.`relationship_to_head` = 1) THEN `uci`.`date_of_birth` END)) AS `household_head_dob`,
+                    any_value((CASE WHEN (`uci`.`relationship_to_head` = 1) THEN `uci`.`national_id` END)) AS `household_head_id`,
+                    any_value((CASE WHEN (`uci`.`relationship_to_head` = 1) THEN `uci`.`household_member_id` END)) AS `household_head_member_id`,
+                    any_value(`uci`.`district_name`) AS `district_name`,
+                    any_value(`uci`.`traditional_authority_name`) AS `traditional_authority_name`,
+                    any_value(`uci`.`village_name`) AS `village_name`,
+                    any_value(`uci`.`group_village_head_name`) AS `group_village_head_name`,
+                    any_value(`uci`.`cluster_name`) AS `cluster_name`
+                FROM `ubr_csv_imports` `uci`\s
+                WHERE data_import_id = :did and household_id = :hhid
+                GROUP BY `uci`.`household_id`
+                """;
+        var query = entityManager.createNativeQuery(sql, HouseholdImport.class);
+
+        query.setParameter("did", dataImportId)
+                .setParameter("hhid", householdId);
+
+        return (HouseholdImport) query.getSingleResult();
+        //return householdImportRepository.getByHouseholdIdAndDataImportId(householdId, id);
     }
 
     public List<HouseholdMemberImport> getHouseholdMemberImports(Long householdId, Long dataImportId) {
@@ -280,6 +372,15 @@ public class DataImportService extends TransactionalService {
 
     public void setHouseholdHead(Long householdId, Long importId, Long memberId) {
         memberImportRepository.updateHouseholdHead(householdId, importId, memberId);
+    }
+
+    public void updateHouseholdHead(Long householdId, Long importId, Long memberId) {
+        setHouseholdHead(householdId, importId, memberId);
+        setHouseholdHeadName(householdId, importId, memberId);
+    }
+
+    public void setHouseholdHeadName(Long householdId, Long importId, Long memberId) {
+        memberImportRepository.updateHouseholdHeadName(householdId, importId, memberId);
     }
 
     public HouseholdImportStat getHouseholdImportStat(long dataImportId) {

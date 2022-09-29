@@ -38,18 +38,27 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 interface HouseholdImportRepository extends JpaRepository<HouseholdImport, Long> {
     Page<HouseholdImport> getPageByDataImportId(long importId, Pageable pageable);
 
-    Slice<HouseholdImport> getSliceByDataImportId(long importId, Pageable pageable);
+    Slice<HouseholdImport> getByDataImportId(long importId, Pageable pageable);
+
+    @Query(value = "SELECT count(DISTINCT household_id) FROM ubr_csv_imports uci WHERE data_import_id = ?1", nativeQuery = true)
+    long countHouseholdImports(Long dataImportId);
 
     @Modifying
     @Query(nativeQuery = true, value = "UPDATE ubr_csv_imports SET archived = :a WHERE data_import_id = :did AND household_id = :hid")
     void archiveHousehold(@Param("hid") Long householdId, @Param("did") Long importId, @Param("a") Boolean archive);
 
     HouseholdImport getByHouseholdIdAndDataImportId(Long householdId, Long id);
+
+    @Procedure(value = "GetHouseholdImports", name = "GetHouseholdImports", procedureName = "GetHouseholdImports")
+    List<HouseholdImport> getHouseholdImports(long dataImport, int page, int pageSize, String sortColumn, String sortOrder);
 }

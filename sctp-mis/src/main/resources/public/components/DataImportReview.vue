@@ -100,14 +100,14 @@
             <template slot="detail" slot-scope="props">
 
                 <section class="section">
-                    <h3 class="subtitle">Select a member to make the head of the household</h3>
+                    <h3 class="subtitle">Household Members</h3>
 
                     <b-table :bordered="true" :striped="true" :narrowed="true" :hoverable="true" :loading="isLoading"
                         :data="(props.row.memberList || [])">
                         <b-table-column field="name" label="Name" v-slot="p">
                             <b-radio :expanded="true" v-model="props.row.householdHeadMemberId" name="member"
                                 @input="setHouseholdHead(p.row, props.row)"
-                                :disabled="props.row.hasHouseholdHead"
+                                :disabled="props.row.hasHouseholdHead && props.row.householdHeadName !== null"
                                 :native-value="p.row.householdMemberId">
                                 {{ p.row.name }}
                             </b-radio>
@@ -388,6 +388,7 @@ module.exports = {
                         vm.snackbar('Updated household succesfully', 'success');
                         household.householdHeadName = row.name;
                         household.hasHouseholdHead = true;
+                        household.householhHeadMemberId = row.householdMemberId;
                         vm.householdStats.noHead = Math.max(0, vm.householdStats.noHead - 1);
                         // TODO copy the other properties if/when needed
                     } else {

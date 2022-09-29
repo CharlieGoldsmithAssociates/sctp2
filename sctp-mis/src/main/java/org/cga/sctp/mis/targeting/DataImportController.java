@@ -44,8 +44,9 @@ import org.cga.sctp.validation.SortFields;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.data.domain.*;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -183,28 +184,32 @@ public class DataImportController extends BaseController {
             return ResponseEntity.notFound().build();
         }
 
-        int pages = 0;
+        long pages = 0;
         long total = 0;
 
-        // convert to 0-based index (notice @Min(1))
         page = page - 1;
 
+        //Pageable pageable = PageRequest.
+/*
         final Slice<HouseholdImport> imports =
                 useSlice ? dataImportService.getHouseholdImportsSlice(importId, PageRequest.of(page, size, sortDirection, sort))
-                        : dataImportService.getHouseholdImportsPage(importId, PageRequest.of(page, size, sortDirection, sort));
+                        : dataImportService.getHouseholdImportsPage(importId, PageRequest.of(page, size, sortDirection, sort));*/
+
+        final List<HouseholdImport> imports = dataImportService
+                .getHouseholdImports(dataImport.getId(), page * size, size, sort, sortDirection);
 
         if (!useSlice) {
-            pages = ((Page<HouseholdImport>) imports).getTotalPages();
-            total = ((Page<HouseholdImport>) imports).getTotalElements();
+            total = dataImportService.countHouseholdImports(dataImport.getId());
+            pages = (total / size) + (total % size > 0 ? 1 : 0);
         }
 
         return ResponseEntity.ok()
                 .header("X-Is-Slice", Boolean.toString(useSlice))
                 .header("X-Data-Total", Long.toString(total))
-                .header("X-Data-Pages", Integer.toString(pages))
-                .header("X-Data-Size", Integer.toString(imports.getNumberOfElements()))
-                .header("X-Data-Page", Integer.toString(imports.getNumber()))
-                .body(imports.getContent());
+                .header("X-Data-Pages", Long.toString(pages))
+                .header("X-Data-Size", Integer.toString(imports.size()))
+                .header("X-Data-Page", Integer.toString(page + 1))
+                .body(imports);
     }
 
 
@@ -283,12 +288,12 @@ public class DataImportController extends BaseController {
             return ResponseEntity.notFound().build();
         }
 
-        if (householdImport.getHasHouseholdHead()) {
-            // already has a defined household
+        /*if (householdImport.getHasHouseholdHead() && StringUtils.hasText(householdImport.getHouseholdHeadName())) {
+            // already has a defined household head
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
+        }*/
 
-        dataImportService.setHouseholdHead(householdId, importId, memberId);
+        dataImportService.updateHouseholdHead(householdId, importId, memberId);
 
         return ResponseEntity.ok().build();
     }
