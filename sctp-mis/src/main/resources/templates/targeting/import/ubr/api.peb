@@ -61,21 +61,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="field is-horizontal">
-                    <div class="field-label is-normal">
-                        <label class="label is-required">Village Cluster</label>
-                    </div>
-                    <div class="field-body">
-                        <div class="control">
-                            <div class="select is-multiple is-fullwidth"">
-                                <select name="clusterCode" id="clusterCode" multiple>
-                                    {#  to be loaded via JavaScript here #}
-                                </select>
-                            </div>
-                            {{ printFieldErrors(getFieldErrors('form', 'clusterCode')) }}
-                        </div>
-                    </div>
-                </div>
 
             <div class="card is-fullwidth ">
                 <header class="card-header">
