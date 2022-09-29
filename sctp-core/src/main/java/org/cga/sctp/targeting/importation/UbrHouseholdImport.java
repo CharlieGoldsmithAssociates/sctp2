@@ -222,6 +222,11 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes implements Clo
     @Parsed(field = "fit_for_work")
     protected boolean fitForWork;
 
+    @Validate
+    @BooleanString(trueStrings = {"1","YES"}, falseStrings = {"0","NO"})
+    @Parsed(field = "labor_constrained")
+    protected boolean laborConstrained;
+
     @Parsed(field = "sct_member_code")
     @NullString(nulls = {"-", ""})
     @Validate(nullable = true)
@@ -557,6 +562,14 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes implements Clo
 
     public void setFitForWork(boolean fitForWork) {
         this.fitForWork = fitForWork;
+    }
+
+    public boolean isLaborConstrained() {
+        return laborConstrained;
+    }
+
+    public void setLaborConstrained(boolean laborConstrained) {
+        this.laborConstrained = laborConstrained;
     }
 
     public String getSctMemberCode() {
