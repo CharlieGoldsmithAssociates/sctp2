@@ -62,6 +62,25 @@
                     </div>
                 </div>
 
+            <div class="field is-horizontal">
+                <div class="field-label is-normal">
+                    <label class="label">Village Cluster</label>
+                </div>
+                <div class="field-body">
+                    <div class="control">
+                        <div class="select is-multiple is-fullwidth">
+                            <select name="clusterCode" id="clusterCode" multiple>
+                                {#  to be loaded via JavaScript here #}
+                            </select>
+                        </div>
+                    {{ printFieldErrors(getFieldErrors('form', 'clusterCode')) }}
+                    </div>
+                    <div class="control" style="padding-left: 12px">
+                        <button type="button" onclick="clusterCode.selectedIndex = -1" class="button is-text">Clear selection</button>
+                    </div>
+                </div>
+            </div>
+
             <div class="card is-fullwidth ">
                 <header class="card-header">
                     <p class="card-header-title">For SCTP only parameters Click Here to show the options.</p>
