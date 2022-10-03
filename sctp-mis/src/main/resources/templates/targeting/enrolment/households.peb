@@ -111,10 +111,6 @@
                                             <div class="dropdown-content">
                                                 <a href="/targeting/enrolment/details?session={{ sessionInfo.id }}&id={{ household.householdId }}"
                                                    class="dropdown-item">View household </a>
-                                                {% if canModify %}
-                                                    <a href="/targeting/enrolment/edit?session={{ sessionInfo.id }}&id={{ household.householdId }}"
-                                                       class="dropdown-item">Edit household </a>
-                                                {% endif %}
                                             </div>
                                         </div>
                                     </div>

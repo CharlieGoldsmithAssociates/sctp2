@@ -57,7 +57,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 
 @RestController
 @RequestMapping("/targeting/meetings")
@@ -285,9 +285,22 @@ public class CommunityMeetingController extends BaseController {
             return ResponseEntity.notFound().build();
         }
 
+        final ZonedDateTime timestamp = ZonedDateTime.now();
+
         session.setMeetingPhase(session.getMeetingPhase().next());
-        session.setCommunityMeetingTimestamp(OffsetDateTime.now());
+        session.setCommunityMeetingTimestamp(timestamp);
         session.setCommunityMeetingUserId(apiUserDetails.getUserId());
+
+        switch (session.getMeetingPhase()) {
+            case completed -> {
+                session.setDistrictMeetingTimestamp(timestamp);
+                session.setDistrictMeetingUserId(apiUserDetails.getUserId());
+            }
+            case district_meeting -> {
+                session.setCommunityMeetingTimestamp(ZonedDateTime.now());
+                session.setCommunityMeetingUserId(apiUserDetails.getUserId());
+            }
+        }
 
         targetingService.saveTargetingSession(session);
 

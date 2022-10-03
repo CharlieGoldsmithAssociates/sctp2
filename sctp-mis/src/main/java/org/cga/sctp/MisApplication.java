@@ -39,12 +39,15 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableAsync;
 
+import java.util.TimeZone;
+
 @SpringBootApplication
 @EnableAsync
 @EnableConfigurationProperties
 @ComponentScan(basePackages = {"org.cga", "org.cga.sctp", "org.cga.sctp.mis"})
 public class MisApplication extends BaseComponent {
     public static void main(String[] args) {
+        TimeZone.setDefault(TimeZone.getTimeZone("Africa/Blantyre"));
         SpringApplication.run(MisApplication.class, args);
     }
 }

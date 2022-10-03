@@ -46,7 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -120,7 +120,7 @@ public class UBRImportService extends TransactionalService {
         }
         dataImport.setStatus(DataImportObject.ImportStatus.FileUploadPending);
         dataImport.setStatusText("Waiting for API Data Fetch");
-        dataImport.setImportDate(LocalDateTime.now());
+        dataImport.setImportDate(ZonedDateTime.now());
 
         // Save to the database first before we start processing it in the background
         dataImportService.saveDataImport(dataImport);
@@ -165,7 +165,7 @@ public class UBRImportService extends TransactionalService {
                         dataImport.setStatus(DataImportObject.ImportStatus.Error);
                     })
                     .completed(total -> {
-                        dataImport.setCompletionDate(LocalDateTime.now());
+                        dataImport.setCompletionDate(ZonedDateTime.now());
                         if (dataImport.getStatus() == DataImportObject.ImportStatus.Processing) {
                             dataImport.setStatusText(format("Successfully imported %,d household(s)", total));
                             dataImport.setStatus(DataImportObject.ImportStatus.Review);

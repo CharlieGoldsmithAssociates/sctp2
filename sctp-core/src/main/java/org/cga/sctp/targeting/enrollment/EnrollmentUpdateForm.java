@@ -146,7 +146,7 @@ public class EnrollmentUpdateForm {
             }
         }
 
-        @NotNull(message = "Primary member id is required")
+        //@NotNull(message = "Primary member id is required")
         private Long primaryMemberId;
 
         /**
@@ -265,7 +265,7 @@ public class EnrollmentUpdateForm {
         private List<@Valid @NotNull SchoolEnrollment> schoolEnrollment;
 
         @NotNull
-        @ValidRecipients
+        @ValidRecipients(primaryRecipientOptional = true, optional = true)
         private HouseholdRecipients recipients;
 
         public Long getHouseholdId() {

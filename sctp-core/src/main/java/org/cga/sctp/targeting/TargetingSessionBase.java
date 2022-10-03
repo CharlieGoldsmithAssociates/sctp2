@@ -36,7 +36,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.Set;
 
 @MappedSuperclass
@@ -76,10 +76,10 @@ public class TargetingSessionBase {
     private MeetingPhase meetingPhase;
 
     @Column(name = "scm_timestamp")
-    private OffsetDateTime communityMeetingTimestamp;
+    private ZonedDateTime communityMeetingTimestamp;
 
     @Column(name = "dm_timestamp")
-    private OffsetDateTime districtMeetingTimestamp;
+    private ZonedDateTime districtMeetingTimestamp;
 
     @Column(name = "dm_user_id")
     private Long districtMeetingUserId;
@@ -193,19 +193,19 @@ public class TargetingSessionBase {
         return status == SessionStatus.Review;
     }
 
-    public OffsetDateTime getCommunityMeetingTimestamp() {
+    public ZonedDateTime getCommunityMeetingTimestamp() {
         return communityMeetingTimestamp;
     }
 
-    public void setCommunityMeetingTimestamp(OffsetDateTime communityMeetingTimestamp) {
+    public void setCommunityMeetingTimestamp(ZonedDateTime communityMeetingTimestamp) {
         this.communityMeetingTimestamp = communityMeetingTimestamp;
     }
 
-    public OffsetDateTime getDistrictMeetingTimestamp() {
+    public ZonedDateTime getDistrictMeetingTimestamp() {
         return districtMeetingTimestamp;
     }
 
-    public void setDistrictMeetingTimestamp(OffsetDateTime districtMeetingTimestamp) {
+    public void setDistrictMeetingTimestamp(ZonedDateTime districtMeetingTimestamp) {
         this.districtMeetingTimestamp = districtMeetingTimestamp;
     }
 

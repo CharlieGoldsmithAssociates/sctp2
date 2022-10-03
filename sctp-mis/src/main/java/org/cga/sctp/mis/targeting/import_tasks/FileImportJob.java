@@ -39,18 +39,16 @@ import org.cga.sctp.targeting.exchange.DataImport;
 import org.cga.sctp.targeting.exchange.DataImportObject;
 import org.cga.sctp.targeting.exchange.DataImportService;
 import org.cga.sctp.targeting.importation.*;
-import org.cga.sctp.utils.LocaleUtils;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Predicate;
 
 final class FileImportJob extends BaseComponent implements Runnable {
 
@@ -180,7 +178,7 @@ final class FileImportJob extends BaseComponent implements Runnable {
                 }
 
                 record.setBatchNumber(batchNumber);
-                record.setCreatedAt(LocalDateTime.now());
+                record.setCreatedAt(ZonedDateTime.now());
                 record.setDataImportId(dataImport.getId());
 
                 // add to batch database
@@ -211,7 +209,7 @@ final class FileImportJob extends BaseComponent implements Runnable {
         }
 
         // Update task information
-        task.setFinishedAt(LocalDateTime.now());
+        task.setFinishedAt(ZonedDateTime.now());
         task.setStatus(BaseFileImportTask.ImportTaskStatus.Done);
 
         taskService.updateTaskWithView(task);

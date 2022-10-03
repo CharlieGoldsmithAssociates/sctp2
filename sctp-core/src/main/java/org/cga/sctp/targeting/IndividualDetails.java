@@ -34,14 +34,17 @@ package org.cga.sctp.targeting;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.cga.sctp.targeting.importation.converters.EducationLevelParameterValueConverter;
 import org.cga.sctp.targeting.importation.parameters.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.persistence.Convert;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class IndividualDetails {
     @JsonProperty("education_level")
+    @Convert(converter = EducationLevelParameterValueConverter.class)
     private EducationLevel educationLevel;
 
     @JsonProperty("chronic_illness")

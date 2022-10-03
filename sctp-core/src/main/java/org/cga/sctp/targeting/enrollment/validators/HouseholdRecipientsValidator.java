@@ -41,18 +41,24 @@ import java.util.Locale;
 
 public class HouseholdRecipientsValidator implements ConstraintValidator<ValidRecipients, EnrollmentUpdateForm.HouseholdRecipients> {
 
+    private ValidRecipients ctx;
+
     @Override
     public void initialize(ValidRecipients constraintAnnotation) {
+        this.ctx = constraintAnnotation;
         ConstraintValidator.super.initialize(constraintAnnotation);
     }
 
     @Override
     public boolean isValid(EnrollmentUpdateForm.HouseholdRecipients value, ConstraintValidatorContext context) {
+        if (ctx.optional()) {
+            return true;
+        }
         if (value == null) {
             return false;
         }
         context.disableDefaultConstraintViolation();
-        if (value.getPrimaryMemberId() == null) {
+        if (!ctx.primaryRecipientOptional() && value.getPrimaryMemberId() == null) {
             addConstraintViolation(context, "Missing primary receiver");
             return false;
         }

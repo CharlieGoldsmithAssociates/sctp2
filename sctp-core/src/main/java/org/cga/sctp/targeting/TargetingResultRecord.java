@@ -86,7 +86,7 @@ public class TargetingResultRecord {
     /**
      * Second community meeting timestamp
      */
-    @Column(name = "scm_timestamp")
+    @Column(name = "scm_user_timestamp")
     private OffsetDateTime scmTimestamp;
 
     /**
@@ -98,7 +98,7 @@ public class TargetingResultRecord {
     /**
      * District meeting user id
      */
-    @Column(name = "dm_timestamp")
+    @Column(name = "dm_user_timestamp")
     private OffsetDateTime dmTimestamp;
 
     public Long getScmUserId() {

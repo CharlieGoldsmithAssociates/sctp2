@@ -427,14 +427,17 @@ public class EnrollmentService extends TransactionalService {
                 alterRecipientId = recipients.getAlternateMemberId();
             }
 
-            entityManager.createNativeQuery(recipientSqlTemplate)
-                    .setParameter("household_id", enrollment.getHouseholdId())
-                    .setParameter("main_recipient", recipients.getPrimaryMemberId())
-                    .setParameter("alt_recipient", alterRecipientId)
-                    .setParameter("alt_other", altOtherId)
-                    .setParameter("timestamp", timestamp)
-                    .setParameter("enrollment_session", sessionId)
-                    .executeUpdate();
+            if (recipients.getPrimaryMemberId() != null && recipients.getPrimaryMemberId() > 0) {
+                entityManager.createNativeQuery(recipientSqlTemplate)
+                        .setParameter("household_id", enrollment.getHouseholdId())
+                        .setParameter("main_recipient", recipients.getPrimaryMemberId())
+                        .setParameter("alt_recipient", alterRecipientId)
+                        .setParameter("alt_other", altOtherId)
+                        .setParameter("timestamp", timestamp)
+                        .setParameter("enrollment_session", sessionId)
+                        .executeUpdate();
+            }
+
 
             for (EnrollmentUpdateForm.SchoolEnrollment se : enrollment.getSchoolEnrollment()) {
                 entityManager.createNativeQuery(schoolEnrollmentSqlTemplate)

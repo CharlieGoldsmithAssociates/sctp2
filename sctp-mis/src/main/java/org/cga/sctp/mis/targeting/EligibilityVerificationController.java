@@ -30,7 +30,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -130,7 +130,7 @@ public class EligibilityVerificationController extends BaseController {
         session.setProgramId(program.getId());
         session.setClusters(form.getClusters());
         session.setCriterionId(criterion.getId());
-        session.setCreatedAt(LocalDateTime.now());
+        session.setCreatedAt(ZonedDateTime.now());
         session.setDistrictCode(district.getCode());
         session.setStatus(EligibilityVerificationSessionBase.Status.Review);
 

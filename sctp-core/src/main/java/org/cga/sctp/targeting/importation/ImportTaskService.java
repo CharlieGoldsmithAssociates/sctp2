@@ -40,7 +40,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Service
@@ -69,7 +69,7 @@ public class ImportTaskService extends TransactionalService {
 
     public FileImportTaskView createTaskFromDataImport(DataImport dataImport) {
         FileImportTask task = new FileImportTask();
-        task.setCreatedAt(LocalDateTime.now());
+        task.setCreatedAt(ZonedDateTime.now());
         task.setDataImportId(dataImport.getId());
         task.setStatus(BaseFileImportTask.ImportTaskStatus.Queued);
         task.setCurrentRow(0L);

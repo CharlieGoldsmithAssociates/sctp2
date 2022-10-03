@@ -62,6 +62,9 @@ public enum EducationLevel implements UbrParameterValue {
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static EducationLevel fromName(String name) {
+        if (name.matches("^[0-9]+$")) {
+            return parseCode(name);
+        }
         return EducationLevel.valueOf(name);
     }
 

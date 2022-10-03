@@ -38,7 +38,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Repository
 interface FileImportTaskRepository extends CrudRepository<FileImportTask, Long> {
@@ -52,5 +52,5 @@ interface FileImportTaskRepository extends CrudRepository<FileImportTask, Long> 
             @Param("s") String status,
             @Param("rc") Long rowCount,
             @Param("cr") Long currentRow,
-            @Param("fa") LocalDateTime finishedAt);
+            @Param("fa") ZonedDateTime finishedAt);
 }

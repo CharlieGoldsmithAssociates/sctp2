@@ -45,8 +45,8 @@ public class TargetedHouseholdStatus {
      * @see CbtStatus
      */
     public enum EligibilityStatus {
-        Eligible,
         Ineligible,
+        Selected,
         PreEligible
     }
 

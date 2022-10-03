@@ -32,7 +32,7 @@
 
 package org.cga.sctp.targeting.importation;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 class FileImportTaskViewWrapper extends FileImportTaskView {
     private final String sourceFile;
@@ -49,7 +49,7 @@ class FileImportTaskViewWrapper extends FileImportTaskView {
     }
 
     @Override
-    public void setFinishedAt(LocalDateTime finishedAt) {
+    public void setFinishedAt(ZonedDateTime finishedAt) {
         delegate.setFinishedAt(finishedAt);
     }
 
@@ -74,12 +74,12 @@ class FileImportTaskViewWrapper extends FileImportTaskView {
     }
 
     @Override
-    public LocalDateTime getCreatedAt() {
+    public ZonedDateTime getCreatedAt() {
         return delegate.getCreatedAt();
     }
 
     @Override
-    public LocalDateTime getFinishedAt() {
+    public ZonedDateTime getFinishedAt() {
         return delegate.getFinishedAt();
     }
 

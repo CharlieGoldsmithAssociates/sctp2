@@ -42,13 +42,10 @@ import org.cga.sctp.targeting.exchange.DataImportObject;
 import org.cga.sctp.targeting.exchange.DataImportView;
 import org.cga.sctp.user.AuthenticatedUser;
 import org.cga.sctp.user.AuthenticatedUserDetails;
-import org.cga.sctp.user.RoleConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -59,11 +56,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
-@Controller
+/*@Controller
 @RequestMapping("/data-import/from-ubr-csv")
-@Secured({RoleConstants.ROLE_STANDARD, RoleConstants.ROLE_ADMINISTRATOR})
+@Secured({RoleConstants.ROLE_STANDARD, RoleConstants.ROLE_ADMINISTRATOR})*/
+@Deprecated(forRemoval = true)
 public class UBRCsvImportController extends UBRImportController {
 
     @Autowired
@@ -149,8 +147,8 @@ public class UBRCsvImportController extends UBRImportController {
         dataImport.setPopulationDuplicates(0L);
         dataImport.setTitle(form.getTitle());
         dataImport.setImporterUserId(user.id());
+        dataImport.setImportDate(ZonedDateTime.now());
         dataImport.setDataSource(DataImportObject.ImportSource.UBR_CSV);
-        dataImport.setImportDate(LocalDateTime.now());
         dataImport.setStatus(DataImportObject.ImportStatus.FileUploadPending);
         dataImport.setStatusText(DataImportObject.ImportStatus.FileUploadPending.title);
 
