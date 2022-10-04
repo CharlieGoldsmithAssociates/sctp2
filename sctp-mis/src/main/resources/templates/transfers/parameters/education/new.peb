@@ -2,8 +2,8 @@
         {% import "../../../utils/form" %}
         {% block contextMenu %}
         <div class="container context-nav-container">
-            <div class="button">
-                <a href="{{ href('/transfers/parameters/education') }}" class="button is-primary"> Back</a>
+            <div class="buttons is-right">
+                <a href="{{ href('/transfers/parameters') }}" class="button is-danger">Back to Parameters List</a>
             </div>
         </div>
         {% endblock %}

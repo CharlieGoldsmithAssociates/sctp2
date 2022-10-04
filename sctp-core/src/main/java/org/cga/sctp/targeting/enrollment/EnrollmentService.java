@@ -405,7 +405,7 @@ public class EnrollmentService extends TransactionalService {
             Long alterRecipientId = null, altOtherId = null;
 
             // if alternate receiver is not a household member, add/update details
-            if (recipients.getAlternateMemberId() == null) {
+            if (recipients.getAlternateMemberId() == null && recipients.getOtherDetails() != null) {
                 StoredProcedureQuery query =
                         entityManager.createStoredProcedureQuery("AddOrUpdateNonHouseholdAlternateRecipient")
                                 .registerStoredProcedureParameter(1, Long.class, ParameterMode.IN)
@@ -445,14 +445,17 @@ public class EnrollmentService extends TransactionalService {
                 alterRecipientId = recipients.getAlternateMemberId();
             }
 
-            entityManager.createNativeQuery(recipientSqlTemplate)
-                    .setParameter("household_id", enrollment.getHouseholdId())
-                    .setParameter("main_recipient", recipients.getPrimaryMemberId())
-                    .setParameter("alt_recipient", alterRecipientId)
-                    .setParameter("alt_other", altOtherId)
-                    .setParameter("timestamp", timestamp)
-                    .setParameter("enrollment_session", sessionId)
-                    .executeUpdate();
+            if (recipients.getPrimaryMemberId() != null && recipients.getPrimaryMemberId() > 0) {
+                entityManager.createNativeQuery(recipientSqlTemplate)
+                        .setParameter("household_id", enrollment.getHouseholdId())
+                        .setParameter("main_recipient", recipients.getPrimaryMemberId())
+                        .setParameter("alt_recipient", alterRecipientId)
+                        .setParameter("alt_other", altOtherId)
+                        .setParameter("timestamp", timestamp)
+                        .setParameter("enrollment_session", sessionId)
+                        .executeUpdate();
+            }
+
 
             for (EnrollmentUpdateForm.SchoolEnrollment se : enrollment.getSchoolEnrollment()) {
                 entityManager.createNativeQuery(schoolEnrollmentSqlTemplate)

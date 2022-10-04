@@ -33,7 +33,6 @@
 package org.cga.sctp.targeting.exchange;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 @MappedSuperclass
@@ -86,8 +85,8 @@ public class DataImportObject {
     private Long importerUserId;
     private Long batchDuplicates;
     private Long populationDuplicates;
-    private LocalDateTime importDate;
-    private LocalDateTime completionDate;
+    private ZonedDateTime importDate;
+    private ZonedDateTime completionDate;
     private ZonedDateTime mergeDate;
 
     @Column(updatable = false, insertable = false, columnDefinition = "boolean default false")
@@ -183,19 +182,19 @@ public class DataImportObject {
         this.populationDuplicates = populationDuplicates;
     }
 
-    public LocalDateTime getImportDate() {
+    public ZonedDateTime getImportDate() {
         return importDate;
     }
 
-    public void setImportDate(LocalDateTime importDate) {
+    public void setImportDate(ZonedDateTime importDate) {
         this.importDate = importDate;
     }
 
-    public LocalDateTime getCompletionDate() {
+    public ZonedDateTime getCompletionDate() {
         return completionDate;
     }
 
-    public void setCompletionDate(LocalDateTime completionDate) {
+    public void setCompletionDate(ZonedDateTime completionDate) {
         this.completionDate = completionDate;
     }
 

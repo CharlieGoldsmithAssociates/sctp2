@@ -36,7 +36,6 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.cga.sctp.core.BaseService;
-import org.cga.sctp.persistence.StatusCode;
 import org.cga.sctp.security.AccessControlService;
 import org.cga.sctp.user.AuthenticatedUser;
 import org.cga.sctp.user.User;
@@ -128,6 +127,11 @@ public class AuthService extends BaseService implements AuthenticationProvider {
             throw new LockedException(AuthenticationResult.InactiveAccount.message);
         }
 
+        if (user.isBlocked()) {
+            publishEvent(AuthenticationEvent.accountLocked(ipAddress, user));
+            throw new LockedException(AuthenticationResult.BlockedAccount.message);
+        }
+
         user.setIpAddress(ipAddress);
         user.setLastAuthAttemptAt(LocalDateTime.now());
 
@@ -136,7 +140,8 @@ public class AuthService extends BaseService implements AuthenticationProvider {
 
             if (user.getAuthAttempts() >= authConfiguration.maxAttempts()) {
                 user.setStatusText(format("Locked after %d failed auth attempts.", user.getAuthAttempts()));
-                user.setStatus(StatusCode.INACTIVE);
+                //user.setStatus(StatusCode.INACTIVE);
+                user.setBlocked(true);
             }
 
             result = AuthenticationResult.InvalidCredentials;
@@ -161,6 +166,9 @@ public class AuthService extends BaseService implements AuthenticationProvider {
             if (!user.isActive()) {
                 publishEvent(AuthenticationEvent.accountLocked(ipAddress, user));
                 throw new LockedException(AuthenticationResult.InactiveAccount.message);
+            } else if (user.isBlocked()) {
+                publishEvent(AuthenticationEvent.accountLocked(ipAddress, user));
+                throw new LockedException(AuthenticationResult.BlockedAccount.message);
             } else {
                 throw new BadCredentialsException(AuthenticationResult.InvalidCredentials.message);
             }

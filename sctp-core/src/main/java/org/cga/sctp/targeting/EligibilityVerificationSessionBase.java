@@ -33,7 +33,7 @@
 package org.cga.sctp.targeting;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Set;
 
 @MappedSuperclass
@@ -53,7 +53,7 @@ public class EligibilityVerificationSessionBase {
     private Long criterionId;
     private Long districtCode;
     private Long households;
-    private LocalDateTime createdAt;
+    private ZonedDateTime createdAt;
 
     @Enumerated(value = EnumType.STRING)
     private Status status;
@@ -109,11 +109,11 @@ public class EligibilityVerificationSessionBase {
         this.taCode = taCode;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public ZonedDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(ZonedDateTime createdAt) {
         this.createdAt = createdAt;
     }
 

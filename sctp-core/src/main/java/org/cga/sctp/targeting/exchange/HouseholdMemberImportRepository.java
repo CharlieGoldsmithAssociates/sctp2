@@ -53,4 +53,16 @@ interface HouseholdMemberImportRepository extends JpaRepository<HouseholdMemberI
                     """
     )
     void updateHouseholdHead(@Param("hhid") Long householdId, @Param("did") Long importId, @Param("mid") Long memberId);
+
+    @Modifying
+    @Query(
+            nativeQuery = true,
+            value = """
+                    update ubr_csv_imports t1
+                     inner join ubr_csv_imports t2 on t2.data_import_id = t1.data_import_id and t2.household_member_id = :mid
+                     set t1.household_head_name = concat(t2.first_name, ' ', t2.last_name)
+                     where t1.household_id = :hhid AND t1.data_import_id = :did
+                    """
+    )
+    void updateHouseholdHeadName(@Param("hhid") Long householdId, @Param("did") Long importId, @Param("mid") Long memberId);
 }

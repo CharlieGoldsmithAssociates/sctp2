@@ -25,6 +25,11 @@ server:
         name: SCTP-JSESSIONID
   port: 8282
   host: localhost
+  # forward-headers-strategy: native # Enable if behind proxy to have spring boot grab ip/scheme(port) details from headers
+  #host_info: # override if behind a proxy
+  #  host: localhost
+  #  port: 43
+  #  ssl_on: true
 
 auth:
   jwt:

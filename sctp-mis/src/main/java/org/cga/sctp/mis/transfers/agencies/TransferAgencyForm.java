@@ -43,11 +43,11 @@ import javax.validation.constraints.NotNull;
 public class TransferAgencyForm {
     private Long id;
 
-    @AlphaNumeric
-    @Length(min=2, max=100)
+    @AlphaNumeric(message = "Transfer Agency name must be specified")
+    @Length(min=2, max=100, message = "Transfer Agency Name must be between {min} and {max} characters")
     private String name;
 
-    @NotEmpty
+    @NotEmpty(message = "Transfer Method/Modality must be specified")
     @Length(min=2, max=100)
     private String transferMethod;
 
@@ -55,25 +55,22 @@ public class TransferAgencyForm {
     private Booleans active;
 
     @NotEmpty(message = "Phone is required")
-    @Length(min=10, max=15)
+    @Length(min=10, max=15, message = "Phone number must be between {min} and {max} characters")
     private String phone;
 
-    @NotEmpty()
     private String website;
 
-    @NotEmpty()
+    @NotEmpty(message = "Address must be specified")
     private String address;
 
-    @AlphaNumeric
+    @AlphaNumeric(message = "Representative name must be specified")
     private String representativeName;
 
-    @NotEmpty()
     private String representativeEmail;
 
-    @NotEmpty()
+    @NotEmpty(message = "Representative Phone number must be specified")
     @Length(min=10, max=15)
     private String representativePhone;
-
     private String branch;
 
     private Long locationId;

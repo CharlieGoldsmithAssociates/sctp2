@@ -68,6 +68,9 @@ public class User extends DatabaseRecord {
     @Enumerated(EnumType.STRING)
     private SystemRole role;
 
+    @Column(nullable = false)
+    private boolean blocked;
+
     public int getAuthAttempts() {
         return authAttempts;
     }
@@ -198,5 +201,13 @@ public class User extends DatabaseRecord {
     @Transient
     public String makeFullName() {
         return StringUtils.capitalize(getFirstName()) + " " + StringUtils.capitalize(getLastName());
+    }
+
+    public boolean isBlocked() {
+        return blocked;
+    }
+
+    public void setBlocked(boolean blocked) {
+        this.blocked = blocked;
     }
 }

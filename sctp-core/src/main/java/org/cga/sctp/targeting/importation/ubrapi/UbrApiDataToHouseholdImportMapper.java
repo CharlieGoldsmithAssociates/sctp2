@@ -84,6 +84,16 @@ public class UbrApiDataToHouseholdImportMapper {
         return mapEntry(dataImport, targetingData);
     }
 
+    // Simple utility functiont to make code a bit more readable.
+    private static boolean intToBool(int val) {
+        return val > 0;
+    }
+
+    // Simple utility functiont to make code a bit more readable.
+    private static boolean intToBool(long val) {
+        return val > 0;
+    }
+
     private List<UbrHouseholdImport> mapEntry(DataImport dataImport, TargetingData targetingData) throws Exception {
         List<UbrHouseholdImport> members = new ArrayList<>(targetingData.household_members.size());
         Long batchNumber = Long.parseLong(format("%d%d%d",
@@ -114,6 +124,9 @@ public class UbrApiDataToHouseholdImportMapper {
         }
         common.setPmtScore(new BigDecimal(targetingData.pmt_score));
         common.setDependencyRatio(new BigDecimal(targetingData.household_summary.dependency_ratio));
+
+        common.setLaborConstrained(intToBool(targetingData.household_summary.labour_constrained));
+
         common.setFormNumber(Long.parseLong(targetingData.form_number));
         common.setRegistrationDate(Date.valueOf(targetingData.registration_date));
 
@@ -178,7 +191,7 @@ public class UbrApiDataToHouseholdImportMapper {
             member.setHouseholdMemberId(householdMember.id);
             member.setSctMemberCode(householdMember.sct_member_code);
             member.setFirstName(householdMember.first_name);
-            member.setFitForWork(householdMember.fit_for_work > 0);
+            member.setFitForWork(intToBool(householdMember.fit_for_work));
             member.setLastName(householdMember.last_name);
             member.setMaritalStatus(MaritalStatus.parseCode(householdMember.marital_status.parameter_code));
             member.setGender(Gender.valueOf(householdMember.gender.parameter_name));

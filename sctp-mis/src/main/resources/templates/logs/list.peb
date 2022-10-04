@@ -7,7 +7,7 @@
         {% if canArchiveLogs %}
         <div class="container context-nav-container">
             <div class="buttons is-right">
-                <button onclick="clearSelection()" class="button is-primary">Clear Selection</button>
+{#                <button onclick="clearSelection()" class="button is-primary">Clear Selection</button>#}
                 <button onclick="archiveSelection()" class="button is-danger">Archive Selected Logs</button>
             </div>
         </div>

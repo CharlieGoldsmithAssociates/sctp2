@@ -1,13 +1,5 @@
     {% extends "targeting/import/base" %}
 
-    {% block head %}
-    {% set skipVue3 = true %}
-    <link rel="stylesheet" type="text/css" href="/assets/css/info-list.css"/>
-    <link rel="stylesheet" type="text/css" href="/assets/css/buefy.min.css" />
-    <link rel="stylesheet" type="text/css" href="/assets/css/fa-all.css" />
-    <link rel="stylesheet" type="text/css" href="/assets/css/mdi.min.css" />
-    {% endblock %}
-
     {% block title %}
         {{ parent() }} | UBR Data Import | {{ importSession.title }} | Review
     {% endblock %}
@@ -41,13 +33,8 @@
     </div>
     {% endblock %}
     {% block footerScripts %}
-    <script src="/assets/js/vue.js"></script>
-    <script src="/assets/js/vue-router.js"></script>
-    <script src="/assets/js/httpVueLoader.js"></script>
-    <script src="/assets/js/buefy.min.js"></script>
-
-            <!-- Individual components -->
-    <script type="module">
+        {{ parent() }}
+        <script type="module">
         const App = {
             el: '#vapp',
 

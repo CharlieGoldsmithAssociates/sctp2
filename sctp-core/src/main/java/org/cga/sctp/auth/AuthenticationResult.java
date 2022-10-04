@@ -35,6 +35,7 @@ package org.cga.sctp.auth;
 public enum AuthenticationResult {
     Authenticated("Successfully authenticated"),
     InactiveAccount("This account has been disabled"),
+    BlockedAccount("This account has been locked. Please reset your password to unlock"),
     InvalidCredentials("Invalid username or password");
 
     AuthenticationResult(String message) {

@@ -48,23 +48,30 @@ public class TopUpServiceImpl implements TopUpService {
     @Override
     public Optional<TopUp> newTopup(NewTopUpForm params) {
         TopUp topUp = new TopUp();
-        topUp.setProgramId(params.getProgramId());
-        topUp.setActive(params.isActive());
-        topUp.setAmount(params.getAmount());
-        topUp.setAmountExecuted(null);
-        topUp.setAmountProjected(null);
-        topUp.setCategorical(params.isCategorical());
-        topUp.setCategoricalTargetingCriteriaId(params.getCategoricalTargetingCriteriaId());
-
-        topUp.setDiscountedFromFunds(params.isDiscountedFromFunds());
-        topUp.setExecuted(false);
-        topUp.setFunderId(params.getFunderId());
-        topUp.setHouseholdStatus(params.getHouseholdStatus());
-        topUp.setLocationId(params.getLocationId());
-        topUp.setLocationType(params.getLocationType());
         topUp.setName(params.getName());
         topUp.setPercentage(params.getPercentage());
         topUp.setTopupType(params.getTopupType());
+        topUp.setFunderId(params.getFunderId());
+        topUp.setProgramId(params.getProgramId());
+        topUp.setActive(params.isActive());
+        topUp.setAmount(params.getAmount());
+        topUp.setHouseholdStatus(params.getHouseholdStatus());
+        topUp.setLocationId(params.getLocationId());
+        topUp.setLocationType(params.getLocationType());
+
+        // new topups will by default not have been executed
+        topUp.setExecuted(false);
+        topUp.setAmountExecuted(null);
+        topUp.setAmountProjected(null);
+
+        if (params.isCategorical()) {
+            topUp.setCategorical(params.isCategorical());
+            topUp.setCategoricalTargetingCriteriaId(params.getCategoricalTargetingCriteriaId());
+            // TODO: handle categorical parameters - create criteria record and link to the topup
+            // TODO: handle params.getOrphanhoodStatuses() et al
+        }
+        topUp.setDiscountedFromFunds(params.isDiscountedFromFunds());
+
 
         LocalDateTime now = LocalDateTime.now();
         topUp.setCreatedBy(params.getUserId());
@@ -72,17 +79,27 @@ public class TopUpServiceImpl implements TopUpService {
         topUp.setCreatedAt(now);
         topUp.setUpdatedAt(now);
 
-        return Optional.ofNullable(topUpRepository.save(topUp));
+        return Optional.of(topUpRepository.save(topUp));
     }
 
     @Override
-    public List<TopUp> fetchAllActive(Optional<Location> location) {
-        throw  new RuntimeException("not implemented");
+    public List<TopUp> fetchAllActive() {
+        return null;
     }
 
     @Override
-    public List<TopUp> fetchAllExecuted(Optional<Location> location) {
-        throw  new RuntimeException("not implemented");
+    public List<TopUp> fetchAllActive(Location location) {
+        return null;
+    }
+
+    @Override
+    public List<TopUp> fetchAllExecuted() {
+        return null;
+    }
+
+    @Override
+    public List<TopUp> fetchAllExecuted(Location location) {
+        return null;
     }
 
     @Override

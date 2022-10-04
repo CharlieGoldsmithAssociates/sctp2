@@ -47,4 +47,8 @@ public @interface ValidRecipients {
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
+
+    boolean optional() default false;
+
+    boolean primaryRecipientOptional() default false;
 }

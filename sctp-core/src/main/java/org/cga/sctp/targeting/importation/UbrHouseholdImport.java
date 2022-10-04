@@ -46,7 +46,7 @@ import org.cga.sctp.utils.LocaleUtils;
 import javax.persistence.Convert;
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -75,7 +75,7 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes implements Clo
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long dataImportId;
-    private LocalDateTime createdAt;
+    private ZonedDateTime createdAt;
 
     private boolean archived;
 
@@ -221,6 +221,11 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes implements Clo
     @BooleanString(trueStrings = {"1","YES"}, falseStrings = {"0","NO"})
     @Parsed(field = "fit_for_work")
     protected boolean fitForWork;
+
+    @Validate
+    @BooleanString(trueStrings = {"1","YES"}, falseStrings = {"0","NO"})
+    @Parsed(field = "labor_constrained")
+    protected boolean laborConstrained;
 
     @Parsed(field = "sct_member_code")
     @NullString(nulls = {"-", ""})
@@ -391,11 +396,11 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes implements Clo
         this.dataImportId = dataImportId;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public ZonedDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(ZonedDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
@@ -557,6 +562,14 @@ public class UbrHouseholdImport extends CommonHouseholdAttributes implements Clo
 
     public void setFitForWork(boolean fitForWork) {
         this.fitForWork = fitForWork;
+    }
+
+    public boolean isLaborConstrained() {
+        return laborConstrained;
+    }
+
+    public void setLaborConstrained(boolean laborConstrained) {
+        this.laborConstrained = laborConstrained;
     }
 
     public String getSctMemberCode() {

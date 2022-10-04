@@ -44,6 +44,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 
 /**
@@ -67,7 +69,48 @@ public class UbrApiClientImpl extends BaseComponent implements UbrApiClient {
      * @param request parameters to use when fetching the data
      * @return data fetched from the API or <code>null</code>
      */
-    @Override
+    public UbrApiClientRequestResult _fetchNewHouseholds(UbrRequest request) {
+        UbrApiClientRequestResult result;
+        String baseUrl = apiConfiguration.getBaseUrl();
+        if (baseUrl.endsWith("/")) {
+            baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
+        }
+
+        HttpClient httpClient = HttpClient.newBuilder()
+                .followRedirects(HttpClient.Redirect.NEVER)
+                .connectTimeout(Duration.ofSeconds(apiConfiguration.getClientTimeoutSeconds()))
+                .build();
+
+        try {
+            String url = String.format(fetchHouseholdsTemplate, baseUrl);
+            String requestBody = objectMapper.writeValueAsString(request);
+            LOGGER.info("Sending request to {} with following parameters: {}", url, requestBody);
+
+            HttpRequest httpRequest = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .version(HttpClient.Version.HTTP_1_1)
+                    .header("User-Agent", "CGA Target MIS v1.4.10-dev")
+                    .header("Accept", "*/*")
+                    .header("Authorization", "Basic " + apiConfiguration.basicAuthCredentials())
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                    .build();
+
+
+            File file = File.createTempFile(format("ubr-api-import"), ".json", apiConfiguration.getTmp());
+            LOGGER.info("will download data to {}", file);
+
+            var fileHandler = HttpResponse.BodyHandlers.ofFile(file.toPath());
+            var filePath = httpClient.send(httpRequest, fileHandler).body();
+
+            result = new UbrApiClientRequestResult(false, filePath.normalize().toAbsolutePath().toFile(), null);
+        } catch (Exception e) {
+            LOGGER.error("Failed to fetch data from UBR", e);
+            result = new UbrApiClientRequestResult(true, null, "Failed to download household data from UBR");
+        }
+        return result;
+    }
+
     public UbrApiClientRequestResult fetchNewHouseholds(UbrRequest request) {
         UbrApiClientRequestResult result;
         String baseUrl = apiConfiguration.getBaseUrl();
@@ -96,13 +139,16 @@ public class UbrApiClientImpl extends BaseComponent implements UbrApiClient {
                     .build();
 
 
-            File file = File.createTempFile(format("ubr-api-import"),".json", apiConfiguration.getTmp());
+            File file = File.createTempFile(format("ubr-api-import"), ".json", apiConfiguration.getTmp());
             LOGGER.info("will download data to {}", file);
 
-            var fileHandler = HttpResponse.BodyHandlers.ofFile(file.toPath());
+            var fileHandler = HttpResponse.BodyHandlers.ofInputStream();
             var filePath = httpClient.send(httpRequest, fileHandler).body();
+            Exception exception = null;
 
-            result = new UbrApiClientRequestResult(false, filePath.normalize().toAbsolutePath().toFile(), null);
+            Files.copy(filePath, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+            result = new UbrApiClientRequestResult(false, file.getAbsoluteFile(), null);
         } catch (Exception e) {
             LOGGER.error("Failed to fetch data from UBR", e);
             result = new UbrApiClientRequestResult(true, null, "Failed to download household data from UBR");

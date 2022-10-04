@@ -33,9 +33,11 @@
 package org.cga.sctp.mis.config;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@ConfigurationProperties(prefix = "server")
 public class ServerConfiguration {
 
     @Value("${security.require-ssl:false}")
@@ -46,6 +48,8 @@ public class ServerConfiguration {
 
     @Value("${server.port}")
     private int port;
+
+    private HostConfigOverride hostInfo;
 
     public boolean isSslEnabled() {
         return sslEnabled;
@@ -73,5 +77,13 @@ public class ServerConfiguration {
 
     public boolean isStandardPort() {
         return port == 80 || port == 443;
+    }
+
+    public HostConfigOverride getHostInfo() {
+        return hostInfo;
+    }
+
+    public void setHostInfo(HostConfigOverride hostInfo) {
+        this.hostInfo = hostInfo;
     }
 }

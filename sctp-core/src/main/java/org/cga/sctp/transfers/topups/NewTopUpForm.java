@@ -40,7 +40,6 @@ import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 public class NewTopUpForm {
-    @NotNull
     @NotEmpty(message = "name cannot be empty")
     private String name;
 
@@ -80,6 +79,26 @@ public class NewTopUpForm {
 
     private Long userId;
 
+    private String categoricalTargetingLevel;
+
+    private int ageFrom;
+
+    private int ageTo;
+
+    /**
+     * CSV Formatted ChronicIllnesses
+     */
+    private String chronicIllnesses;
+
+    /**
+     * CSV Formatted Orphanhood statuses
+     */
+    private String orphanhoodStatuses;
+
+    /**
+     * CSV Formatted Disabilities
+     */
+    private String disabilities;
 
     public String getName() {
         return name;
@@ -191,6 +210,54 @@ public class NewTopUpForm {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public String getCategoricalTargetingLevel() {
+        return categoricalTargetingLevel;
+    }
+
+    public void setCategoricalTargetingLevel(String categoricalTargetingLevel) {
+        this.categoricalTargetingLevel = categoricalTargetingLevel;
+    }
+
+    public int getAgeFrom() {
+        return ageFrom;
+    }
+
+    public void setAgeFrom(int ageFrom) {
+        this.ageFrom = ageFrom;
+    }
+
+    public int getAgeTo() {
+        return ageTo;
+    }
+
+    public void setAgeTo(int ageTo) {
+        this.ageTo = ageTo;
+    }
+
+    public String getChronicIllnesses() {
+        return chronicIllnesses;
+    }
+
+    public void setChronicIllnesses(String chronicIllnesses) {
+        this.chronicIllnesses = chronicIllnesses;
+    }
+
+    public String getOrphanhoodStatuses() {
+        return orphanhoodStatuses;
+    }
+
+    public void setOrphanhoodStatuses(String orphanhoodStatuses) {
+        this.orphanhoodStatuses = orphanhoodStatuses;
+    }
+
+    public String getDisabilities() {
+        return disabilities;
+    }
+
+    public void setDisabilities(String disabilities) {
+        this.disabilities = disabilities;
     }
 
     public static class Validator {

@@ -44,6 +44,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import java.util.TimeZone;
+
 @SpringBootApplication
 @EnableAsync
 @EnableConfigurationProperties
@@ -54,6 +56,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 public class ApiApplication extends BaseComponent {
 
     public static void main(String[] args) {
+        TimeZone.setDefault(TimeZone.getTimeZone("Africa/Blantyre"));
         SpringApplication.run(ApiApplication.class, args);
     }
 }

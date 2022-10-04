@@ -33,6 +33,7 @@
 package org.cga.sctp.transfers.parameters;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Entity
@@ -41,6 +42,10 @@ public class TransferParameter {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column
+    @NotNull
+    private Long programId;
 
     @Column
     private String title;
@@ -63,6 +68,14 @@ public class TransferParameter {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getProgramId() {
+        return programId;
+    }
+
+    public void setProgramId(Long programId) {
+        this.programId = programId;
     }
 
     public String getTitle() {

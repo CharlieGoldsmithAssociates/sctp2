@@ -33,7 +33,7 @@
 package org.cga.sctp.targeting.importation;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @MappedSuperclass
 public abstract class BaseFileImportTask {
@@ -48,8 +48,8 @@ public abstract class BaseFileImportTask {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long dataImportId;
-    private LocalDateTime createdAt;
-    private LocalDateTime finishedAt;
+    private ZonedDateTime createdAt;
+    private ZonedDateTime finishedAt;
     private Long currentRow;
     private Long rowCount;
     @Enumerated(EnumType.STRING)
@@ -71,19 +71,19 @@ public abstract class BaseFileImportTask {
         this.dataImportId = dataImportId;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public ZonedDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(ZonedDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getFinishedAt() {
+    public ZonedDateTime getFinishedAt() {
         return finishedAt;
     }
 
-    public void setFinishedAt(LocalDateTime finishedAt) {
+    public void setFinishedAt(ZonedDateTime finishedAt) {
         this.finishedAt = finishedAt;
     }
 

@@ -346,7 +346,7 @@ public class EnrollmentController extends SecuredBaseController {
             recipient = new HouseholdRecipient();
             recipient.setMainRecipient(form.getId());
             recipient.setCreatedAt(OffsetDateTime.now());
-            recipient.setHouseholdId(form.getHousehold());
+            recipient.setHouseholdId(enrollment.getHouseholdId());
         }
 
         recipient.setModifiedAt(OffsetDateTime.now());

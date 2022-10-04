@@ -541,15 +541,15 @@ public class TargetingService extends TransactionalService {
                 update targeting_results tr
                 JOIN targeting_sessions ts ON ts.id = tr.targeting_session
                 set tr.status = :newStatus
-                    , tr.ranking = IF(:newRank != tr.ranking AND :newRank != NULL, :newRank, tr.ranking)
+                    , tr.ranking = coalesce(:newRank, tr.ranking)
                 	, tr.updated_at = :timestamp
-                	, tr.old_status = IF(:newStatus != NULL AND :newStatus != tr.status, tr.status, tr.old_status)
-                	, tr.old_rank = IF(:newRank != NULL AND :newRank != tr.ranking, tr.ranking, tr.old_rank)
-                	, tr.reason = :changeReason
-                	, tr.scm_user_id = IF(:scmUserId != NULL, :scmUserId, tr.scm_user_id)
-                	, tr.scm_user_timestamp = IF(:scmTimestamp != NULL, :scmTimestamp, tr.scm_user_timestamp)
-                	, tr.dm_user_id = IF(:dmUserId != NULL, :dmUserId, tr.dm_user_id)
-                	, tr.dm_user_timestamp = IF(:dmTimestamp != NULL, :dmTimestamp, tr.dm_user_timestamp)
+                	, tr.old_status = tr.status
+                	, tr.old_rank = tr.ranking
+                	, tr.reason = coalesce(:changeReason, tr.reason)
+                	, tr.scm_user_id = coalesce(:scmUserId, tr.scm_user_id)
+                	, tr.scm_user_timestamp = coalesce(:scmTimestamp, tr.scm_user_timestamp)
+                	, tr.dm_user_id = coalesce(:dmUserId, tr.dm_user_id)
+                	, tr.dm_user_timestamp = coalesce(:dmTimestamp, tr.dm_user_timestamp)
                 WHERE ts.id = :sessionId AND ts.status = :sessionStatus AND tr.household_id = :householdId
                 """;
         boolean updated = false;
@@ -558,11 +558,12 @@ public class TargetingService extends TransactionalService {
             return false;
         }
 
-        OffsetDateTime updatedAt = OffsetDateTime.now();
-        Query query = entityManager.createNativeQuery(sql);
+        final OffsetDateTime updatedAt = OffsetDateTime.now();
 
         try {
             for (TargetedHouseholdStatus status : statuses) {
+                final Query query = entityManager.createNativeQuery(sql);
+
                 query.setParameter("timestamp", updatedAt);
                 query.setParameter("sessionId", session.getId());
                 query.setParameter("changeReason", status.getReason());
@@ -583,8 +584,9 @@ public class TargetingService extends TransactionalService {
                     query.setParameter("scmTimestamp", updatedAt);
                     query.setParameter("newRank", status.getRank());
                 }
+
+                query.executeUpdate();
             }
-            query.executeUpdate();
             updated = true;
         } catch (Exception e) {
             LOG.error("Error during household updates", e);

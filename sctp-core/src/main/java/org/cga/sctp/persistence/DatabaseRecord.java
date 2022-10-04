@@ -38,8 +38,6 @@ package org.cga.sctp.persistence;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.Column;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.MappedSuperclass;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -55,7 +53,6 @@ public abstract class DatabaseRecord implements Serializable {
     private LocalDateTime modifiedAt;
 
     @Column(nullable = false)
-    @Enumerated(EnumType.ORDINAL)
     private StatusCode status;
 
     @JsonIgnore

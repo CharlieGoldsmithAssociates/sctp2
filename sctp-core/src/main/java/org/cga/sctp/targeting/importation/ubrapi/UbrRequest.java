@@ -76,7 +76,7 @@ public class UbrRequest {
     @JsonProperty("lower_percentile_category")
     private Long lowerPercentileCategory; //": "0",
 
-    @Min(value = 10, message = "Upper Percentile Category must be greater than or equal to 10")
+    @Min(value = 1, message = "Upper Percentile Category must be greater than or equal to 1")
     @Max(value = 100, message = "Upper Percentile Category must be less than or equal to 100")
     @JsonProperty("upper_percentile_category")
     private Long upperPercentileCategory; //": "100",

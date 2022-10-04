@@ -35,7 +35,6 @@ package org.cga.sctp.targeting.enrollment;
 import org.cga.sctp.targeting.LongSetConverter;
 
 import javax.persistence.*;
-import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.Set;
 
@@ -55,7 +54,7 @@ public class EnrollmentSessionObject {
     private Long createdBy;
 
     @Column(name = "created_at", nullable = false)
-    private OffsetDateTime createdAt;
+    private ZonedDateTime createdAt;
 
     @Column(name = "target_session_id")
     private Long targetSessionId;
@@ -67,7 +66,7 @@ public class EnrollmentSessionObject {
     private Long closedBy;
 
     @Column(name = "closed_at")
-    private OffsetDateTime closedAt;
+    private ZonedDateTime closedAt;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
@@ -110,11 +109,11 @@ public class EnrollmentSessionObject {
         this.createdBy = createdBy;
     }
 
-    public OffsetDateTime getCreatedAt() {
+    public ZonedDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(OffsetDateTime createdAt) {
+    public void setCreatedAt(ZonedDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
@@ -142,11 +141,11 @@ public class EnrollmentSessionObject {
         this.closedBy = closedBy;
     }
 
-    public OffsetDateTime getClosedAt() {
+    public ZonedDateTime getClosedAt() {
         return closedAt;
     }
 
-    public void setClosedAt(OffsetDateTime closedAt) {
+    public void setClosedAt(ZonedDateTime closedAt) {
         this.closedAt = closedAt;
     }
 
