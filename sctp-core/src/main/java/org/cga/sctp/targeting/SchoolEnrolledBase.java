@@ -32,10 +32,10 @@
 
 package org.cga.sctp.targeting;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
+import org.cga.sctp.targeting.importation.parameters.EducationLevel;
+import org.cga.sctp.targeting.importation.parameters.GradeLevel;
+
+import javax.persistence.*;
 
 @MappedSuperclass
 public class SchoolEnrolledBase {
@@ -44,8 +44,12 @@ public class SchoolEnrolledBase {
     private long id;
     private long householdId;
     private long individualId;
-    private long educationLevel;
-    private long grade;
+
+    @Enumerated(EnumType.STRING)
+    private EducationLevel educationLevel;
+
+    @Enumerated(EnumType.STRING)
+    private GradeLevel grade;
     private long schoolId;
     private int status;
 
@@ -73,19 +77,19 @@ public class SchoolEnrolledBase {
         this.individualId = individualId;
     }
 
-    public long getEducationLevel() {
+    public EducationLevel getEducationLevel() {
         return educationLevel;
     }
 
-    public void setEducationLevel(long educationLevel) {
+    public void setEducationLevel(EducationLevel educationLevel) {
         this.educationLevel = educationLevel;
     }
 
-    public long getGrade() {
+    public GradeLevel getGrade() {
         return grade;
     }
 
-    public void setGrade(long grade) {
+    public void setGrade(GradeLevel grade) {
         this.grade = grade;
     }
 

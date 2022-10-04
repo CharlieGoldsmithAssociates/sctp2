@@ -46,13 +46,15 @@
             <version>1.0.0-2.0</version>
         </dependency>
 
-        <dependency>
+        <!-- Live reload causes issues with database migrations. When you have it running
+        and you add a migration it will end up getting migrated without consent. Dangerous -->
+        <!--<dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
-
+-->
     </dependencies>
 
     <build>

@@ -41,7 +41,7 @@ import javax.persistence.Table;
 @Immutable
 @Entity
 @Table(name = "school_enrolled_v")
-public class SchoolEnrolledView extends SchoolEnrolledBase{
+public class SchoolEnrolledView extends SchoolEnrolledBase {
     @Column(name = "school_name", nullable = false)
     private String schoolName;
     @Column(name = "school_code")

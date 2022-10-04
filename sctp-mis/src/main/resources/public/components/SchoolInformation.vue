@@ -127,7 +127,7 @@
                   expanded
                   v-model="schoolId"
                 >
-                  <option v-for="school in allSchools" :value="school.id">
+                  <option v-for="school in allSchools" :key="school.id" :value="school.id">
                     {{ school.name }} - {{ school.code }} -
                     {{ school.educationZone }}
                   </option>
@@ -144,8 +144,8 @@
                       v-model="educationLevel"
                     >
                       <option
-                        v-for="(level, index) in educationLevels"
-                        :value="index + 1"
+                        v-for="(level,idx) in educationLevels" :key="idx"
+                        :value="level"
                       >
                         {{ level }}
                       </option>
@@ -162,17 +162,17 @@
                       v-model="gradeLevel"
                     >
                       <option
-                        v-for="(level, index) in gradeLevels"
-                        :value="index + 1"
+                        v-for="(gradeLevel,index) in gradeLevels" :key="index"
+                        :value="gradeLevel"
                       >
-                        {{ level }}
+                        {{ gradeLevel }}
                       </option>
                     </b-select>
                   </b-field>
                 </div>
               </div>
               <div class="column">
-                <b-field label="Is the child still active?">
+                <b-field label="Is the enrollment still active?">
                   <b-switch
                     v-model="status"
                     true-value="1"
@@ -272,6 +272,18 @@ module.exports = {
         ariaModal: true,
       });
     },
+    msgDialog(msg, titleText = "Success") {
+      this.$buefy.dialog.alert({
+        title: titleText,
+        message: msg,
+        type: "is-success",
+        hasIcon: true,
+        icon: "check",
+        iconPack: "fa",
+        ariaRole: "alertdialog",
+        ariaModal: true,
+      });
+    },
     getSchoolsEnrolled() {
       let vm = this;
       vm.isLoading = true;
@@ -301,10 +313,10 @@ module.exports = {
     saveSchoolInfo() {
       let vm = this;
       vm.isLoading = true;
-      //var memberId = document.querySelector("#memberId").value;
+
       fData = new FormData();
-      fData.append("memberId", vm.memberId)
-      //fData.append("individualId", memberId);
+      //fData.append("memberId", vm.memberId)
+      fData.append("individualId", vm.memberId);
       fData.append("householdId", vm.householdId);
       fData.append("sessionId", vm.sessionId);
       fData.append("schoolId", vm.schoolId);
@@ -312,10 +324,7 @@ module.exports = {
       fData.append("grade", vm.gradeLevel);
       fData.append("status", vm.status);
 
-      // Display the key/value pairs
-      for (var pair of fData.entries()) {
-        console.log(pair[0] + ", " + pair[1]);
-      }
+      console.table(fData)
 
       const config = {
         headers: {
@@ -327,8 +336,10 @@ module.exports = {
         .post(`/targeting/enrolment/update-school`, fData, config)
         .then(function (response) {
           if (response.status === 200) {
-            mv.closeModal();
+            vm.closeModal();
             vm.msgDialog("Updated successfully.", "", "success", "check");
+            // TODO Append the resulting entry here to the table to reflect the change
+            // vm.enrollments.append(...)
           } else {
             throw `Status: ${response.status}`;
           }

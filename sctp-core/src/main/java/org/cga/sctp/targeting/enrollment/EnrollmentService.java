@@ -56,9 +56,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -186,8 +184,16 @@ public class EnrollmentService extends TransactionalService {
         schoolEnrolledRepository.saveAll(schoolEnrolled);
     }
 
-    public void saveChildrenEnrolledSchool(SchoolEnrolled schoolEnrolled) {
-        schoolEnrolledRepository.save(schoolEnrolled);
+    public void saveChildrenEnrolledSchool(SchoolEnrollmentForm form) {
+        EnrollmentUpdateForm.SchoolEnrollment enrollment = new EnrollmentUpdateForm.SchoolEnrollment();
+        enrollment.setActive(form.getStatus());
+        enrollment.setSchoolId((int) form.getSchoolId());
+        enrollment.setEducationLevel(form.getEducationLevel());
+        enrollment.setGradeLevel(form.getGrade());
+        enrollment.setHouseholdId(form.getHouseholdId());
+        enrollment.setMemberId(form.getIndividualId());
+
+        saveSchoolEnrollment(ZonedDateTime.now(), List.of(enrollment));
     }
 
     public HouseholdRecipient getHouseholdRecipient(Long householdId) {
@@ -220,68 +226,6 @@ public class EnrollmentService extends TransactionalService {
 
     public boolean sessionHasHouseholdsWithPreEligibleOrNotYetEnrolled(Long enrollmentSessionId) {
         return enrolmentSessionRepository.countPreEligibleOrNotEnrolled(enrollmentSessionId) > 0;
-    }
-
-
-    public void processEnrollment(EnrollmentForm enrollmentForm, MultipartFile file, MultipartFile alternate) throws IOException {
-        HouseholdRecipient householdRecipient = new HouseholdRecipient();
-        String mainReceiverPhotoName = "main-" + enrollmentForm.getHouseholdId() + ".jpg";
-        String altReceiverPhotoName = null;
-
-        //downloadFile(file, mainReceiverPhotoName);
-        saveBeneficiaryPicture(file, mainReceiverPhotoName);
-
-        if (enrollmentForm.getHasAlternate() != 0) {
-            altReceiverPhotoName = "alt-" + enrollmentForm.getHouseholdId() + ".jpg";
-            //downloadFile(alternate, altReceiverPhotoName);
-
-            saveBeneficiaryPicture(alternate, altReceiverPhotoName);
-
-            if (enrollmentForm.getNonHouseholdMember() != 0) {
-                this.saveHouseholdAlternateRecipient(enrollmentForm.getHouseholdId(),
-                        enrollmentForm.getMainReceiver(),
-                        mainReceiverPhotoName,
-                        altReceiverPhotoName,
-                        enrollmentForm.getAltFirstName(),
-                        enrollmentForm.getAltLastName(),
-                        enrollmentForm.getAltNationalId(),
-                        enrollmentForm.getAltGender(),
-                        LocalDate.parse(enrollmentForm.getAltDOB()));
-            } else {
-                householdRecipient.setHouseholdId(enrollmentForm.getHouseholdId());
-                householdRecipient.setMainRecipient(enrollmentForm.getMainReceiver());
-                householdRecipient.setAltRecipient(enrollmentForm.getAltReceiver());
-                householdRecipient.setCreatedAt(OffsetDateTime.now());
-                householdRecipient.setMainPhoto(mainReceiverPhotoName);
-                householdRecipient.setAltPhoto(altReceiverPhotoName);
-                this.saveHouseholdRecipient(householdRecipient);
-            }
-        } else {
-            householdRecipient.setHouseholdId(enrollmentForm.getHouseholdId());
-            householdRecipient.setMainRecipient(enrollmentForm.getMainReceiver());
-            householdRecipient.setAltRecipient(enrollmentForm.getAltReceiver());
-            householdRecipient.setCreatedAt(OffsetDateTime.now());
-            householdRecipient.setMainPhoto(mainReceiverPhotoName);
-            householdRecipient.setAltPhoto(altReceiverPhotoName);
-            this.saveHouseholdRecipient(householdRecipient);
-        }
-
-        List<SchoolEnrolled> schoolEnrolledList = new ArrayList<>();
-        List<SchoolEnrollmentForm> schoolEnrollmentForm = enrollmentForm.getSchoolEnrollmentForm();
-        if (!schoolEnrollmentForm.isEmpty()) {
-            for (SchoolEnrollmentForm sch : schoolEnrollmentForm) {
-                SchoolEnrolled schoolEnrolled = new SchoolEnrolled();
-                schoolEnrolled.setHouseholdId(sch.getHouseholdId());
-                schoolEnrolled.setIndividualId(sch.getIndividualId());
-                schoolEnrolled.setEducationLevel(sch.getEducationLevel());
-                schoolEnrolled.setGrade(sch.getGrade());
-                schoolEnrolled.setSchoolId(sch.getSchoolId());
-                schoolEnrolled.setStatus(sch.getStatus());
-                schoolEnrolledList.add(schoolEnrolled);
-            }
-            this.saveChildrenEnrolledSchool(schoolEnrolledList);
-        }
-        this.setEnrollmentHouseholdEnrolled(enrollmentForm.getHouseholdId());
     }
 
     private void saveBeneficiaryPicture(MultipartFile file, String fileName) throws IOException {
@@ -457,7 +401,32 @@ public class EnrollmentService extends TransactionalService {
             }
 
 
-            for (EnrollmentUpdateForm.SchoolEnrollment se : enrollment.getSchoolEnrollment()) {
+            /*for (EnrollmentUpdateForm.SchoolEnrollment se : enrollment.getSchoolEnrollment()) {
+                entityManager.createNativeQuery(schoolEnrollmentSqlTemplate)
+                        .setParameter("household_id", se.getHouseholdId())
+                        .setParameter("timestamp", timestamp)
+                        .setParameter("individual_id", se.getMemberId())
+                        .setParameter("education_level", se.getEducationLevel().name())
+                        .setParameter("grade_level", se.getGradeLevel().name())
+                        .setParameter("school_id", se.getSchoolId())
+                        .setParameter("status", se.getActive())
+                        .executeUpdate();
+            }*/
+            saveSchoolEnrollment(timestamp, enrollment.getSchoolEnrollment());
+        }
+    }
+
+    private void saveSchoolEnrollment(ZonedDateTime timestamp, List<EnrollmentUpdateForm.SchoolEnrollment> enrollments) {
+        if (!enrollments.isEmpty()) {
+            String schoolEnrollmentSqlTemplate = """
+                    INSERT INTO school_enrolled(household_id, individual_id, education_level, grade, school_id, status, created_at)
+                     VALUES(:household_id, :individual_id, :education_level, :grade_level, :school_id, :status, :timestamp)
+                     ON DUPLICATE KEY
+                     UPDATE education_level = :education_level, grade = :grade_level, school_id = :school_id
+                     , status = :status, updated_at = :timestamp
+                    ;""";
+
+            for (EnrollmentUpdateForm.SchoolEnrollment se : enrollments) {
                 entityManager.createNativeQuery(schoolEnrollmentSqlTemplate)
                         .setParameter("household_id", se.getHouseholdId())
                         .setParameter("timestamp", timestamp)

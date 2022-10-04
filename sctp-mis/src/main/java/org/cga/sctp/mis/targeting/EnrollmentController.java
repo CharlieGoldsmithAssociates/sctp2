@@ -67,7 +67,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
-import java.io.IOException;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.LinkedHashMap;
@@ -165,20 +164,6 @@ public class EnrollmentController extends SecuredBaseController {
 /*                .addObject("returnUrl", returnUrl)
                 .addObject("schools", schools)
                 .addObject("individuals", individuals)*/;
-    }
-
-    @RequestMapping(value = "/enroll", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @AdminAccessOnly
-    public ResponseEntity<Object> uploadFile(@RequestParam(required = true, value = "file") MultipartFile file,
-                                             @RequestParam(required = false, value = "altPhoto") MultipartFile alternate,
-                                             @RequestParam(required = true, value = "jsondata") String jsondata)
-            throws IOException {
-
-        EnrollmentForm enrollmentForm = objectMapper.readValue(jsondata, EnrollmentForm.class);
-        enrollmentService.processEnrollment(enrollmentForm, file, alternate);
-
-        return new ResponseEntity<>("File is uploaded successfully", HttpStatus.OK);
-
     }
 
     @GetMapping("/edit")
@@ -391,8 +376,8 @@ public class EnrollmentController extends SecuredBaseController {
             @RequestParam HouseholdRecipientType type,
             @Valid @ModelAttribute UpdateHouseholdRecipientForm form,
             BindingResult bindingResult
-            ){
-        
+    ) {
+
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().build();
         }
@@ -411,20 +396,20 @@ public class EnrollmentController extends SecuredBaseController {
 
         // HouseholdRecipient recipient = enrollmentService.getHouseholdRecipient(form.getHousehold());
 
-    //    if (recipient == null) {
-            HouseholdRecipient recipient = new HouseholdRecipient();
-            recipient.setCreatedAt(OffsetDateTime.now());
-            recipient.setHouseholdId(form.getHousehold());
-            recipient.setEnrollmentSession(form.getSession());
-    //    }
+        //    if (recipient == null) {
+        HouseholdRecipient recipient = new HouseholdRecipient();
+        recipient.setCreatedAt(OffsetDateTime.now());
+        recipient.setHouseholdId(form.getHousehold());
+        recipient.setEnrollmentSession(form.getSession());
+        //    }
 
-        LOG.error("FORM DATA HHID: "+form.getHousehold());
-        LOG.error("FORM DATA SSID: "+form.getSession());
-        LOG.error("FORM DATA TYPE: "+type);
-        
+        LOG.error("FORM DATA HHID: " + form.getHousehold());
+        LOG.error("FORM DATA SSID: " + form.getSession());
+        LOG.error("FORM DATA TYPE: " + type);
+
         recipient.setModifiedAt(OffsetDateTime.now());
         enrollment.setUpdatedAt(recipient.getModifiedAt());
-        
+
         MultipartFile photo = form.getPhoto();
 
         if (!fileUploadService.getResourceService().isAcceptedImageFile(photo)) {
@@ -433,7 +418,8 @@ public class EnrollmentController extends SecuredBaseController {
 
         ResourceService.UpdateResult updateResult = switch (type) {
             case primary -> fileUploadService.getResourceService().storeMainRecipientPhoto(photo, form.getHousehold());
-            case secondary -> fileUploadService.getResourceService().storeAlternateRecipientPhoto(photo, form.getHousehold());
+            case secondary ->
+                    fileUploadService.getResourceService().storeAlternateRecipientPhoto(photo, form.getHousehold());
         };
 
         if (!updateResult.stored()) {
@@ -450,7 +436,7 @@ public class EnrollmentController extends SecuredBaseController {
                 recipient.setAltPhoto(updateResult.name());
                 recipient.setAltPhotoType(updateResult.type());
                 // check if recipient is member or other
-                if(form.getAltType().equals(AlternateRecipientType.member)){
+                if (form.getAltType().equals(AlternateRecipientType.member)) {
                     recipient.setAltRecipient(form.getId());
                 } else {  // type is other
                     AlternateRecipient altRecipient = new AlternateRecipient();
@@ -463,7 +449,7 @@ public class EnrollmentController extends SecuredBaseController {
                     enrollmentService.saveAlternateRecipient(altRecipient);
                     recipient.setAltRecipient(altRecipient.getId());
                 }
-                
+
             }
         }
 
@@ -519,43 +505,34 @@ public class EnrollmentController extends SecuredBaseController {
     public ResponseEntity<?> updateSchool(
             @Valid @ModelAttribute SchoolEnrollmentForm form,
             BindingResult bindingResult
-    ){
+    ) {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().build();
         }
 
         HouseholdEnrollment enrollment = enrollmentService
-                .findHouseholdEnrollment(form.getSessionId() , form.getHouseholdId());
+                .findHouseholdEnrollment(form.getSessionId(), form.getHouseholdId());
 
         if (enrollment == null) {
             return ResponseEntity.notFound().build();
         }
-        if (schoolService.findById( form.getSchoolId()).isEmpty()) {
+        if (schoolService.findById(form.getSchoolId()).isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        SchoolEnrolled schoolEnrolled = new SchoolEnrolled();
-        schoolEnrolled.setEducationLevel(form.getEducationLevel());
-        schoolEnrolled.setGrade(form.getGrade());
-        schoolEnrolled.setHouseholdId(form.getHouseholdId());
-        schoolEnrolled.setSchoolId(form.getSchoolId());
-        schoolEnrolled.setIndividualId(form.getIndividualId());
-        schoolEnrolled.setStatus(form.getStatus());
 
-        enrollmentService.saveChildrenEnrolledSchool(schoolEnrolled);
+        enrollmentService.saveChildrenEnrolledSchool(form);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping(value = "/schools-enrolled", produces = MediaType.APPLICATION_JSON_VALUE)
     @AdminAndStandardAccessOnly
-    ResponseEntity<Map<String, Object>> getHouseholdSchoolEnrolled(@RequestParam(value = "household") Long householdId) {
+    ResponseEntity<Map<String, List<SchoolEnrolledView>>> getHouseholdSchoolEnrollments(@RequestParam(value = "household") Long householdId) {
         List<SchoolEnrolledView> schools = enrollmentService.getSchoolEnrolledViewByHousehold(householdId);
-        Map<String, Object> response = new LinkedHashMap<>();
+        Map<String, List<SchoolEnrolledView>> response = new LinkedHashMap<>();
         response.put("schools", schools);
-
-        LOG.info("SCHOOLS: "+schools);
         return ResponseEntity
                 .ok()
-            .body(response);
+                .body(response);
     }
 
 }

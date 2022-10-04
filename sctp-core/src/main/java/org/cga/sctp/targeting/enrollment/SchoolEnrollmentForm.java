@@ -34,20 +34,37 @@ package org.cga.sctp.targeting.enrollment;
 
 // TODO Needs validation annotations
 
+import org.cga.sctp.targeting.importation.parameters.EducationLevel;
+import org.cga.sctp.targeting.importation.parameters.GradeLevel;
+
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+
 public class SchoolEnrollmentForm {
+    @NotNull
+    @Min(1)
     private long householdId;
 
+    @NotNull
+    @Min(1)
     private long individualId;
 
+    @NotNull
+    @Min(1)
     private long schoolId;
-    
+
+    @NotNull
+    @Min(1)
     private long sessionId;
 
-    private int educationLevel;
+    @NotNull
+    private EducationLevel educationLevel;
 
-    private int grade;
+    @NotNull
+    private GradeLevel grade;
 
-    private int status;
+    @NotNull
+    private Boolean status;
 
     public long getHouseholdId() {
         return householdId;
@@ -73,35 +90,35 @@ public class SchoolEnrollmentForm {
         this.schoolId = schoolId;
     }
 
-    public int getEducationLevel() {
-        return educationLevel;
-    }
-
-    public void setEducationLevel(int educationLevel) {
-        this.educationLevel = educationLevel;
-    }
-
-    public int getGrade() {
-        return grade;
-    }
-
-    public void setGrade(int grade) {
-        this.grade = grade;
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
     public long getSessionId() {
         return sessionId;
     }
 
     public void setSessionId(long sessionId) {
         this.sessionId = sessionId;
+    }
+
+    public EducationLevel getEducationLevel() {
+        return educationLevel;
+    }
+
+    public void setEducationLevel(EducationLevel educationLevel) {
+        this.educationLevel = educationLevel;
+    }
+
+    public GradeLevel getGrade() {
+        return grade;
+    }
+
+    public void setGrade(GradeLevel grade) {
+        this.grade = grade;
+    }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
     }
 }
