@@ -32,15 +32,17 @@
 
 package org.cga.sctp.targeting.enrollment;
 
-import javax.persistence.*;
-import java.time.OffsetDateTime;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "household_recipient")
 public class HouseholdRecipient {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "household_id", nullable = false)
+    @Column(name = "household_id", nullable = false, unique = true)
     private Long householdId;
     private Long mainRecipient;
     private Long altRecipient;
@@ -50,8 +52,8 @@ public class HouseholdRecipient {
     private Long enrollmentSession;
     private String altPhoto;
     private Long altOther;
-    private OffsetDateTime createdAt;
-    private OffsetDateTime modifiedAt;
+    private ZonedDateTime createdAt;
+    private ZonedDateTime modifiedAt;
 
     public Long getHouseholdId() {
         return householdId;
@@ -125,19 +127,19 @@ public class HouseholdRecipient {
         this.altOther = altOther;
     }
 
-    public OffsetDateTime getCreatedAt() {
+    public ZonedDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(OffsetDateTime createdAt) {
+    public void setCreatedAt(ZonedDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public OffsetDateTime getModifiedAt() {
+    public ZonedDateTime getModifiedAt() {
         return modifiedAt;
     }
 
-    public void setModifiedAt(OffsetDateTime modifiedAt) {
+    public void setModifiedAt(ZonedDateTime modifiedAt) {
         this.modifiedAt = modifiedAt;
     }
 }

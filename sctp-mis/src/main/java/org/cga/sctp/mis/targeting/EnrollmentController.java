@@ -68,7 +68,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.net.URI;
-import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -394,21 +394,18 @@ public class EnrollmentController extends SecuredBaseController {
             return ResponseEntity.notFound().build();
         }
 
-        // HouseholdRecipient recipient = enrollmentService.getHouseholdRecipient(form.getHousehold());
+        ZonedDateTime timestamp = ZonedDateTime.now();
+        HouseholdRecipient recipient = enrollmentService.getHouseholdRecipient(form.getHousehold());
 
-        //    if (recipient == null) {
-        HouseholdRecipient recipient = new HouseholdRecipient();
-        recipient.setCreatedAt(OffsetDateTime.now());
-        recipient.setHouseholdId(form.getHousehold());
-        recipient.setEnrollmentSession(form.getSession());
-        //    }
+        if (recipient == null) {
+            recipient = new HouseholdRecipient();
+            recipient.setCreatedAt(timestamp);
+            recipient.setHouseholdId(form.getHousehold());
+            recipient.setEnrollmentSession(form.getSession());
+        }
 
-        LOG.error("FORM DATA HHID: " + form.getHousehold());
-        LOG.error("FORM DATA SSID: " + form.getSession());
-        LOG.error("FORM DATA TYPE: " + type);
-
-        recipient.setModifiedAt(OffsetDateTime.now());
-        enrollment.setUpdatedAt(recipient.getModifiedAt());
+        recipient.setModifiedAt(timestamp);
+        enrollment.setUpdatedAt(timestamp);
 
         MultipartFile photo = form.getPhoto();
 
@@ -423,6 +420,7 @@ public class EnrollmentController extends SecuredBaseController {
         };
 
         if (!updateResult.stored()) {
+            // TODO Return error here. Report that the upload failed.
             LOG.error("Failure uploading photo file");
         }
 
@@ -440,11 +438,14 @@ public class EnrollmentController extends SecuredBaseController {
                     recipient.setAltRecipient(form.getId());
                 } else {  // type is other
                     AlternateRecipient altRecipient = new AlternateRecipient();
-                    altRecipient.setFirstName(form.getFirstName());
-                    altRecipient.setLastName(form.getLastName());
-                    altRecipient.setNationalId(form.getNationalId());
                     altRecipient.setGender(form.getGender());
+                    altRecipient.setLastName(form.getLastName());
+                    altRecipient.setFirstName(form.getFirstName());
+                    altRecipient.setNationalId(form.getNationalId());
+                    altRecipient.setHouseholdId(form.getHousehold());
                     altRecipient.setDateOfBirth(form.getDateOfBirth());
+                    // TODO Add ID issue and expiry date fields. All data must be validated if present,
+                    //  but must be optional
 
                     enrollmentService.saveAlternateRecipient(altRecipient);
                     recipient.setAltRecipient(altRecipient.getId());

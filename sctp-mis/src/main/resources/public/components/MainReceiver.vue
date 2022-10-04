@@ -11,7 +11,7 @@
           <div class="column">
             <b-image
               id="main-photo"
-              :src="`/targeting/enrolment/recipient-photo?household=${householdId}&amp;type=primary`"
+              :src="mainRecipientImageUrl"
               src-fallback="/assets/img/user-svg.svg"
               class="p4p obj-fit-contain"
               :rounded="roundedImage"
@@ -170,16 +170,28 @@ module.exports = {
       isLoading: true,
       candidates: [],
       roundedImage: true,
-      memberId: null
+      memberId: null,
+      baseUrl: `/targeting/enrolment/recipient-photo?household=${this.householdId}&type=primary`,
+      imageUrl: null
     };
   },
   mounted() {
     this.getMainRecipient();
+    this.reloadRecipientImage();
   },
   components: {
     MembersDropdown: httpVueLoader("/components/MembersDropdown.vue"),
   },
+  computed:{
+    mainRecipientImageUrl: function(){
+      return this.imageUrl
+    }
+  },
   methods: {
+    reloadRecipientImage(){
+      var ts = new Date().getTime();
+      this.imageUrl = this.baseUrl + `&cache-buster=${ts}`
+    },
     getMainRecipient() {
       let vm = this;
       vm.isLoading = true;
@@ -239,6 +251,8 @@ module.exports = {
         .post(`/targeting/enrolment/update-recipient?${params}`, fData, config)
         .then(function (response) {
           if (response.status === 200) {
+            vm.reloadRecipientImage();
+            vm.getMainRecipient();
             console.log("Successfull");
           } else {
             throw `Status: ${response.status}`;
