@@ -95,6 +95,9 @@ public class EnrollmentService extends TransactionalService {
     private SchoolEnrolledRepository schoolEnrolledRepository;
 
     @Autowired
+    private SchoolEnrolledViewRepository schoolEnrolledViewRepository;
+
+    @Autowired
     private MainHouseholdRecipientRepository mainHouseholdRecipientRepository;
 
     @Autowired
@@ -199,6 +202,10 @@ public class EnrollmentService extends TransactionalService {
         return schoolEnrolledRepository.findHouseholdSchoolEnrolled(householdId);
     }
 
+    public List<SchoolEnrolledView> getSchoolEnrolledViewByHousehold(Long householdId) {
+        return schoolEnrolledViewRepository.findHouseholdSchoolEnrolledView(householdId);
+    }
+
     public void setEnrollmentHouseholdEnrolled(Long householdId) {
         enrolmentSessionRepository.updateHouseholdEnrollmentStatus(householdId, CbtStatus.Enrolled.code);
     }
@@ -263,7 +270,14 @@ public class EnrollmentService extends TransactionalService {
         List<SchoolEnrollmentForm> schoolEnrollmentForm = enrollmentForm.getSchoolEnrollmentForm();
         if (!schoolEnrollmentForm.isEmpty()) {
             for (SchoolEnrollmentForm sch : schoolEnrollmentForm) {
-                schoolEnrolledList.add(new SchoolEnrolled(sch.getHouseholdId(), sch.getIndividualId(), sch.getEducationLevel(), sch.getGrade(), sch.getSchoolId(), sch.getStatus()));
+                SchoolEnrolled schoolEnrolled = new SchoolEnrolled();
+                schoolEnrolled.setHouseholdId(sch.getHouseholdId());
+                schoolEnrolled.setIndividualId(sch.getIndividualId());
+                schoolEnrolled.setEducationLevel(sch.getEducationLevel());
+                schoolEnrolled.setGrade(sch.getGrade());
+                schoolEnrolled.setSchoolId(sch.getSchoolId());
+                schoolEnrolled.setStatus(sch.getStatus());
+                schoolEnrolledList.add(schoolEnrolled);
             }
             this.saveChildrenEnrolledSchool(schoolEnrolledList);
         }
@@ -546,4 +560,5 @@ public class EnrollmentService extends TransactionalService {
 
         return status;
     }
+
 }

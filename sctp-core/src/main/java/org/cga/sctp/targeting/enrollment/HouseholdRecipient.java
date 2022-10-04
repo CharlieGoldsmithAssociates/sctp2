@@ -40,6 +40,7 @@ import java.time.OffsetDateTime;
 public class HouseholdRecipient {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "household_id", nullable = false)
     private Long householdId;
     private Long mainRecipient;
     private Long altRecipient;

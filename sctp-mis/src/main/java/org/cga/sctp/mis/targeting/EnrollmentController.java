@@ -43,6 +43,7 @@ import org.cga.sctp.schools.SchoolsView;
 import org.cga.sctp.targeting.AlternateRecipient;
 import org.cga.sctp.targeting.HouseholdDetails;
 import org.cga.sctp.targeting.SchoolEnrolled;
+import org.cga.sctp.targeting.SchoolEnrolledView;
 import org.cga.sctp.targeting.enrollment.SchoolEnrollmentForm;
 import org.cga.sctp.targeting.enrollment.*;
 import org.cga.sctp.targeting.importation.parameters.EducationLevel;
@@ -419,6 +420,7 @@ public class EnrollmentController extends SecuredBaseController {
 
         LOG.error("FORM DATA HHID: "+form.getHousehold());
         LOG.error("FORM DATA SSID: "+form.getSession());
+        LOG.error("FORM DATA TYPE: "+type);
         
         recipient.setModifiedAt(OffsetDateTime.now());
         enrollment.setUpdatedAt(recipient.getModifiedAt());
@@ -512,6 +514,7 @@ public class EnrollmentController extends SecuredBaseController {
                 .ok()
                 .body(response);
     }
+
     @PostMapping("/update-school")
     public ResponseEntity<?> updateSchool(
             @Valid @ModelAttribute SchoolEnrollmentForm form,
@@ -533,7 +536,7 @@ public class EnrollmentController extends SecuredBaseController {
         SchoolEnrolled schoolEnrolled = new SchoolEnrolled();
         schoolEnrolled.setEducationLevel(form.getEducationLevel());
         schoolEnrolled.setGrade(form.getGrade());
-        schoolEnrolled.setHouseholdId(form.getSchoolId());
+        schoolEnrolled.setHouseholdId(form.getHouseholdId());
         schoolEnrolled.setSchoolId(form.getSchoolId());
         schoolEnrolled.setIndividualId(form.getIndividualId());
         schoolEnrolled.setStatus(form.getStatus());
@@ -541,37 +544,18 @@ public class EnrollmentController extends SecuredBaseController {
         enrollmentService.saveChildrenEnrolledSchool(schoolEnrolled);
         return ResponseEntity.ok().build();
     }
-   /* @PostMapping("/update-school")
-    public ResponseEntity<?> updateSchool(
-            @Valid @ModelAttribute SchoolEnrollmentForm form,
-            BindingResult bindingResult
-            ){
-        
-        if (bindingResult.hasErrors()) {
-            return ResponseEntity.badRequest().build();
-        }
 
-        HouseholdEnrollment enrollment = enrollmentService
-                .findHouseholdEnrollment(form.getSessionId() , form.getHouseholdId());
+    @GetMapping(value = "/schools-enrolled", produces = MediaType.APPLICATION_JSON_VALUE)
+    @AdminAndStandardAccessOnly
+    ResponseEntity<Map<String, Object>> getHouseholdSchoolEnrolled(@RequestParam(value = "household") Long householdId) {
+        List<SchoolEnrolledView> schools = enrollmentService.getSchoolEnrolledViewByHousehold(householdId);
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("schools", schools);
 
-        if (enrollment == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        // verify household member existence
-        if (schoolService.findById( form.getSchoolId()).isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        SchoolEnrolled schoolEnrolled = new SchoolEnrolled();
-        schoolEnrolled.setEducationLevel(form.getEducationLevel());
-        schoolEnrolled.setGrade(form.getGrade());
-        schoolEnrolled.setHouseholdId(form.getSchoolId());
-        schoolEnrolled.setSchoolId(form.getSchoolId());
-        schoolEnrolled.setIndividualId(form.getIndividualId());
-        schoolEnrolled.setStatus(form.getStatus());
-
-        enrollmentService.saveChildrenEnrolledSchool(schoolEnrolled);
-        return ResponseEntity.ok().build();
-    } */
+        LOG.info("SCHOOLS: "+schools);
+        return ResponseEntity
+                .ok()
+            .body(response);
+    }
 
 }

@@ -80,7 +80,7 @@
                                 <Alternate-Receiver :household-id="{{ householdId }}"/>
                             </b-tab-item>
 
-                            <b-tab-item label="School information">
+                            <b-tab-item label="School Information">
                                 <School-Information :household-id="{{ householdId }}" :session-id = "{{ sessionId }}"/>
                             </b-tab-item>
 

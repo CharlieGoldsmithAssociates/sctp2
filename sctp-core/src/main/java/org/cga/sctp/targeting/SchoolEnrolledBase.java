@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,12 +32,14 @@
 
 package org.cga.sctp.targeting;
 
-import javax.persistence.*;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
 
-@Entity
-@Table(name = "school_enrolled")
-public class SchoolEnrolled extends SchoolEnrolledBase {}
-   /* @Id
+@MappedSuperclass
+public class SchoolEnrolledBase {
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private long householdId;
@@ -46,17 +48,6 @@ public class SchoolEnrolled extends SchoolEnrolledBase {}
     private long grade;
     private long schoolId;
     private int status;
-
-    public SchoolEnrolled(long householdId, long individualId, long educationLevel, long grade, long schoolId, int status) {
-        this.householdId = householdId;
-        this.individualId = individualId;
-        this.educationLevel = educationLevel;
-        this.grade = grade;
-        this.schoolId = schoolId;
-        this.status = status;
-    }
-
-    public SchoolEnrolled(){}
 
     public long getId() {
         return id;
@@ -113,4 +104,4 @@ public class SchoolEnrolled extends SchoolEnrolledBase {}
     public void setStatus(int status) {
         this.status = status;
     }
-*/
+}
