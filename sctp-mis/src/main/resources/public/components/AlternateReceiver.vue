@@ -106,7 +106,7 @@
               <label class="label">Member</label>
             </div>
             <div class="column">
-              <Members-Dropdown :household-id="householdId" />
+              <Members-Dropdown :household-id="householdId" v-model="memberId" />
             </div>
           </div>
           <div class="columns" v-if="!isHouseholdMember">

@@ -1,14 +1,14 @@
 <template>
   <b-select
-    name="memberId"
     placeholder="Select Household Member"
     required
     expanded
+    v-model="memberId"
+    @input="changeMemberId"
   >
     <option
       v-for="individual in candidates"
       :value="individual.id"
-      id="memberId"
     >
       {{ individual.name }} ({{ individual.gender }}, {{ individual.age }} yrs)
     </option>
@@ -26,6 +26,7 @@ module.exports = {
   data() {
     return {
       candidates: [],
+      memberId: null
     };
   },
   mounted() {
@@ -66,6 +67,9 @@ module.exports = {
         ariaRole: "alertdialog",
         ariaModal: true,
       });
+    },
+    changeMemberId(){
+      this.$emit('input', this.memberId);
     }
   },
 };

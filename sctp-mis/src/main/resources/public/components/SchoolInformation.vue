@@ -49,8 +49,18 @@
             <span> {{ props.row.gradeLevel }}</span>
           </b-table-column>
 
-          <b-table-column label="Select School" v-slot="props">
-            <span> Schools </span>
+          <b-table-column label="Options">
+            <b-dropdown aria-role="list">
+              <template #trigger="{ active }">
+                <b-button
+                  label="Options"
+                  type="button is-info is-inverted is-options"
+                  :icon-right="active ? 'menu-up' : 'menu-down'"
+                />
+              </template>
+
+              <b-dropdown-item aria-role="listitem" @click="openModal">Edit</b-dropdown-item>
+            </b-dropdown>
           </b-table-column>
 
           <template #empty>
@@ -65,7 +75,7 @@
             <b-button
               label="New School Enrollment"
               type="is-info"
-              @click="isModalActive = true"
+              @click="openModal"
             />
           </div>
         </div>
@@ -74,19 +84,11 @@
             <b-button type="is-info" @click="getSchoolsEnrolled">
               Reload
             </b-button>
-            <!-- <b-button type="is-primary" @click="saveSchoolChildren">
-              Save
-            </b-button> -->
           </div>
         </div>
       </div>
     </div>
-    <!-- 
-    <School-Modal
-      :is-active="isSchoolModalActive"
-      :household-id="householdId"
-      :session-id="sessionId"
-    /> -->
+
     <section>
       <b-modal
         v-model="isModalActive"
@@ -94,10 +96,11 @@
         @hidden="onHidden"
         has-modal-card
         trap-focus
-        :destroy-on-hide="false"
+        :destroy-on-hide="true"
         aria-role="dialog"
         aria-label="New School Enrollment"
         close-button-aria-label="Close"
+        :can-cancel="false"
       >
         <div class="card">
           <header class="modal-card-head">
@@ -105,7 +108,7 @@
             <button
               type="button"
               class="delete"
-              @click="isModalActive = false"
+              @click="closeModal"
             />
           </header>
           <div class="card-content">
@@ -114,7 +117,7 @@
             </b-message>
             <section>
               <b-field label="Household Member">
-                <Members-Dropdown :household-id="householdId" />
+                <Members-Dropdown :household-id="householdId" v-model="memberId"/>
               </b-field>
               <b-field label="School">
                 <b-select
@@ -180,7 +183,7 @@
             </section>
           </div>
           <div class="modal-card-foot">
-            <button class="button" type="button" @click="isModalActive = false">
+            <button class="button" type="button" @click="closeModal">
               Close
             </button>
             <button
@@ -222,8 +225,8 @@ module.exports = {
       isFocusable: true,
       isLoading: false,
       hasMobileCards: true,
-      isModalActive: false,
       children: [],
+      memberId: null,
       allSchools: [],
       educationLevels: [],
       gradeLevels: [],
@@ -277,7 +280,9 @@ module.exports = {
         .get(`/targeting/enrolment/schools-enrolled?${params}`)
         .then(function (response) {
           if (response.status == 200) {
-            vm.schoolsEnrolled = JSON.parse(JSON.stringify(response.data.schools));
+            vm.schoolsEnrolled = JSON.parse(
+              JSON.stringify(response.data.schools)
+            );
             console.log("schools " + JSON.stringify(response.data.schools));
           } else {
             throw `Server returned: ${response.status}`;
@@ -296,9 +301,10 @@ module.exports = {
     saveSchoolInfo() {
       let vm = this;
       vm.isLoading = true;
-      var memberId = document.querySelector("#memberId").value;
+      //var memberId = document.querySelector("#memberId").value;
       fData = new FormData();
-      fData.append("individualId", memberId);
+      fData.append("memberId", vm.memberId)
+      //fData.append("individualId", memberId);
       fData.append("householdId", vm.householdId);
       fData.append("sessionId", vm.sessionId);
       fData.append("schoolId", vm.schoolId);
@@ -317,11 +323,11 @@ module.exports = {
           "Content-Type": "multipart/form-data",
         },
       };
-      axios
+     axios
         .post(`/targeting/enrolment/update-school`, fData, config)
         .then(function (response) {
           if (response.status === 200) {
-            vm.isModalActive = false;
+            mv.closeModal();
             vm.msgDialog("Updated successfully.", "", "success", "check");
           } else {
             throw `Status: ${response.status}`;
@@ -333,13 +339,10 @@ module.exports = {
         })
         .then(function () {
           vm.isLoading = false;
-        });
+        }); 
     },
     onHidden() {
       console.log("School modal is hidden");
-      // this.$emit("open-close-school-modal", false);
-      this.$emit("isSchoolModalActive", false);
-      // this.isActive = false;
     },
     getAllSchools() {
       let vm = this;
@@ -407,6 +410,12 @@ module.exports = {
           vm.isLoading = false;
         });
     },
+    openModal(){
+      this.isModalActive = true;
+    },
+    closeModal(){
+      this.isModalActive = false;
+    }
   },
 };
 </script>

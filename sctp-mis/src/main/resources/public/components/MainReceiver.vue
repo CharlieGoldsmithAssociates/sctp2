@@ -64,7 +64,7 @@
             <label class="label">Select new main recipient</label>
           </div>
           <div class="column">
-            <Members-Dropdown :household-id="householdId" ref="recipients" />
+            <Members-Dropdown :household-id="householdId" v-model="memberId" ref="recipients" />
           </div>
 
           <div class="field">
@@ -170,6 +170,7 @@ module.exports = {
       isLoading: true,
       candidates: [],
       roundedImage: true,
+      memberId: null
     };
   },
   mounted() {
@@ -215,10 +216,9 @@ module.exports = {
     saveMainReceiver() {
       let vm = this;
       vm.isLoading = true;
-      var memberId = document.querySelector("#memberId").value;
       var photo = document.querySelector("#mainPhotoSelection").files[0];
       fData = new FormData();
-      fData.append("id", memberId);
+      fData.append("id", vm.memberId);
       fData.append("household", vm.householdId);
       fData.append("session", vm.sessionId);
       fData.append("photo", photo);
@@ -252,39 +252,6 @@ module.exports = {
           vm.isLoading = false;
         }); 
     },
-
-    /*saveMainReceiver() {
-      let vm = this;
-      vm.isLoading = true;
-      // const form = e.target;
-      // const params = [`type='primary'`, `photo=${form.files[0]}`].join("&");
-      const params = [`type='primary'`].join("&");
-      // const postdata = {
-      //   id: form.memberId.value,
-      //   household: vm.householdId,
-      // };
-      const config = { headers: { "X-CSRF-TOKEN": csrf()["token"] } };
-      axios
-        .post(`/targeting/enrolment/update-recipient`, null, config)
-        .then(function (response) {
-          if (response.status == 200) {
-            var hasData = response.data;
-
-            console.log(response.data)
-          } else {
-            throw `Server returned: ${response.status}`;
-          }
-        })
-        .catch(function (error) {
-          vm.errorDialog(
-            "There was an error loading main recipient. Please try again"
-          );
-          console.log(error);
-        })
-        .then(function () {
-          vm.isLoading = false;
-        });
-    }, */
     snackbar(msg, msgType = "info") {
       this.$buefy.toast.open({
         duration: 5000,
