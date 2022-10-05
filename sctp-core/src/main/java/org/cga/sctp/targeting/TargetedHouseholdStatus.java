@@ -46,6 +46,7 @@ public class TargetedHouseholdStatus {
      */
     public enum EligibilityStatus {
         Ineligible,
+        Enrolled,
         Selected,
         PreEligible
     }
