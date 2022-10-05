@@ -17,6 +17,8 @@ import org.cga.sctp.user.AuthenticatedUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -127,7 +129,7 @@ public class CommunityBasedTargetingController extends BaseController {
 
     @GetMapping
     @AdminAndStandardAccessOnly
-    public ModelAndView community(Pageable pageable) {
+    public ModelAndView community(@PageableDefault(size = 100, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
         return view("targeting/community/sessions",
                 "sessions", targetingService.targetingSessionViewList(pageable));
     }
@@ -135,7 +137,9 @@ public class CommunityBasedTargetingController extends BaseController {
 
     @GetMapping("/review")
     @AdminAndStandardAccessOnly
-    ModelAndView details(@RequestParam("session") Long sessionId, RedirectAttributes attributes, Pageable pageable) {
+    ModelAndView details(@RequestParam("session") Long sessionId,
+                         RedirectAttributes attributes,
+                         @PageableDefault(size = 100, sort = "rank") Pageable pageable) {
         TargetingSessionView session = targetingService.findTargetingSessionViewById(sessionId);
         if (session == null) {
             setDangerFlashMessage("Community based targeting session not found.", attributes);
@@ -207,9 +211,9 @@ public class CommunityBasedTargetingController extends BaseController {
         return redirect("/targeting/community/review?session=" + session.getId());
     }
 
-    @PostMapping("/remove-household")
+    @PostMapping("/select-household")
     @AdminAccessOnly
-    ModelAndView removeHousehold(
+    ModelAndView selectHousehold(
             @AuthenticatedUserDetails AuthenticatedUser user,
             @Valid @ModelAttribute RemoveHouseholdFromCbtSessionForm form,
             BindingResult result,
@@ -240,14 +244,14 @@ public class CommunityBasedTargetingController extends BaseController {
             return redirect("/targeting/community/review?session=" + session.getId());
         }
 
-        targetingResult.setStatus(CbtStatus.Ineligible);
+        targetingResult.setStatus(CbtStatus.Selected);
 
         targetingService.saveTargetingResult(targetingResult);
 
-        publishGeneralEvent("%s marked household with %d as ineligible. Session id = %d",
+        publishGeneralEvent("%s marked household with %d as selected. Session id = %d",
                 user.username(), targetingResult.getHousehold(), session.getId());
 
-        setSuccessFlashMessage("Household marked as ineligible.", attributes);
+        setSuccessFlashMessage("Household marked as selected.", attributes);
         return redirect("/targeting/community/review?session=" + session.getId());
     }
 
