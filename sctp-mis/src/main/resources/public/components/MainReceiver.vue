@@ -234,11 +234,6 @@ module.exports = {
       fData.append("household", vm.householdId);
       fData.append("session", vm.sessionId);
       fData.append("photo", photo);
-
-      // Display the key/value pairs
-      for (var pair of fData.entries()) {
-        console.log(pair[0] + ", " + pair[1]);
-      }
     
       const params = [`type=primary`].join("&");
       const config = {
@@ -253,7 +248,7 @@ module.exports = {
           if (response.status === 200) {
             vm.reloadRecipientImage();
             vm.getMainRecipient();
-            console.log("Successfull");
+            vm.msgDialog("Updated successfully.", "", "success", "check");
           } else {
             throw `Status: ${response.status}`;
           }
