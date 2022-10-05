@@ -32,6 +32,12 @@
 
 package org.cga.sctp.targeting;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.WorkbookUtil;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.cga.sctp.core.TransactionalService;
 import org.cga.sctp.targeting.criteria.*;
 import org.cga.sctp.targeting.enrollment.EnrolmentSessionRepository;
@@ -45,6 +51,11 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -593,5 +604,76 @@ public class TargetingService extends TransactionalService {
         }
 
         return updated;
+    }
+
+    /**
+     * Exports targeting session data to excel and returns path to that file.
+     * @param targetingSession the session to export data for
+     * @return path to the file.
+     */
+    public Path exportSessionDataToExcel(TargetingSessionView targetingSession, String stagingDirectory) {
+        Path filePath ;
+        try {
+            filePath = Files.createTempFile(Paths.get(stagingDirectory), "targeted", ".xlsx");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        try (Workbook workbook = new XSSFWorkbook();
+             FileOutputStream fos = new FileOutputStream(filePath.toFile())) {
+
+            Sheet sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName("Households"));
+            // Create file headers
+            Row tmpExcelRow = sheet.createRow(0);
+            Cell cell = tmpExcelRow.createCell(0);
+            cell.setCellValue("Targeted Households");
+
+            // Headers
+            tmpExcelRow = sheet.createRow(1);
+            addCell(tmpExcelRow, 0, "FORM_NUMBER");
+            addCell(tmpExcelRow, 1, "HOUSEHOLD_CODE");
+            addCell(tmpExcelRow, 2, "TRADITIONAL_AUTHORITY_NAME");
+            addCell(tmpExcelRow, 3, "VILLAGE CLUSTER");
+            addCell(tmpExcelRow, 4, "ZONE");
+            addCell(tmpExcelRow, 5, "HOUSEHOLD_HEAD_NAME");
+            addCell(tmpExcelRow, 6, "HOUSEHOLD_SIZE");
+            addCell(tmpExcelRow, 7, "WEALTH_QUINTILE");
+            addCell(tmpExcelRow, 8, "RANKING");
+            addCell(tmpExcelRow, 9, "COMMUNITY RANKING");
+            addCell(tmpExcelRow, 10, "REMARKS");
+
+            var householdList = targetedHouseholdSummaryRepository.getByTargetingSession(targetingSession.getId(), Pageable.unpaged());
+            // Add other rows
+            int currentRow = 2;
+            for (TargetedHouseholdSummary household : householdList) {
+                tmpExcelRow = sheet.createRow(currentRow);
+                addCell(tmpExcelRow, 0, String.valueOf(household.getFormNumber()));
+                addCell(tmpExcelRow, 1, String.valueOf(household.getMlCode()));
+                addCell(tmpExcelRow, 2, household.getTa());
+                addCell(tmpExcelRow, 3, household.getCluster());
+                addCell(tmpExcelRow, 4, household.getZone());
+                addCell(tmpExcelRow, 5, household.getHouseholdHead());
+                addCell(tmpExcelRow, 6, String.valueOf(household.getMembers()));
+                addCell(tmpExcelRow, 7, "");// todo: household.get("WEALTH_QUINTILE"));
+                addCell(tmpExcelRow, 8, String.valueOf(household.getRanking()));
+                addCell(tmpExcelRow, 9, "");
+                addCell(tmpExcelRow, 10, "");
+
+                currentRow++;
+            }
+
+            workbook.write(fos);
+            tmpExcelRow = null;
+            sheet = null;
+
+            return filePath;
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
+        }
+    }
+
+    private void addCell(Row row, int index, String data) {
+        Cell cell = row.createCell(index);
+        cell.setCellValue(data);
     }
 }

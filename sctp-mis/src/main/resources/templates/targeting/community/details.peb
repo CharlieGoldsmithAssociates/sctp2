@@ -37,6 +37,7 @@
                                     <a onclick="exportToCsv()"
                                        class="dropdown-item">Save As CSV</a>
                                     <a onclick="firstDataTable.print()" class="dropdown-item">Print</a>
+                                    <a href="/targeting/community/export/excel/{{ targetingSession.id }}" class="dropdown-item">Export to Excel</a>
                                 </div>
                             </div>
                         </div>
