@@ -64,8 +64,8 @@ public class EnrollmentUpdateForm {
      * Allow only the following statuses from the API client
      */
     public enum EnrollmentStatus {
-        NonRecertified,
-        Enrolled;
+        Selected,
+        Enrolled
     }
 
     public static class HouseholdRecipients {
