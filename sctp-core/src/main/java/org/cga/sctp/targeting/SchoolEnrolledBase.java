@@ -32,6 +32,8 @@
 
 package org.cga.sctp.targeting;
 
+import org.cga.sctp.targeting.importation.converters.EducationLevelParameterValueConverter;
+import org.cga.sctp.targeting.importation.converters.GradeLevelParameterValueConverter;
 import org.cga.sctp.targeting.importation.parameters.EducationLevel;
 import org.cga.sctp.targeting.importation.parameters.GradeLevel;
 
@@ -44,11 +46,11 @@ public class SchoolEnrolledBase {
     private long id;
     private long householdId;
     private long individualId;
-
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
+    @Convert(converter = EducationLevelParameterValueConverter.class)
     private EducationLevel educationLevel;
-
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
+    @Convert(converter = GradeLevelParameterValueConverter.class)
     private GradeLevel grade;
     private long schoolId;
     private int status;

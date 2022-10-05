@@ -24,29 +24,29 @@
               <div class="info-row">
                 <div class="item-label">Household member</div>
                 <div class="item-value">
-                  {{ data.firstName }} {{ data.lastName }}
-                  <span class="has-text-danger-dark">Not available</span>
+                  <span v-if="data.firstName || data.lastName">{{ data.firstName }} {{ data.lastName }}</span>
+                  <span v-else class="has-text-danger-dark">Not available</span>
                 </div>
               </div>
               <div class="info-row">
                 <div class="item-label">Gender</div>
                 <div class="item-value">
-                  {{ data.gender }}
-                  <span class="has-text-danger-dark">Not available</span>
+                  <span v-if="data.gender">{{ data.gender }}</span>
+                  <span v-else class="has-text-danger-dark">Not available</span>
                 </div>
               </div>
               <div class="info-row">
                 <div class="item-label">Date of birth</div>
                 <div class="item-value">
-                  {{ data.dateOfBirth }}
-                  <span class="has-text-danger-dark">Not available</span>
+                  <span v-if="data.dateOfBirth">{{ data.dateOfBirth }}</span>
+                  <span v-else class="has-text-danger-dark">Not available</span>
                 </div>
               </div>
               <div class="info-row">
                 <div class="item-label">National Id</div>
                 <div class="item-value">
-                  {{ data.individualId }}
-                  <span class="has-text-danger-dark">Not available</span>
+                  <span v-if="data.individualId">{{ data.individualId }}</span>
+                  <span v-else class="has-text-danger-dark">Not available</span>
                 </div>
               </div>
             </div>
@@ -234,11 +234,6 @@ module.exports = {
       fData.append("household", vm.householdId);
       fData.append("session", vm.sessionId);
       fData.append("photo", photo);
-
-      // Display the key/value pairs
-      for (var pair of fData.entries()) {
-        console.log(pair[0] + ", " + pair[1]);
-      }
     
       const params = [`type=primary`].join("&");
       const config = {
@@ -253,7 +248,7 @@ module.exports = {
           if (response.status === 200) {
             vm.reloadRecipientImage();
             vm.getMainRecipient();
-            console.log("Successfull");
+            vm.msgDialog("Updated successfully.", "", "success", "check");
           } else {
             throw `Status: ${response.status}`;
           }

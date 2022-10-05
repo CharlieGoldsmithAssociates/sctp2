@@ -11,7 +11,7 @@
           <div class="columns is-vcentered">
             <div class="column">
               <b-image
-                id="main-photo"
+                id="alt-photo"
                 :src="`/targeting/enrolment/recipient-photo?household=${householdId}&amp;type=secondary`"
                 src-fallback="/assets/img/user-svg.svg"
                 class="p4p obj-fit-contain"
@@ -106,7 +106,10 @@
               <label class="label">Member</label>
             </div>
             <div class="column">
-              <Members-Dropdown :household-id="householdId" v-model="memberId" />
+              <Members-Dropdown
+                :household-id="householdId"
+                v-model="memberId"
+              />
             </div>
           </div>
           <div class="columns" v-if="!isHouseholdMember">
@@ -156,7 +159,7 @@
                   v-model="dateOfBirth"
                   placeholder="Click to select..."
                   icon="calendar-today"
-                  :icon-right="selected ? 'close-circle' : ''"
+                  :icon-right="dateSelected ? 'close-circle' : ''"
                   icon-right-clickable
                   @icon-right-click="clearDate"
                   trap-focus
@@ -179,13 +182,12 @@
           <div class="field mt-4">
             <label class="label">Update recipient photo (5 MB max)</label>
             <div class="control is-expanded">
-              <b-image
+              <img
                 id="altPreviewPhoto"
+                class="preview-image obj-fit-contain is-rounded"
                 src="/assets/img/user-svg.svg"
-                class="preview-image obj-fit-contain"
-                :rounded="roundedImage"
-                alt="Preview photo"
-              ></b-image>
+                alt="Preview image"
+              />
             </div>
           </div>
           <div class="columns mt-6">
@@ -204,10 +206,13 @@
                 <label class="file-label">
                   <input
                     class="file-input"
+                    id="altPhotoSelection"
+                    required="required"
                     type="file"
-                    accept="image/*"
-                    name="alt-photo"
-                    onchange="loadAltFile(event)"
+                    onchange="if(this.files[0]){ altPreviewPhoto.src = window.URL.createObjectURL(this.files[0]); }"
+                    maxlength="5242880"
+                    accept="image/jpeg; image/png"
+                    name="photo"
                   />
                   <span class="file-cta">
                     <span class="file-icon">
@@ -225,7 +230,7 @@
         <button
           id="altReceiverLoad"
           class="button is-info"
-          @click="loadAltReceiver()"
+          @click="getAlternateRecipient()"
         >
           Reload
         </button>
@@ -248,6 +253,10 @@ module.exports = {
       type: Number,
       required: true,
     },
+    sessionId: {
+      type: Number,
+      required: true,
+    },
   },
   data() {
     return {
@@ -261,11 +270,13 @@ module.exports = {
       gender: null,
       dateOfBirth: null,
       individualId: null,
+      mlCode: null,
+      dateSelected: true,
       isHouseholdMember: true,
     };
   },
   components: {
-    'MembersDropdown': httpVueLoader("/components/MembersDropdown.vue"),
+    MembersDropdown: httpVueLoader("/components/MembersDropdown.vue"),
   },
   mounted() {
     this.getAlternateRecipient();
@@ -306,7 +317,47 @@ module.exports = {
           vm.isLoading = false;
         });
     },
-    saveAltReceiver() {},
+    saveAltReceiver() {
+      let vm = this;
+      vm.isLoading = true;
+      var photo = document.querySelector("#altPhotoSelection").files[0];
+      fData = new FormData();
+      fData.append("id", vm.memberId);
+      fData.append("household", vm.householdId);
+      fData.append("session", vm.sessionId);
+      fData.append("photo", photo);
+      fData.append("altType", vm.isHouseholdMember ? "member" : "other");
+      for (var pair of fData.entries()) {
+        
+        console.log(pair[0] + ", " + pair[1]);
+      }
+      const params = [`type=secondary`].join("&");
+      const config = {
+        headers: {
+          "X-CSRF-TOKEN": csrf()["token"],
+          "Content-Type": "multipart/form-data",
+        },
+      };
+      axios
+        .post(`/targeting/enrolment/update-recipient?${params}`, fData, config)
+        .then(function (response) {
+          if (response.status === 200) {
+            vm.reloadRecipientImage();
+            vm.getAlternateRecipient();
+            vm.msgDialog("Updated successfully.", "", "success", "check");
+          } else {
+            throw `Status: ${response.status}`;
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+          vm.errorDialog("Error updating data");
+        })
+        .then(function () {
+          vm.isLoading = false;
+        });
+    },
+    reloadRecipientImage() {},
     handleClick() {},
     snackbar(msg, msgType = "info") {
       this.$buefy.toast.open({
@@ -330,6 +381,18 @@ module.exports = {
     },
     clearDate() {
       this.dateOfBirth = null;
+    },
+    msgDialog(msg, titleText = "", dlgType = "info", icon = "") {
+      this.$buefy.dialog.alert({
+        title: titleText,
+        message: msg,
+        type: "is-" + dlgType,
+        hasIcon: icon !== "",
+        icon: icon,
+        iconPack: "fa",
+        ariaRole: "alertdialog",
+        ariaModal: true,
+      });
     },
   },
 };

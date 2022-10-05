@@ -19,7 +19,7 @@
         >
           <b-table-column
             field="nameOfChild"
-            label="Name of child"
+            label="Name of Child"
             v-slot="props"
           >
             {{ props.row.individualName }}
@@ -42,11 +42,11 @@
           </b-table-column>
 
           <b-table-column label="Education Level" v-slot="props">
-            {{ props.row.highestEducationLevel }}
+            {{ props.row.educationLevel }}
           </b-table-column>
 
           <b-table-column label="Grade" v-slot="props">
-            <span> {{ props.row.gradeLevel }}</span>
+            <span> {{ props.row.grade }}</span>
           </b-table-column>
 
           <b-table-column label="Options">
@@ -315,7 +315,6 @@ module.exports = {
       vm.isLoading = true;
 
       fData = new FormData();
-      //fData.append("memberId", vm.memberId)
       fData.append("individualId", vm.memberId);
       fData.append("householdId", vm.householdId);
       fData.append("sessionId", vm.sessionId);
@@ -338,6 +337,7 @@ module.exports = {
           if (response.status === 200) {
             vm.closeModal();
             vm.msgDialog("Updated successfully.", "", "success", "check");
+            vm.getSchoolsEnrolled();
             // TODO Append the resulting entry here to the table to reflect the change
             // vm.enrollments.append(...)
           } else {
