@@ -32,6 +32,7 @@
 
 package org.cga.sctp.mis.targeting;
 
+import org.cga.sctp.targeting.CbtStatus;
 import org.cga.sctp.targeting.TargetingService;
 import org.cga.sctp.targeting.TargetingSessionView;
 import org.cga.sctp.user.AdminAndStandardAccessOnly;
@@ -44,6 +45,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -69,14 +71,23 @@ public class CommunityBasedTargetingExportController {
      */
     @GetMapping("/excel/{session-id}")
     @AdminAndStandardAccessOnly
-    public ResponseEntity<Object> generateExcel(@PathVariable("session-id") Long targetingSessionId) {
+    public ResponseEntity<Object> generateExcel(@PathVariable("session-id") Long targetingSessionId,
+                                                @RequestParam("status") String status) {
         TargetingSessionView targetingSession = targetingService.findTargetingSessionViewById(targetingSessionId);
         if (targetingSession == null) {
             return ResponseEntity.notFound().build();
         }
 
         try {
-            Path filePath = targetingService.exportSessionDataToExcel(targetingSession, stagingDirectory);
+            Path filePath;
+            CbtStatus statusParam;
+            try {
+                statusParam = CbtStatus.valueOf(status);
+                filePath = targetingService.exportSessionDataByStatusToExcel(targetingSession, statusParam, stagingDirectory);
+            }catch (IllegalArgumentException e) {
+                filePath = targetingService.exportSessionDataToExcel(targetingSession, stagingDirectory);
+            }
+
             return ResponseEntity.status(200)
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
                     .header("Content-Disposition", String.format("filename=Targeted-Households-%s.xlsx", targetingSessionId))

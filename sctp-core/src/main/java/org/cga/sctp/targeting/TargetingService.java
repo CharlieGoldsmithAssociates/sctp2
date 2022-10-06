@@ -59,6 +59,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -115,6 +116,9 @@ public class TargetingService extends TransactionalService {
 
     @Autowired
     private TargetedHouseholdSummaryRepository targetedHouseholdSummaryRepository;
+
+    @Autowired
+    private TargetedHouseholdSummaryV2Repository targetedHouseholdSummaryV2Repository;
 
     public void saveTargetingSession(TargetingSession targetingSession) {
         targetingSessionRepository.save(targetingSession);
@@ -612,13 +616,35 @@ public class TargetingService extends TransactionalService {
      * @return path to the file.
      */
     public Path exportSessionDataToExcel(TargetingSessionView targetingSession, String stagingDirectory) {
-        Path filePath ;
+        Path filePath;
         try {
             filePath = Files.createTempFile(Paths.get(stagingDirectory), "targeted", ".xlsx");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        var householdList = targetedHouseholdSummaryV2Repository.getByTargetingSession(targetingSession.getId(), Pageable.unpaged());
+        return internalExportSessionData(filePath, targetingSession, householdList);
+    }
 
+    public Path exportSessionDataByStatusToExcel(TargetingSessionView targetingSession, CbtStatus status, String stagingDirectory) {
+        Path filePath;
+        try {
+            filePath = Files.createTempFile(Paths.get(stagingDirectory), "targeted", ".xlsx");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        var householdList = targetedHouseholdSummaryV2Repository.getByTargetingSessionAndStatus(targetingSession.getId(), status, Pageable.unpaged());
+        return internalExportSessionData(filePath, targetingSession, householdList);
+    }
+
+    private Path internalExportSessionData(Path filePath, TargetingSessionView targetingSession, Page<TargetedHouseholdSummaryV2> householdList) {
+
+        String villageCluster = "";
+        Optional<TargetedHouseholdSummaryV2> optionalHH = householdList.stream().findFirst();
+        // All the households are expected to be in the same cluster so we get the cluster of the first household.
+        if (optionalHH.isPresent()) {
+            villageCluster = optionalHH.get().getCluster();
+        }
         try (Workbook workbook = new XSSFWorkbook();
              FileOutputStream fos = new FileOutputStream(filePath.toFile())) {
 
@@ -627,37 +653,38 @@ public class TargetingService extends TransactionalService {
             Row tmpExcelRow = sheet.createRow(0);
             Cell cell = tmpExcelRow.createCell(0);
             cell.setCellValue("Targeted Households");
-
+            addCell(tmpExcelRow, 1, String.format("T/A: %s", targetingSession.getTaName()));
+            addCell(tmpExcelRow, 2, String.format("VILLAGE CLUSTER: %s", villageCluster));
+            addCell(tmpExcelRow, 3, String.format("TOTAL HHs: %s", householdList.getTotalElements()));
             // Headers
             tmpExcelRow = sheet.createRow(1);
             addCell(tmpExcelRow, 0, "FORM_NUMBER");
             addCell(tmpExcelRow, 1, "HOUSEHOLD_CODE");
-            addCell(tmpExcelRow, 2, "TRADITIONAL_AUTHORITY_NAME");
-            addCell(tmpExcelRow, 3, "VILLAGE CLUSTER");
-            addCell(tmpExcelRow, 4, "ZONE");
-            addCell(tmpExcelRow, 5, "HOUSEHOLD_HEAD_NAME");
-            addCell(tmpExcelRow, 6, "HOUSEHOLD_SIZE");
-            addCell(tmpExcelRow, 7, "WEALTH_QUINTILE");
-            addCell(tmpExcelRow, 8, "RANKING");
-            addCell(tmpExcelRow, 9, "COMMUNITY RANKING");
-            addCell(tmpExcelRow, 10, "REMARKS");
+//            addCell(tmpExcelRow, 2, "TRADITIONAL_AUTHORITY_NAME");
+//            addCell(tmpExcelRow, 3, "VILLAGE CLUSTER");
+            addCell(tmpExcelRow, 2, "ZONE");
+            addCell(tmpExcelRow, 3, "HOUSEHOLD_HEAD_NAME");
+            addCell(tmpExcelRow, 4, "HOUSEHOLD_SIZE");
+            addCell(tmpExcelRow, 5, "WEALTH_QUINTILE");
+//            addCell(tmpExcelRow, 6, "RANKING"); TODO: put it back.
+            addCell(tmpExcelRow, 6, "COMMUNITY VALIDATION");
+            addCell(tmpExcelRow, 7, "REMARKS");
 
-            var householdList = targetedHouseholdSummaryRepository.getByTargetingSession(targetingSession.getId(), Pageable.unpaged());
+
             // Add other rows
             int currentRow = 2;
-            for (TargetedHouseholdSummary household : householdList) {
+            for (TargetedHouseholdSummaryV2 household : householdList) {
                 tmpExcelRow = sheet.createRow(currentRow);
                 addCell(tmpExcelRow, 0, String.valueOf(household.getFormNumber()));
-                addCell(tmpExcelRow, 1, String.valueOf(household.getMlCode()));
-                addCell(tmpExcelRow, 2, household.getTa());
-                addCell(tmpExcelRow, 3, household.getCluster());
-                addCell(tmpExcelRow, 4, household.getZone());
-                addCell(tmpExcelRow, 5, household.getHouseholdHead());
-                addCell(tmpExcelRow, 6, String.valueOf(household.getMembers()));
-                addCell(tmpExcelRow, 7, "");// todo: household.get("WEALTH_QUINTILE"));
-                addCell(tmpExcelRow, 8, String.valueOf(household.getRanking()));
-                addCell(tmpExcelRow, 9, "");
-                addCell(tmpExcelRow, 10, "");
+                addCell(tmpExcelRow, 1, String.format("ML-%s", household.getMlCode()));
+//                addCell(tmpExcelRow, 2, household.getTa());
+//                addCell(tmpExcelRow, 3, household.getCluster());
+                addCell(tmpExcelRow, 2, household.getZone());
+                addCell(tmpExcelRow, 3, household.getHouseholdHead());
+                addCell(tmpExcelRow, 4, String.valueOf(household.getMembers()));
+                addCell(tmpExcelRow, 5, String.valueOf(household.getWealthQuintile()));
+                addCell(tmpExcelRow, 6, String.valueOf(household.getRanking()));
+                addCell(tmpExcelRow, 7, "");
 
                 currentRow++;
             }
