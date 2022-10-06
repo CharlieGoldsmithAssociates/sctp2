@@ -7,7 +7,7 @@
     <groupId>org.cga</groupId>
     <artifactId>sctp</artifactId>
     <packaging>pom</packaging>
-    <version>v1.7.12</version>
+    <version>1.7.13</version>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
