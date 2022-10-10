@@ -47,9 +47,9 @@ public class TargetingSessionBase {
     }
 
     public enum MeetingPhase {
-        completed,
-        district_meeting,
-        second_community_meeting;
+        completed("All meetings completed"),
+        district_meeting("District Approval"),
+        second_community_meeting("Community Validation");
 
         public MeetingPhase next() {
             return switch (this) {
@@ -57,6 +57,12 @@ public class TargetingSessionBase {
                 case district_meeting, completed -> completed;
             };
         }
+
+        MeetingPhase(String description) {
+            this.description = description;
+        }
+
+        public final String description;
     }
 
     @Id

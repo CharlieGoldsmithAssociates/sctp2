@@ -48,6 +48,7 @@ public class TargetedHouseholdStatus {
         Ineligible,
         Enrolled,
         Selected,
+        Eligible,
         PreEligible
     }
 
