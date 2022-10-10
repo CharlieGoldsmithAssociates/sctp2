@@ -1,84 +1,85 @@
 <template>
   <section>
-    <div id="alt-receiver" class="content-tab">
-      <b-message type="is-info">
-        Specify the details of the secondary/alternate receiver for this
-        household.
-      </b-message>
+    <b-message type="is-info">
+      Specify the details of the secondary/alternate receiver for this
+      household.
+    </b-message>
 
-      <div class="columns mt-3">
-        <div class="column">
-          <div class="columns is-vcentered">
-            <div class="column">
-              <b-image
-                id="alt-photo"
-                :src="`/targeting/enrolment/recipient-photo?household=${householdId}&amp;type=secondary`"
-                src-fallback="/assets/img/user-svg.svg"
-                class="p4p obj-fit-contain"
-                :rounded="roundedImage"
-                alt="Alternate receiver photo"
-              ></b-image>
-            </div>
+    <div class="columns mt-3">
+      <div class="column">
+        <div class="columns is-vcentered">
+          <div class="column">
+            <b-image
+              id="alt-photo"
+              :src="`/targeting/enrolment/recipient-photo?household=${householdId}&amp;type=secondary`"
+              src-fallback="/assets/img/user-svg.svg"
+              class="p4p obj-fit-contain"
+              :rounded="roundedImage"
+              alt="Alternate receiver photo"
+            ></b-image>
+          </div>
 
-            <div class="column">
-              <div class="info-list">
-                <div class="info-row">
-                  <div class="item-label">Full Name</div>
-                  <div class="item-value">
-                    <span v-if="data.firstName || data.lastName">
-                      {{ data.firstName }} {{ data.lastName }}
-                    </span>
-                    <span v-else class="has-text-danger-dark">
-                      Not available
-                    </span>
-                  </div>
+          <div class="column">
+            <div class="info-list">
+              <div class="info-row">
+                <div class="item-label">Full Name</div>
+                <div class="item-value">
+                  <span v-if="data.firstName || data.lastName">
+                    {{ data.firstName }} {{ data.lastName }}
+                  </span>
+                  <span v-else class="has-text-danger-dark">
+                    Not available
+                  </span>
                 </div>
-                <div class="info-row">
-                  <div class="item-label">Gender</div>
-                  <div class="item-value">
-                    <span v-if="data.gender">{{ data.gender }} </span>
-                    <span v-else class="has-text-danger-dark">
-                      Not available
-                    </span>
-                  </div>
+              </div>
+              <div class="info-row">
+                <div class="item-label">Gender</div>
+                <div class="item-value">
+                  <span v-if="data.gender">{{ data.gender }} </span>
+                  <span v-else class="has-text-danger-dark">
+                    Not available
+                  </span>
                 </div>
-                <div class="info-row">
-                  <div class="item-label">Date of birth</div>
-                  <div class="item-value">
-                    <span v-if="data.dateOfBirth">{{ data.dateOfBirth }} </span>
-                    <span v-else class="has-text-danger-dark">
-                      Not available
-                    </span>
-                  </div>
+              </div>
+              <div class="info-row">
+                <div class="item-label">Date of birth</div>
+                <div class="item-value">
+                  <span v-if="data.dateOfBirth">{{ data.dateOfBirth }} </span>
+                  <span v-else class="has-text-danger-dark">
+                    Not available
+                  </span>
                 </div>
-                <div class="info-row">
-                  <div class="item-label">National Id</div>
-                  <div class="item-value">
-                    <span v-if="data.individualId">
-                      {{ data.individualId }}
-                    </span>
-                    <span v-else class="has-text-danger-dark">
-                      Not available
-                    </span>
-                  </div>
+              </div>
+              <div class="info-row">
+                <div class="item-label">National Id</div>
+                <div class="item-value">
+                  <span v-if="data.individualId">
+                    {{ data.individualId }}
+                  </span>
+                  <span v-else class="has-text-danger-dark">
+                    Not available
+                  </span>
                 </div>
-                <div class="info-row" title="Is a Household Member">
-                  <div class="item-label">Is a HH Member</div>
-                  <div class="item-value">
-                    <span v-if="data.isHouseholdMember"> Yes </span>
-                    <span v-else> No </span>
-                  </div>
+              </div>
+              <div class="info-row" title="Is a Household Member">
+                <div class="item-label">Is a HH Member</div>
+                <div class="item-value">
+                  <span v-if="data.isHouseholdMember"> Yes </span>
+                  <span v-else> No </span>
                 </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="columns">
-          <div class="divider is-vertical">UPDATE</div>
-        </div>
+      <div class="columns">
+        <div class="divider is-vertical">UPDATE</div>
+      </div>
 
-        <div class="column">
+      <div class="column">
+        <!-- form starts here -->
+        <form id="altReceiverForm" enctype="multipart/form-data" method="POST">
           <div class="control mb-5">
             <label class="radio">
               <input
@@ -109,6 +110,7 @@
               <Members-Dropdown
                 :household-id="householdId"
                 v-model="memberId"
+                ref="recipients"
               />
             </div>
           </div>
@@ -163,6 +165,7 @@
                   icon-right-clickable
                   @icon-right-click="clearDate"
                   trap-focus
+                  required
                 >
                 </b-datepicker>
               </b-field>
@@ -179,6 +182,44 @@
               </b-field>
             </div>
           </div>
+          <div class="columns" v-if="!isHouseholdMember">
+            <div class="column is-4">
+              <label class="label">ID Issue Date</label>
+            </div>
+            <div class="column">
+              <b-field>
+                <b-datepicker
+                  v-model="IdIssueDate"
+                  placeholder="Click to select..."
+                  icon="calendar-today"
+                  :icon-right="dateSelected ? 'close-circle' : ''"
+                  icon-right-clickable
+                  @icon-right-click="clearDate"
+                  trap-focus
+                >
+                </b-datepicker>
+              </b-field>
+            </div>
+          </div>
+          <div class="columns" v-if="!isHouseholdMember">
+            <div class="column is-4">
+              <label class="label">ID Expiry Date</label>
+            </div>
+            <div class="column">
+              <b-field>
+                <b-datepicker
+                  v-model="idExpiryDate"
+                  placeholder="Click to select..."
+                  icon="calendar-today"
+                  :icon-right="dateSelected ? 'close-circle' : ''"
+                  icon-right-clickable
+                  @icon-right-click="clearDate"
+                  trap-focus
+                >
+                </b-datepicker>
+              </b-field>
+            </div>
+          </div>
           <div class="field mt-4">
             <label class="label">Update recipient photo (5 MB max)</label>
             <div class="control is-expanded">
@@ -190,57 +231,76 @@
               />
             </div>
           </div>
-          <div class="columns mt-6">
-            <div class="column">
-              <button
-                id="alt-modal-btn"
-                class="button is-primary modal-button"
-                data-target="modal"
-                aria-haspopup="true"
-              >
-                Take picture
-              </button>
-            </div>
-            <div class="column">
-              <div class="file">
-                <label class="file-label">
-                  <input
-                    class="file-input"
-                    id="altPhotoSelection"
-                    required="required"
-                    type="file"
-                    onchange="if(this.files[0]){ altPreviewPhoto.src = window.URL.createObjectURL(this.files[0]); }"
-                    maxlength="5242880"
-                    accept="image/jpeg; image/png"
-                    name="photo"
-                  />
-                  <span class="file-cta">
-                    <span class="file-icon">
-                      <i class="fas fa-upload"></i>
-                    </span>
-                    <span class="file-label"> Choose a file… </span>
-                  </span>
-                </label>
+          <!---->
+          <div class="columns">
+            <div class="column mt-6">
+              <div class="level">
+                <div class="level-left">
+                  <div class="level-item">
+                    <div class="file is-text is-small">
+                      <label class="file-label">
+                        <input
+                          class="file-input"
+                          id="altPhotoSelection"
+                          required="required"
+                          type="file"
+                          onchange="if(this.files[0]){ altPreviewPhoto.src = window.URL.createObjectURL(this.files[0]); }"
+                          maxlength="5242880"
+                          accept="image/jpeg; image/png"
+                          name="photo"
+                        />
+                        <span class="file-cta">
+                          <span class="file-icon">
+                            <i class="fas fa-upload"></i>
+                          </span>
+                          <span class="file-label"> Select photo </span>
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="level-item">
+                    <button
+                      onclick="altPreviewPhoto.src = '/assets/img/user-svg.svg'; altPhotoSelection.value='';"
+                      class="button is-inverted is-small is-text is-danger"
+                    >
+                      Cancel photo selection
+                    </button>
+                  </div>
+                </div>
+                <div class="level-right">
+                  <div class="level-item">
+                    <button
+                      class="button is-small is-link"
+                      @click="saveAltReceiver"
+                      type="button"
+                    >
+                      Save changes
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </form>
+        <!-- form ends here -->
       </div>
-      <div class="buttons is-right mt-5">
-        <button
-          id="altReceiverLoad"
-          class="button is-info"
-          @click="getAlternateRecipient()"
+    </div>
+
+    <div class="divider is-horizontal"></div>
+
+    <div class="columns">
+      <div class="column">
+        <b-button type="is-info" @click="getAlternateRecipient">
+          Reload alternate recipient details
+        </b-button>
+      </div>
+      <div class="column has-text-right">
+        <b-button
+          type="is-info is-link"
+          @click="$refs.recipients.getRecipientCandidates()"
         >
-          Reload
-        </button>
-        <button
-          id="altReceiverSend"
-          class="button is-primary"
-          @click="saveAltReceiver()"
-        >
-          Save
-        </button>
+          Refresh members list
+        </b-button>
       </div>
     </div>
   </section>
@@ -273,6 +333,8 @@ module.exports = {
       mlCode: null,
       dateSelected: true,
       isHouseholdMember: true,
+      idExpiryDate: null,
+      IdIssueDate: null,
     };
   },
   components: {
@@ -322,15 +384,30 @@ module.exports = {
       vm.isLoading = true;
       var photo = document.querySelector("#altPhotoSelection").files[0];
       fData = new FormData();
-      fData.append("id", vm.memberId);
       fData.append("household", vm.householdId);
       fData.append("session", vm.sessionId);
       fData.append("photo", photo);
-      fData.append("altType", vm.isHouseholdMember ? "member" : "other");
+      var altType = "";
+      if (vm.isHouseholdMember) {
+        fData.append("id", vm.memberId);
+        altType = "member";
+      } else {
+        altType = "other";
+        if(!vm.mlCode){
+          
+        }
+        fData.append("firstName", vm.firstName);
+        fData.append("lastName", vm.lastName);
+        fData.append("dateOfBirth", vm.dateOfBirth);
+        fData.append("nationalId", vm.mlCode);
+        fData.append("gender", vm.gender);
+      }
+      fData.append("altType", altType);
+
       for (var pair of fData.entries()) {
-        
         console.log(pair[0] + ", " + pair[1]);
       }
+
       const params = [`type=secondary`].join("&");
       const config = {
         headers: {

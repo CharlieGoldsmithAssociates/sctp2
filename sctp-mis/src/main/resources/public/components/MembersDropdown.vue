@@ -5,16 +5,20 @@
     expanded
     v-model="memberId"
     @input="changeMemberId"
+    name="memberId"
   >
     <option
       v-for="individual in candidates"
       :value="individual.id"
+      :selected="editingMemberId == individual.id"
     >
       {{ individual.name }} ({{ individual.gender }}, {{ individual.age }} yrs)
+      MemberID {{ editingMemberId == individual.id }}
     </option>
   </b-select>
 </template>
 
+<!-- :disabled="!isEditing" -->
 <script>
 module.exports = {
   props: {
@@ -22,11 +26,19 @@ module.exports = {
       type: Number,
       required: true,
     },
+    isEditing: {
+      type: Boolean,
+      required: false,
+    },
+    editingMemberId: {
+      type: Number,
+      required: false,
+    },
   },
   data() {
     return {
       candidates: [],
-      memberId: null
+      memberId: null,
     };
   },
   mounted() {
@@ -68,9 +80,9 @@ module.exports = {
         ariaModal: true,
       });
     },
-    changeMemberId(){
-      this.$emit('input', this.memberId);
-    }
+    changeMemberId() {
+      this.$emit("input", this.memberId);
+    },
   },
 };
 </script>

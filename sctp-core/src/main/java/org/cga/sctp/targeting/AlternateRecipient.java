@@ -33,6 +33,7 @@
 package org.cga.sctp.targeting;
 
 import org.cga.sctp.targeting.importation.parameters.Gender;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -49,9 +50,11 @@ public class AlternateRecipient {
     @Enumerated(EnumType.STRING)
     private Gender gender;
     private LocalDate dateOfBirth;
-
+    @Nullable
     private LocalDate idIssueDate;
+    @Nullable
     private LocalDate idExpiryDate;
+
     private Long householdId;
 
     public long getId() {

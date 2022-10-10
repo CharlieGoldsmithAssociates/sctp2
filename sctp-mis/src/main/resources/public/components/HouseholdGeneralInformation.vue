@@ -87,6 +87,62 @@
           </div>
         </div>
       </div>
+
+      <div class="column">
+        <div class="info-list">
+          <div class="info-row">
+            <div class="item-label">Enrollment Status</div>
+            <div class="item-value">
+              <!-- <span v-if="householdStatus">
+                {{ householdStatus }}
+              </span>
+              <span v-else class="has-text-danger-dark"> Not available </span> -->
+              <span class="has-text-danger-dark"> Not available </span> 
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider is-horizontal">Update</div>
+
+    <div class="columns">
+      <div class="is-4 is-offset-8 column">
+        <form id="householdStatusForm" method="POST">
+          <div class="control mb-5">
+            <b-field label="Enrollment Status">
+              <label class="radio">
+                <input
+                  id="selectedStatus"
+                  type="radio"
+                  v-model="householdStatus"
+                  value="selected"
+                />
+                Selected
+              </label>
+              &nbsp; &nbsp;
+              <label class="radio">
+                <input
+                  id="enrolledStatus"
+                  type="radio"
+                  v-model="householdStatus"
+                  value="enrolled"
+                />
+                Enrolled
+              </label>
+            </b-field>
+          </div>
+          <div class="control">
+            <button
+              class="button is-small is-link"
+              @click="saveStatus"
+              type="button"
+            >
+              Save Status
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </section>
 </template>
@@ -107,6 +163,7 @@ module.exports = {
     return {
       data: "",
       isLoading: false,
+      householdStatus: null,
     };
   },
   mounted() {
@@ -125,7 +182,7 @@ module.exports = {
         .then(function (response) {
           if (response.status == 200) {
             var hasData = response.data;
-            console.log("DETAILS: " + response.data);
+            console.log("DETAILS status: " + response.data.status);
             if (hasData) {
               if (isJsonContentType(response.headers["content-type"])) {
                 vm.data = response.data;
@@ -149,6 +206,7 @@ module.exports = {
           vm.isLoading = false;
         });
     },
+    saveStatus() {},
     mlCode(code) {
       return code && `ML-${code}`;
     },

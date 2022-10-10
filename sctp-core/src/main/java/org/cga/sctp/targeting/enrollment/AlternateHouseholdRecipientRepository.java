@@ -37,5 +37,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 interface AlternateHouseholdRecipientRepository extends JpaRepository<AlternateHouseholdRecipient, Long> {
-    MainHouseholdRecipient getByHouseholdId(Long householdId);
+    AlternateHouseholdRecipient getByHouseholdId(Long householdId);
 }

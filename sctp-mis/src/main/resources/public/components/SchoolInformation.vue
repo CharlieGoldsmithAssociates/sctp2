@@ -23,6 +23,13 @@
             v-slot="props"
           >
             {{ props.row.individualName }}
+            &nbsp; &nbsp;
+            <b-tag v-if="props.row.status" type="is-success is-small">
+              Active
+            </b-tag>
+            <b-tag v-if="!props.row.status" type="is-danger is-small">
+              Inactive
+            </b-tag>
           </b-table-column>
 
           <b-table-column
@@ -49,7 +56,7 @@
             <span> {{ props.row.grade }}</span>
           </b-table-column>
 
-          <b-table-column label="Options">
+          <b-table-column label="Options" v-slot="props">
             <b-dropdown aria-role="list">
               <template #trigger="{ active }">
                 <b-button
@@ -59,7 +66,11 @@
                 />
               </template>
 
-              <b-dropdown-item aria-role="listitem" @click="openModal">Edit</b-dropdown-item>
+              <b-dropdown-item
+                aria-role="listitem"
+                @click="openModal(props.row)"
+                >Edit School Info
+              </b-dropdown-item>
             </b-dropdown>
           </b-table-column>
 
@@ -105,11 +116,7 @@
         <div class="card">
           <header class="modal-card-head">
             <p class="modal-card-title">New School Enrollment</p>
-            <button
-              type="button"
-              class="delete"
-              @click="closeModal"
-            />
+            <button type="button" class="delete" @click="closeModal" />
           </header>
           <div class="card-content">
             <b-message type="is-info">
@@ -117,7 +124,12 @@
             </b-message>
             <section>
               <b-field label="Household Member">
-                <Members-Dropdown :household-id="householdId" v-model="memberId"/>
+                <Members-Dropdown
+                  :household-id="householdId"
+                  :is-editing="isEditing"
+                  :editing-member-id="schoolMemberId"
+                  v-model="memberId"
+                />
               </b-field>
               <b-field label="School">
                 <b-select
@@ -127,7 +139,12 @@
                   expanded
                   v-model="schoolId"
                 >
-                  <option v-for="school in allSchools" :key="school.id" :value="school.id">
+                  <option
+                    v-for="school in allSchools"
+                    :key="school.id"
+                    :value="school.id"
+                    :selected="schoolId == school.id"
+                  >
                     {{ school.name }} - {{ school.code }} -
                     {{ school.educationZone }}
                   </option>
@@ -144,8 +161,10 @@
                       v-model="educationLevel"
                     >
                       <option
-                        v-for="(level,idx) in educationLevels" :key="idx"
+                        v-for="(level, idx) in educationLevels"
+                        :key="idx"
                         :value="level"
+                        :selected="educationLevel == level"
                       >
                         {{ level }}
                       </option>
@@ -162,10 +181,12 @@
                       v-model="gradeLevel"
                     >
                       <option
-                        v-for="(gradeLevel,index) in gradeLevels" :key="index"
-                        :value="gradeLevel"
+                        v-for="(grdLevel, index) in gradeLevels"
+                        :key="index"
+                        :value="grdLevel"
+                        :selected="gradeLevel == grdLevel"
                       >
-                        {{ gradeLevel }}
+                        {{ grdLevel }}
                       </option>
                     </b-select>
                   </b-field>
@@ -227,6 +248,7 @@ module.exports = {
       hasMobileCards: true,
       children: [],
       memberId: null,
+      schoolMemberId: null,
       allSchools: [],
       educationLevels: [],
       gradeLevels: [],
@@ -235,6 +257,7 @@ module.exports = {
       educationLevel: null,
       gradeLevel: null,
       isModalActive: false,
+      isEditing: false,
     };
   },
   components: {
@@ -323,7 +346,7 @@ module.exports = {
       fData.append("grade", vm.gradeLevel);
       fData.append("status", vm.status);
 
-      console.table(fData)
+      console.table(fData);
 
       const config = {
         headers: {
@@ -331,7 +354,7 @@ module.exports = {
           "Content-Type": "multipart/form-data",
         },
       };
-     axios
+      axios
         .post(`/targeting/enrolment/update-school`, fData, config)
         .then(function (response) {
           if (response.status === 200) {
@@ -350,7 +373,7 @@ module.exports = {
         })
         .then(function () {
           vm.isLoading = false;
-        }); 
+        });
     },
     onHidden() {
       console.log("School modal is hidden");
@@ -421,12 +444,29 @@ module.exports = {
           vm.isLoading = false;
         });
     },
-    openModal(){
+    openModal(school = null) {
+      if (school) {
+        this.memberId = school.individualId;
+        this.schoolMemberId = school.individualId;
+        this.status = school.status;
+        this.schoolId = school.schoolId;
+        this.educationLevel = school.educationLevel;
+        this.gradeLevel = school.grade;
+        this.isEditing = true;
+      } else {
+        this.schoolMemberId = null;
+        this.memberId = null;
+        this.status = null;
+        this.schoolId = null;
+        this.educationLevel = null;
+        this.gradeLevel = null;
+        this.isEditing = false;
+      }
       this.isModalActive = true;
     },
-    closeModal(){
+    closeModal() {
       this.isModalActive = false;
-    }
+    },
   },
 };
 </script>

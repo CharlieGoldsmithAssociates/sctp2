@@ -268,7 +268,7 @@ public class EnrollmentService extends TransactionalService {
         return mainHouseholdRecipientRepository.getByHouseholdId(householdId);
     }
 
-    public MainHouseholdRecipient getHouseholdSecondaryRecipient(Long householdId) {
+    public AlternateHouseholdRecipient getHouseholdSecondaryRecipient(Long householdId) {
         return alternateHouseholdRecipientRepository.getByHouseholdId(householdId);
     }
 

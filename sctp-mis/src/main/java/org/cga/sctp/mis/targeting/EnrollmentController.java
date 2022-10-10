@@ -313,7 +313,7 @@ public class EnrollmentController extends SecuredBaseController {
 
         HouseholdEnrollment enrollment = enrollmentService
                 .findHouseholdEnrollment(form.getSession(), form.getHousehold());
-
+        // TODO send the whole form, extract what data you want
         if (enrollment == null) {
             return ResponseEntity.notFound().build();
         }
@@ -362,23 +362,34 @@ public class EnrollmentController extends SecuredBaseController {
             case secondary -> {
                 recipient.setAltPhoto(updateResult.name());
                 recipient.setAltPhotoType(updateResult.type());
+                AlternateRecipient altRecipient = new AlternateRecipient();
+
                 // check if recipient is member or other
                 if (form.getAltType().equals(AlternateRecipientType.member)) {
                     recipient.setAltRecipient(form.getId());
+                    Individual individual = beneficiaryService.getIndividual(form.getId());
+                    altRecipient.setGender(individual.getGender());
+                    altRecipient.setLastName(individual.getLastName());
+                    altRecipient.setFirstName(individual.getFirstName());
+                    altRecipient.setNationalId(individual.getIndividualId());
+                    altRecipient.setHouseholdId(individual.getHouseholdId());
+                    altRecipient.setDateOfBirth(individual.getDateOfBirth());
+                    altRecipient.setIdIssueDate(individual.getIdIssueDate());
+                    altRecipient.setIdExpiryDate(individual.getIdExpiryDate());
                 } else {  // type is other
-                    AlternateRecipient altRecipient = new AlternateRecipient();
                     altRecipient.setGender(form.getGender());
                     altRecipient.setLastName(form.getLastName());
                     altRecipient.setFirstName(form.getFirstName());
                     altRecipient.setNationalId(form.getNationalId());
                     altRecipient.setHouseholdId(form.getHousehold());
                     altRecipient.setDateOfBirth(form.getDateOfBirth());
-                    // TODO Add ID issue and expiry date fields. All data must be validated if present,
-                    //  but must be optional
-
-                    enrollmentService.saveAlternateRecipient(altRecipient);
-                    recipient.setAltRecipient(altRecipient.getId());
+                    altRecipient.setIdExpiryDate(form.getIdExpiryDate()); // TODO but must be optional
+                    altRecipient.setIdIssueDate(form.getIdIssueDate());  // TODO but must be optional
+                    // TODO All data must be validated if present,
                 }
+
+                enrollmentService.saveAlternateRecipient(altRecipient);
+                recipient.setAltRecipient(altRecipient.getId());
 
             }
         }
