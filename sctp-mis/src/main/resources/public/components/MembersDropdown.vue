@@ -5,15 +5,14 @@
     expanded
     v-model="memberId"
     @input="changeMemberId"
-    name="memberId"
   >
     <option
       v-for="individual in candidates"
       :value="individual.id"
-      :selected="editingMemberId == individual.id"
+      :selected="individual.id == editingMemberId"
+      v-if="!isEditing || (isEditing && individual.id == editingMemberId)"
     >
       {{ individual.name }} ({{ individual.gender }}, {{ individual.age }} yrs)
-      MemberID {{ editingMemberId == individual.id }}
     </option>
   </b-select>
 </template>

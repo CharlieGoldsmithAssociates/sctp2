@@ -68,7 +68,7 @@
 
               <b-dropdown-item
                 aria-role="listitem"
-                @click="openModal(props.row)"
+                @click="openModal(props.row, true)"
                 >Edit School Info
               </b-dropdown-item>
             </b-dropdown>
@@ -444,7 +444,7 @@ module.exports = {
           vm.isLoading = false;
         });
     },
-    openModal(school = null) {
+    openModal(school = null, editing = false) {
       if (school) {
         this.memberId = school.individualId;
         this.schoolMemberId = school.individualId;
@@ -452,7 +452,6 @@ module.exports = {
         this.schoolId = school.schoolId;
         this.educationLevel = school.educationLevel;
         this.gradeLevel = school.grade;
-        this.isEditing = true;
       } else {
         this.schoolMemberId = null;
         this.memberId = null;
@@ -460,12 +459,13 @@ module.exports = {
         this.schoolId = null;
         this.educationLevel = null;
         this.gradeLevel = null;
-        this.isEditing = false;
       }
       this.isModalActive = true;
+      this.isEditing = editing;
     },
     closeModal() {
       this.isModalActive = false;
+      this.isEditing = false;
     },
   },
 };
