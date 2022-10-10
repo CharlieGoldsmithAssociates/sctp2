@@ -163,7 +163,7 @@
                   icon="calendar-today"
                   :icon-right="dateSelected ? 'close-circle' : ''"
                   icon-right-clickable
-                  @icon-right-click="clearDate"
+                  @icon-right-click="clearDateOfBirth"
                   trap-focus
                   required
                 >
@@ -194,7 +194,7 @@
                   icon="calendar-today"
                   :icon-right="dateSelected ? 'close-circle' : ''"
                   icon-right-clickable
-                  @icon-right-click="clearDate"
+                  @icon-right-click="clearIssueDate"
                   trap-focus
                 >
                 </b-datepicker>
@@ -213,7 +213,7 @@
                   icon="calendar-today"
                   :icon-right="dateSelected ? 'close-circle' : ''"
                   icon-right-clickable
-                  @icon-right-click="clearDate"
+                  @icon-right-click="clearExpiryDate"
                   trap-focus
                 >
                 </b-datepicker>
@@ -456,8 +456,14 @@ module.exports = {
         ariaModal: true,
       });
     },
-    clearDate() {
+    clearDateOfBirth() {
       this.dateOfBirth = null;
+    },
+    clearIssueDate() {
+      this.IdIssueDate = null;
+    },
+    clearExpiryDate() {
+      this.idExpiryDate = null;
     },
     msgDialog(msg, titleText = "", dlgType = "info", icon = "") {
       this.$buefy.dialog.alert({

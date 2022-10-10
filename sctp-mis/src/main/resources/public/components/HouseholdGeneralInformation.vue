@@ -86,9 +86,7 @@
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="column">
         <div class="info-list">
           <div class="info-row">
             <div class="item-label">Enrollment Status</div>
@@ -101,7 +99,9 @@
             </div>
           </div>
         </div>
+
       </div>
+
     </div>
 
     <div class="divider is-horizontal">Update</div>
