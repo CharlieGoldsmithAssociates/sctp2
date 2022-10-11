@@ -368,6 +368,9 @@ public class EnrollmentController extends SecuredBaseController {
                 if (form.getAltType().equals(AlternateRecipientType.member)) {
                     recipient.setAltRecipient(form.getId());
                     Individual individual = beneficiaryService.getIndividual(form.getId());
+                    if (individual == null){
+                        return ResponseEntity.notFound().build();
+                    }
                     altRecipient.setGender(individual.getGender());
                     altRecipient.setLastName(individual.getLastName());
                     altRecipient.setFirstName(individual.getFirstName());
@@ -394,7 +397,6 @@ public class EnrollmentController extends SecuredBaseController {
             }
         }
 
-        enrollmentService.saveEnrollment(enrollment);
         enrollmentService.saveHouseholdRecipient(recipient);
 
         return ResponseEntity.ok().build();

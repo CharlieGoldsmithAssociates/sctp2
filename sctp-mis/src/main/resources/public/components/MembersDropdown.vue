@@ -17,7 +17,6 @@
   </b-select>
 </template>
 
-<!-- :disabled="!isEditing" -->
 <script>
 module.exports = {
   props: {

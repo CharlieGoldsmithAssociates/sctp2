@@ -32,6 +32,7 @@
 
 package org.cga.sctp.targeting;
 
+import org.cga.sctp.targeting.importation.converters.GenderParameterValueConverter;
 import org.cga.sctp.targeting.importation.parameters.Gender;
 import org.springframework.lang.Nullable;
 
@@ -47,7 +48,8 @@ public class AlternateRecipient {
     private String firstName;
     private String lastName;
     private String nationalId;
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = GenderParameterValueConverter.class)
+    @Column(name = "gender", nullable = false)
     private Gender gender;
     private LocalDate dateOfBirth;
     @Nullable
