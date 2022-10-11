@@ -9,6 +9,8 @@
     <option
       v-for="individual in candidates"
       :value="individual.id"
+      :selected="individual.id == editingMemberId"
+      v-if="!isEditing || (isEditing && individual.id == editingMemberId)"
     >
       {{ individual.name }} ({{ individual.gender }}, {{ individual.age }} yrs)
     </option>
@@ -22,11 +24,19 @@ module.exports = {
       type: Number,
       required: true,
     },
+    isEditing: {
+      type: Boolean,
+      required: false,
+    },
+    editingMemberId: {
+      type: Number,
+      required: false,
+    },
   },
   data() {
     return {
       candidates: [],
-      memberId: null
+      memberId: null,
     };
   },
   mounted() {
@@ -68,9 +78,9 @@ module.exports = {
         ariaModal: true,
       });
     },
-    changeMemberId(){
-      this.$emit('input', this.memberId);
-    }
+    changeMemberId() {
+      this.$emit("input", this.memberId);
+    },
   },
 };
 </script>

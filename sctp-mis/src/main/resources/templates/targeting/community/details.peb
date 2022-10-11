@@ -37,6 +37,25 @@
                                     <a onclick="exportToCsv()"
                                        class="dropdown-item">Save As CSV</a>
                                     <a onclick="firstDataTable.print()" class="dropdown-item">Print</a>
+                                    <a href="/targeting/community/export/excel/{{ targetingSession.id }}" class="dropdown-item">Export to Excel</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dropdown is-hoverable is-right">
+                            <div class="dropdown-trigger">
+                                <button class="button is-primary" aria-haspopup="true" aria-controls="ibd">
+                                    <span>Export By Status</span>
+                                    <span class="icon is-small">
+                                        <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                    </span>
+                                </button>
+                            </div>
+                            <div class="dropdown-menu" id="ibd" role="menu">
+                                <div class="dropdown-content">
+                                    <a href="/targeting/community/export/excel/{{ targetingSession.id }}?source={{ targetingSession.meetingPhase }}&status=PreEligible" class="dropdown-item">Pre-Eligible</a>
+                                    <a href="/targeting/community/export/excel/{{ targetingSession.id }}?source={{ targetingSession.meetingPhase }}&status=Eligible" class="dropdown-item">Eligible</a>
+                                    <a href="/targeting/community/export/excel/{{ targetingSession.id }}?source={{ targetingSession.meetingPhase }}&status=Selected" class="dropdown-item">Selected</a>
                                 </div>
                             </div>
                         </div>

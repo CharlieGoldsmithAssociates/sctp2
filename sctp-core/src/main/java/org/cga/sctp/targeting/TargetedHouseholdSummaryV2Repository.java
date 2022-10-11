@@ -37,9 +37,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+// TODO: refactor and combine this with TargetedHouseholdSummaryRepository
 @Repository
-interface TargetedHouseholdSummaryRepository extends JpaRepository<TargetedHouseholdSummary, TargetedHouseholdSummaryId> {
-    Page<TargetedHouseholdSummary> getByTargetingSession(Long sessionId, Pageable pageable);
+interface TargetedHouseholdSummaryV2Repository extends JpaRepository<TargetedHouseholdSummaryV2, TargetedHouseholdSummaryId> {
+    Page<TargetedHouseholdSummaryV2> getByTargetingSession(Long sessionId, Pageable pageable);
 
-    Page<TargetedHouseholdSummary> getByTargetingSessionAndStatus(Long sessionId, CbtStatus status, Pageable pageable);
+    Page<TargetedHouseholdSummaryV2> getByTargetingSessionAndStatus(Long sessionId, CbtStatus status, Pageable pageable);
 }

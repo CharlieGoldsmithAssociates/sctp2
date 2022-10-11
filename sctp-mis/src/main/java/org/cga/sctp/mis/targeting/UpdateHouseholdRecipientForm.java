@@ -59,7 +59,8 @@ public class UpdateHouseholdRecipientForm {
     private String nationalId;
     private Gender gender;
     private LocalDate dateOfBirth;
-
+    private LocalDate idIssueDate;
+    private LocalDate idExpiryDate;
     public Long getId() {
         return id;
     }
@@ -138,5 +139,21 @@ public class UpdateHouseholdRecipientForm {
 
     public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
+    }
+
+    public LocalDate getIdIssueDate() {
+        return idIssueDate;
+    }
+
+    public void setIdIssueDate(LocalDate idIssueDate) {
+        this.idIssueDate = idIssueDate;
+    }
+
+    public LocalDate getIdExpiryDate() {
+        return idExpiryDate;
+    }
+
+    public void setIdExpiryDate(LocalDate idExpiryDate) {
+        this.idExpiryDate = idExpiryDate;
     }
 }

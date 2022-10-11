@@ -32,6 +32,7 @@
                             <th>Date</th>
                             <th>Done By</th>
                             {#<th title="Linked Pre-Eligibility Verification">Pre-Eligibility Verification Session</th>#}
+                            <th>Meeting Phase</th>
                             <th>Status</th>
                             <th data-sortable="false" width="5%">Options</th>
                         </tr>
@@ -53,6 +54,7 @@
                                        target="_blank" rel="noopener noreferrer">Click to view</a>
                                 {% endif %}
                             </td>#}
+                            <td>{{ s.meetingPhase.description }}</td>
                             <td>{{ s.status }}</td>
                             <td>
                                 <div class="dropdown is-hoverable is-right">
