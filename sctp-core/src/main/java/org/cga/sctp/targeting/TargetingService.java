@@ -62,6 +62,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static java.util.Objects.isNull;
+
 @Service
 public class TargetingService extends TransactionalService {
     private static final int PAGE_SIZE = 1000;
@@ -140,6 +142,23 @@ public class TargetingService extends TransactionalService {
 
     public Slice<CbtRankingResult> getCbtRanking(TargetingSessionView session, Pageable pageable) {
         return cbtRankingRepository.findByCbtSessionId(session.getId(), pageable);
+    }
+
+    public Page<CbtRankingResult> getCbtRanking(TargetingSessionView session, int page, int size,
+                                                String sortColumn, Sort.Direction sortDirection) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortColumn));
+        return cbtRankingRepository.findByCbtSessionId(session.getId(), pageable);
+    }
+    public CbtRankingResult updateCbtRankingStatus(CbtRankingResult cbtRankingResult) {
+        CbtRankingResult persistedCbtRanking = cbtRankingRepository.findById(cbtRankingResult.getCbtSessionId())
+                .orElse(null);
+
+        if (isNull(persistedCbtRanking)) {
+            return cbtRankingResult;
+        }
+
+        persistedCbtRanking.setStatus(cbtRankingResult.getStatus());
+        return cbtRankingRepository.save(persistedCbtRanking);
     }
 
     public TargetingSessionView findTargetingSessionViewById(Long districtCode, Long sessionId) {

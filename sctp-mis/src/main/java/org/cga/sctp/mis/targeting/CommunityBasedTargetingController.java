@@ -10,15 +10,19 @@ import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.program.Program;
 import org.cga.sctp.program.ProgramService;
 import org.cga.sctp.targeting.*;
+import org.cga.sctp.targeting.exchange.HouseholdImport;
 import org.cga.sctp.user.AdminAccessOnly;
 import org.cga.sctp.user.AdminAndStandardAccessOnly;
 import org.cga.sctp.user.AuthenticatedUser;
 import org.cga.sctp.user.AuthenticatedUserDetails;
+import org.cga.sctp.validation.SortFields;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -26,9 +30,13 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
+import static java.util.Objects.isNull;
 import static org.cga.sctp.mis.location.LocationCodeUtil.toSelectOptions;
 
 @Controller
@@ -145,11 +153,65 @@ public class CommunityBasedTargetingController extends BaseController {
             setDangerFlashMessage("Community based targeting session not found.", attributes);
             return redirect("/targeting/community");
         }
-        Slice<CbtRankingResult> rankedList = targetingService.getCbtRanking(session, pageable);
+
         return view("targeting/community/details")
                 .addObject("isSessionOpen", session.isOpen())
-                .addObject("ranks", rankedList)
-                .addObject("targetingSession", session);
+                .addObject("targetingSession", session)
+                .addObject("statuses", CbtStatus.values());
+    }
+
+    @GetMapping("/{session-id}/ranking-results")
+    @AdminAndStandardAccessOnly
+    ResponseEntity<List<CbtRankingResult>> getCbtRankings(
+            @PathVariable("session-id") Long sessionId,
+            @Valid @Min(1) @RequestParam("page") int page,
+            @Valid @Min(10) @Max(100) @RequestParam(value = "size", defaultValue = "50", required = false) int size,
+            @Valid @RequestParam(value = "order", required = false, defaultValue = "ASC") Sort.Direction sortDirection,
+            @Valid @SortFields({"formNumber", "mlCode", "memberCount", "householdHead"})
+            @RequestParam(value = "sort", required = false, defaultValue = "formNumber") String sort,
+            @RequestParam(value = "slice", required = false, defaultValue = "false") boolean useSlice
+    ) {
+        TargetingSessionView session = targetingService.findTargetingSessionViewById(sessionId);
+
+        if (isNull(session)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        long pages = 0;
+        long total = 0;
+
+        page = page - 1;
+
+        final Page<CbtRankingResult> rankingResults = targetingService.getCbtRanking(session, page, size, sort, sortDirection);
+
+        if (!useSlice) {
+            total = rankingResults.getTotalElements();
+            pages = rankingResults.getTotalPages();
+        }
+
+        return ResponseEntity.ok()
+                .header("X-Is-Slice", Boolean.toString(useSlice))
+                .header("X-Data-Total", Long.toString(total))
+                .header("X-Data-Pages", Long.toString(pages))
+                .header("X-Data-Size", Integer.toString(rankingResults.getSize()))
+                .header("X-Data-Page", Integer.toString(page + 1))
+                .body(rankingResults.getContent());
+    }
+
+    @PostMapping("/{session-id}/ranking-results/update")
+    @AdminAndStandardAccessOnly
+    ResponseEntity<List<CbtRankingResult>> updateCbtRankings(
+            @PathVariable("session-id") Long sessionId,
+            @RequestBody @Valid List<CbtRankingResult> cbtRankingResults) {
+        TargetingSessionView session = targetingService.findTargetingSessionViewById(sessionId);
+
+        if (isNull(session)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        cbtRankingResults.forEach(targetingService::updateCbtRankingStatus);
+
+        return ResponseEntity.accepted().build();
     }
 
     @GetMapping("/composition")
