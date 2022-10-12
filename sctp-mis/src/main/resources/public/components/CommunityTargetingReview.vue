@@ -15,11 +15,11 @@
       </div>
 
       <!-- Right side -->
-      <div v-if="updatedData.length > 0" class="level-right">
+      <div v-if="updatedDataCount !== 0" class="level-right">
         <div class="level-item">
-          <div v-if="updatedData.length > 0" class="level-right buttons">
+          <div v-if="updatedDataCount !== 0" class="level-right buttons">
             <b-button @click="updateCbtRankings" icon-left="database-import" :loading="isLoading"
-                      type="is-primary">
+                      type="is-success">
               Save Changes
             </b-button>
           </div>
@@ -27,11 +27,11 @@
       </div>
     </nav>
 
-    <b-table paginated backend-pagination :total="total" :current-page.sync="currentPage"
-             pagination-position="both" :pagination-simple="false" sort-icon="menu-up" :per-page="pageSize"
-             @page-change="onPageChange" backend-sorting :default-sort-direction="sortOrder"
-             :default-sort="[sortField, sortOrder]" @sort="onSort" aria-next-label="Next page"
-             aria-previous-label="Previous page" aria-page-label="Page" aria-current-label="Current page"
+    <b-table detailed :opened-detailed="openedDetailed" detail-key="householdId" @details-open="householdComposition"
+             paginated backend-pagination :total="total" :current-page.sync="currentPage" pagination-position="both"
+             :pagination-simple="false" sort-icon="menu-up" :per-page="pageSize" @page-change="onPageChange"
+             backend-sorting :default-sort-direction="sortOrder" :default-sort="[sortField, sortOrder]" @sort="onSort"
+             aria-next-label="Next page" aria-previous-label="Previous page" aria-page-label="Page" aria-current-label="Current page"
              :data="isEmpty ? [] : data" :striped="true" :narrowed="true" :hoverable="true" :loading="isLoading">
 
       <b-table-column field="mlCode" label="ML Code" sortable v-slot="props" width="8%">
@@ -42,7 +42,7 @@
         {{ props.row.rank }}
       </b-table-column>
 
-      <b-table-column field="memberCount" label="# of Members" sortable v-slot="props" width="6%">
+      <b-table-column field="memberCount" label="# of Members" sortable v-slot="props" width="10%">
         {{ props.row.memberCount }}
       </b-table-column>
 
@@ -66,15 +66,15 @@
         {{ props.row.zoneName }}
       </b-table-column>
 
-      <b-table-column field="prePrintedNum" label="Pre-Printed Num" v-slot="props">
-        {{ props.row.prePrintedNum }}
+      <b-table-column field="formNumber" label="Pre-Printed Num" v-slot="props">
+        {{ props.row.formNumber }}
       </b-table-column>
 
       <b-table-column field="status" label="Status" v-slot="props">
         <b-field>
-          <b-select placeholder="Select a status" v-model="props.row.status" >
+          <b-select placeholder="Select a status" size="is-small" :value="props.row.status" @input="onStatusChanged(props.row, $event)" >
             <option
-                v-for="option in props.statusOptions"
+                v-for="option in statusOptions"
                 :value="option"
                 :key="option">
               {{ option }}
@@ -83,6 +83,47 @@
         </b-field>
       </b-table-column>
 
+      <template slot="detail" slot-scope="props">
+
+        <section class="section">
+          <h3 class="subtitle">Household Composition</h3>
+
+          <b-table :bordered="true" :striped="true" :narrowed="true" :hoverable="true" :loading="isLoading"
+                   :data="(props.row.memberList || [])">
+
+            <b-table-column field="individualId" label="Individual Id" v-slot="props">
+              {{ props.row.individualId }}
+            </b-table-column>
+
+            <b-table-column field="lastName" label="Name" v-slot="props">
+              {{ `${props.row.firstName} ${props.row.lastName}` }}
+            </b-table-column>
+
+            <b-table-column field="gender" label="Gender" v-slot="props">
+              {{ props.row.gender }}
+            </b-table-column>
+
+            <b-table-column field="dateOfBirth" label="D.O.B" v-slot="props">
+              {{ props.row.dateOfBirth }}
+            </b-table-column>
+
+            <b-table-column field="age" label="Age" v-slot="props">
+              {{ props.row.dateOfBirth }}
+            </b-table-column>
+
+
+            <b-table-column field="relationshipToHead" label="Relationship To Head" v-slot="props">
+              {{ props.row.relationshipToHead }}
+            </b-table-column>
+
+            <template #empty>
+              <div class="has-text-centered">No data to show</div>
+            </template>
+          </b-table>
+        </section>
+
+      </template>
+
       <template #empty>
         <div class="has-text-centered">No records</div>
       </template>
@@ -90,31 +131,49 @@
       <template #bottom-left>
         <div class="level-item">
           <p>
-            <strong>Total</strong> {{total}}
+            <strong>Total</strong> {{ total }}
           </p>
         </div>
 
         <div class="level-item">
           <p>
-            <strong>Selected</strong> {{statusStats.selected}}
+            <strong>PreEligible</strong> {{ statusStats.PreEligible }}
           </p>
         </div>
 
         <div class="level-item">
           <p>
-            <strong>Enrolled</strong> {{statusStats.enrolled}}
+            <strong>Eligible</strong> {{ statusStats.Eligible }}
           </p>
         </div>
 
         <div class="level-item">
           <p>
-            <strong>PreEligible</strong> {{statusStats.preEligible}}
+            <strong>Selected</strong> {{ statusStats.Selected }}
           </p>
         </div>
 
         <div class="level-item">
           <p>
-            <strong>Eligible</strong> {{statusStats.eligible}}
+            <strong>Enrolled</strong> {{ statusStats.Enrolled }}
+          </p>
+        </div>
+
+        <div class="level-item">
+          <p>
+            <strong>Ineligible</strong> {{ statusStats.Ineligible }}
+          </p>
+        </div>
+
+        <div class="level-item">
+          <p>
+            <strong>Beneficiary</strong> {{ statusStats.Beneficiary }}
+          </p>
+        </div>
+
+        <div class="level-item">
+          <p>
+            <strong>NonRecertified</strong> {{ statusStats.NonRecertified }}
           </p>
         </div>
       </template>
@@ -122,31 +181,49 @@
       <template #top-left>
         <div class="level-item">
           <p>
-            <strong>Total</strong> {{total}}
+            <strong>Total</strong> {{ total }}
           </p>
         </div>
 
         <div class="level-item">
           <p>
-            <strong>Selected</strong> {{statusStats.selected}}
+            <strong>PreEligible</strong> {{ statusStats.PreEligible }}
           </p>
         </div>
 
         <div class="level-item">
           <p>
-            <strong>Enrolled</strong> {{statusStats.enrolled}}
+            <strong>Eligible</strong> {{ statusStats.Eligible }}
           </p>
         </div>
 
         <div class="level-item">
           <p>
-            <strong>PreEligible</strong> {{statusStats.preEligible}}
+            <strong>Selected</strong> {{ statusStats.Selected }}
           </p>
         </div>
 
         <div class="level-item">
           <p>
-            <strong>Eligible</strong> {{statusStats.eligible}}
+            <strong>Enrolled</strong> {{ statusStats.Enrolled }}
+          </p>
+        </div>
+
+        <div class="level-item">
+          <p>
+            <strong>Ineligible</strong> {{ statusStats.Ineligible }}
+          </p>
+        </div>
+
+        <div class="level-item">
+          <p>
+            <strong>Beneficiary</strong> {{ statusStats.Beneficiary }}
+          </p>
+        </div>
+
+        <div class="level-item">
+          <p>
+            <strong>NonRecertified</strong> {{ statusStats.NonRecertified }}
           </p>
         </div>
       </template>
@@ -161,39 +238,71 @@ module.exports = {
     sessionId: {
       type: Number,
       required: true
-    },
-    statusOptions: {
-      type: Array,
-      required: true
     }
   },
   data() {
     return {
       data: [],
-      updatedData: [],
+      updatedData: {},
+      updatedDataCount: 0,
+      openedDetailed: [],
       isEmpty: false,
       isLoading: false,
       total: 0,
-      sortField: 'formNumber',
+      sortField: 'rank',
       sortOrder: 'ASC',
       pageSize: 50,
       currentPage: 1,
       slice: false,
+      statusOptions: ['NonRecertified', 'PreEligible', 'Ineligible', 'Eligible', 'Selected', 'Enrolled', 'Beneficiary'],
       statusStats: {
-        eligible: 0,
-        selected: 0,
-        preEligible: 0,
-        enrolled: 0,
-        nonRecertified: 0,
-        ineligible: 0,
-        beneficiary: 0,
+        NonRecertified: 0,
+        PreEligible: 0,
+        Ineligible: 0,
+        Eligible: 0,
+        Selected: 0,
+        Enrolled: 0,
+        Beneficiary: 0
       }
     }
   },
   mounted() {
     this.getCbtRankings()
+    this.getCbtRankingsStats()
   },
   methods: {
+    getCbtRankingsStats() {
+      let vm = this;
+      vm.isLoading = true;
+
+      axios.get(`/targeting/community/${vm.sessionId}/ranking-results/stats`)
+          .then(function (response) {
+            if (response.status === 200) {
+              const hasData = response.data && response.data.length > 0;
+
+              if (hasData) {
+                if (isJsonContentType(response.headers['content-type'])) {
+                  response.data.forEach(d => {
+                    vm.statusStats[d.currentStatus] = d.totalCount;
+                  })
+                } else {
+                  throw 'invalid type';
+                }
+              } else {
+                vm.snackbar('No more data to load');
+              }
+            } else {
+              throw `Server returned: ${response.status}`;
+            }
+          })
+          .catch(function (error) {
+            vm.errorDialog('There was an error loading households. Please try again');
+            console.log(error);
+          })
+          .finally(function () {
+            vm.isLoading = false;
+          });
+    },
     getCbtRankings() {
       let vm = this;
       vm.isLoading = true;
@@ -234,7 +343,7 @@ module.exports = {
             vm.errorDialog('There was an error loading households. Please try again');
             console.log(error);
           })
-          .then(function () {
+          .finally(function () {
             vm.isLoading = false;
           });
     },
@@ -244,7 +353,11 @@ module.exports = {
 
       const config = { headers: { 'X-CSRF-TOKEN': csrf()['token'] } };
 
-      axios.post(`/targeting/community/${vm.sessionId}/ranking-results/update`, vm.props.updatedData, config)
+      let requestBody = Object.keys(vm.updatedData)
+          .map(key => { return {householdId: Number(key), status: vm.updatedData[key]} })
+      console.log(JSON.stringify(requestBody))
+
+      axios.put(`/targeting/community/${vm.sessionId}/ranking-results/update`, JSON.stringify(requestBody), config)
           .then(function (response) {
             const errorMessage = 'Changes cannot be saved at the moment. Please try again';
 
@@ -260,9 +373,57 @@ module.exports = {
             vm.errorDialog('There was an error loading households. Please try again');
             console.log(error);
           })
-          .then(function () {
+          .finally(function () {
             vm.isLoading = false;
           });
+    },
+    householdComposition(row) {
+      let vm = this;
+      vm.isLoading = true;
+
+      axios.get(`/targeting/community/${row.cbtSessionId}/composition/${row.householdId}`)
+          .then(function (response) {
+            if (response.status === 200 && isJsonContentType(response.headers['content-type'])) {
+              if (response.data.length > 0) {
+                row.memberList = response.data;
+                vm.openedDetailed[0] = row.householdId;
+              } else {
+                row.memberList = [];
+                delete vm.openedDetailed[0]
+                vm.snackbar('Household does not have any members.', 'warning')
+              }
+            } else {
+              vm.snackbar('Server returned invalid data', 'warning');
+            }
+          })
+          .catch(function (error) {
+            vm.snackbar('Error getting household members', 'danger');
+          })
+          .finally(function () {
+            vm.isLoading = false
+          });
+    },
+    onStatusChanged(item, newStatus) {
+      if (item.status !== newStatus) {
+        this.statusStats[item.status] = this.statusStats[item.status] - 1;
+        this.statusStats[newStatus] = this.statusStats[newStatus] === undefined ? 1 : this.statusStats[newStatus] + 1;
+        item.status = newStatus;
+        this.updatedData[item.householdId] = newStatus
+        this.updatedDataCount = Object.keys(this.updatedData).length;
+        console.log(this.updatedDataCount)
+      }
+    },
+    errorDialog(msg, titleText = 'Error') {
+      this.$buefy.dialog.alert({
+        title: titleText,
+        message: msg,
+        type: 'is-danger',
+        hasIcon: true,
+        icon: 'times-circle',
+        iconPack: 'fa',
+        ariaRole: 'alertdialog',
+        ariaModal: true
+      })
     },
     mlCode(code) {
       return code && `ML-${code}`;
@@ -279,7 +440,3 @@ module.exports = {
   }
 }
 </script>
-
-<style>
-
-</style>

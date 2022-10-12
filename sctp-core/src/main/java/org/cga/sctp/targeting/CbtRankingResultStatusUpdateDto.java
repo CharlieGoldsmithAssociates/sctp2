@@ -32,21 +32,23 @@
 
 package org.cga.sctp.targeting;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+public class CbtRankingResultStatusUpdateDto {
+    private Long householdId;
+    private String status;
 
-import java.util.List;
+    public Long getHouseholdId() {
+        return householdId;
+    }
 
-@Repository
-public interface CbtRankingRepository extends JpaRepository<CbtRankingResult, Long> {
+    public void setHouseholdId(Long householdId) {
+        this.householdId = householdId;
+    }
 
-    Page<CbtRankingResult> findByCbtSessionId(Long cbtSessionId, Pageable pageable);
+    public String getStatus() {
+        return status;
+    }
 
-    @Query("SELECT status as currentStatus, COUNT(status) as totalCount " +
-            "FROM CbtRankingResult WHERE cbtSessionId = :sessionId GROUP BY status")
-    List<CbtRankingResultStat> countAllByStatusAndCbtSessionId(@Param("sessionId") Long sessionId);
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }

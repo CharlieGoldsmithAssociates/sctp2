@@ -45,6 +45,7 @@ import org.cga.sctp.utils.CollectionUtils;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
@@ -59,6 +60,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -149,16 +151,24 @@ public class TargetingService extends TransactionalService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortColumn));
         return cbtRankingRepository.findByCbtSessionId(session.getId(), pageable);
     }
-    public CbtRankingResult updateCbtRankingStatus(CbtRankingResult cbtRankingResult) {
-        CbtRankingResult persistedCbtRanking = cbtRankingRepository.findById(cbtRankingResult.getCbtSessionId())
-                .orElse(null);
 
-        if (isNull(persistedCbtRanking)) {
-            return cbtRankingResult;
-        }
+    public void updateCbtRankingStatus(List<CbtRankingResultStatusUpdateDto> statusUpdateDtos) {
 
-        persistedCbtRanking.setStatus(cbtRankingResult.getStatus());
-        return cbtRankingRepository.save(persistedCbtRanking);
+        List<CbtRankingResult> cbtRankingResults = statusUpdateDtos.stream().map(statusUpdateDto -> {
+            CbtRankingResult persistedCbtRanking = cbtRankingRepository.findById(statusUpdateDto.getHouseholdId())
+                    .orElse(null);
+
+            if (isNull(persistedCbtRanking)) return null;
+
+            persistedCbtRanking.setStatus(CbtStatus.valueOf(statusUpdateDto.getStatus()));
+            return persistedCbtRanking;
+        }).filter(Objects::nonNull).toList();
+
+        cbtRankingRepository.saveAll(cbtRankingResults);
+    }
+
+    public List<CbtRankingResultStat> countAllByStatusAndCbtSessionId(Long sessionId) {
+        return cbtRankingRepository.countAllByStatusAndCbtSessionId(sessionId);
     }
 
     public TargetingSessionView findTargetingSessionViewById(Long districtCode, Long sessionId) {

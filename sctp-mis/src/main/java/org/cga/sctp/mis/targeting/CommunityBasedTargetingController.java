@@ -10,7 +10,6 @@ import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.program.Program;
 import org.cga.sctp.program.ProgramService;
 import org.cga.sctp.targeting.*;
-import org.cga.sctp.targeting.exchange.HouseholdImport;
 import org.cga.sctp.user.AdminAccessOnly;
 import org.cga.sctp.user.AdminAndStandardAccessOnly;
 import org.cga.sctp.user.AuthenticatedUser;
@@ -34,7 +33,6 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 import static java.util.Objects.isNull;
 import static org.cga.sctp.mis.location.LocationCodeUtil.toSelectOptions;
@@ -156,8 +154,20 @@ public class CommunityBasedTargetingController extends BaseController {
 
         return view("targeting/community/details")
                 .addObject("isSessionOpen", session.isOpen())
-                .addObject("targetingSession", session)
-                .addObject("statuses", CbtStatus.values());
+                .addObject("targetingSession", session);
+    }
+
+    @GetMapping("/{session-id}/ranking-results/stats")
+    @AdminAndStandardAccessOnly
+    ResponseEntity<List<CbtRankingResultStat>> getCbtRankingsStats(
+            @PathVariable("session-id") Long sessionId) {
+        TargetingSessionView session = targetingService.findTargetingSessionViewById(sessionId);
+
+        if (isNull(session)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(targetingService.countAllByStatusAndCbtSessionId(sessionId));
     }
 
     @GetMapping("/{session-id}/ranking-results")
@@ -167,7 +177,7 @@ public class CommunityBasedTargetingController extends BaseController {
             @Valid @Min(1) @RequestParam("page") int page,
             @Valid @Min(10) @Max(100) @RequestParam(value = "size", defaultValue = "50", required = false) int size,
             @Valid @RequestParam(value = "order", required = false, defaultValue = "ASC") Sort.Direction sortDirection,
-            @Valid @SortFields({"formNumber", "mlCode", "memberCount", "householdHead"})
+            @Valid @SortFields({"formNumber", "mlCode", "memberCount", "householdHead", "rank"})
             @RequestParam(value = "sort", required = false, defaultValue = "formNumber") String sort,
             @RequestParam(value = "slice", required = false, defaultValue = "false") boolean useSlice
     ) {
@@ -198,20 +208,32 @@ public class CommunityBasedTargetingController extends BaseController {
                 .body(rankingResults.getContent());
     }
 
-    @PostMapping("/{session-id}/ranking-results/update")
+    @PostMapping("/{session}/ranking-results/update")
     @AdminAndStandardAccessOnly
-    ResponseEntity<List<CbtRankingResult>> updateCbtRankings(
-            @PathVariable("session-id") Long sessionId,
-            @RequestBody @Valid List<CbtRankingResult> cbtRankingResults) {
+    ResponseEntity<Void> updateCbtRankings(
+            @PathVariable("session") Long sessionId,
+            @RequestBody @Valid List<CbtRankingResultStatusUpdateDto> statusUpdateDtos) {
         TargetingSessionView session = targetingService.findTargetingSessionViewById(sessionId);
 
         if (isNull(session)) {
             return ResponseEntity.notFound().build();
         }
 
-        cbtRankingResults.forEach(targetingService::updateCbtRankingStatus);
+        targetingService.updateCbtRankingStatus(statusUpdateDtos);
+        return ResponseEntity.ok().build();
+    }
 
-        return ResponseEntity.accepted().build();
+    @GetMapping("/{session}/composition/{householdId}")
+    @AdminAndStandardAccessOnly
+    ResponseEntity<List<Individual>> getHouseholdIndividuals(
+            @PathVariable("session") Long sessionId,
+            @PathVariable("householdId") Long householdId) {
+        Household household = beneficiaryService.findHouseholdByTargetingSessionIdAndHouseholdId(sessionId, householdId);
+        if (isNull(household)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(beneficiaryService.getHouseholdMembers(householdId));
     }
 
     @GetMapping("/composition")

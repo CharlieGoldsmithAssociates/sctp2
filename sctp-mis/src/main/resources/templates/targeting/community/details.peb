@@ -60,17 +60,17 @@
                             </div>
                         </div>
                     </div>
-                    {% if canModify %}
-                        <div class="level-item">
-                            <form enctype="application/x-www-form-urlencoded"
-                                  method="post"
-                                  action="/targeting/community/close">
-                                {{ csrf(_csrf) }}
-                                {{ hiddenField('id', targetingSession.id) }}
-                                <button class="button is-success">Finish And Send To Enrolment</button>
-                            </form>
-                        </div>
-                    {% endif %}
+{#                    {% if canModify %}#}
+{#                        <div class="level-item">#}
+{#                            <form enctype="application/x-www-form-urlencoded"#}
+{#                                  method="post"#}
+{#                                  action="/targeting/community/close">#}
+{#                                {{ csrf(_csrf) }}#}
+{#                                {{ hiddenField('id', targetingSession.id) }}#}
+{#                                <button class="button is-success">Finish And Send To Enrolment</button>#}
+{#                            </form>#}
+{#                        </div>#}
+{#                    {% endif %}#}
                 </div>
             </div>
         </div>
@@ -82,7 +82,7 @@
             <p class="card-header-title">Community-Based Targeting - {{ targetingSession.programName }} / {{ targetingSession.districtName }}</p>
         </header>
         <div class="card-content">
-            <Community-Targeting-Review :session-id="{{ targetingSession.id }}" :status-options={{ statuses }} />
+            <Community-Targeting-Review :session-id="{{ targetingSession.id }}" />
         </div>
     </div>
     {% endblock %}
