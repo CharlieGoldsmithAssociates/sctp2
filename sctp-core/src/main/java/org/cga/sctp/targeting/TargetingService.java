@@ -45,7 +45,6 @@ import org.cga.sctp.utils.CollectionUtils;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
-import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
@@ -152,17 +151,19 @@ public class TargetingService extends TransactionalService {
         return cbtRankingRepository.findByCbtSessionId(session.getId(), pageable);
     }
 
-    public void updateCbtRankingStatus(List<CbtRankingResultStatusUpdateDto> statusUpdateDtos) {
+    public void updateCbtRankingStatus(CbtRankingResultStatusUpdate statusUpdate) {
 
-        List<CbtRankingResult> cbtRankingResults = statusUpdateDtos.stream().map(statusUpdateDto -> {
-            CbtRankingResult persistedCbtRanking = cbtRankingRepository.findById(statusUpdateDto.getHouseholdId())
-                    .orElse(null);
+        List<CbtRankingResult> cbtRankingResults = statusUpdate.getCbtRankingResults()
+                .parallelStream()
+                .map(cbtRankingResult -> {
+                    CbtRankingResult persistedCbtRanking = cbtRankingRepository.findById(cbtRankingResult.getHouseholdId())
+                            .orElse(null);
 
-            if (isNull(persistedCbtRanking)) return null;
+                    if (isNull(persistedCbtRanking)) return null;
 
-            persistedCbtRanking.setStatus(CbtStatus.valueOf(statusUpdateDto.getStatus()));
-            return persistedCbtRanking;
-        }).filter(Objects::nonNull).toList();
+                    persistedCbtRanking.setStatus(cbtRankingResult.getStatus());
+                    return persistedCbtRanking;
+                }).filter(Objects::nonNull).toList();
 
         cbtRankingRepository.saveAll(cbtRankingResults);
     }
@@ -641,6 +642,7 @@ public class TargetingService extends TransactionalService {
 
     /**
      * Exports targeting session data to excel and returns path to that file.
+     *
      * @param targetingSession the session to export data for
      * @return path to the file.
      */

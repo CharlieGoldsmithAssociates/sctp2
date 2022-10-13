@@ -208,18 +208,18 @@ public class CommunityBasedTargetingController extends BaseController {
                 .body(rankingResults.getContent());
     }
 
-    @PostMapping("/{session}/ranking-results/update")
+    @PutMapping("/{session}/ranking-results")
     @AdminAndStandardAccessOnly
     ResponseEntity<Void> updateCbtRankings(
             @PathVariable("session") Long sessionId,
-            @RequestBody @Valid List<CbtRankingResultStatusUpdateDto> statusUpdateDtos) {
+            @RequestBody @Valid CbtRankingResultStatusUpdate statusUpdate) {
         TargetingSessionView session = targetingService.findTargetingSessionViewById(sessionId);
 
         if (isNull(session)) {
             return ResponseEntity.notFound().build();
         }
 
-        targetingService.updateCbtRankingStatus(statusUpdateDtos);
+        targetingService.updateCbtRankingStatus(statusUpdate);
         return ResponseEntity.ok().build();
     }
 

@@ -15,12 +15,12 @@
       </div>
 
       <!-- Right side -->
-      <div v-if="updatedDataCount !== 0" class="level-right">
+      <div class="level-right">
         <div class="level-item">
-          <div v-if="updatedDataCount !== 0" class="level-right buttons">
-            <b-button @click="updateCbtRankings" icon-left="database-import" :loading="isLoading"
+          <div class="level-right buttons">
+            <b-button @click="sendToEnrollment" icon-left="database-import" :loading="isLoading"
                       type="is-success">
-              Save Changes
+              Finish And Send To Enrolment
             </b-button>
           </div>
         </div>
@@ -77,7 +77,7 @@
                 v-for="option in statusOptions"
                 :value="option"
                 :key="option">
-              {{ option }}
+              {{ option }} - {{ props.row.status }}
             </option>
           </b-select>
         </b-field>
@@ -152,30 +152,6 @@
             <strong>Selected</strong> {{ statusStats.Selected }}
           </p>
         </div>
-
-        <div class="level-item">
-          <p>
-            <strong>Enrolled</strong> {{ statusStats.Enrolled }}
-          </p>
-        </div>
-
-        <div class="level-item">
-          <p>
-            <strong>Ineligible</strong> {{ statusStats.Ineligible }}
-          </p>
-        </div>
-
-        <div class="level-item">
-          <p>
-            <strong>Beneficiary</strong> {{ statusStats.Beneficiary }}
-          </p>
-        </div>
-
-        <div class="level-item">
-          <p>
-            <strong>NonRecertified</strong> {{ statusStats.NonRecertified }}
-          </p>
-        </div>
       </template>
 
       <template #top-left>
@@ -202,30 +178,6 @@
             <strong>Selected</strong> {{ statusStats.Selected }}
           </p>
         </div>
-
-        <div class="level-item">
-          <p>
-            <strong>Enrolled</strong> {{ statusStats.Enrolled }}
-          </p>
-        </div>
-
-        <div class="level-item">
-          <p>
-            <strong>Ineligible</strong> {{ statusStats.Ineligible }}
-          </p>
-        </div>
-
-        <div class="level-item">
-          <p>
-            <strong>Beneficiary</strong> {{ statusStats.Beneficiary }}
-          </p>
-        </div>
-
-        <div class="level-item">
-          <p>
-            <strong>NonRecertified</strong> {{ statusStats.NonRecertified }}
-          </p>
-        </div>
       </template>
 
     </b-table>
@@ -243,8 +195,7 @@ module.exports = {
   data() {
     return {
       data: [],
-      updatedData: {},
-      updatedDataCount: 0,
+      updatedData: new Set(),
       openedDetailed: [],
       isEmpty: false,
       isLoading: false,
@@ -254,15 +205,11 @@ module.exports = {
       pageSize: 50,
       currentPage: 1,
       slice: false,
-      statusOptions: ['NonRecertified', 'PreEligible', 'Ineligible', 'Eligible', 'Selected', 'Enrolled', 'Beneficiary'],
+      statusOptions: ['PreEligible', 'Eligible', 'Selected'],
       statusStats: {
-        NonRecertified: 0,
         PreEligible: 0,
-        Ineligible: 0,
         Eligible: 0,
         Selected: 0,
-        Enrolled: 0,
-        Beneficiary: 0
       }
     }
   },
@@ -347,35 +294,33 @@ module.exports = {
             vm.isLoading = false;
           });
     },
-    updateCbtRankings() {
+    async sendToEnrollment() {
       let vm = this;
       vm.isLoading = true;
 
-      const config = { headers: { 'X-CSRF-TOKEN': csrf()['token'] } };
+      const config = { headers: { 'X-CSRF-TOKEN': csrf()['token'], 'Content-Type': 'application/json' } };
+      const errorMessage = 'Failed to send to enrollment at the moment. Please try again';
 
-      let requestBody = Object.keys(vm.updatedData)
-          .map(key => { return {householdId: Number(key), status: vm.updatedData[key]} })
-      console.log(JSON.stringify(requestBody))
-
-      axios.put(`/targeting/community/${vm.sessionId}/ranking-results/update`, JSON.stringify(requestBody), config)
-          .then(function (response) {
-            const errorMessage = 'Changes cannot be saved at the moment. Please try again';
-
-            if (response.status === 201) {
-                vm.msgDialog('Changes has been queued and will be saved in the background.', '', 'success', 'check')
-                window.location.href = `/targeting/community/review?session=${vm.sessionId}`;
-            } else {
+      if (vm.updatedData.size > 0) {
+        const request = { cbtRankingResults: [...vm.updatedData] }
+        console.log(JSON.stringify(request))
+        const response = await axios.put(`/targeting/community/${vm.sessionId}/ranking-results`, JSON.stringify(request), config)
+            .catch(function (error) {
               vm.isLoading = false;
-              vm.errorDialog(errorMessage);
-            }
-          })
-          .catch(function (error) {
-            vm.errorDialog('There was an error loading households. Please try again');
-            console.log(error);
-          })
-          .finally(function () {
-            vm.isLoading = false;
-          });
+              vm.errorDialog('There was an error while saving changes. Please try again');
+              console.log(error);
+            })
+
+        if (response.status !== 200) {
+          vm.isLoading = false;
+          vm.errorDialog(errorMessage);
+
+
+        }
+      }
+
+      console.log("Sending to enrollment...")
+      vm.isLoading = false;
     },
     householdComposition(row) {
       let vm = this;
@@ -407,10 +352,11 @@ module.exports = {
       if (item.status !== newStatus) {
         this.statusStats[item.status] = this.statusStats[item.status] - 1;
         this.statusStats[newStatus] = this.statusStats[newStatus] === undefined ? 1 : this.statusStats[newStatus] + 1;
+
+        this.updatedData.delete(item)
+
         item.status = newStatus;
-        this.updatedData[item.householdId] = newStatus
-        this.updatedDataCount = Object.keys(this.updatedData).length;
-        console.log(this.updatedDataCount)
+        this.updatedData.add(item)
       }
     },
     errorDialog(msg, titleText = 'Error') {

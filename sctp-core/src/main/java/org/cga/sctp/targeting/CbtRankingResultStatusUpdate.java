@@ -32,23 +32,16 @@
 
 package org.cga.sctp.targeting;
 
-public class CbtRankingResultStatusUpdateDto {
-    private Long householdId;
-    private String status;
+import java.util.List;
 
-    public Long getHouseholdId() {
-        return householdId;
+public class CbtRankingResultStatusUpdate {
+    private List<CbtRankingResult> cbtRankingResults;
+
+    public List<CbtRankingResult> getCbtRankingResults() {
+        return cbtRankingResults;
     }
 
-    public void setHouseholdId(Long householdId) {
-        this.householdId = householdId;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
+    public void setCbtRankingResults(List<CbtRankingResult> cbtRankingResults) {
+        this.cbtRankingResults = cbtRankingResults;
     }
 }
