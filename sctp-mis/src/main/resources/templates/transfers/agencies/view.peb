@@ -72,5 +72,43 @@
             </div>
         </div>
     </div>
+    <br/>
+    <div class="card no-overlap">
+        <div class="card-header">
+            <div class="card-header-title">Assigned Programs and Locations</div>
+        </div>
+        <div class="card-content">
+            <table class="table is-striped is-fullwidth">
+                <thead>
+                <tr>
+                    <th>Program</th>
+                    <th>Location</th>
+                    <th>Method</th>
+                    <th>Assigned On</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for e in assignments %}
+                <tr
+                    data-programId="{{ e.programId }}"
+                    data-transferAgencyId="{{ e.transferAgencyId }}"
+                    data-locationId="{{ e.locationId }}"
+                >
+                    <td>{{ e.programmeName }}</td>
+                    <td>{{ e.locationName }}</td>
+                    <td>{{ e.transferMethod }}</td>
+                    <td>{{ e.assignedOn }}</td>
+{#                    <td>{{ e.programStartDate }}</td>#}
+{#                    <td>{{ e.locationCode }}</td>#}
+{#                    <td>{{ e.isProgramActive }}</td>#}
+{#                    <td>{{ e.isLocationActive }}</td>#}
+{#                    <td>{{ e.isAgencyActive }}</td>#}
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
     </div>
     {% endblock %}

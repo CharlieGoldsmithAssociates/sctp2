@@ -62,7 +62,6 @@ public class TransferBeneficiariesController extends SecuredBaseController {
     @Autowired
     private BeneficiaryAccountService beneficiaryAccountService;
 
-
     @GetMapping
     @AdminAndStandardAccessOnly
     public ModelAndView viewListBeneficiaries(@RequestParam(value = "sessionId", required = false) Long sessionId,

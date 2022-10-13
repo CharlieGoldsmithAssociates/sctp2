@@ -32,32 +32,16 @@
 
 package org.cga.sctp.transfers.agencies;
 
-import org.cga.sctp.location.Location;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
-public interface TransferAgencyService {
-    /**
-     * Assign a transfer agency to a location
-     * @param transferAgency
-     * @param location
-     * @param transferMethod
-     * @return
-     */
-    TransferAgencyAssignment assignAgency(Long programId,
-                                          TransferAgency transferAgency,
-                                          Location location,
-                                          TransferMethod transferMethod,
-                                          Long assignedBy) throws TransferAgencyAlreadyAssignedException;
-
-    Optional<TransferAgency> findById(Long transferAgencyId);
-
-    void save(TransferAgency transferAgency);
-
-    List<TransferAgency> fetchAllTransferAgencies();
-
-    List<TransferAgency> findAllByTransferModality(String transferMethod);
-
-    List<TransferAgencyAssignmentView> getAssignmentsByAgency(Long agencyId);
+@Repository
+public interface TransferAgencyAssignmentViewRepository extends JpaRepository<TransferAgencyAssignmentView, Long> {
+    @Query(nativeQuery = true,
+        value = "SELECT * from assigned_agencies_view WHERE transfer_agency_id = :agencyId ;")
+    List<TransferAgencyAssignmentView> findAllByTransferAgencyId(@Param("agencyId") Long agencyId);
 }
