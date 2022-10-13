@@ -40,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TransferPeriodService {
@@ -107,5 +108,25 @@ public class TransferPeriodService {
 
     public List<TransferPeriod> findAllByDistrictId(Long districtId) {
         return transferPeriodRepository.findAllByDistrictId(districtId);
+    }
+
+    public Optional<TransferPeriod> findById(Long periodId) {
+        return transferPeriodRepository.findById(periodId);
+    }
+
+    public void deletePeriod(Long periodId) {
+        // TODO: validate that the period is closed...
+        Optional<TransferPeriod> optional = transferPeriodRepository.findById(periodId);
+        if (optional.isEmpty()) {
+            return;
+        }
+
+        TransferPeriod period = optional.get();
+        if (period.isClosed()) {
+            // Cannot delete a closed period...
+            return;
+        }
+
+        transferPeriodRepository.delete(period);
     }
 }

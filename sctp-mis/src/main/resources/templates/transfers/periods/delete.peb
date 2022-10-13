@@ -1,0 +1,37 @@
+    {% extends "../../base" %}
+        {% import "../../../utils/form" %}
+        {% block contextMenu %}
+        <div class="container context-nav-container">
+            <div class="buttons is-right">
+                <a href="{{ href('/transfers/periods') }}" class="button is-warning">Back</a>
+            </div>
+        </div>
+        {% endblock %}
+
+    {% block content %}
+
+    <div class="container">
+        <div class="card no-overlap">
+            <header class="card-header">
+                <p class="card-header-title">Are you sure you want delete the following Transfer Period?</p>
+            </header>
+            <div class="card-content">
+                <div class="action-buttons well">
+                    <form method="post" action="/transfers/periods/delete/{{ transferPeriod.id }}">
+                        {{ csrf(_csrf) }}
+                        <input type="hidden" name="periodId" value="{{ transferPeriod.id }}">
+                        <button name="confirmDelete" class="button is-danger">Yes, delete Period</button>
+                        <a href="/transfers/parameters" class="button is-warning">No, Cancel</a>
+                    </form>
+                </div>
+
+                <div class="display-content">
+                    <div class="field-display">
+                        <label class="label">Name</label>
+                        <h3 class="subtitle">{{ transferPeriod.name }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}

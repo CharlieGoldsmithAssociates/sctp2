@@ -55,6 +55,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/transfers/periods")
@@ -150,7 +151,34 @@ public class TransferPeriodController extends BaseController {
         }
     }
 
-    @GetMapping("/close")
+    @GetMapping("/delete/{period-id}")
+    @AdminAndStandardAccessOnly
+    public ModelAndView getDeletePeriod(@AuthenticatedUserDetails AuthenticatedUser user,
+                                        @PathVariable("period-id") Long periodId,
+                                        RedirectAttributes attributes) {
+
+        Optional<TransferPeriod> transferPeriod = transferPeriodService.findById(periodId);
+        if (transferPeriod.isEmpty()) {
+            // TODO: flash messsage that the period does not exist...
+            return redirect("/transfers/periods");
+        }
+
+        return view("/transfers/periods/delete")
+                .addObject("transferPeriod", transferPeriod.get());
+    }
+
+    @PostMapping("/delete/{period-id}")
+    @AdminAndStandardAccessOnly
+    public ModelAndView postDeletePeriod(@AuthenticatedUserDetails AuthenticatedUser user,
+                                         @PathVariable("period-id") Long periodId,
+                                         RedirectAttributes attributes) {
+
+        transferPeriodService.deletePeriod(periodId);
+        publishGeneralEvent("User %s deleted an open period with id %s", user.username(), periodId);
+        return redirect("/transfers/periods");
+    }
+
+   @GetMapping("/close")
     @AdminAndStandardAccessOnly
     public ModelAndView viewCloseTransferPeriod() {
         return view("/transfers/periods/close");
