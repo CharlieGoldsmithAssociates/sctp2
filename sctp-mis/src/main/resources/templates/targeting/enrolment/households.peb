@@ -3,7 +3,7 @@
     {% block contextMenu %}
         {% set isSessionOpen = sessionInfo.status == 'review' %}
         {% set canModify = hasRole("ADMINISTRATOR") and isSessionOpen %}
-        {% set canSendToTransfers = hasRole("ADMINISTRATOR") and sessionInfo.status == 'closed' %}
+        {% set canSendToTransfers = hasRole("ADMINISTRATOR") and sessionInfo.status == 'Closed' %}
         {% set useWideContainer = true %}
         <div class="context-nav-container">
             <div class="level">
