@@ -403,10 +403,6 @@ module.exports = {
       }
       fData.append("altType", altType);
 
-      for (var pair of fData.entries()) {
-        console.log(pair[0] + ", " + pair[1]);
-      }
-
       const params = [`type=secondary`].join("&");
       const config = {
         headers: {
@@ -421,6 +417,7 @@ module.exports = {
             vm.reloadRecipientImage();
             vm.getAlternateRecipient();
             vm.msgDialog("Updated successfully.", "", "success", "check");
+            vm.resetFormValues();
           } else {
             throw `Status: ${response.status}`;
           }
@@ -434,6 +431,18 @@ module.exports = {
         });
     },
     reloadRecipientImage() {},
+    resetFormValues(){
+      this.memberId = null;
+      this.firstName = null;
+      this.lastName = null;
+      this.gender = null;
+      this.dateOfBirth = null;
+      this.individualId = null;
+      this.mlCode = null;
+      this.isHouseholdMember = true;
+      this.idExpiryDate = null;
+      this.idIssueDate = null;
+    },
     handleClick() {},
     snackbar(msg, msgType = "info") {
       this.$buefy.toast.open({
