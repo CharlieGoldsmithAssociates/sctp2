@@ -116,11 +116,13 @@ public class ResourceService extends TransactionalService {
     private UpdateResult storeRecipientPhoto(MultipartFile photo, long household, boolean main) {
         try {
             // we don't use file extension so that it replaces the same picture
-            String name = createRecipientPhotoName(household, main);
+            String name, type;
+            name = createRecipientPhotoName(household, main);
+            type = getFileType(photo).getMime();
             photo.transferTo(new File(configuration.getRecipientPhotoDirectory(), name).getAbsoluteFile());
-            return new UpdateResult(true, name, getFileType(photo).getMime());
+            return new UpdateResult(true, name, type);
         } catch (Exception e) {
-            LOG.error("Failed to store recipient photo for household {}", household);
+            LOG.error("Failed to store recipient photo for household {} "+e, household);
             return new UpdateResult(false, null, null, "error processing file");
         }
     }

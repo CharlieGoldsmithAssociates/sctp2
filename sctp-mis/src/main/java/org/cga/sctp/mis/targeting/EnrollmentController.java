@@ -344,8 +344,7 @@ public class EnrollmentController extends SecuredBaseController {
         };
 
         if (!updateResult.stored()) {
-            // TODO Return error here. Report that the upload failed.
-            LOG.error("Failure uploading photo file");
+            return ResponseEntity.badRequest().body("Cannot upload the file");
         }
 
        switch (type) {
