@@ -34,6 +34,7 @@ package org.cga.sctp.mis.targeting;
 
 import org.cga.sctp.targeting.enrollment.AlternateRecipientType;
 import org.cga.sctp.targeting.importation.parameters.Gender;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
@@ -41,7 +42,6 @@ import java.time.LocalDate;
 import javax.validation.constraints.NotNull;
 
 public class UpdateHouseholdRecipientForm {
-    @NotNull(message = "Required")
     private Long id;
 
     @NotNull(message = "Required")
@@ -58,8 +58,11 @@ public class UpdateHouseholdRecipientForm {
     private String lastName;
     private String nationalId;
     private Gender gender;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate idIssueDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate idExpiryDate;
     public Long getId() {
         return id;

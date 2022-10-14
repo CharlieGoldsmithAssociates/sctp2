@@ -189,7 +189,7 @@
             <div class="column">
               <b-field>
                 <b-datepicker
-                  v-model="IdIssueDate"
+                  v-model="idIssueDate"
                   placeholder="Click to select..."
                   icon="calendar-today"
                   :icon-right="dateSelected ? 'close-circle' : ''"
@@ -334,7 +334,7 @@ module.exports = {
       dateSelected: true,
       isHouseholdMember: true,
       idExpiryDate: null,
-      IdIssueDate: null,
+      idIssueDate: null,
     };
   },
   components: {
@@ -393,14 +393,13 @@ module.exports = {
         altType = "member";
       } else {
         altType = "other";
-        if(!vm.mlCode){
-          
-        }
         fData.append("firstName", vm.firstName);
         fData.append("lastName", vm.lastName);
-        fData.append("dateOfBirth", vm.dateOfBirth);
+        fData.append("dateOfBirth", vm.convertDate(vm.dateOfBirth));
         fData.append("nationalId", vm.mlCode);
         fData.append("gender", vm.gender);
+        fData.append("idIssueDate", vm.convertDate(vm.idIssueDate));
+        fData.append("idExpiryDate", vm.convertDate(vm.idExpiryDate));
       }
       fData.append("altType", altType);
 
@@ -460,10 +459,14 @@ module.exports = {
       this.dateOfBirth = null;
     },
     clearIssueDate() {
-      this.IdIssueDate = null;
+      this.idIssueDate = null;
     },
     clearExpiryDate() {
       this.idExpiryDate = null;
+    },
+    convertDate(date) {
+      const tzOffset = date.getTimezoneOffset() * 60 * 1000;
+      return new Date(date - tzOffset).toISOString().split("T")[0];
     },
     msgDialog(msg, titleText = "", dlgType = "info", icon = "") {
       this.$buefy.dialog.alert({

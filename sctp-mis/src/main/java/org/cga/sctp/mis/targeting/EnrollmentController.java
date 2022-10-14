@@ -308,9 +308,8 @@ public class EnrollmentController extends SecuredBaseController {
     ) {
 
         if (bindingResult.hasErrors()) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(bindingResult.getAllErrors());
         }
-
         HouseholdEnrollment enrollment = enrollmentService
                 .findHouseholdEnrollment(form.getSession(), form.getHousehold());
         // TODO send the whole form, extract what data you want
@@ -318,10 +317,6 @@ public class EnrollmentController extends SecuredBaseController {
             return ResponseEntity.notFound().build();
         }
 
-        // verify household member existence
-        if (!beneficiaryService.householdMemberExists(form.getHousehold(), form.getId())) {
-            return ResponseEntity.notFound().build();
-        }
 
         ZonedDateTime timestamp = ZonedDateTime.now();
         HouseholdRecipient recipient = enrollmentService.getHouseholdRecipient(form.getHousehold());
@@ -353,8 +348,12 @@ public class EnrollmentController extends SecuredBaseController {
             LOG.error("Failure uploading photo file");
         }
 
-        switch (type) {
+       switch (type) {
             case primary -> {
+                // verify household member existence
+                if (!beneficiaryService.householdMemberExists(form.getHousehold(), form.getId())) {
+                    return ResponseEntity.notFound().build();
+                }
                 recipient.setMainRecipient(form.getId());
                 recipient.setMainPhoto(updateResult.name());
                 recipient.setMainPhotoType(updateResult.type());
