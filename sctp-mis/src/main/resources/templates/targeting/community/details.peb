@@ -82,7 +82,7 @@
             <p class="card-header-title">Community-Based Targeting - {{ targetingSession.programName }} / {{ targetingSession.districtName }}</p>
         </header>
         <div class="card-content">
-            <Community-Targeting-Review :session-id="{{ targetingSession.id }}" />
+            <Community-Targeting-Review :session-id="{{ targetingSession.id }}" :can-modify="{{ isSessionOpen }}" />
         </div>
     </div>
     {% endblock %}

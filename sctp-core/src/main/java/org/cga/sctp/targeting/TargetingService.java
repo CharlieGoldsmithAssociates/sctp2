@@ -61,6 +61,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
@@ -151,19 +152,19 @@ public class TargetingService extends TransactionalService {
         return cbtRankingRepository.findByCbtSessionId(session.getId(), pageable);
     }
 
-    public void updateCbtRankingStatus(CbtRankingResultStatusUpdate statusUpdate) {
-
-        List<CbtRankingResult> cbtRankingResults = statusUpdate.getCbtRankingResults()
-                .parallelStream()
+    public void updateCbtRankingStatus(TargetingSessionView session, CbtRankingResultStatusUpdate statusUpdate) {
+        // TODO: Since CbtRankingResult table is immutable what should happen when status changes
+        Set<CbtRankingResult> cbtRankingResults = statusUpdate.getCbtRankingResults()
+                .stream()
                 .map(cbtRankingResult -> {
-                    CbtRankingResult persistedCbtRanking = cbtRankingRepository.findById(cbtRankingResult.getHouseholdId())
-                            .orElse(null);
+                    var persistedCbtRanking = cbtRankingRepository.findByCbtSessionIdAndHouseholdId(session.getId(), cbtRankingResult.getHouseholdId())
+                                    .orElse(null);
 
                     if (isNull(persistedCbtRanking)) return null;
 
                     persistedCbtRanking.setStatus(cbtRankingResult.getStatus());
                     return persistedCbtRanking;
-                }).filter(Objects::nonNull).toList();
+                }).filter(Objects::nonNull).collect(Collectors.toSet());
 
         cbtRankingRepository.saveAll(cbtRankingResults);
     }

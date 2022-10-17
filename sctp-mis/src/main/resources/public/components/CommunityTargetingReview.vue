@@ -18,7 +18,7 @@
       <div class="level-right">
         <div class="level-item">
           <div class="level-right buttons">
-            <b-button @click="sendToEnrollment" icon-left="database-import" :loading="isLoading"
+            <b-button v-if="canModify" @click="sendToEnrollment" icon-left="database-import" :loading="isLoading"
                       type="is-success">
               Finish And Send To Enrolment
             </b-button>
@@ -72,12 +72,14 @@
 
       <b-table-column field="status" label="Status" v-slot="props">
         <b-field>
-          <b-select placeholder="Select a status" size="is-small" :value="props.row.status" @input="onStatusChanged(props.row, $event)" >
+          <b-select placeholder="Select a status" size="is-small" :value="props.row.status"
+                    @input="onStatusChanged(props.row, $event)" :disabled="!canModify" >
             <option
                 v-for="option in statusOptions"
                 :value="option"
-                :key="option">
-              {{ option }} - {{ props.row.status }}
+                :key="option"
+            >
+              {{ option }}
             </option>
           </b-select>
         </b-field>
@@ -190,6 +192,10 @@ module.exports = {
     sessionId: {
       type: Number,
       required: true
+    },
+    canModify: {
+      type: Boolean,
+      required: true
     }
   },
   data() {
@@ -271,7 +277,6 @@ module.exports = {
                 if (isJsonContentType(response.headers['content-type'])) {
                   vm.data = response.data;
 
-                  // total will never change
                   if (!vm.slice) {
                     vm.total = response.headers['x-data-total'];
                     vm.slice = true; // only get the results from DB without "size"
@@ -303,7 +308,7 @@ module.exports = {
 
       if (vm.updatedData.size > 0) {
         const request = { cbtRankingResults: [...vm.updatedData] }
-        console.log(JSON.stringify(request))
+
         const response = await axios.put(`/targeting/community/${vm.sessionId}/ranking-results`, JSON.stringify(request), config)
             .catch(function (error) {
               vm.isLoading = false;
@@ -315,12 +320,28 @@ module.exports = {
           vm.isLoading = false;
           vm.errorDialog(errorMessage);
 
-
+          return;
         }
       }
 
-      console.log("Sending to enrollment...")
-      vm.isLoading = false;
+      axios.post(`/targeting/community/${vm.sessionId}/close`, null, config)
+          .then(function (response) {
+            console.log("response", response)
+            if (response.status === 200) {
+              vm.msgDialog("Targeting session closed.", "", "info");
+              vm.updatedData = new Set();
+              vm.canModify = false;
+            } else {
+              vm.errorDialog('Failed to close session. Please try again later');
+              window.location.href = '/targeting/community';
+            }
+          })
+          .catch(function (error) {
+            vm.errorDialog('Error while closing session');
+          })
+          .finally(function () {
+            vm.isLoading = false
+          });
     },
     householdComposition(row) {
       let vm = this;
@@ -366,6 +387,18 @@ module.exports = {
         type: 'is-danger',
         hasIcon: true,
         icon: 'times-circle',
+        iconPack: 'fa',
+        ariaRole: 'alertdialog',
+        ariaModal: true
+      })
+    },
+    msgDialog(msg, titleText = '', dlgType = 'info', icon = '') {
+      this.$buefy.dialog.alert({
+        title: titleText,
+        message: msg,
+        type: 'is-' + dlgType,
+        hasIcon: icon !== '',
+        icon: icon,
         iconPack: 'fa',
         ariaRole: 'alertdialog',
         ariaModal: true

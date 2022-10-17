@@ -219,7 +219,7 @@ public class CommunityBasedTargetingController extends BaseController {
             return ResponseEntity.notFound().build();
         }
 
-        targetingService.updateCbtRankingStatus(statusUpdate);
+        targetingService.updateCbtRankingStatus(session, statusUpdate);
         return ResponseEntity.ok().build();
     }
 
@@ -263,27 +263,18 @@ public class CommunityBasedTargetingController extends BaseController {
                 .addObject("targetingSession", session);
     }
 
-    @PostMapping("/close")
+    @PostMapping("/{session}/close")
     @AdminAccessOnly
-    ModelAndView closeSession(
+    ResponseEntity<?> closeSession(
             @AuthenticatedUserDetails AuthenticatedUser user,
-            @Valid @ModelAttribute CloseCbtSessionForm form,
-            BindingResult result,
-            RedirectAttributes attributes) {
+            @PathVariable("session") Long sessionId) {
 
-        if (result.hasErrors()) {
-            setDangerFlashMessage("Cannot close session at the moment. Please try again.", attributes);
-            return redirect("/targeting/community");
-        }
-
-        TargetingSessionView session = targetingService.findTargetingSessionViewById(form.getId());
+        TargetingSessionView session = targetingService.findTargetingSessionViewById(sessionId);
         if (session == null) {
-            setDangerFlashMessage("Cannot find session", attributes);
-            return redirect("/targeting/community");
+            return ResponseEntity.notFound().build();
         }
         if (session.isClosed()) {
-            setDangerFlashMessage("Cannot close session. Session is already closed.", attributes);
-            return redirect("/targeting/community");
+            return ResponseEntity.badRequest().build();
         }
 
         targetingService.closeTargetingSession(session, user.id());
@@ -291,8 +282,7 @@ public class CommunityBasedTargetingController extends BaseController {
         publishGeneralEvent("%s closed community based targeting session for %s that was opened by %s",
                 user.username(), session.getProgramName(), session.getCreatorName());
 
-        setSuccessFlashMessage("Targeting session closed.", attributes);
-        return redirect("/targeting/community/review?session=" + session.getId());
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/select-household")

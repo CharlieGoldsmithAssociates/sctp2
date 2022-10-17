@@ -40,11 +40,14 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CbtRankingRepository extends JpaRepository<CbtRankingResult, Long> {
 
     Page<CbtRankingResult> findByCbtSessionId(Long cbtSessionId, Pageable pageable);
+
+    Optional<CbtRankingResult> findByCbtSessionIdAndHouseholdId(Long sessionId, Long householdId);
 
     @Query("SELECT status as currentStatus, COUNT(status) as totalCount " +
             "FROM CbtRankingResult WHERE cbtSessionId = :sessionId GROUP BY status")
