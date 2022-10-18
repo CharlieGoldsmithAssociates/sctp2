@@ -11,7 +11,7 @@
           <div class="column">
             <b-image
               id="alt-photo"
-              :src="`/targeting/enrolment/recipient-photo?household=${householdId}&amp;type=secondary`"
+              :src="mainRecipientImageUrl"
               src-fallback="/assets/img/user-svg.svg"
               class="p4p obj-fit-contain"
               :rounded="roundedImage"
@@ -335,6 +335,8 @@ module.exports = {
       isHouseholdMember: true,
       idExpiryDate: null,
       idIssueDate: null,
+      imageBaseUrl: `/targeting/enrolment/recipient-photo?household=${this.householdId}&amp;type=secondary`,
+      imageUrl: null,
     };
   },
   components: {
@@ -343,8 +345,16 @@ module.exports = {
   mounted() {
     this.getAlternateRecipient();
   },
-  computed: {},
+  computed: {
+    mainRecipientImageUrl: function () {
+      return this.imageUrl;
+    },
+  },
   methods: {
+    reloadRecipientImage() {
+      var ts = new Date().getTime();
+      this.imageUrl = this.baseUrl + `&cache-buster=${ts}`;
+    },
     getAlternateRecipient() {
       let vm = this;
       vm.isLoading = true;
@@ -358,7 +368,8 @@ module.exports = {
             if (hasData) {
               if (isJsonContentType(response.headers["content-type"])) {
                 vm.data = response.data;
-                console.log("Alternate RECIEVER", vm.data);
+                vm.reloadRecipientImage();
+                console.log("Alternate RECIEVER", response.data);
               } else {
                 throw "invalid type";
               }
@@ -431,7 +442,7 @@ module.exports = {
         });
     },
     reloadRecipientImage() {},
-    resetFormValues(){
+    resetFormValues() {
       this.memberId = null;
       this.firstName = null;
       this.lastName = null;

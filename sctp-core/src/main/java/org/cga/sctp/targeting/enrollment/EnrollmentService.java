@@ -204,6 +204,10 @@ public class EnrollmentService extends TransactionalService {
         return alternateRecipientRepository.findById(alternateId).orElse(null);
     }
 
+    public AlternateRecipient getAlternateRecipientByHouseholdId(Long householdId) {
+        return alternateRecipientRepository.getByHouseholdId(householdId);
+    }
+
     public List<SchoolEnrolled> getSchoolEnrolledByHousehold(Long householdId) {
         return schoolEnrolledRepository.findHouseholdSchoolEnrolled(householdId);
     }
@@ -212,12 +216,17 @@ public class EnrollmentService extends TransactionalService {
         return schoolEnrolledViewRepository.findHouseholdSchoolEnrolledView(householdId);
     }
 
+    /*
     public void setEnrollmentHouseholdEnrolled(Long householdId) {
         enrolmentSessionRepository.updateHouseholdEnrollmentStatus(householdId, CbtStatus.Enrolled.code);
+    } */
+
+    public void updateHouseholdEnrollmentStatus(Long sessionId, Long householdId, CbtStatus status){
+        enrolmentSessionRepository.updateHouseholdEnrollmentStatus(sessionId, householdId, status.name());
     }
 
-    public void updateHouseholdEnrollmentStatus(Long householdId, CbtStatus status) {
-        enrolmentSessionRepository.updateHouseholdEnrollmentStatus(householdId, status.code);
+    public CbtStatus getHouseholdEnrollmentStatus(Long sessionId, Long householdId) {
+        return enrolmentSessionRepository.getHouseholdEnrollmentStatus(sessionId, householdId);
     }
 
     public boolean sessionHasPreEligibleHouseholds(Long enrollmentSessionId) {

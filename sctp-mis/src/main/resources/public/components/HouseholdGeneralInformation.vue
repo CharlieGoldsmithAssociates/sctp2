@@ -91,17 +91,15 @@
           <div class="info-row">
             <div class="item-label">Enrollment Status</div>
             <div class="item-value">
-              <!-- <span v-if="householdStatus">
+              <span v-if="householdStatus">
                 {{ householdStatus }}
               </span>
-              <span v-else class="has-text-danger-dark"> Not available </span> -->
-              <span class="has-text-danger-dark"> Not available </span> 
+              <span v-else class="has-text-danger-dark"> Not available </span>
+              <!-- <span class="has-text-danger-dark"> Not available </span> -->
             </div>
           </div>
         </div>
-
       </div>
-
     </div>
 
     <div class="divider is-horizontal">Update</div>
@@ -115,8 +113,8 @@
                 <input
                   id="selectedStatus"
                   type="radio"
-                  v-model="householdStatus"
-                  value="selected"
+                  v-model="newHouseholdStatus"
+                  value="Selected"
                 />
                 Selected
               </label>
@@ -125,8 +123,8 @@
                 <input
                   id="enrolledStatus"
                   type="radio"
-                  v-model="householdStatus"
-                  value="enrolled"
+                  v-model="newHouseholdStatus"
+                  value="Enrolled"
                 />
                 Enrolled
               </label>
@@ -164,10 +162,12 @@ module.exports = {
       data: "",
       isLoading: false,
       householdStatus: null,
+      newHouseholdStatus: null,
     };
   },
   mounted() {
     this.getHouseholdSummary();
+    this.getHouseholdStatus();
   },
   methods: {
     getHouseholdSummary() {
@@ -206,7 +206,71 @@ module.exports = {
           vm.isLoading = false;
         });
     },
-    saveStatus() {},
+    getHouseholdStatus() {
+      let vm = this;
+      vm.isLoading = true;
+      const params = [`household=${vm.householdId}`].join("&");
+      axios
+        .get(`/targeting/enrolment/household-status?${params}`)
+        .then(function (response) {
+          if (response.status == 200) {
+            var hasData = response.data;
+            console.log("Enrollment status: " + response.data.householdStatus);
+            if (hasData) {
+              if (isJsonContentType(response.headers["content-type"])) {
+                vm.householdStatus = response.data.householdStatus;
+              } else {
+                throw "invalid type";
+              }
+            }
+          } else {
+            throw `Server returned: ${response.status}`;
+          }
+        })
+        .catch(function (error) {
+          vm.errorDialog(
+            "There was an error loading household status. Please try again"
+          );
+          console.log(error);
+        })
+        .then(function () {
+          vm.isLoading = false;
+        });
+    },
+    saveStatus() {
+      let vm = this;
+      vm.isLoading = true;
+      fData = new FormData();
+      fData.append("household", vm.householdId);
+      fData.append("session", vm.sessionId);
+      fData.append("status", vm.newHouseholdStatus);
+
+      for (var pair of fData.entries()) {
+        console.log(pair[0] + ", " + pair[1]);
+      }
+      const config = {
+        headers: {
+          "X-CSRF-TOKEN": csrf()["token"],
+        },
+      };
+      axios
+        .post(`/targeting/enrolment/household-status`, fData, config)
+        .then(function (response) {
+          if (response.status === 200) {
+            vm.getHouseholdStatus();
+            vm.msgDialog("Updated successfully.", "", "success", "check");
+          } else {
+            throw `Status: ${response.status}`;
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+          vm.errorDialog("Error saving status");
+        })
+        .then(function () {
+          vm.isLoading = false;
+        });
+    },
     mlCode(code) {
       return code && `ML-${code}`;
     },
@@ -225,6 +289,18 @@ module.exports = {
         type: "is-danger",
         hasIcon: true,
         icon: "times-circle",
+        iconPack: "fa",
+        ariaRole: "alertdialog",
+        ariaModal: true,
+      });
+    },
+    msgDialog(msg, titleText = "", dlgType = "info", icon = "") {
+      this.$buefy.dialog.alert({
+        title: titleText,
+        message: msg,
+        type: "is-" + dlgType,
+        hasIcon: icon !== "",
+        icon: icon,
         iconPack: "fa",
         ariaRole: "alertdialog",
         ariaModal: true,

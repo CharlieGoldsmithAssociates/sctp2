@@ -40,10 +40,7 @@ import org.cga.sctp.mis.core.SecuredBaseController;
 import org.cga.sctp.mis.file_upload.FileUploadService;
 import org.cga.sctp.schools.SchoolService;
 import org.cga.sctp.schools.SchoolsView;
-import org.cga.sctp.targeting.AlternateRecipient;
-import org.cga.sctp.targeting.HouseholdDetails;
-import org.cga.sctp.targeting.SchoolEnrolled;
-import org.cga.sctp.targeting.SchoolEnrolledView;
+import org.cga.sctp.targeting.*;
 import org.cga.sctp.targeting.enrollment.SchoolEnrollmentForm;
 import org.cga.sctp.targeting.enrollment.*;
 import org.cga.sctp.targeting.importation.parameters.EducationLevel;
@@ -55,6 +52,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -310,21 +308,21 @@ public class EnrollmentController extends SecuredBaseController {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(bindingResult.getAllErrors());
         }
+        Long householdId = form.getHousehold();
         HouseholdEnrollment enrollment = enrollmentService
-                .findHouseholdEnrollment(form.getSession(), form.getHousehold());
+                .findHouseholdEnrollment(form.getSession(), householdId);
         // TODO send the whole form, extract what data you want
         if (enrollment == null) {
             return ResponseEntity.notFound().build();
         }
 
-
         ZonedDateTime timestamp = ZonedDateTime.now();
-        HouseholdRecipient recipient = enrollmentService.getHouseholdRecipient(form.getHousehold());
+        HouseholdRecipient recipient = enrollmentService.getHouseholdRecipient(householdId);
 
         if (recipient == null) {
             recipient = new HouseholdRecipient();
             recipient.setCreatedAt(timestamp);
-            recipient.setHouseholdId(form.getHousehold());
+            recipient.setHouseholdId(householdId);
             recipient.setEnrollmentSession(form.getSession());
         }
 
@@ -338,9 +336,9 @@ public class EnrollmentController extends SecuredBaseController {
         }
 
         ResourceService.UpdateResult updateResult = switch (type) {
-            case primary -> fileUploadService.getResourceService().storeMainRecipientPhoto(photo, form.getHousehold());
+            case primary -> fileUploadService.getResourceService().storeMainRecipientPhoto(photo, householdId);
             case secondary ->
-                    fileUploadService.getResourceService().storeAlternateRecipientPhoto(photo, form.getHousehold());
+                    fileUploadService.getResourceService().storeAlternateRecipientPhoto(photo, householdId);
         };
 
         if (!updateResult.stored()) {
@@ -350,7 +348,7 @@ public class EnrollmentController extends SecuredBaseController {
        switch (type) {
             case primary -> {
                 // verify household member existence
-                if (!beneficiaryService.householdMemberExists(form.getHousehold(), form.getId())) {
+                if (!beneficiaryService.householdMemberExists(householdId, form.getId())) {
                     return ResponseEntity.notFound().build();
                 }
                 recipient.setMainRecipient(form.getId());
@@ -360,15 +358,17 @@ public class EnrollmentController extends SecuredBaseController {
             case secondary -> {
                 recipient.setAltPhoto(updateResult.name());
                 recipient.setAltPhotoType(updateResult.type());
-                AlternateRecipient altRecipient = new AlternateRecipient();
-
+                AlternateRecipient altRecipient = enrollmentService.getAlternateRecipientByHouseholdId(householdId);
+                if(altRecipient == null){
+                    altRecipient = new AlternateRecipient();
+                }
                 // check if recipient is member or other
                 if (form.getAltType().equals(AlternateRecipientType.member)) {
-                    recipient.setAltRecipient(form.getId());
                     Individual individual = beneficiaryService.getIndividual(form.getId());
                     if (individual == null){
                         return ResponseEntity.notFound().build();
                     }
+                    recipient.setAltRecipient(individual.getId());
                     altRecipient.setGender(individual.getGender());
                     altRecipient.setLastName(individual.getLastName());
                     altRecipient.setFirstName(individual.getFirstName());
@@ -471,6 +471,50 @@ public class EnrollmentController extends SecuredBaseController {
         List<SchoolEnrolledView> schools = enrollmentService.getSchoolEnrolledViewByHousehold(householdId);
         Map<String, List<SchoolEnrolledView>> response = new LinkedHashMap<>();
         response.put("schools", schools);
+        return ResponseEntity
+                .ok()
+                .body(response);
+    }
+
+    @PostMapping("/household-status")
+    public ResponseEntity<?> updateHouseholdStatus(
+            @Valid @ModelAttribute UpdateHouseholdStatusForm form,
+            BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body(bindingResult.getAllErrors());
+        }
+        Long householdId, sessionId;
+        CbtStatus householdStatus;
+        householdId = form.getHousehold();
+        sessionId = form.getSession();
+        householdStatus = form.getStatus();
+        // check if household and session exists
+        HouseholdEnrollment enrollment = enrollmentService
+                .findHouseholdEnrollment(sessionId, householdId);
+        if (enrollment == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (householdStatus.name().equals(CbtStatus.Enrolled.name())){
+            // check if main recipient is set
+            if (enrollmentService.getHouseholdPrimaryRecipient(householdId) == null){
+                return ResponseEntity.badRequest().body("Please set the main recipient first");
+            }
+        }
+        if (!householdStatus.name().equals(CbtStatus.Enrolled.name()) && !householdStatus.name().equals(CbtStatus.Selected.name())){
+            LOG.error("Status should be either selected or enrolled");
+            return ResponseEntity.badRequest().build();
+        }
+        enrollmentService.updateHouseholdEnrollmentStatus(sessionId, householdId, householdStatus);
+
+        return ResponseEntity.ok().build();
+     }
+    @GetMapping(value = "/household-status", produces = MediaType.APPLICATION_JSON_VALUE)
+    @AdminAndStandardAccessOnly
+    ResponseEntity<Map<String, Object>> getHouseholdEnrollmentStatus(@Param("session") Long sessionId, @Param("household") Long householdId) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        CbtStatus status = enrollmentService.getHouseholdEnrollmentStatus(sessionId, householdId);
+        response.put("householdStatus", status);
         return ResponseEntity
                 .ok()
                 .body(response);
