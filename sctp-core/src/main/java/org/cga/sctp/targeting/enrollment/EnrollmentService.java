@@ -329,8 +329,10 @@ public class EnrollmentService extends TransactionalService {
         String householdSqlTemplate = """
                 UPDATE household_enrollment SET reviewer_id = :user_id
                 , reviewed_at = :timestamp
+                , last_modified_by = :user_id
+                , reviewer_id = :user_id
                 , status = :status
-                 WHERE session_id = :session_id AND reviewer_id IS NULL AND household_id = :household_id
+                 WHERE session_id = :session_id AND household_id = :household_id
                 ;""";
         String schoolEnrollmentSqlTemplate = """
                 INSERT INTO school_enrolled(household_id, individual_id, education_level, grade, school_id, status, created_at)
@@ -373,13 +375,18 @@ public class EnrollmentService extends TransactionalService {
                  ;
                 """;
         for (EnrollmentUpdateForm.HouseholdEnrollment enrollment : list) {
-            entityManager.createNativeQuery(householdSqlTemplate)
-                    .setParameter("timestamp", timestamp)
-                    .setParameter("user_id", userId)
-                    .setParameter("session_id", sessionId)
-                    .setParameter("household_id", enrollment.getHouseholdId())
-                    .setParameter("status", enrollment.getStatus().name())
-                    .executeUpdate();
+            final boolean ignoreFurtherUpdates =
+                    entityManager.createNativeQuery(householdSqlTemplate)
+                            .setParameter("timestamp", timestamp)
+                            .setParameter("user_id", userId)
+                            .setParameter("session_id", sessionId)
+                            .setParameter("household_id", enrollment.getHouseholdId())
+                            .setParameter("status", enrollment.getStatus().name())
+                            .executeUpdate() == 0;
+
+            if (ignoreFurtherUpdates) {
+                continue;
+            }
 
             EnrollmentUpdateForm.HouseholdRecipients recipients = enrollment.getRecipients();
 

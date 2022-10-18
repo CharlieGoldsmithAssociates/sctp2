@@ -65,6 +65,8 @@ public class EnrollmentUpdateForm {
      */
     public enum EnrollmentStatus {
         Selected,
+        // If a household originated straight from pre-eligibility verification
+        Eligible,
         Enrolled
     }
 
