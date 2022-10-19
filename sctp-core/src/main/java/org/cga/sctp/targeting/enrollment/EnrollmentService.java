@@ -375,18 +375,14 @@ public class EnrollmentService extends TransactionalService {
                  ;
                 """;
         for (EnrollmentUpdateForm.HouseholdEnrollment enrollment : list) {
-            final boolean ignoreFurtherUpdates =
-                    entityManager.createNativeQuery(householdSqlTemplate)
-                            .setParameter("timestamp", timestamp)
-                            .setParameter("user_id", userId)
-                            .setParameter("session_id", sessionId)
-                            .setParameter("household_id", enrollment.getHouseholdId())
-                            .setParameter("status", enrollment.getStatus().name())
-                            .executeUpdate() == 0;
+            entityManager.createNativeQuery(householdSqlTemplate)
+                    .setParameter("timestamp", timestamp)
+                    .setParameter("user_id", userId)
+                    .setParameter("session_id", sessionId)
+                    .setParameter("household_id", enrollment.getHouseholdId())
+                    .setParameter("status", enrollment.getStatus().name())
+                    .executeUpdate();
 
-            if (ignoreFurtherUpdates) {
-                continue;
-            }
 
             EnrollmentUpdateForm.HouseholdRecipients recipients = enrollment.getRecipients();
 
