@@ -152,23 +152,6 @@ public class TargetingService extends TransactionalService {
         return cbtRankingRepository.findByCbtSessionId(session.getId(), pageable);
     }
 
-    public void updateCbtRankingStatus(TargetingSessionView session, CbtRankingResultStatusUpdate statusUpdate) {
-        // TODO: Since CbtRankingResult table is immutable what should happen when status changes
-        Set<CbtRankingResult> cbtRankingResults = statusUpdate.getCbtRankingResults()
-                .stream()
-                .map(cbtRankingResult -> {
-                    var persistedCbtRanking = cbtRankingRepository.findByCbtSessionIdAndHouseholdId(session.getId(), cbtRankingResult.getHouseholdId())
-                                    .orElse(null);
-
-                    if (isNull(persistedCbtRanking)) return null;
-
-                    persistedCbtRanking.setStatus(cbtRankingResult.getStatus());
-                    return persistedCbtRanking;
-                }).filter(Objects::nonNull).collect(Collectors.toSet());
-
-        cbtRankingRepository.saveAll(cbtRankingResults);
-    }
-
     public List<CbtRankingResultStat> countAllByStatusAndCbtSessionId(Long sessionId) {
         return cbtRankingRepository.countAllByStatusAndCbtSessionId(sessionId);
     }

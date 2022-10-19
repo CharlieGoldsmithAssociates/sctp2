@@ -32,6 +32,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 import static java.util.Objects.isNull;
@@ -212,14 +213,14 @@ public class CommunityBasedTargetingController extends BaseController {
     @AdminAndStandardAccessOnly
     ResponseEntity<Void> updateCbtRankings(
             @PathVariable("session") Long sessionId,
-            @RequestBody @Valid CbtRankingResultStatusUpdate statusUpdate) {
+            @RequestBody @Valid TargetedHouseholdStatus targetedHouseholdStatus) {
         TargetingSessionView session = targetingService.findTargetingSessionViewById(sessionId);
 
         if (isNull(session)) {
             return ResponseEntity.notFound().build();
         }
 
-        targetingService.updateCbtRankingStatus(session, statusUpdate);
+        targetingService.updateTargetedHouseholds(session, Collections.singletonList(targetedHouseholdStatus), null);
         return ResponseEntity.ok().build();
     }
 

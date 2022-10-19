@@ -31,7 +31,8 @@
              paginated backend-pagination :total="total" :current-page.sync="currentPage" pagination-position="both"
              :pagination-simple="false" sort-icon="menu-up" :per-page="pageSize" @page-change="onPageChange"
              backend-sorting :default-sort-direction="sortOrder" :default-sort="[sortField, sortOrder]" @sort="onSort"
-             aria-next-label="Next page" aria-previous-label="Previous page" aria-page-label="Page" aria-current-label="Current page"
+             aria-next-label="Next page" aria-previous-label="Previous page" aria-page-label="Page"
+             aria-current-label="Current page"
              :data="isEmpty ? [] : data" :striped="true" :narrowed="true" :hoverable="true" :loading="isLoading">
 
       <b-table-column field="mlCode" label="ML Code" sortable v-slot="props" width="8%">
@@ -73,7 +74,7 @@
       <b-table-column field="status" label="Status" v-slot="props">
         <b-field>
           <b-select placeholder="Select a status" size="is-small" :value="props.row.status"
-                    @input="onStatusChanged(props.row, $event)" :disabled="!canModify" >
+                    @input="onStatusChanged(props.row, $event)" :disabled="!canModify">
             <option
                 v-for="option in statusOptions"
                 :value="option"
@@ -201,7 +202,6 @@ module.exports = {
   data() {
     return {
       data: [],
-      updatedData: new Set(),
       openedDetailed: [],
       isEmpty: false,
       isLoading: false,
@@ -303,26 +303,7 @@ module.exports = {
       let vm = this;
       vm.isLoading = true;
 
-      const config = { headers: { 'X-CSRF-TOKEN': csrf()['token'], 'Content-Type': 'application/json' } };
-      const errorMessage = 'Failed to send to enrollment at the moment. Please try again';
-
-      if (vm.updatedData.size > 0) {
-        const request = { cbtRankingResults: [...vm.updatedData] }
-
-        const response = await axios.put(`/targeting/community/${vm.sessionId}/ranking-results`, JSON.stringify(request), config)
-            .catch(function (error) {
-              vm.isLoading = false;
-              vm.errorDialog('There was an error while saving changes. Please try again');
-              console.log(error);
-            })
-
-        if (response.status !== 200) {
-          vm.isLoading = false;
-          vm.errorDialog(errorMessage);
-
-          return;
-        }
-      }
+      const config = {headers: {'X-CSRF-TOKEN': csrf()['token'], 'Content-Type': 'application/json'}};
 
       axios.post(`/targeting/community/${vm.sessionId}/close`, null, config)
           .then(function (response) {
@@ -370,15 +351,25 @@ module.exports = {
           });
     },
     onStatusChanged(item, newStatus) {
-      if (item.status !== newStatus) {
-        this.statusStats[item.status] = this.statusStats[item.status] - 1;
-        this.statusStats[newStatus] = this.statusStats[newStatus] === undefined ? 1 : this.statusStats[newStatus] + 1;
+      let vm = this;
 
-        this.updatedData.delete(item)
+      const config = {headers: {'X-CSRF-TOKEN': csrf()['token'], 'Content-Type': 'application/json'}};
 
-        item.status = newStatus;
-        this.updatedData.add(item)
-      }
+      const updateRequest = {status: newStatus, householdId: item.householdId, rank: item.rank}
+
+      axios.put(`/targeting/community/${vm.sessionId}/ranking-results`, JSON.stringify(updateRequest), config)
+          .then(function (response) {
+            if (response.status === 200) {
+              vm.statusStats[item.status] = vm.statusStats[item.status] - 1;
+              vm.statusStats[newStatus] = vm.statusStats[newStatus] === undefined ? 1 : vm.statusStats[newStatus] + 1;
+
+              item.status = newStatus;
+            }
+          })
+          .catch(function (error) {
+            vm.snackbar('Failed to change status. Please try again');
+            console.log(error);
+          });
     },
     errorDialog(msg, titleText = 'Error') {
       this.$buefy.dialog.alert({
@@ -402,6 +393,14 @@ module.exports = {
         iconPack: 'fa',
         ariaRole: 'alertdialog',
         ariaModal: true
+      })
+    },
+    snackbar(msg, msgType = 'info') {
+      this.$buefy.toast.open({
+        duration: 5000,
+        message: msg,
+        position: 'is-bottom',
+        type: 'is-' + msgType
       })
     },
     mlCode(code) {
