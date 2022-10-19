@@ -511,9 +511,9 @@ public class EnrollmentController extends SecuredBaseController {
      }
     @GetMapping(value = "/household-status", produces = MediaType.APPLICATION_JSON_VALUE)
     @AdminAndStandardAccessOnly
-    ResponseEntity<Map<String, Object>> getHouseholdEnrollmentStatus(@Param("session") Long sessionId, @Param("household") Long householdId) {
+    ResponseEntity<Map<String, Object>> getHouseholdEnrollmentStatus(@RequestParam("session") Long sessionId, @RequestParam("household") Long householdId) {
         Map<String, Object> response = new LinkedHashMap<>();
-        CbtStatus status = enrollmentService.getHouseholdEnrollmentStatus(sessionId, householdId);
+        String status = enrollmentService.getHouseholdEnrollmentStatus(sessionId, householdId);
         response.put("householdStatus", status);
         return ResponseEntity
                 .ok()

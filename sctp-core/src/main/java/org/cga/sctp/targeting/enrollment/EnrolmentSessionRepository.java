@@ -67,7 +67,7 @@ public interface EnrolmentSessionRepository extends JpaRepository<EnrollmentSess
     void updateHouseholdEnrollmentStatus(@Param("sessionId") Long sessionId, @Param("householdId") Long householdId, @Param("status") String status);
 
     @Query(value = "SELECT status FROM household_enrollment WHERE session_id = :sessionId AND household_id = :householdId", nativeQuery = true)
-    CbtStatus getHouseholdEnrollmentStatus(@Param("sessionId") Long sessionId, @Param("householdId") Long householdId);
+    String getHouseholdEnrollmentStatus(@Param("sessionId") Long sessionId, @Param("householdId") Long householdId);
 
 
     /**

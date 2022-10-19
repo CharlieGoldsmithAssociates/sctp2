@@ -225,7 +225,7 @@ public class EnrollmentService extends TransactionalService {
         enrolmentSessionRepository.updateHouseholdEnrollmentStatus(sessionId, householdId, status.name());
     }
 
-    public CbtStatus getHouseholdEnrollmentStatus(Long sessionId, Long householdId) {
+    public String getHouseholdEnrollmentStatus(Long sessionId, Long householdId) {
         return enrolmentSessionRepository.getHouseholdEnrollmentStatus(sessionId, householdId);
     }
 

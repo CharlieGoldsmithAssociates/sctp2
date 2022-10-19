@@ -209,7 +209,10 @@ module.exports = {
     getHouseholdStatus() {
       let vm = this;
       vm.isLoading = true;
-      const params = [`household=${vm.householdId}`].join("&");
+      const params = [
+        `session=${vm.sessionId}`,
+        `household=${vm.householdId}`,
+      ].join("&");
       axios
         .get(`/targeting/enrolment/household-status?${params}`)
         .then(function (response) {
