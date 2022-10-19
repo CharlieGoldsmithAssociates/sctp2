@@ -182,7 +182,6 @@ module.exports = {
         .then(function (response) {
           if (response.status == 200) {
             var hasData = response.data;
-            console.log("DETAILS status: " + response.data.status);
             if (hasData) {
               if (isJsonContentType(response.headers["content-type"])) {
                 vm.data = response.data;
@@ -218,7 +217,6 @@ module.exports = {
         .then(function (response) {
           if (response.status == 200) {
             var hasData = response.data;
-            console.log("Enrollment status: " + response.data.householdStatus);
             if (hasData) {
               if (isJsonContentType(response.headers["content-type"])) {
                 vm.householdStatus = response.data.householdStatus;
@@ -248,9 +246,6 @@ module.exports = {
       fData.append("session", vm.sessionId);
       fData.append("status", vm.newHouseholdStatus);
 
-      for (var pair of fData.entries()) {
-        console.log(pair[0] + ", " + pair[1]);
-      }
       const config = {
         headers: {
           "X-CSRF-TOKEN": csrf()["token"],

@@ -509,6 +509,7 @@ public class EnrollmentController extends SecuredBaseController {
 
         return ResponseEntity.ok().build();
      }
+
     @GetMapping(value = "/household-status", produces = MediaType.APPLICATION_JSON_VALUE)
     @AdminAndStandardAccessOnly
     ResponseEntity<Map<String, Object>> getHouseholdEnrollmentStatus(@RequestParam("session") Long sessionId, @RequestParam("household") Long householdId) {

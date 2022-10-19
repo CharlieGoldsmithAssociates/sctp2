@@ -11,11 +11,11 @@
           <div class="column">
             <b-image
               id="alt-photo"
-              :src="mainRecipientImageUrl"
+              :src="altRecipientImageUrl"
               src-fallback="/assets/img/user-svg.svg"
               class="p4p obj-fit-contain"
               :rounded="roundedImage"
-              alt="Alternate receiver photo"
+              alt="Alt receiver photo"
             ></b-image>
           </div>
 
@@ -335,8 +335,8 @@ module.exports = {
       isHouseholdMember: true,
       idExpiryDate: null,
       idIssueDate: null,
-      imageBaseUrl: `/targeting/enrolment/recipient-photo?household=${this.householdId}&amp;type=secondary`,
-      imageUrl: null,
+      baseUrl: `/targeting/enrolment/recipient-photo?household=${this.householdId}&type=secondary`,
+      imageUrl: '/assets/img/user-svg.svg',
     };
   },
   components: {
@@ -344,9 +344,10 @@ module.exports = {
   },
   mounted() {
     this.getAlternateRecipient();
+    this.reloadRecipientImage();
   },
   computed: {
-    mainRecipientImageUrl: function () {
+    altRecipientImageUrl: function () {
       return this.imageUrl;
     },
   },
@@ -369,7 +370,6 @@ module.exports = {
               if (isJsonContentType(response.headers["content-type"])) {
                 vm.data = response.data;
                 vm.reloadRecipientImage();
-                console.log("Alternate RECIEVER", response.data);
               } else {
                 throw "invalid type";
               }
@@ -425,10 +425,10 @@ module.exports = {
         .post(`/targeting/enrolment/update-recipient?${params}`, fData, config)
         .then(function (response) {
           if (response.status === 200) {
-            vm.reloadRecipientImage();
             vm.getAlternateRecipient();
             vm.msgDialog("Updated successfully.", "", "success", "check");
             vm.resetFormValues();
+            vm.reloadRecipientImage();
           } else {
             throw `Status: ${response.status}`;
           }
@@ -441,7 +441,6 @@ module.exports = {
           vm.isLoading = false;
         });
     },
-    reloadRecipientImage() {},
     resetFormValues() {
       this.memberId = null;
       this.firstName = null;
@@ -503,3 +502,19 @@ module.exports = {
   },
 };
 </script>
+
+<style scoped>
+.receiver-image {
+  width: 512px !important;
+  height: 412px !important;
+}
+
+.preview-image {
+  width: 250px !important;
+  height: 250px !important;
+}
+
+.htmx-indicator {
+  display: none;
+}
+</style>

@@ -207,8 +207,7 @@ module.exports = {
         .then(function (response) {
           if (response.status == 200) {
             var hasData = response.data;
-
-            console.log("Main RECIEVER", response.data);
+            
             if (hasData) {
               if (isJsonContentType(response.headers["content-type"])) {
                 vm.data = response.data;
@@ -255,6 +254,7 @@ module.exports = {
         .then(function (response) {
           if (response.status === 200) {
             vm.getMainRecipient();
+            vm.reloadRecipientImage();
             vm.msgDialog("Updated successfully.", "", "success", "check");
           } else {
             throw `Status: ${response.status}`;

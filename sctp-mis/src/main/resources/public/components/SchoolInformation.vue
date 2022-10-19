@@ -318,7 +318,6 @@ module.exports = {
             vm.schoolsEnrolled = JSON.parse(
               JSON.stringify(response.data.schools)
             );
-            console.log("schools " + JSON.stringify(response.data.schools));
           } else {
             throw `Server returned: ${response.status}`;
           }
@@ -345,8 +344,6 @@ module.exports = {
       fData.append("educationLevel", vm.educationLevel);
       fData.append("grade", vm.gradeLevel);
       fData.append("status", vm.status);
-
-      console.table(fData);
 
       const config = {
         headers: {
