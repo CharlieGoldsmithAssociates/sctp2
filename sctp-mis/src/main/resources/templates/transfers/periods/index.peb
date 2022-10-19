@@ -42,8 +42,8 @@
                         <tbody>
                             {% for p in transferPeriods %}
                             <tr>
-                                <td>{{ p.name }}</td>
                                 <td>{{ p.districtName }}</td>
+                                <td>{{ p.name }}</td>
                                 <td>{{ p.startDate }}</td>
                                 <td>{{ p.endDate }}</td>
                                 <td>{{ p.transferAgencyName }}</td>
@@ -53,7 +53,27 @@
                                 <td>{{ p.totalArrears }}</td>
                                 <td>{{ p.active }}</td>
                                 <td>
-                                    <a href="/transfers/periods/{{ p.id }}/calculate-transfers">View / Perform Calculations</a>
+                                    <div class="dropdown is-hoverable">
+                                        <div class="dropdown-trigger">
+                                            <button class="button button is-info is-inverted"
+                                                    aria-haspopup="true" aria-controls="dropdown-menu2">
+                                                <span>Options</span>
+                                                <span class="icon is-small">
+                                                <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                            </span>
+                                            </button>
+                                        </div>
+                                        <div class="dropdown-menu" id="dropdown-menu2" role="menu">
+                                            <div class="dropdown-content">
+                                                <a href="{{ href('/transfers/periods/view/' + p.id) }}" class="dropdown-item">View</a>
+                                                <a href="{{ href('/transfers/periods/calculate-transfers/' + p.id) }}" class="dropdown-item">Calculate Transfers</a>
+                                                <a href="{{ href('/transfers/periods/view/' + p.id) }}" class="dropdown-item">Review Transfer List</a>
+                                                <a href="{{ href('/transfers/periods/view/' + p.id) }}" class="dropdown-item">Perform Reconciliations</a>
+                                                <hr class="dropdown-divider">
+                                                <a href="{{ href('/transfers/periods/delete/' + p.id) }}"  class="dropdown-item is-text-red">Delete</a>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                             {% endfor %}

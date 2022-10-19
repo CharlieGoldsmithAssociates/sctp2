@@ -71,6 +71,11 @@
                 </div>
             </div>
             <div class="columns">
+                <div class="column">
+                <label class="checkbox-label"><input type="checkbox" name="includeNonRecertified" id="includeNonRecertified"> Include Non-Recertitied Households</label>
+                </div>
+            </div>
+            <div class="columns">
                 <div class="buttons is-right">
                     <button type="submit" class="button is-success">Open Transfer Period &gt;&gt;</button>
                     <a href="/transfers/summary">Cancel</a>
