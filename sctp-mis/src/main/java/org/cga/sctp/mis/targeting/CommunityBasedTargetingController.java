@@ -14,11 +14,14 @@ import org.cga.sctp.user.AdminAccessOnly;
 import org.cga.sctp.user.AdminAndStandardAccessOnly;
 import org.cga.sctp.user.AuthenticatedUser;
 import org.cga.sctp.user.AuthenticatedUserDetails;
+import org.cga.sctp.validation.SortFields;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -26,9 +29,13 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
+import static java.util.Objects.isNull;
 import static org.cga.sctp.mis.location.LocationCodeUtil.toSelectOptions;
 
 @Controller
@@ -145,11 +152,89 @@ public class CommunityBasedTargetingController extends BaseController {
             setDangerFlashMessage("Community based targeting session not found.", attributes);
             return redirect("/targeting/community");
         }
-        Slice<CbtRankingResult> rankedList = targetingService.getCbtRanking(session, pageable);
+
         return view("targeting/community/details")
                 .addObject("isSessionOpen", session.isOpen())
-                .addObject("ranks", rankedList)
                 .addObject("targetingSession", session);
+    }
+
+    @GetMapping("/{session-id}/ranking-results/stats")
+    @AdminAndStandardAccessOnly
+    ResponseEntity<List<CbtRankingResultStat>> getCbtRankingsStats(
+            @PathVariable("session-id") Long sessionId) {
+        TargetingSessionView session = targetingService.findTargetingSessionViewById(sessionId);
+
+        if (isNull(session)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(targetingService.countAllByStatusAndCbtSessionId(sessionId));
+    }
+
+    @GetMapping("/{session-id}/ranking-results")
+    @AdminAndStandardAccessOnly
+    ResponseEntity<List<CbtRankingResult>> getCbtRankings(
+            @PathVariable("session-id") Long sessionId,
+            @Valid @Min(1) @RequestParam("page") int page,
+            @Valid @Min(10) @Max(100) @RequestParam(value = "size", defaultValue = "50", required = false) int size,
+            @Valid @RequestParam(value = "order", required = false, defaultValue = "ASC") Sort.Direction sortDirection,
+            @Valid @SortFields({"formNumber", "mlCode", "memberCount", "householdHead", "rank"})
+            @RequestParam(value = "sort", required = false, defaultValue = "formNumber") String sort,
+            @RequestParam(value = "slice", required = false, defaultValue = "false") boolean useSlice
+    ) {
+        TargetingSessionView session = targetingService.findTargetingSessionViewById(sessionId);
+
+        if (isNull(session)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        long pages = 0;
+        long total = 0;
+
+        page = page - 1;
+
+        final Page<CbtRankingResult> rankingResults = targetingService.getCbtRanking(session, page, size, sort, sortDirection);
+
+        if (!useSlice) {
+            total = rankingResults.getTotalElements();
+            pages = rankingResults.getTotalPages();
+        }
+
+        return ResponseEntity.ok()
+                .header("X-Is-Slice", Boolean.toString(useSlice))
+                .header("X-Data-Total", Long.toString(total))
+                .header("X-Data-Pages", Long.toString(pages))
+                .header("X-Data-Size", Integer.toString(rankingResults.getSize()))
+                .header("X-Data-Page", Integer.toString(page + 1))
+                .body(rankingResults.getContent());
+    }
+
+    @PutMapping("/{session}/ranking-results")
+    @AdminAndStandardAccessOnly
+    ResponseEntity<Void> updateCbtRankings(
+            @PathVariable("session") Long sessionId,
+            @RequestBody @Valid TargetedHouseholdStatus targetedHouseholdStatus) {
+        TargetingSessionView session = targetingService.findTargetingSessionViewById(sessionId);
+
+        if (isNull(session)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        targetingService.updateTargetedHouseholds(session, Collections.singletonList(targetedHouseholdStatus), null);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{session}/composition/{householdId}")
+    @AdminAndStandardAccessOnly
+    ResponseEntity<List<Individual>> getHouseholdIndividuals(
+            @PathVariable("session") Long sessionId,
+            @PathVariable("householdId") Long householdId) {
+        Household household = beneficiaryService.findHouseholdByTargetingSessionIdAndHouseholdId(sessionId, householdId);
+        if (isNull(household)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(beneficiaryService.getHouseholdMembers(householdId));
     }
 
     @GetMapping("/composition")
@@ -179,27 +264,18 @@ public class CommunityBasedTargetingController extends BaseController {
                 .addObject("targetingSession", session);
     }
 
-    @PostMapping("/close")
+    @PostMapping("/{session}/close")
     @AdminAccessOnly
-    ModelAndView closeSession(
+    ResponseEntity<?> closeSession(
             @AuthenticatedUserDetails AuthenticatedUser user,
-            @Valid @ModelAttribute CloseCbtSessionForm form,
-            BindingResult result,
-            RedirectAttributes attributes) {
+            @PathVariable("session") Long sessionId) {
 
-        if (result.hasErrors()) {
-            setDangerFlashMessage("Cannot close session at the moment. Please try again.", attributes);
-            return redirect("/targeting/community");
-        }
-
-        TargetingSessionView session = targetingService.findTargetingSessionViewById(form.getId());
+        TargetingSessionView session = targetingService.findTargetingSessionViewById(sessionId);
         if (session == null) {
-            setDangerFlashMessage("Cannot find session", attributes);
-            return redirect("/targeting/community");
+            return ResponseEntity.notFound().build();
         }
         if (session.isClosed()) {
-            setDangerFlashMessage("Cannot close session. Session is already closed.", attributes);
-            return redirect("/targeting/community");
+            return ResponseEntity.badRequest().build();
         }
 
         targetingService.closeTargetingSession(session, user.id());
@@ -207,8 +283,7 @@ public class CommunityBasedTargetingController extends BaseController {
         publishGeneralEvent("%s closed community based targeting session for %s that was opened by %s",
                 user.username(), session.getProgramName(), session.getCreatorName());
 
-        setSuccessFlashMessage("Targeting session closed.", attributes);
-        return redirect("/targeting/community/review?session=" + session.getId());
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/select-household")
