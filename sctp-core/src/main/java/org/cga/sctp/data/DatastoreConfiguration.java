@@ -45,12 +45,13 @@ public class DatastoreConfiguration {
     public DatastoreConfiguration(
             @NotNull
             @Value("${targeting.pictures:data/recipient_photos}") File directory) {
-        if (!directory.exists()) {
+        directory = directory.getAbsoluteFile().toPath().normalize().toFile().getAbsoluteFile();
+        if (!directory.exists() || !directory.isDirectory()) {
             if (!directory.mkdirs()) {
-                throw new RuntimeException("Failed to initialize directory " + directory.getAbsolutePath());
+                throw new RuntimeException("Failed to initialize directory " + directory);
             }
         }
-        this.recipientPhotoDirectory = directory.getAbsoluteFile().toPath().normalize().toFile();
+        this.recipientPhotoDirectory = directory;
     }
 
     public File getRecipientPhotoDirectory() {
