@@ -77,7 +77,7 @@ public class EnrollmentUpdateForm {
             @NotNull
             private String lastName;
             @NotNull
-            private String firstNane;
+            private String firstName;
             @NotNull
             @Pattern(regexp = "^[0-9A-Z]{8}$")
             private String nationalId;
@@ -107,12 +107,12 @@ public class EnrollmentUpdateForm {
                 this.lastName = lastName;
             }
 
-            public String getFirstNane() {
-                return firstNane;
+            public String getFirstName() {
+                return firstName;
             }
 
-            public void setFirstNane(String firstNane) {
-                this.firstNane = firstNane;
+            public void setFirstName(String firstName) {
+                this.firstName = firstName;
             }
 
             public String getNationalId() {

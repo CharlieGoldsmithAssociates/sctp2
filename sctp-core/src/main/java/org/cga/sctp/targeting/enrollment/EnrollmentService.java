@@ -415,7 +415,7 @@ public class EnrollmentService extends TransactionalService {
                                 .setParameter("ts", timestamp);*/
 
                                 .setParameter(1, enrollment.getHouseholdId())
-                                .setParameter(2, recipients.getOtherDetails().getFirstNane())
+                                .setParameter(2, recipients.getOtherDetails().getFirstName())
                                 .setParameter(3, recipients.getOtherDetails().getLastName())
                                 .setParameter(4, recipients.getOtherDetails().getNationalId())
                                 .setParameter(5, recipients.getOtherDetails().getIssueDate())
@@ -497,52 +497,66 @@ public class EnrollmentService extends TransactionalService {
 
     private RecipientPictureUpdateStatus.UpdateStatus updateRecipientPictures(
             RecipientPictureUpdateRequest.RecipientInformation info, ZonedDateTime timestamp, long sessionId) {
-        boolean alternateHasError = false, alternatePresent = false;
-        ResourceService.UpdateResult primaryResult;
+        boolean alternateHasError = false, alternatePresent = false, primaryPresent = false, primaryHasError = false;
+        ResourceService.UpdateResult primaryResult = null;
         ResourceService.UpdateResult alternateResult = null;
         RecipientPictureUpdateStatus.UpdateStatus status = null;
 
-        primaryResult = resourceService.storeMainRecipientPhoto(info.getPrimaryReceiverPicture(), info.getHouseholdId());
-
-        if (info.getAlternateReceiverPicture() != null && !info.getAlternateReceiverPicture().isEmpty()) {
-            alternateResult = resourceService
-                    .storeAlternateRecipientPhoto(info.getAlternateReceiverPicture(), info.getHouseholdId());
-            alternatePresent = alternateResult.stored();
+        if (info.getPrimaryReceiverPicture() != null && !info.getPrimaryReceiverPicture().isEmpty()) {
+            primaryResult = resourceService.storeMainRecipientPhoto(info.getPrimaryReceiverPicture(), info.getHouseholdId());
+            primaryPresent = primaryResult.stored();
+            primaryHasError = primaryResult.error() != null;
         }
 
-        if (!primaryResult.stored() || (alternateHasError = (alternateResult != null && !alternateResult.stored()))) {
+        if (info.getAlternateReceiverPicture() != null && !info.getAlternateReceiverPicture().isEmpty()) {
+            alternateResult = resourceService.storeAlternateRecipientPhoto(info.getAlternateReceiverPicture(), info.getHouseholdId());
+            alternatePresent = alternateResult.stored();
+            alternateHasError = alternateResult.error() != null;
+        }
+
+        if (primaryHasError || alternateHasError) {
             status = new RecipientPictureUpdateStatus.UpdateStatus();
             status.setHouseholdId(info.getHouseholdId());
 
-            if (!primaryResult.stored()) {
+            if (primaryHasError) {
                 status.setPrimaryRecipientPictureError(primaryResult.error());
             }
+
             if (alternateHasError) {
                 status.setAlternateRecipientPictureError(alternateResult.error());
             }
         }
 
         if (status == null) {
-            String sql = """
-                    UPDATE household_recipient
-                     SET modified_at = :timestamp
-                     , main_photo = :main_photo
-                     , main_photo_type = :main_photo_type
-                     , enrollment_session = :session_id
-                     , alt_photo = :alt_photo
-                     , alt_photo_type = :alt_photo_type
-                     WHERE household_id = :household_id
-                    """;
-            Query query = entityManager.createNativeQuery(sql);
+            StringBuilder builder = new StringBuilder(
+                    """
+                            UPDATE household_recipient SET modified_at = :timestamp, enrollment_session = :session_id
+                            """
+            );
+
+            if (primaryPresent) {
+                builder.append(",main_photo = :main_photo, main_photo_type = :main_photo_type");
+            }
+
+            if (alternatePresent) {
+                builder.append(",alt_photo = :alt_photo, alt_photo_type = :alt_photo_type");
+            }
+
+            builder.append(" WHERE household_id = :household_id");
+
+            Query query = entityManager.createNativeQuery(builder.toString());
 
             query.setParameter("household_id", info.getHouseholdId())
-                    .setParameter("timestamp", timestamp)
-                    .setParameter("main_photo", primaryResult.name())
-                    .setParameter("main_photo_type", primaryResult.type())
-                    .setParameter("alt_photo", alternatePresent ? alternateResult.name() : null)
-                    .setParameter("alt_photo_type", alternatePresent ? alternateResult.type() : null)
-                    .setParameter("session_id", sessionId)
-            ;
+                    .setParameter("timestamp", timestamp);
+            if (primaryPresent) {
+                query.setParameter("main_photo", primaryResult.name())
+                        .setParameter("main_photo_type", primaryResult.type());
+            }
+            if (alternatePresent) {
+                query.setParameter("alt_photo", alternateResult.name())
+                        .setParameter("alt_photo_type", alternateResult.type());
+            }
+            query.setParameter("session_id", sessionId);
             query.executeUpdate();
         }
 
