@@ -32,9 +32,7 @@
 
 package org.cga.sctp.targeting.enrollment;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.*;
 
 @MappedSuperclass
 public class BaseHouseholdEnrollmentSummary {
@@ -107,6 +105,10 @@ public class BaseHouseholdEnrollmentSummary {
 
     @Column(name = "secondary_children")
     private Long secondaryChildren;
+
+    @Column
+    @Enumerated(EnumType.STRING)
+    private EnrollmentUpdateForm.EnrollmentStatus status;
 
     public Long getHouseholdId() {
         return householdId;
@@ -198,5 +200,9 @@ public class BaseHouseholdEnrollmentSummary {
 
     public Long getSecondaryChildren() {
         return secondaryChildren;
+    }
+
+    public EnrollmentUpdateForm.EnrollmentStatus getStatus() {
+        return status;
     }
 }
