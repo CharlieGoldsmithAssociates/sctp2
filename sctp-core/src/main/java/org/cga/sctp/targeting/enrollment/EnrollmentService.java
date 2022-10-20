@@ -32,17 +32,28 @@
 
 package org.cga.sctp.targeting.enrollment;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.util.WorkbookUtil;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.cga.sctp.core.TransactionalService;
 import org.cga.sctp.data.ResourceService;
 import org.cga.sctp.targeting.*;
 import org.cga.sctp.targeting.importation.parameters.Gender;
+import org.cga.sctp.utils.LocaleUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StreamUtils;
@@ -55,11 +66,15 @@ import javax.persistence.StoredProcedureQuery;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Service
@@ -561,5 +576,170 @@ public class EnrollmentService extends TransactionalService {
         }
 
         return status;
+    }
+
+    public Resource exportEnrollmentList(@NonNull EnrollmentSessionView session,
+                                         @Nullable EnrollmentUpdateForm.EnrollmentStatus status) {
+
+        Path filePath = null;
+        String timestamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmm")
+                .withLocale(Locale.US)
+                .format(session.getCreatedAt());
+
+        String filename = format(
+                "%s_%s_%s_", timestamp,
+                LocaleUtils.fileName(session.getDistrictName()),
+                status == null ? "All" : status.name()
+        );
+
+        Path tmp_path = Path.of(System.getProperty("java.io.tmpdir")).toAbsolutePath().normalize();
+
+        try {
+            filePath = Files.createTempFile(tmp_path, filename, ".xlsx");
+            List<ExportCluster> clusters = enrollmentDataRepository.getExportClusters(session.getId());
+            filePath = internalExportSessionData(filePath, session, clusters, status);
+        } catch (Exception e) {
+            LOG.error("Exception exporting enrollment list to {}", tmp_path, e);
+            if (filePath != null) {
+                try {
+                    Files.delete(filePath);
+                } catch (Exception ignore) {
+                }
+            }
+            return null;
+        }
+
+        return filePath != null ? new FileSystemResource(filePath) : null;
+    }
+
+    private void addBlankRow(Sheet sheet) {
+        int cols = sheet.getRow(0).getPhysicalNumberOfCells();
+        int lastRow = sheet.getLastRowNum() + 1;
+        Row blankRow = sheet.createRow(lastRow);
+
+        for (int i = 0; i < cols; i++) {
+            blankRow.createCell(i, CellType.BLANK);
+        }
+    }
+
+    private void addBlankCell(Row row, int col) {
+        row.createCell(col, CellType.BLANK);
+    }
+
+    private void addTextCell(Sheet sheet, String text) {
+        Row row = sheet.getRow(sheet.getLastRowNum() + 1);
+        Cell cell = row.createCell(row.getLastCellNum() + 1);
+        cell.setCellValue(text);
+    }
+
+    private void addTextCell(Row row, int col, String text) {
+        Cell cell = row.createCell(col);
+        cell.setCellValue(text);
+    }
+
+    private Row newRow(Sheet sheet) {
+        return sheet.createRow(sheet.getLastRowNum() + 1);
+    }
+
+    private void addClusterHeader(Sheet sheet, ExportCluster cluster) {
+        // add 3 rows. 2 empty, one in the middle
+        addBlankRow(sheet);
+
+        Row row = newRow(sheet);
+
+        addCell(row, 0, "VILLAGE CLUSTER");
+        addBlankCell(row, 1);
+        addTextCell(row, 2, cluster.getName());
+        addBlankCell(row, 3);
+        addTextCell(row, 4, format("TOTAL HOUSEHOLDS: %,d", cluster.getHouseholds()));
+
+        addBlankRow(sheet);
+    }
+
+    private Path internalExportSessionData(Path filePath, EnrollmentSessionView session
+            , List<ExportCluster> clusters
+            , EnrollmentUpdateForm.EnrollmentStatus status) {
+        // FORM_NUMBER	HOUSEHOLD_CODE	ZONE	HOUSEHOLD_HEAD_NAME	HOUSEHOLD_SIZE
+
+        try (SXSSFWorkbook workbook = new SXSSFWorkbook();
+             FileOutputStream fos = new FileOutputStream(filePath.toFile())) {
+
+            workbook.setCompressTempFiles(true);
+
+            SXSSFSheet sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName("Households"));
+
+            // only keep 100 items in memory. Excess will be flushed to file
+            sheet.setRandomAccessWindowSize(100);
+
+            Row titleRow = sheet.createRow(0);
+            addTextCell(titleRow, 0, "Household Enrollment List");
+            addBlankCell(titleRow, 1);
+            addTextCell(titleRow, 2, format("T/A: %s", session.getTaName()));
+            addBlankCell(titleRow, 3);
+            addTextCell(titleRow, 4, format("TOTAL HOUSEHOLDS: %,d", clusters.stream().mapToLong(ExportCluster::getHouseholds).sum()));
+            addBlankRow(sheet);
+
+            // get export clusters
+            for (ExportCluster cluster : clusters) {
+                addClusterHeader(sheet, cluster);
+
+                // header rows
+                Row headerRow = newRow(sheet);
+
+                addCell(headerRow, 0, "FORM_NUMBER");
+                addCell(headerRow, 1, "HOUSEHOLD_CODE");
+                addCell(headerRow, 2, "ZONE");
+                addCell(headerRow, 3, "HOUSEHOLD_HEAD_NAME");
+                addCell(headerRow, 4, "HOUSEHOLD_SIZE");
+                addCell(headerRow, 5, "STATUS");
+
+                int pageSize = 50;
+                int trips = (int) ((cluster.getHouseholds() / pageSize) + (pageSize % cluster.getHouseholds() > 0 ? 1 : 0));
+                for (int i = 0; i < trips; i++) {
+                    final List<HouseholdEnrollmentData> data;
+                    if (status == null) {
+                        data = enrollmentDataRepository
+                                .getForExport(
+                                        session.getId(),
+                                        cluster.getCode(),
+                                        i * pageSize,
+                                        pageSize
+                                );
+                    } else {
+                        data = enrollmentDataRepository
+                                .getForExportByStatus(
+                                        session.getId(),
+                                        cluster.getCode(),
+                                        status.name(),
+                                        i * pageSize,
+                                        pageSize
+                                );
+                    }
+
+                    for (HouseholdEnrollmentData household : data) {
+                        Row dataRow = newRow(sheet);
+
+                        addTextCell(dataRow, 0, household.getFormNumber().toString());
+                        addTextCell(dataRow, 1, format("ML-%d", household.getMlCode()));
+                        addTextCell(dataRow, 2, household.getZoneName());
+                        addTextCell(dataRow, 3, household.getHouseholdHead());
+                        addTextCell(dataRow, 4, format("%,d", household.getMemberCount()));
+                        addTextCell(dataRow, 5, household.getStatus().name());
+                    }
+                }
+            }
+
+            workbook.write(fos);
+            workbook.dispose();
+
+            return filePath;
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
+        }
+    }
+
+    private void addCell(Row row, int index, String data) {
+        Cell cell = row.createCell(index);
+        cell.setCellValue(data);
     }
 }
