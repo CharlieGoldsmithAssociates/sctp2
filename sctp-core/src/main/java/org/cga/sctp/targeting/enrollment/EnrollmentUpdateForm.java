@@ -81,10 +81,10 @@ public class EnrollmentUpdateForm {
             @NotNull
             @Pattern(regexp = "^[0-9A-Z]{8}$")
             private String nationalId;
-            @NotNull
+            //@NotNull
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             private LocalDate issueDate;
-            @NotNull
+            //@NotNull
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             private LocalDate expiryDate;
             @NotNull
