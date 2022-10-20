@@ -73,7 +73,7 @@ public class HouseholdRecipientsValidator implements ConstraintValidator<ValidRe
         // validate details
         final EnrollmentUpdateForm.HouseholdRecipients.NonHouseholdMemberDetails details = value.getOtherDetails();
         if (details != null) {
-            if (!LocaleUtils.checkLengthBounds(details.getFirstNane(), 1, 30)) {
+            if (!LocaleUtils.checkLengthBounds(details.getFirstName(), 1, 30)) {
                 addStringLengthViolation(context, "NonHouseholdMemberDetails.firstName", 1, 30);
                 return false;
             }

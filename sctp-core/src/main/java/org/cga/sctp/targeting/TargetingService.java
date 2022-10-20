@@ -59,8 +59,12 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import static java.util.Objects.isNull;
 
 @Service
 public class TargetingService extends TransactionalService {
@@ -140,6 +144,16 @@ public class TargetingService extends TransactionalService {
 
     public Slice<CbtRankingResult> getCbtRanking(TargetingSessionView session, Pageable pageable) {
         return cbtRankingRepository.findByCbtSessionId(session.getId(), pageable);
+    }
+
+    public Page<CbtRankingResult> getCbtRanking(TargetingSessionView session, int page, int size,
+                                                String sortColumn, Sort.Direction sortDirection) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortColumn));
+        return cbtRankingRepository.findByCbtSessionId(session.getId(), pageable);
+    }
+
+    public List<CbtRankingResultStat> countAllByStatusAndCbtSessionId(Long sessionId) {
+        return cbtRankingRepository.countAllByStatusAndCbtSessionId(sessionId);
     }
 
     public TargetingSessionView findTargetingSessionViewById(Long districtCode, Long sessionId) {
@@ -612,6 +626,7 @@ public class TargetingService extends TransactionalService {
 
     /**
      * Exports targeting session data to excel and returns path to that file.
+     *
      * @param targetingSession the session to export data for
      * @return path to the file.
      */

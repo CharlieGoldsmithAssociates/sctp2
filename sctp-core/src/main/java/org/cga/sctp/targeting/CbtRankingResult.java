@@ -212,4 +212,25 @@ public class CbtRankingResult {
     public void setMlCode(String mlCode) {
         this.mlCode = mlCode;
     }
+
+    @Override
+    public String toString() {
+        return "CbtRankingResult{" +
+                "householdId=" + householdId +
+                ", householdHead='" + householdHead + '\'' +
+                ", memberCount=" + memberCount +
+                ", rank=" + rank +
+                ", taName='" + taName + '\'' +
+                ", zoneName='" + zoneName + '\'' +
+                ", formNumber='" + formNumber + '\'' +
+                ", cbtSessionId=" + cbtSessionId +
+                ", clusterName='" + clusterName + '\'' +
+                ", villageName='" + villageName + '\'' +
+                ", pmtScore=" + pmtScore +
+                ", districtName='" + districtName + '\'' +
+                ", status=" + status +
+                ", villageHeadName='" + villageHeadName + '\'' +
+                ", mlCode='" + mlCode + '\'' +
+                '}';
+    }
 }
