@@ -39,6 +39,8 @@ import org.cga.sctp.user.AdminAndStandardAccessOnly;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -47,8 +49,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 @Controller
@@ -71,8 +71,8 @@ public class CommunityBasedTargetingExportController {
      */
     @GetMapping("/excel/{session-id}")
     @AdminAndStandardAccessOnly
-    public ResponseEntity<Object> generateExcel(@PathVariable("session-id") Long targetingSessionId,
-                                                @RequestParam("status") String status) {
+    public ResponseEntity<Resource> generateExcel(@PathVariable("session-id") Long targetingSessionId,
+                                                  @RequestParam("status") String status) {
         TargetingSessionView targetingSession = targetingService.findTargetingSessionViewById(targetingSessionId);
         if (targetingSession == null) {
             return ResponseEntity.notFound().build();
@@ -84,15 +84,15 @@ public class CommunityBasedTargetingExportController {
             try {
                 statusParam = CbtStatus.valueOf(status);
                 filePath = targetingService.exportSessionDataByStatusToExcel(targetingSession, statusParam, stagingDirectory);
-            }catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
                 filePath = targetingService.exportSessionDataToExcel(targetingSession, stagingDirectory);
             }
 
             return ResponseEntity.status(200)
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
                     .header("Content-Disposition", String.format("filename=Targeted-Households-%s.xlsx", targetingSessionId))
-                    .body(Files.readAllBytes(filePath));
-        } catch (IOException e) {
+                    .body(new FileSystemResource(filePath));
+        } catch (Exception e) {
             LoggerFactory.getLogger(getClass()).error("Failed to export beneficiaries", e);
             return ResponseEntity.internalServerError().build();
         }

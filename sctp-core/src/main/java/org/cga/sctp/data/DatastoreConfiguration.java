@@ -50,7 +50,7 @@ public class DatastoreConfiguration {
                 throw new RuntimeException("Failed to initialize directory " + directory.getAbsolutePath());
             }
         }
-        this.recipientPhotoDirectory = directory;
+        this.recipientPhotoDirectory = directory.getAbsoluteFile().toPath().normalize().toFile();
     }
 
     public File getRecipientPhotoDirectory() {
