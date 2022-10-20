@@ -72,7 +72,7 @@ public class CommunityBasedTargetingExportController {
     @GetMapping("/excel/{session-id}")
     @AdminAndStandardAccessOnly
     public ResponseEntity<Object> generateExcel(@PathVariable("session-id") Long targetingSessionId,
-                                                @RequestParam("status") String status) {
+                                                @RequestParam(value="status", required = false) String status) {
         TargetingSessionView targetingSession = targetingService.findTargetingSessionViewById(targetingSessionId);
         if (targetingSession == null) {
             return ResponseEntity.notFound().build();
@@ -82,8 +82,13 @@ public class CommunityBasedTargetingExportController {
             Path filePath;
             CbtStatus statusParam;
             try {
-                statusParam = CbtStatus.valueOf(status);
-                filePath = targetingService.exportSessionDataByStatusToExcel(targetingSession, statusParam, stagingDirectory);
+                if (status != null){
+                    statusParam = CbtStatus.valueOf(status);
+                    filePath = targetingService.exportSessionDataByStatusToExcel(targetingSession, statusParam, stagingDirectory);
+                } else {
+                    filePath = targetingService.exportSessionDataToExcel(targetingSession, stagingDirectory);
+                }
+
             }catch (IllegalArgumentException e) {
                 filePath = targetingService.exportSessionDataToExcel(targetingSession, stagingDirectory);
             }
