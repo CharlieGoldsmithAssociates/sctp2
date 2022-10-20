@@ -252,7 +252,7 @@ module.exports = {
       allSchools: [],
       educationLevels: [],
       gradeLevels: [],
-      status: 0,
+      status: false,
       schoolId: null,
       educationLevel: null,
       gradeLevel: null,
@@ -452,7 +452,7 @@ module.exports = {
       } else {
         this.schoolMemberId = null;
         this.memberId = null;
-        this.status = null;
+        this.status = false;
         this.schoolId = null;
         this.educationLevel = null;
         this.gradeLevel = null;
