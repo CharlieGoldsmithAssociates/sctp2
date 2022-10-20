@@ -46,6 +46,7 @@ import org.cga.sctp.user.AuthenticatedUser;
 import org.cga.sctp.user.AuthenticatedUserDetails;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -101,26 +102,13 @@ public class TransferPeriodController extends BaseController {
 
     @PostMapping("/open-new")
     @AdminAndStandardAccessOnly
-    public ModelAndView handleCreateTransferPeriod(@AuthenticatedUserDetails AuthenticatedUser user,
-                                                   @Validated @ModelAttribute TransferPeriodForm form,
-                                                   BindingResult result,
-                                                   RedirectAttributes attributes) {
-
-        if (result.hasErrors()) {
-            LoggerFactory.getLogger(getClass()).error("Failed to create transfer period: {}", result.getAllErrors());
-            return redirectWithDangerMessageModelAndView("/transfers/periods/open-new?district-id=" + form.getDistrictId(),
-                    "Failed to open Transfer Period please fix the errors on the form",
-                    attributes
-            );
-        }
+    public ResponseEntity<?> handleCreateTransferPeriod(@AuthenticatedUserDetails AuthenticatedUser user,
+                                                     @Validated @RequestBody TransferPeriodForm form) {
 
         TransferPeriod newPeriod = new TransferPeriod();
         Location district = locationService.findById(form.getDistrictId());
         if (district == null) {
-            return redirectWithDangerMessageModelAndView("/transfers/periods/open-new?district-id=" + form.getDistrictId(),
-                    "Invalid district",
-                    attributes
-            );
+            return ResponseEntity.notFound().build();
         }
 
         newPeriod.setStartDate(form.getStartDate());
@@ -133,21 +121,17 @@ public class TransferPeriodController extends BaseController {
         newPeriod.setOpenedBy(user.id());
         //newPeriod.setTransferSessionId(form.getTransferSessionId());
         try {
-            if (transferPeriodService.openNewPeriod(newPeriod) == null) {
-                return redirectWithDangerMessageModelAndView("/transfers/periods/open-new?district-id=" + form.getDistrictId(),
-                        "Failed to open Transfer Period.",
-                        attributes
-                );
+            TransferPeriod transferPeriod = transferPeriodService.openNewPeriod(newPeriod);
+            if (transferPeriod == null) {
+                return ResponseEntity.notFound().build();
             }
 
             publishGeneralEvent("User %s opened a new Transfer Period in district: %s", user.username(), form.getDistrictId());
-            return redirect(String.format("/transfers/periods/in-districts/%d", form.getDistrictId()));
+//            return redirect(String.format("/transfers/periods/in-districts/%d", form.getDistrictId()));
 
+            return ResponseEntity.ok(transferPeriod);
         } catch (TransferPeriodException e) {
-            return redirectWithDangerMessageModelAndView("/transfers/periods/open-new?district-id=" + form.getDistrictId(),
-                    format("Cannot open Transfer Period: %s", e.getMessage()),
-                    attributes
-            );
+            return ResponseEntity.notFound().build();
         }
     }
 
