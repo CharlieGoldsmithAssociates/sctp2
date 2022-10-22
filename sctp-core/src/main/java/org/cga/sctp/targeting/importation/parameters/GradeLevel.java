@@ -34,6 +34,7 @@ package org.cga.sctp.targeting.importation.parameters;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import org.cga.sctp.utils.LocaleUtils;
 
 public enum GradeLevel implements UbrParameterValue {
     Standard1(1, "Std. 1"),
@@ -71,6 +72,9 @@ public enum GradeLevel implements UbrParameterValue {
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static GradeLevel fromName(String name) {
+        if (LocaleUtils.isNumber(name)) {
+            return fromCode(Integer.parseInt(name, 10));
+        }
         return GradeLevel.valueOf(name);
     }
 
