@@ -174,6 +174,18 @@ public class ResourceService extends TransactionalService {
         }
     }
 
+    private UpdateResult storeRecipientPhoto(UploadFileValidator.UploadedFile photo, long household, boolean main) {
+        try {
+            // we don't use file extension so that it replaces the same picture
+            String name = createRecipientPhotoName(household, main);
+            photo.transferTo(new File(configuration.getRecipientPhotoDirectory(), name).getAbsoluteFile());
+            return new UpdateResult(true, name, photo.getTypeInfo().getMime());
+        } catch (Exception e) {
+            LOG.error("Failed to store recipient photo for household {}", household);
+            return new UpdateResult(false, null, null, "error processing file");
+        }
+    }
+
     public Resource getRecipientPhotoResource(Long household, boolean main) {
         File photo = new File(configuration.getRecipientPhotoDirectory(), createRecipientPhotoName(household, main));
         return photo.exists() ? getFileAsResource(photo) : null;
@@ -187,6 +199,14 @@ public class ResourceService extends TransactionalService {
 
     public UpdateResult storeMainRecipientPhoto(MultipartFile photo, long household) {
         return storeRecipientPhoto(photo, household, true);
+    }
+
+    public UpdateResult storeMainRecipientPhoto(UploadFileValidator.UploadedFile photo, long household) {
+        return storeRecipientPhoto(photo, household, true);
+    }
+
+    public UpdateResult storeAlternateRecipientPhoto(UploadFileValidator.UploadedFile photo, long household) {
+        return storeRecipientPhoto(photo, household, false);
     }
 
     public UpdateResult storeAlternateRecipientPhoto(MultipartFile photo, long household) {

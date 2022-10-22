@@ -63,6 +63,7 @@ import javax.validation.constraints.Min;
 @RestController
 @RequestMapping("/enrollment")
 @Tag(name = "Enrollment", description = "Endpoint for enrollment tasks")
+@Validated
 public class EnrollmentController extends BaseController {
 
     @Autowired
@@ -81,7 +82,12 @@ public class EnrollmentController extends BaseController {
     public ResponseEntity<?> updateHouseholdEnrollment(
             @AuthenticatedUserDetails ApiUserDetails user,
             @PathVariable("session-id") Long sessionId,
-            @Valid @RequestBody EnrollmentUpdateForm updateRequest) {
+            @Valid @Validated @RequestBody EnrollmentUpdateForm updateRequest,
+            BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body(bindingResult.getModel());
+        }
 
         EnrollmentSession session = enrollmentService.getSessionById(sessionId);
 
@@ -108,8 +114,9 @@ public class EnrollmentController extends BaseController {
     public ResponseEntity<RecipientPictureUpdateStatus> updateRecipientPictures(
             @AuthenticatedUserDetails ApiUserDetails user,
             @PathVariable("session-id") Long sessionId,
-            @Valid @Validated @ModelAttribute RecipientPictureUpdateRequest request,
+            @Valid @ModelAttribute RecipientPictureUpdateRequest request,
             BindingResult bindingResult) {
+
 
         if (bindingResult.hasErrors()) {
             LOG.error("Bad request {}", bindingResult.getModel());

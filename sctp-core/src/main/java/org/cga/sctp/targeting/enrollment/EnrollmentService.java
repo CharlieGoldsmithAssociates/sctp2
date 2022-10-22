@@ -41,6 +41,7 @@ import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.cga.sctp.core.TransactionalService;
 import org.cga.sctp.data.ResourceService;
+import org.cga.sctp.data.UploadFileValidator;
 import org.cga.sctp.targeting.*;
 import org.cga.sctp.targeting.importation.parameters.Gender;
 import org.cga.sctp.utils.LocaleUtils;
@@ -52,6 +53,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
@@ -478,6 +480,9 @@ public class EnrollmentService extends TransactionalService {
     @Autowired
     private ResourceService resourceService;
 
+    @Autowired
+    private UploadFileValidator validator;
+
     /**
      * Processes the uploaded pictures and returns the status of the uploaded files
      *
@@ -486,6 +491,86 @@ public class EnrollmentService extends TransactionalService {
      * @param data      Picture update and metadata
      */
     public RecipientPictureUpdateStatus updateHouseholdRecipientPictures(Long sessionId, Long userId, List<RecipientPictureUpdateRequest.RecipientInformation> data) {
+        String[] types = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE};
+
+        final ZonedDateTime timestamp = ZonedDateTime.now();
+        final RecipientPictureUpdateStatus status = new RecipientPictureUpdateStatus();
+
+        status.setFailed(0);
+        status.setUpdated(0);
+        status.setReceived(data.size());
+        status.setReceivedAt(timestamp);
+
+        for (final RecipientPictureUpdateRequest.RecipientInformation info : data) {
+            UploadFileValidator.UploadedFile primary = null;
+            UploadFileValidator.UploadedFile secondary = null;
+
+            if (info.getPrimaryReceiverPicture() != null && !info.getPrimaryReceiverPicture().isEmpty()) {
+                primary = validator.convertMultipartFile(info.getPrimaryReceiverPicture());
+            }
+
+            if (info.getAlternateReceiverPicture() != null && !info.getAlternateReceiverPicture().isEmpty()) {
+                secondary = validator.convertMultipartFile(info.getAlternateReceiverPicture());
+            }
+
+            if (primary == null && secondary == null) {
+                continue;
+            }
+
+            if (primary != null) {
+                if (primary.isStaged()) {
+                    if (!primary.hasType(types)) {
+                        primary.delete();
+                        status.setFailed(status.getFailed() + 1);
+                        LOG.error("invalid file type for primary recipient {}. expected: {}", primary, types);
+                        primary = null;
+                    }
+                } else {
+                    status.setFailed(status.getFailed() + 1);
+                    LOG.error("error staging primary recipient picture file {} for household  {}", primary, info.getHouseholdId());
+                    primary = null;
+                }
+
+                // store for this file
+            }
+
+            if (secondary != null) {
+                if (secondary.isStaged()) {
+                    if (!secondary.hasType(types)) {
+                        secondary.delete();
+                        status.setFailed(status.getFailed() + 1);
+                        LOG.error("invalid file type for secondary recipient {}. expected: {}", secondary, types);
+                        secondary = null;
+                    }
+                } else {
+                    status.setFailed(status.getFailed() + 1);
+                    LOG.error("error staging secondary recipient picture file {} for household  {}", secondary, info.getHouseholdId());
+                    secondary = null;
+                }
+            }
+
+            RecipientPictureUpdateStatus.UpdateStatus updateStatus
+                    = updateRecipientPictures(primary, secondary, timestamp, sessionId, info.getHouseholdId());
+
+            if (updateStatus != null) {
+                status.setFailed(status.getFailed() + 1);
+                status.getFailedStatuses().add(updateStatus);
+            } else {
+                status.setUpdated(status.getUpdated() + 1);
+            }
+
+            if (primary != null) {
+                primary.delete();
+            }
+            if (secondary != null) {
+                secondary.delete();
+            }
+        }
+
+        status.setCompletedAt(ZonedDateTime.now());
+        return status;
+    }
+    /*public RecipientPictureUpdateStatus updateHouseholdRecipientPictures(Long sessionId, Long userId, List<RecipientPictureUpdateRequest.RecipientInformation> data) {
         final ZonedDateTime timestamp = ZonedDateTime.now();
         final RecipientPictureUpdateStatus status = new RecipientPictureUpdateStatus();
 
@@ -508,9 +593,75 @@ public class EnrollmentService extends TransactionalService {
 
         status.setCompletedAt(ZonedDateTime.now());
         return status;
-    }
+    }*/
 
     private RecipientPictureUpdateStatus.UpdateStatus updateRecipientPictures(
+            UploadFileValidator.UploadedFile primary, UploadFileValidator.UploadedFile secondary, ZonedDateTime timestamp, long sessionId, long household) {
+        boolean alternateHasError = false, alternatePresent = false, primaryPresent = false, primaryHasError = false;
+        ResourceService.UpdateResult primaryResult = null;
+        ResourceService.UpdateResult alternateResult = null;
+        RecipientPictureUpdateStatus.UpdateStatus status = null;
+
+        if (primary != null) {
+            primaryResult = resourceService.storeMainRecipientPhoto(primary, household);
+            primaryPresent = primaryResult.stored();
+            primaryHasError = primaryResult.error() != null;
+        }
+
+        if (secondary != null) {
+            alternateResult = resourceService.storeAlternateRecipientPhoto(secondary, household);
+            alternatePresent = alternateResult.stored();
+            alternateHasError = alternateResult.error() != null;
+        }
+
+        if (primaryHasError || alternateHasError) {
+            status = new RecipientPictureUpdateStatus.UpdateStatus();
+            status.setHouseholdId(household);
+
+            if (primaryHasError) {
+                status.setPrimaryRecipientPictureError(primaryResult.error());
+            }
+
+            if (alternateHasError) {
+                status.setAlternateRecipientPictureError(alternateResult.error());
+            }
+        }
+
+        if (status == null) {
+            StringBuilder builder
+                    = new StringBuilder("UPDATE household_recipient SET modified_at = :timestamp, enrollment_session = :session_id");
+
+            if (primaryPresent) {
+                builder.append(",main_photo = :main_photo, main_photo_type = :main_photo_type");
+            }
+
+            if (alternatePresent) {
+                builder.append(",alt_photo = :alt_photo, alt_photo_type = :alt_photo_type");
+            }
+
+            builder.append(" WHERE household_id = :household_id");
+
+            Query query = entityManager.createNativeQuery(builder.toString());
+
+            query.setParameter("household_id", household)
+                    .setParameter("timestamp", timestamp);
+            if (primaryPresent) {
+                query.setParameter("main_photo", primaryResult.name())
+                        .setParameter("main_photo_type", primaryResult.type());
+            }
+            if (alternatePresent) {
+                query.setParameter("alt_photo", alternateResult.name())
+                        .setParameter("alt_photo_type", alternateResult.type());
+            }
+            query.setParameter("session_id", sessionId);
+            query.executeUpdate();
+        }
+
+        return status;
+    }
+
+
+    /*private RecipientPictureUpdateStatus.UpdateStatus updateRecipientPictures(
             RecipientPictureUpdateRequest.RecipientInformation info, ZonedDateTime timestamp, long sessionId) {
         boolean alternateHasError = false, alternatePresent = false, primaryPresent = false, primaryHasError = false;
         ResourceService.UpdateResult primaryResult = null;
@@ -577,7 +728,7 @@ public class EnrollmentService extends TransactionalService {
 
         return status;
     }
-
+*/
     public Resource exportEnrollmentList(@NonNull EnrollmentSessionView session,
                                          @Nullable EnrollmentUpdateForm.EnrollmentStatus status) {
 
