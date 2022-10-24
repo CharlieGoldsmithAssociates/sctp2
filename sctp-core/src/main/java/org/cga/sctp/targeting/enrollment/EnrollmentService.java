@@ -32,17 +32,30 @@
 
 package org.cga.sctp.targeting.enrollment;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.util.WorkbookUtil;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.cga.sctp.core.TransactionalService;
 import org.cga.sctp.data.ResourceService;
+import org.cga.sctp.data.UploadFileValidator;
 import org.cga.sctp.targeting.*;
 import org.cga.sctp.targeting.importation.parameters.Gender;
+import org.cga.sctp.utils.LocaleUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StreamUtils;
@@ -55,9 +68,14 @@ import javax.persistence.StoredProcedureQuery;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Service
@@ -459,6 +477,9 @@ public class EnrollmentService extends TransactionalService {
     @Autowired
     private ResourceService resourceService;
 
+    @Autowired
+    private UploadFileValidator validator;
+
     /**
      * Processes the uploaded pictures and returns the status of the uploaded files
      *
@@ -467,6 +488,86 @@ public class EnrollmentService extends TransactionalService {
      * @param data      Picture update and metadata
      */
     public RecipientPictureUpdateStatus updateHouseholdRecipientPictures(Long sessionId, Long userId, List<RecipientPictureUpdateRequest.RecipientInformation> data) {
+        String[] types = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE};
+
+        final ZonedDateTime timestamp = ZonedDateTime.now();
+        final RecipientPictureUpdateStatus status = new RecipientPictureUpdateStatus();
+
+        status.setFailed(0);
+        status.setUpdated(0);
+        status.setReceived(data.size());
+        status.setReceivedAt(timestamp);
+
+        for (final RecipientPictureUpdateRequest.RecipientInformation info : data) {
+            UploadFileValidator.UploadedFile primary = null;
+            UploadFileValidator.UploadedFile secondary = null;
+
+            if (info.getPrimaryReceiverPicture() != null && !info.getPrimaryReceiverPicture().isEmpty()) {
+                primary = validator.convertMultipartFile(info.getPrimaryReceiverPicture());
+            }
+
+            if (info.getAlternateReceiverPicture() != null && !info.getAlternateReceiverPicture().isEmpty()) {
+                secondary = validator.convertMultipartFile(info.getAlternateReceiverPicture());
+            }
+
+            if (primary == null && secondary == null) {
+                continue;
+            }
+
+            if (primary != null) {
+                if (primary.isStaged()) {
+                    if (!primary.hasType(types)) {
+                        primary.delete();
+                        status.setFailed(status.getFailed() + 1);
+                        LOG.error("invalid file type for primary recipient {}. expected: {}", primary, types);
+                        primary = null;
+                    }
+                } else {
+                    status.setFailed(status.getFailed() + 1);
+                    LOG.error("error staging primary recipient picture file {} for household  {}", primary, info.getHouseholdId());
+                    primary = null;
+                }
+
+                // store for this file
+            }
+
+            if (secondary != null) {
+                if (secondary.isStaged()) {
+                    if (!secondary.hasType(types)) {
+                        secondary.delete();
+                        status.setFailed(status.getFailed() + 1);
+                        LOG.error("invalid file type for secondary recipient {}. expected: {}", secondary, types);
+                        secondary = null;
+                    }
+                } else {
+                    status.setFailed(status.getFailed() + 1);
+                    LOG.error("error staging secondary recipient picture file {} for household  {}", secondary, info.getHouseholdId());
+                    secondary = null;
+                }
+            }
+
+            RecipientPictureUpdateStatus.UpdateStatus updateStatus
+                    = updateRecipientPictures(primary, secondary, timestamp, sessionId, info.getHouseholdId());
+
+            if (updateStatus != null) {
+                status.setFailed(status.getFailed() + 1);
+                status.getFailedStatuses().add(updateStatus);
+            } else {
+                status.setUpdated(status.getUpdated() + 1);
+            }
+
+            if (primary != null) {
+                primary.delete();
+            }
+            if (secondary != null) {
+                secondary.delete();
+            }
+        }
+
+        status.setCompletedAt(ZonedDateTime.now());
+        return status;
+    }
+    /*public RecipientPictureUpdateStatus updateHouseholdRecipientPictures(Long sessionId, Long userId, List<RecipientPictureUpdateRequest.RecipientInformation> data) {
         final ZonedDateTime timestamp = ZonedDateTime.now();
         final RecipientPictureUpdateStatus status = new RecipientPictureUpdateStatus();
 
@@ -489,9 +590,75 @@ public class EnrollmentService extends TransactionalService {
 
         status.setCompletedAt(ZonedDateTime.now());
         return status;
-    }
+    }*/
 
     private RecipientPictureUpdateStatus.UpdateStatus updateRecipientPictures(
+            UploadFileValidator.UploadedFile primary, UploadFileValidator.UploadedFile secondary, ZonedDateTime timestamp, long sessionId, long household) {
+        boolean alternateHasError = false, alternatePresent = false, primaryPresent = false, primaryHasError = false;
+        ResourceService.UpdateResult primaryResult = null;
+        ResourceService.UpdateResult alternateResult = null;
+        RecipientPictureUpdateStatus.UpdateStatus status = null;
+
+        if (primary != null) {
+            primaryResult = resourceService.storeMainRecipientPhoto(primary, household);
+            primaryPresent = primaryResult.stored();
+            primaryHasError = primaryResult.error() != null;
+        }
+
+        if (secondary != null) {
+            alternateResult = resourceService.storeAlternateRecipientPhoto(secondary, household);
+            alternatePresent = alternateResult.stored();
+            alternateHasError = alternateResult.error() != null;
+        }
+
+        if (primaryHasError || alternateHasError) {
+            status = new RecipientPictureUpdateStatus.UpdateStatus();
+            status.setHouseholdId(household);
+
+            if (primaryHasError) {
+                status.setPrimaryRecipientPictureError(primaryResult.error());
+            }
+
+            if (alternateHasError) {
+                status.setAlternateRecipientPictureError(alternateResult.error());
+            }
+        }
+
+        if (status == null) {
+            StringBuilder builder
+                    = new StringBuilder("UPDATE household_recipient SET modified_at = :timestamp, enrollment_session = :session_id");
+
+            if (primaryPresent) {
+                builder.append(",main_photo = :main_photo, main_photo_type = :main_photo_type");
+            }
+
+            if (alternatePresent) {
+                builder.append(",alt_photo = :alt_photo, alt_photo_type = :alt_photo_type");
+            }
+
+            builder.append(" WHERE household_id = :household_id");
+
+            Query query = entityManager.createNativeQuery(builder.toString());
+
+            query.setParameter("household_id", household)
+                    .setParameter("timestamp", timestamp);
+            if (primaryPresent) {
+                query.setParameter("main_photo", primaryResult.name())
+                        .setParameter("main_photo_type", primaryResult.type());
+            }
+            if (alternatePresent) {
+                query.setParameter("alt_photo", alternateResult.name())
+                        .setParameter("alt_photo_type", alternateResult.type());
+            }
+            query.setParameter("session_id", sessionId);
+            query.executeUpdate();
+        }
+
+        return status;
+    }
+
+
+    /*private RecipientPictureUpdateStatus.UpdateStatus updateRecipientPictures(
             RecipientPictureUpdateRequest.RecipientInformation info, ZonedDateTime timestamp, long sessionId) {
         boolean alternateHasError = false, alternatePresent = false, primaryPresent = false, primaryHasError = false;
         ResourceService.UpdateResult primaryResult = null;
@@ -558,5 +725,169 @@ public class EnrollmentService extends TransactionalService {
 
         return status;
     }
+*/
+    public Resource exportEnrollmentList(@NonNull EnrollmentSessionView session,
+                                         @Nullable EnrollmentUpdateForm.EnrollmentStatus status) {
 
+        Path filePath = null;
+        String timestamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmm")
+                .withLocale(Locale.US)
+                .format(session.getCreatedAt());
+
+        String filename = format(
+                "%s_%s_%s_", timestamp,
+                LocaleUtils.fileName(session.getDistrictName()),
+                status == null ? "All" : status.name()
+        );
+
+        Path tmp_path = Path.of(System.getProperty("java.io.tmpdir")).toAbsolutePath().normalize();
+
+        try {
+            filePath = Files.createTempFile(tmp_path, filename, ".xlsx");
+            List<ExportCluster> clusters = enrollmentDataRepository.getExportClusters(session.getId());
+            filePath = internalExportSessionData(filePath, session, clusters, status);
+        } catch (Exception e) {
+            LOG.error("Exception exporting enrollment list to {}", tmp_path, e);
+            if (filePath != null) {
+                try {
+                    Files.delete(filePath);
+                } catch (Exception ignore) {
+                }
+            }
+            return null;
+        }
+
+        return filePath != null ? new FileSystemResource(filePath) : null;
+    }
+
+    private void addBlankRow(Sheet sheet) {
+        int cols = sheet.getRow(0).getPhysicalNumberOfCells();
+        int lastRow = sheet.getLastRowNum() + 1;
+        Row blankRow = sheet.createRow(lastRow);
+
+        for (int i = 0; i < cols; i++) {
+            blankRow.createCell(i, CellType.BLANK);
+        }
+    }
+
+    private void addBlankCell(Row row, int col) {
+        row.createCell(col, CellType.BLANK);
+    }
+
+    private void addTextCell(Sheet sheet, String text) {
+        Row row = sheet.getRow(sheet.getLastRowNum() + 1);
+        Cell cell = row.createCell(row.getLastCellNum() + 1);
+        cell.setCellValue(text);
+    }
+
+    private void addTextCell(Row row, int col, String text) {
+        Cell cell = row.createCell(col);
+        cell.setCellValue(text);
+    }
+
+    private Row newRow(Sheet sheet) {
+        return sheet.createRow(sheet.getLastRowNum() + 1);
+    }
+
+    private void addClusterHeader(Sheet sheet, ExportCluster cluster) {
+        // add 3 rows. 2 empty, one in the middle
+        addBlankRow(sheet);
+
+        Row row = newRow(sheet);
+
+        addCell(row, 0, "VILLAGE CLUSTER");
+        addBlankCell(row, 1);
+        addTextCell(row, 2, cluster.getName());
+        addBlankCell(row, 3);
+        addTextCell(row, 4, format("TOTAL HOUSEHOLDS: %,d", cluster.getHouseholds()));
+
+        addBlankRow(sheet);
+    }
+
+    private Path internalExportSessionData(Path filePath, EnrollmentSessionView session
+            , List<ExportCluster> clusters
+            , EnrollmentUpdateForm.EnrollmentStatus status) {
+        // FORM_NUMBER	HOUSEHOLD_CODE	ZONE	HOUSEHOLD_HEAD_NAME	HOUSEHOLD_SIZE
+
+        try (SXSSFWorkbook workbook = new SXSSFWorkbook();
+             FileOutputStream fos = new FileOutputStream(filePath.toFile())) {
+
+            workbook.setCompressTempFiles(true);
+
+            SXSSFSheet sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName("Households"));
+
+            // only keep 100 items in memory. Excess will be flushed to file
+            sheet.setRandomAccessWindowSize(100);
+
+            Row titleRow = sheet.createRow(0);
+            addTextCell(titleRow, 0, "Household Enrollment List");
+            addBlankCell(titleRow, 1);
+            addTextCell(titleRow, 2, format("T/A: %s", session.getTaName()));
+            addBlankCell(titleRow, 3);
+            addTextCell(titleRow, 4, format("TOTAL HOUSEHOLDS: %,d", clusters.stream().mapToLong(ExportCluster::getHouseholds).sum()));
+            addBlankRow(sheet);
+
+            // get export clusters
+            for (ExportCluster cluster : clusters) {
+                addClusterHeader(sheet, cluster);
+
+                // header rows
+                Row headerRow = newRow(sheet);
+
+                addCell(headerRow, 0, "FORM_NUMBER");
+                addCell(headerRow, 1, "HOUSEHOLD_CODE");
+                addCell(headerRow, 2, "ZONE");
+                addCell(headerRow, 3, "HOUSEHOLD_HEAD_NAME");
+                addCell(headerRow, 4, "HOUSEHOLD_SIZE");
+                addCell(headerRow, 5, "STATUS");
+
+                int pageSize = 50;
+                int trips = (int) ((cluster.getHouseholds() / pageSize) + (pageSize % cluster.getHouseholds() > 0 ? 1 : 0));
+                for (int i = 0; i < trips; i++) {
+                    final List<HouseholdEnrollmentData> data;
+                    if (status == null) {
+                        data = enrollmentDataRepository
+                                .getForExport(
+                                        session.getId(),
+                                        cluster.getCode(),
+                                        i * pageSize,
+                                        pageSize
+                                );
+                    } else {
+                        data = enrollmentDataRepository
+                                .getForExportByStatus(
+                                        session.getId(),
+                                        cluster.getCode(),
+                                        status.name(),
+                                        i * pageSize,
+                                        pageSize
+                                );
+                    }
+
+                    for (HouseholdEnrollmentData household : data) {
+                        Row dataRow = newRow(sheet);
+
+                        addTextCell(dataRow, 0, household.getFormNumber().toString());
+                        addTextCell(dataRow, 1, format("ML-%d", household.getMlCode()));
+                        addTextCell(dataRow, 2, household.getZoneName());
+                        addTextCell(dataRow, 3, household.getHouseholdHead());
+                        addTextCell(dataRow, 4, format("%,d", household.getMemberCount()));
+                        addTextCell(dataRow, 5, household.getStatus().name());
+                    }
+                }
+            }
+
+            workbook.write(fos);
+            workbook.dispose();
+
+            return filePath;
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
+        }
+    }
+
+    private void addCell(Row row, int index, String data) {
+        Cell cell = row.createCell(index);
+        cell.setCellValue(data);
+    }
 }

@@ -200,6 +200,7 @@ public class EnrollmentUpdateForm {
         @NotNull
         private Long memberId;
         @NotNull
+        //@JsonCreator
         private GradeLevel gradeLevel;
         @NotNull
         private EducationLevel educationLevel;

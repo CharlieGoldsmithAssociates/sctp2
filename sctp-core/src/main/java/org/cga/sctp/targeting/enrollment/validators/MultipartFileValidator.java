@@ -32,6 +32,10 @@
 
 package org.cga.sctp.targeting.enrollment.validators;
 
+import lib.gintec_rdl.spector.TypeInfo;
+import org.cga.sctp.core.BaseComponent;
+import org.cga.sctp.data.ResourceService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.ConstraintValidator;
@@ -39,9 +43,16 @@ import javax.validation.ConstraintValidatorContext;
 import java.util.Arrays;
 import java.util.List;
 
-public class MultipartFileValidator implements ConstraintValidator<ValidFile, MultipartFile> {
+public class MultipartFileValidator extends BaseComponent implements ConstraintValidator<ValidFile, MultipartFile> {
 
     private ValidFile validFile;
+
+    @Autowired
+    private final ResourceService resourceService;
+
+    public MultipartFileValidator(@Autowired ResourceService resourceService) {
+        this.resourceService = resourceService;
+    }
 
     @Override
     public void initialize(ValidFile constraintAnnotation) {
@@ -53,7 +64,7 @@ public class MultipartFileValidator implements ConstraintValidator<ValidFile, Mu
         context.disableDefaultConstraintViolation();
         if (value == null || value.isEmpty()) {
             boolean valid = !validFile.required();
-            if(validFile.required()){
+            if (validFile.required()) {
                 context.buildConstraintViolationWithTemplate("this field is required")
                         .addPropertyNode(validFile.label())
                         .addConstraintViolation();
@@ -61,13 +72,24 @@ public class MultipartFileValidator implements ConstraintValidator<ValidFile, Mu
             return valid;
         }
         final List<String> types = Arrays.asList(validFile.types());
-        if (!types.contains(value.getContentType())) {
-            context.buildConstraintViolationWithTemplate("invalid file type: expected " + types)
+
+        final ResourceService.FileInspectionResult result = resourceService.inspectFile(value, null);
+        final TypeInfo typeInfo = result.getTypeInfo();
+
+        if (typeInfo == null) {
+            context.buildConstraintViolationWithTemplate("could not determine the file type")
                     .addPropertyNode(validFile.label())
                     .addConstraintViolation();
             return false;
+        } else {
+            if (!types.contains(typeInfo.getMime())) {
+                context.buildConstraintViolationWithTemplate(format("invalid file type: %s. Allowed file types: %s", typeInfo.getMime(), types))
+                        .addPropertyNode(validFile.label())
+                        .addConstraintViolation();
+                return false;
+            }
         }
-        // FIXME Proper server side validation requires inspecting the file contents
+
         return true;
     }
 }

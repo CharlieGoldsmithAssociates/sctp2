@@ -32,12 +32,56 @@
 
 package org.cga.sctp.targeting.enrollment;
 
+import org.cga.sctp.targeting.ExportCluster;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 interface HouseholdEnrollmentDataRepository extends JpaRepository<HouseholdEnrollmentData, Long> {
     Page<HouseholdEnrollmentData> findBySessionId(Long sessionId, Pageable pageable);
+
+    @Query(nativeQuery = true, value = """
+            SELECT
+             hed.cluster_name name,
+             hed.cluster_code code,
+             count(DISTINCT household_id) households
+             FROM household_enrollment_data hed
+             WHERE session_id = :id
+             GROUP BY cluster_code
+             HAVING (count(DISTINCT household_id) > 0)
+            """)
+    List<ExportCluster> getExportClusters(@Param("id") Long id);
+
+    @Query(nativeQuery = true, value = """
+            select *
+             from household_enrollment_data
+             where session_id = :sid and cluster_code = :cc and status = :st
+             LIMIT :l, :s
+            """)
+    List<HouseholdEnrollmentData> getForExportByStatus(
+            @Param("sid") Long sessionId,
+            @Param("cc") long clusterCode,
+            @Param("st") String status,
+            @Param("l") int page,
+            @Param("s") int pageSize
+    );
+
+    @Query(nativeQuery = true, value = """
+            select *
+             from household_enrollment_data
+             where session_id = :sid and cluster_code = :cc
+             LIMIT :l, :s
+            """)
+    List<HouseholdEnrollmentData> getForExport(
+            @Param("sid") Long sessionId,
+            @Param("cc") long clusterCode,
+            @Param("l") int page,
+            @Param("s") int pageSize
+    );
 }

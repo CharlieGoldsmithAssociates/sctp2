@@ -35,10 +35,10 @@ package org.cga.sctp.data;
 import lib.gintec_rdl.spector.Spector;
 import lib.gintec_rdl.spector.TypeInfo;
 import org.cga.sctp.core.TransactionalService;
-import org.cga.sctp.utils.ReflectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -52,28 +52,77 @@ public class ResourceService extends TransactionalService {
     @Autowired
     private DatastoreConfiguration configuration;
 
+    public static class FileInspectionResult {
+        private final long cacheKey;
+        private TypeInfo typeInfo;
+
+        public FileInspectionResult(long cacheKey, TypeInfo typeInfo) {
+            this.cacheKey = cacheKey;
+            this.typeInfo = typeInfo;
+        }
+
+        public boolean isAcceptedFile() {
+            return typeInfo != null;
+        }
+
+        public TypeInfo getTypeInfo() {
+            return typeInfo;
+        }
+    }
+
     public TypeInfo getFileType(MultipartFile file) {
         if (file.isEmpty()) {
             return null;
         }
-        return getFileContentType(file);
+        return getFileContentType(file).typeInfo;
+    }
+
+    public FileInspectionResult inspectFile(MultipartFile file, @Nullable FileInspectionResult cache) {
+        return getFileContentType(file, cache);
     }
 
     public boolean isAcceptedImageFile(MultipartFile file) {
         return getFileType(file) != null;
     }
 
-    @SuppressWarnings("ConstantConditions")
-    private TypeInfo getFileContentType(MultipartFile file) {
+    private FileInspectionResult getFileContentType(MultipartFile file) {
+        return getFileContentType(file, null);
+    }
+
+    /**
+     * <p>This is an expensive</p>
+     *
+     * @param file   Uploaded file
+     * @param result Result containing cached file information.
+     *               The file cached file is used for inspection and will be recreated if this
+     *               is null or the cache key does not resolve to a previously cached file.
+     * @return File inspection result, containing the file type information and cache key of the
+     * inspection file (copy of the uploaded file).<br />
+     * If calling this method multiple times, pass the file inspection result from the initial call.
+     */
+    private FileInspectionResult getFileContentType(MultipartFile file, @Nullable FileInspectionResult result) {
+        if (result == null) {
+            result = new FileInspectionResult(System.currentTimeMillis(), null);
+        }
+        final File targetFile = Path.of(System.getProperty("java.io.tmpdir"))
+                .toAbsolutePath()
+                .normalize()
+                .toAbsolutePath()
+                .resolve(format("upload_%d.tmp", result.cacheKey))
+                .toFile();
         try {
-            Object part = ReflectionUtils.getFieldValue(file, "part");
-            Object fileItem = ReflectionUtils.getFieldValue(part, "fileItem");
-            File tempFile = ReflectionUtils.getFieldValue(fileItem, "tempFile");
-            return Spector.inspect(tempFile);
+            if (!targetFile.exists()) {
+                LOG.info("Creating temp file for inspection {}", targetFile);
+                file.transferTo(targetFile);
+            } else {
+                LOG.info("Temp file for inspection already exists: {}", targetFile);
+            }
+            result.typeInfo = Spector.inspect(targetFile);
         } catch (Exception e) {
             LOG.error("Failed to get uploaded file's content type.", e);
+            result.typeInfo = null;
         }
-        return null;
+        return result;
     }
 
     public boolean moveUploadedFile(MultipartFile file, File dstDir, String fileName) {
@@ -127,6 +176,18 @@ public class ResourceService extends TransactionalService {
         }
     }
 
+    private UpdateResult storeRecipientPhoto(UploadFileValidator.UploadedFile photo, long household, boolean main) {
+        try {
+            // we don't use file extension so that it replaces the same picture
+            String name = createRecipientPhotoName(household, main);
+            photo.transferTo(new File(configuration.getRecipientPhotoDirectory(), name).getAbsoluteFile());
+            return new UpdateResult(true, name, photo.getTypeInfo().getMime());
+        } catch (Exception e) {
+            LOG.error("Failed to store recipient photo for household {}", household);
+            return new UpdateResult(false, null, null, "error processing file");
+        }
+    }
+
     public Resource getRecipientPhotoResource(Long household, boolean main) {
         File photo = new File(configuration.getRecipientPhotoDirectory(), createRecipientPhotoName(household, main));
         return photo.exists() ? getFileAsResource(photo) : null;
@@ -140,6 +201,14 @@ public class ResourceService extends TransactionalService {
 
     public UpdateResult storeMainRecipientPhoto(MultipartFile photo, long household) {
         return storeRecipientPhoto(photo, household, true);
+    }
+
+    public UpdateResult storeMainRecipientPhoto(UploadFileValidator.UploadedFile photo, long household) {
+        return storeRecipientPhoto(photo, household, true);
+    }
+
+    public UpdateResult storeAlternateRecipientPhoto(UploadFileValidator.UploadedFile photo, long household) {
+        return storeRecipientPhoto(photo, household, false);
     }
 
     public UpdateResult storeAlternateRecipientPhoto(MultipartFile photo, long household) {
