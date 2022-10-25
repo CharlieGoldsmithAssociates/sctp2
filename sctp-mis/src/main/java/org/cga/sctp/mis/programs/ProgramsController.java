@@ -7,9 +7,11 @@ import org.cga.sctp.mis.core.templating.Booleans;
 import org.cga.sctp.program.Program;
 import org.cga.sctp.program.ProgramService;
 import org.cga.sctp.program.ProgrammeType;
+import org.cga.sctp.user.AdminAndStandardAccessOnly;
 import org.cga.sctp.user.RoleConstants;
 import org.cga.sctp.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -21,6 +23,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Controller
 @RequestMapping("/programs")
@@ -175,5 +178,10 @@ public class ProgramsController extends BaseController {
         return redirect("/programs");
     }
 
+    @GetMapping("/active")
+    @AdminAndStandardAccessOnly
+    public ResponseEntity<List<Program>> getActivePrograms() {
+        return ResponseEntity.ok(programService.getActivePrograms());
+    }
 
 }
