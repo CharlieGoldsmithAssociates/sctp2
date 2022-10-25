@@ -39,9 +39,9 @@ module.exports = {
       startDate: new Date(),
       periodMonthlyView: {},
       selectedDistrict: null,
-      districts: [{id: 1, name: 'Dedza'}],
+      districts: [],
       selectedProgram: null,
-      programs: [{id: 1, name: 'SCTP'}]
+      programs: []
     }
   },
   mounted() {
