@@ -35,8 +35,8 @@ module.exports = {
     return {
       isLoading: false,
       newPeriodForm: {},
-      endDate: null,
-      startDate: null,
+      endDate: new Date(),
+      startDate: new Date(),
       periodMonthlyView: {},
       selectedDistrict: null,
       districts: [{id: 1, name: 'Dedza'}],
@@ -67,7 +67,7 @@ module.exports = {
     getPeriodInMonths(startDate, endDate) {
       const period = {}
       if (startDate && endDate) {
-        let currentDate = startDate;
+        let currentDate = new Date(startDate);
         while (currentDate < endDate) {
           const year = currentDate.getFullYear();
 
@@ -79,7 +79,7 @@ module.exports = {
           currentDate.setMonth(currentDate.getMonth() + 1);
         }
       }
-      console.log(period)
+
       this.periodMonthlyView = period
     },
     getActivePrograms() {
@@ -182,7 +182,10 @@ module.exports = {
     <div class="columns-stuff">
       <div class="columns">
         <div class="column is-half">
-          <b-field label="Start Date">
+          <b-field>
+            <template slot="label">
+              <span>Start Date <span class="has-text-danger">*</span> </span>
+            </template>
             <b-datepicker
                 class="is-small"
                 v-model="startDate"
@@ -196,7 +199,10 @@ module.exports = {
           </b-field>
         </div>
         <div class="column is-half">
-          <b-field label="End Date">
+          <b-field>
+            <template slot="label">
+              <span>End Date <span class="has-text-danger">*</span> </span>
+            </template>
             <b-datepicker
                 class="is-small"
                 v-model="endDate"
@@ -210,8 +216,11 @@ module.exports = {
           </b-field>
         </div>
       </div>
-      <b-field label="Program">
-        <b-select placeholder="Select a programs" v-model="selectedProgram" expanded>
+      <b-field>
+        <template slot="label">
+          <span>Program <span class="has-text-danger">*</span> </span>
+        </template>
+        <b-select placeholder="Select a programs" v-model="selectedProgram" expanded required>
           <option
               v-for="option in programs"
               :value="option.id"
@@ -220,8 +229,11 @@ module.exports = {
           </option>
         </b-select>
       </b-field>
-      <b-field label="District">
-        <b-select placeholder="Select a district" v-model="selectedDistrict" expanded>
+      <b-field>
+        <template slot="label">
+          <span>District <span class="has-text-danger">*</span> </span>
+        </template>
+        <b-select placeholder="Select a district" v-model="selectedDistrict" expanded required>
           <option
               v-for="option in districts"
               :value="option.id"
@@ -232,7 +244,7 @@ module.exports = {
       </b-field>
       <div class="buttons is-right mt-5">
         <a class="button" href="/transfers/periods">Cancel</a>
-        <button @click="openTransferPeriod" class="button is-success">Open Transfer Period &gt;&gt;</button>
+        <button @click="openTransferPeriod" class="button is-success" :disabled="!(selectedDistrict && selectedProgram)" >Open Transfer Period &gt;&gt;</button>
       </div>
       <div class="period-parameters" v-if="Object.keys(periodMonthlyView).length > 0">
         <div class="new-transfer-period-params has-text-centered">
