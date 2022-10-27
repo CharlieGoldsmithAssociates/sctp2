@@ -35,13 +35,16 @@ package org.cga.sctp.mis.transfers.parameters;
 import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.mis.core.templating.Booleans;
 import org.cga.sctp.targeting.importation.parameters.EducationLevel;
-import org.cga.sctp.transfers.parameters.EducationTransferParameter;
-import org.cga.sctp.transfers.parameters.EducationTransferParameterRepository;
-import org.cga.sctp.transfers.parameters.TransferParameter;
-import org.cga.sctp.transfers.parameters.TransferParametersRepository;
+import org.cga.sctp.transfers.parameters.*;
 import org.cga.sctp.user.AdminAccessOnly;
+import org.cga.sctp.validation.SortFields;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -50,9 +53,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/transfers/parameters/education")
@@ -71,6 +77,28 @@ public class EducationTransferParameterController extends BaseController {
                 .addObject("educationParameters", educationParameterList);
     }
 
+    @GetMapping("{transferParameterId}/list")
+    public ResponseEntity<List<EducationTransferParameter>> getEducationTransferParameters(
+            @PathVariable Long transferParameterId,
+            @Valid @Min(1) @RequestParam("page") int page,
+            @Valid @Min(10) @Max(100) @RequestParam(value = "size", defaultValue = "50", required = false) int size,
+            @Valid @RequestParam(value = "order", required = false, defaultValue = "ASC") Sort.Direction sortDirection,
+            @Valid @SortFields({"educationLevel", "amount", "active"})
+            @RequestParam(value = "sort", required = false, defaultValue = "id") String sortColumn,
+            @RequestParam(value = "slice", required = false, defaultValue = "false") boolean useSlice) {
+
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(sortDirection, sortColumn));
+        Page<EducationTransferParameter> transferParameterPage = educationTransferParameterRepository.findByTransferParameterId(transferParameterId, pageable);
+
+        return ResponseEntity.ok()
+                .header("X-Is-Slice", Boolean.toString(useSlice))
+                .header("X-Data-Total", Long.toString(transferParameterPage.getTotalElements()))
+                .header("X-Data-Pages", Long.toString(transferParameterPage.getTotalPages()))
+                .header("X-Data-Size", Integer.toString(transferParameterPage.getSize()))
+                .header("X-Data-Page", Integer.toString(transferParameterPage.getNumber() + 1))
+                .body(transferParameterPage.getContent());
+    }
+
     @GetMapping("/new")
     @AdminAccessOnly
     public ModelAndView viewAdd() {
@@ -79,6 +107,38 @@ public class EducationTransferParameterController extends BaseController {
                 .addObject("booleans", Booleans.VALUES)
                 .addObject("educationLevels", EducationLevel.values())
                 .addObject("transferParameters", transferParameters);
+    }
+
+    @PostMapping("/add")
+    @AdminAccessOnly
+    public ResponseEntity<List<EducationTransferParameter>> addParameters(@AuthenticationPrincipal String username,
+                                                                          @Validated @RequestBody List<EducationTransferParameterForm> parameterForms) {
+        Set<EducationLevel> educationLevels = new HashSet<>();
+
+        Set<EducationTransferParameter> transferParameters =  parameterForms.stream()
+                .map(parameterForm -> {
+                    EducationLevel educationLevel = parameterForm.getEducationLevel();
+
+                    if (!educationLevels.add(educationLevel)) {
+                        throw new EducationTransferParameterException("Cannot have multiple Education parameters with same Education level ('%s').", educationLevel);
+                    }
+
+                    if (educationTransferParameterRepository.existsByTransferParameterIdAndEducationLevel(parameterForm.getTransferParameterId(), educationLevel)) {
+                        throw new EducationTransferParameterException("Education parameter with that Education level ('%s') already exists.", educationLevel);
+                    }
+
+                    EducationTransferParameter educationParameter = new EducationTransferParameter();
+                    educationParameter.setTransferParameterId(parameterForm.getTransferParameterId());
+                    educationParameter.setEducationLevel(parameterForm.getEducationLevel());
+                    educationParameter.setActive(parameterForm.isActive().value);
+                    educationParameter.setAmount(parameterForm.getAmount());
+                    educationParameter.setCreatedAt(LocalDateTime.now());
+                    educationParameter.setModifiedAt(educationParameter.getCreatedAt());
+
+                    return educationParameter;
+                }).collect(Collectors.toSet());
+
+        return ResponseEntity.ok(educationTransferParameterRepository.saveAll(transferParameters));
     }
 
     @PostMapping("/new")

@@ -1,49 +1,37 @@
     {% extends "../base" %}
 
-        {% block contextMenu %}
-        <div class="container context-nav-container">
-            <div class="buttons is-right">
-                <a href="{{ href('/transfers/parameters/new') }}" class="button is-primary">Add New Parameter</a>
-            </div>
-        </div>
-        {% endblock %}
-
-    {% block content %}
-
-    <div class="container">
+        {% block content %}
     <div class="card no-overlap">
         <header class="card-header">
             <p class="card-header-title">Transfer Parameters</p>
         </header>
         <div class="card-content">
-            <table class="table is-striped is-fullwidth">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Active</th>
-                    <th>Usage Count</th>
-                    <th>Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for p in transferParameters %}
-                <tr>
-                    <td>{{ p.id }}</td>
-                    <td>{{ p.title }}</td>
-                    <td>{{ p.active }}</td>
-                    <td>{{ p.usageCount }}</td>
-                    <td>
-                        <a href="{{ href("/transfers/parameters/view/" + p.id) }}"
-                            class="button is-primary">View</a>
-                        <a href="{{ href("/transfers/parameters/delete/" + p.id) }}"
-                            class="button is-danger">Delete</a>
-                    </td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+            <Transfer-Parameters-List />
         </div>
     </div>
-    </div>
+    {% endblock %}
+
+    {% block footerScripts %}
+    {{ parent() }}
+        <script type="module">
+        const App = {
+            el: '#vapp',
+
+            mounted() {
+                console.log('application mounted. ')
+            },
+
+            created() {
+                console.log('application created')
+            },
+
+            components: {
+                'TransferParametersList': httpVueLoader('/components/transfers/parameters/TransferParametersList.vue')
+            }
+        };
+
+        window.addEventListener('load', () => {
+            var app = new Vue(App);
+        });
+    </script>
     {% endblock %}

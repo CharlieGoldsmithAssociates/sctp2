@@ -35,7 +35,13 @@ package org.cga.sctp.mis.transfers.parameters;
 import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.mis.core.templating.Booleans;
 import org.cga.sctp.transfers.parameters.*;
+import org.cga.sctp.validation.SortFields;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -44,6 +50,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -63,6 +72,28 @@ public class HouseholdParametersController extends BaseController {
         List<HouseholdTransferParameter> householdParameterList = householdTransferParametersRepository.findAll();
         return view("/transfers/parameters/households/list")
                 .addObject("householdParameters", householdParameterList);
+    }
+
+    @GetMapping("{transferParameterId}/list")
+    public ResponseEntity<List<HouseholdTransferParameter>> getEducationTransferParameters(
+            @PathVariable Long transferParameterId,
+            @Valid @Min(1) @RequestParam("page") int page,
+            @Valid @Min(10) @Max(100) @RequestParam(value = "size", defaultValue = "50", required = false) int size,
+            @Valid @RequestParam(value = "order", required = false, defaultValue = "ASC") Sort.Direction sortDirection,
+            @Valid @SortFields({"numberOfMembers", "amount", "active"})
+            @RequestParam(value = "sort", required = false, defaultValue = "id") String sortColumn,
+            @RequestParam(value = "slice", required = false, defaultValue = "false") boolean useSlice) {
+
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(sortDirection, sortColumn));
+        Page<HouseholdTransferParameter> transferParameterPage = householdTransferParametersRepository.findByTransferParameterId(transferParameterId, pageable);
+
+        return ResponseEntity.ok()
+                .header("X-Is-Slice", Boolean.toString(useSlice))
+                .header("X-Data-Total", Long.toString(transferParameterPage.getTotalElements()))
+                .header("X-Data-Pages", Long.toString(transferParameterPage.getTotalPages()))
+                .header("X-Data-Size", Integer.toString(transferParameterPage.getSize()))
+                .header("X-Data-Page", Integer.toString(transferParameterPage.getNumber() + 1))
+                .body(transferParameterPage.getContent());
     }
 
     @GetMapping("/new")

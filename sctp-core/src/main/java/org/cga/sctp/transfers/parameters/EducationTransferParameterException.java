@@ -32,13 +32,14 @@
 
 package org.cga.sctp.transfers.parameters;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.Locale;
 
-import java.util.List;
+public class EducationTransferParameterException extends RuntimeException {
+    public EducationTransferParameterException(String message) {
+        super(message);
+    }
 
-public interface HouseholdTransferParametersRepository extends JpaRepository<HouseholdTransferParameter, Long> {
-    List<HouseholdTransferParameter> findByTransferParameterId(Long transferParameterId);
-    Page<HouseholdTransferParameter> findByTransferParameterId(Long transferParameterId, Pageable pageable);
+    public EducationTransferParameterException(String format, Object ...args) {
+        this(String.format(Locale.US, format, args));
+    }
 }

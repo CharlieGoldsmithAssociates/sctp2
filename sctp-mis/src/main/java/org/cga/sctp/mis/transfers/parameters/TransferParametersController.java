@@ -36,6 +36,8 @@ import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.mis.core.templating.Booleans;
 import org.cga.sctp.program.Program;
 import org.cga.sctp.program.ProgramService;
+import org.cga.sctp.targeting.CbtRankingResult;
+import org.cga.sctp.targeting.TargetingSessionView;
 import org.cga.sctp.transfers.parameters.EducationTransferParameterRepository;
 import org.cga.sctp.transfers.parameters.HouseholdTransferParametersRepository;
 import org.cga.sctp.transfers.parameters.TransferParameter;
@@ -43,7 +45,13 @@ import org.cga.sctp.transfers.parameters.TransferParametersRepository;
 import org.cga.sctp.user.AdminAndStandardAccessOnly;
 import org.cga.sctp.user.AuthenticatedUser;
 import org.cga.sctp.user.AuthenticatedUserDetails;
+import org.cga.sctp.validation.SortFields;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -51,9 +59,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import static java.util.Objects.isNull;
 
 @Controller
 @RequestMapping("/transfers/parameters")
@@ -74,9 +87,29 @@ public class TransferParametersController extends BaseController {
     @GetMapping
     @AdminAndStandardAccessOnly
     public ModelAndView getParametersList() {
-        List<TransferParameter> transferParameters = transferParameterRepository.findAll();
-        return view("transfers/parameters/index")
-                .addObject("transferParameters", transferParameters);
+        return view("transfers/parameters/index");
+    }
+
+    @GetMapping("list")
+    @AdminAndStandardAccessOnly
+    ResponseEntity<List<TransferParameter>> getParametersList(
+            @Valid @Min(1) @RequestParam("page") int page,
+            @Valid @Min(10) @Max(100) @RequestParam(value = "size", defaultValue = "50", required = false) int size,
+            @Valid @RequestParam(value = "order", required = false, defaultValue = "ASC") Sort.Direction sortDirection,
+            @Valid @SortFields({"title", "usageCount"})
+            @RequestParam(value = "sort", required = false, defaultValue = "id") String sortColumn,
+            @RequestParam(value = "slice", required = false, defaultValue = "false") boolean useSlice
+    ) {
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(sortDirection, sortColumn));
+        Page<TransferParameter> transferParameterPage = transferParameterRepository.findAll(pageable);
+
+        return ResponseEntity.ok()
+                .header("X-Is-Slice", Boolean.toString(useSlice))
+                .header("X-Data-Total", Long.toString(transferParameterPage.getTotalElements()))
+                .header("X-Data-Pages", Long.toString(transferParameterPage.getTotalPages()))
+                .header("X-Data-Size", Integer.toString(transferParameterPage.getSize()))
+                .header("X-Data-Page", Integer.toString(transferParameterPage.getNumber() + 1))
+                .body(transferParameterPage.getContent());
     }
 
     @GetMapping("/view/{parameter-id}")
@@ -104,16 +137,8 @@ public class TransferParametersController extends BaseController {
 
     @PostMapping("/new")
     @AdminAndStandardAccessOnly
-    public ModelAndView processAdd(@AuthenticatedUserDetails AuthenticatedUser user,
-                                   @Validated @ModelAttribute TransferParameterForm form,
-                                   BindingResult result,
-                                   RedirectAttributes attributes) {
-        if (result.hasErrors()) {
-            setWarningFlashMessage("Failed to Save Parameter. Please fix the errors on the form", attributes);
-            return view("/transfers/parameters/new")
-                    .addObject("booleans", Booleans.VALUES);
-        }
-
+    public ResponseEntity<TransferParameter> processAdd(@AuthenticatedUserDetails AuthenticatedUser user,
+                                   @Validated @RequestBody TransferParameterForm form) {
         TransferParameter transferParameter = new TransferParameter();
         transferParameter.setProgramId(form.getProgramId());
         transferParameter.setTitle(form.getTitle());
@@ -122,14 +147,9 @@ public class TransferParametersController extends BaseController {
         transferParameter.setCreatedAt(LocalDateTime.now());
         transferParameter.setUpdatedAt(LocalDateTime.now());
 
-        if (transferParameterRepository.save(transferParameter) != null) {
-            return redirect(format("/transfers/parameters/view/%s", transferParameter.getId()));
-        }
+        transferParameterRepository.save(transferParameter);
+        return ResponseEntity.ok(transferParameter);
 
-        List<Program> programs = programService.getActivePrograms();
-        return view("transfers/parameters/new")
-                .addObject("programs", programs)
-                .addObject("booleans", Booleans.VALUES);
     }
 
     @GetMapping("/edit/{parameter-id}")
