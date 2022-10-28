@@ -1,12 +1,4 @@
     {% extends "../../base" %}
-        {% import "../../../utils/form" %}
-        {% block contextMenu %}
-<div class="container context-nav-container">
-    <div class="buttons is-right">
-        <a href="{{ href('/transfers/parameters/new') }}" class="button is-primary">Add New</a>
-    </div>
-</div>
-{% endblock %}
 
         {% block content %}
 

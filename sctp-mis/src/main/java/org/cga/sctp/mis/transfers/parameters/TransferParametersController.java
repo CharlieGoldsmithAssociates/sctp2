@@ -36,8 +36,6 @@ import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.mis.core.templating.Booleans;
 import org.cga.sctp.program.Program;
 import org.cga.sctp.program.ProgramService;
-import org.cga.sctp.targeting.CbtRankingResult;
-import org.cga.sctp.targeting.TargetingSessionView;
 import org.cga.sctp.transfers.parameters.EducationTransferParameterRepository;
 import org.cga.sctp.transfers.parameters.HouseholdTransferParametersRepository;
 import org.cga.sctp.transfers.parameters.TransferParameter;
@@ -65,8 +63,6 @@ import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-
-import static java.util.Objects.isNull;
 
 @Controller
 @RequestMapping("/transfers/parameters")
@@ -121,9 +117,7 @@ public class TransferParametersController extends BaseController {
         }
 
         return view("transfers/parameters/view")
-                .addObject("transferParameter", transferParameterOptional.get())
-                .addObject("householdParameters", householdTransferParametersRepository.findByTransferParameterId(parameterId))
-                .addObject("educationBonuses", educationTransferParameterRepository.findByTransferParameterId(parameterId));
+                .addObject("transferParameter", transferParameterOptional.get());
     }
 
     @GetMapping("/new")

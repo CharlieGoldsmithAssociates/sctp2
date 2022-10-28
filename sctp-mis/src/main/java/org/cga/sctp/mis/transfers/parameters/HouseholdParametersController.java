@@ -35,6 +35,7 @@ package org.cga.sctp.mis.transfers.parameters;
 import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.mis.core.templating.Booleans;
 import org.cga.sctp.transfers.parameters.*;
+import org.cga.sctp.user.AdminAccessOnly;
 import org.cga.sctp.validation.SortFields;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -54,8 +55,11 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/transfers/parameters/households")
@@ -75,7 +79,7 @@ public class HouseholdParametersController extends BaseController {
     }
 
     @GetMapping("{transferParameterId}/list")
-    public ResponseEntity<List<HouseholdTransferParameter>> getEducationTransferParameters(
+    public ResponseEntity<List<HouseholdTransferParameter>> getHouseholdTransferParameters(
             @PathVariable Long transferParameterId,
             @Valid @Min(1) @RequestParam("page") int page,
             @Valid @Min(10) @Max(100) @RequestParam(value = "size", defaultValue = "50", required = false) int size,
@@ -94,6 +98,15 @@ public class HouseholdParametersController extends BaseController {
                 .header("X-Data-Size", Integer.toString(transferParameterPage.getSize()))
                 .header("X-Data-Page", Integer.toString(transferParameterPage.getNumber() + 1))
                 .body(transferParameterPage.getContent());
+    }
+
+    @GetMapping("/conditions")
+    public ResponseEntity<List<HouseholdParameterConditionDto>> getHouseholdParametersConditions() {
+        var conditionDtos = Arrays.stream(HouseholdParameterCondition.VALUES)
+                .map(conditions -> new HouseholdParameterConditionDto(conditions.getSign(), conditions.name(), conditions.getDescription()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(conditionDtos);
     }
 
     @GetMapping("/new")
@@ -132,6 +145,30 @@ public class HouseholdParametersController extends BaseController {
 
         setSuccessFlashMessage("Household parameter saved successfully", attributes);
         return redirect("/transfers/parameters/households");
+    }
+
+    @PostMapping("/add")
+    @AdminAccessOnly
+    public ResponseEntity<List<HouseholdTransferParameter>> addParameters(@AuthenticationPrincipal String username,
+                                                                          @Validated @RequestBody List<HouseholdTransferParameterForm> parameterForms) {
+
+        Set<HouseholdTransferParameter> transferParameters =  parameterForms.stream()
+                .map(form -> {
+                    // TODO: check if there is a parameter with a condition that's conflicting with the one coming in
+
+                    HouseholdTransferParameter householdParameter = new HouseholdTransferParameter();
+                    householdParameter.setTransferParameterId(form.getTransferParameterId());
+                    householdParameter.setNumberOfMembers(form.getNumberOfMembers());
+                    householdParameter.setActive(form.isActive().value);
+                    householdParameter.setAmount(form.getAmount());
+                    householdParameter.setCondition(form.getCondition());
+                    householdParameter.setCreatedAt(LocalDateTime.now());
+                    householdParameter.setModifiedAt(householdParameter.getCreatedAt());
+
+                    return householdParameter;
+                }).collect(Collectors.toSet());
+
+        return ResponseEntity.ok(householdTransferParametersRepository.saveAll(transferParameters));
     }
 
     @GetMapping("/{parameter-id}/edit")

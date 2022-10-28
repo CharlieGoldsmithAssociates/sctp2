@@ -96,43 +96,14 @@
         </b-table>
       </b-tab-item>
       <b-tab-item label="Education Transfer Parameters">
-        <nav class="level">
-          <!-- Left side -->
-          <div class="level-left">
-            <div class="level-item">
-              <b-select v-model="educationParametersPageSize" :loading="isEducationParametersLoading">
-                <option value="15">15 per page</option>
-                <option value="25">25 per page</option>
-                <option value="50">50 per page</option>
-                <option value="100">100 per page</option>
-              </b-select>
-            </div>
-          </div>
+        <div class="has-text-right">
+          <b-button icon-left="plus" :loading="isEducationParametersLoading"
+                    type="is-success" @click="isAddEducationParametersActive = true">
+            New Education Transfer Parameter
+          </b-button>
+        </div>
 
-          <!-- Right side -->
-          <div class="level-right">
-            <div class="level-item">
-              <div class="level-right buttons">
-                <b-button icon-left="plus" :loading="isEducationParametersLoading"
-                          type="is-success" @click="isAddEducationParametersActive = true">
-                  New Education Transfer Parameter
-                </b-button>
-              </div>
-            </div>
-          </div>
-        </nav>
-
-        <b-table paginated backend-pagination :total="totalEducationParameters"
-                 :current-page.sync="educationParametersCurrentPage"
-                 pagination-position="both" :pagination-simple="false" sort-icon="menu-up"
-                 :per-page="educationParametersPageSize"
-                 @page-change="onEducationTransferPageChange" backend-sorting
-                 :default-sort-direction="educationParametersSortOrder"
-                 :default-sort="[educationParametersSortField, educationParametersSortOrder]"
-                 @sort="onEducationTransferSort"
-                 aria-next-label="Next page" aria-previous-label="Previous page" aria-page-label="Page"
-                 aria-current-label="Current page"
-                 :data="isEducationParametersEmpty ? [] : educationParameters" :striped="true" :narrowed="true"
+        <b-table :data="isEducationParametersEmpty ? [] : educationParameters" :striped="true" :narrowed="true"
                  :hoverable="true" :loading="isEducationParametersLoading">
 
           <b-table-column field="educationLevel" label="Education Level" sortable v-slot="props" width="8%">
@@ -160,43 +131,66 @@
     </b-tabs>
 
     <b-modal v-model="isAddHouseholdParametersActive" trap-focus scroll="keep">
-      <div class="card">
+      <div class="card my-5">
         <div class="card-header">
           <p class="card-header-title">Add Household Transfer Parameters</p>
         </div>
         <div class="card-content">
-          <b-field horizontal>
-            <template slot="label">
-              <span>When Household Members <span class="has-text-danger">*</span> </span>
-            </template>
-            <b-select placeholder="Select Option" expanded>
-              <option value="program">ED 1</option>
-            </b-select>
-          </b-field>
+          <template v-for="(child, index) in householdParametersToAdd">
+            <h3 class="has-text-weight-semibold is-size-5">Parameter {{ index + 1 }}</h3>
+            <hr/>
+            <b-field horizontal>
+              <template slot="label">
+                <span>When Household Members <span class="has-text-danger">*</span> </span>
+              </template>
+              <b-select v-model="child.condition" placeholder="Select Option" expanded>
+                <option v-for="condition in householdParametersConditions" :value="condition.name">
+                  {{ `${condition.name} ( ${condition.sign} )` }}
+                </option>
+              </b-select>
+            </b-field>
 
-          <b-field horizontal>
-            <template slot="label">
-              <span>Number Of Members <span class="has-text-danger">*</span> </span>
-            </template>
-            <b-input type="number"></b-input>
-          </b-field>
+            <b-field horizontal>
+              <template slot="label">
+                <span>Number Of Members <span class="has-text-danger">*</span> </span>
+              </template>
+              <b-input v-model="child.numberOfMembers" type="number"></b-input>
+            </b-field>
 
-          <b-field horizontal>
-            <template slot="label">
-              <span>Amount <span class="has-text-danger">*</span> </span>
-            </template>
-            <b-input type="number"></b-input>
-          </b-field>
+            <b-field horizontal>
+              <template slot="label">
+                <span>Amount <span class="has-text-danger">*</span> </span>
+              </template>
+              <b-input v-model="child.amount" type="number"></b-input>
+            </b-field>
 
-          <b-field horizontal>
-            <template slot="label">
-              <span>Active <span class="has-text-danger">*</span> </span>
-            </template>
-            <b-select placeholder="Select Option" expanded>
-              <option value="Yes">Yes</option>
-              <option value="No">No</option>
-            </b-select>
-          </b-field>
+            <b-field horizontal>
+              <template slot="label">
+                <span>Active <span class="has-text-danger">*</span> </span>
+              </template>
+              <b-select v-model="child.active" placeholder="Select Option" expanded>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </b-select>
+            </b-field>
+          </template>
+
+          <div class="has-text-right mt-5">
+            <b-button type="is-light" @click="isAddHouseholdParametersActive = false" :loading="isSavingHouseholdParameters">Cancel</b-button>
+            <b-button type="is-info" @click="addHouseholdTransferParam"
+                      :disabled="!(householdParametersToAdd[householdParametersToAdd.length - 1].active
+                       && householdParametersToAdd[householdParametersToAdd.length - 1].amount
+                        && householdParametersToAdd[householdParametersToAdd.length - 1].numberOfMembers
+                        && householdParametersToAdd[householdParametersToAdd.length - 1].condition)"
+                      :loading="isSavingHouseholdParameters">
+              Add Another Parameter
+            </b-button>
+            <b-button type="is-success" :disabled="householdParametersToAdd.length === 1 && !(householdParametersToAdd[0].active
+                       && householdParametersToAdd[0].amount && householdParametersToAdd[0].numberOfMembers  && householdParametersToAdd[0].condition)" @click="saveHouseholdParameters"
+                      :loading="isSavingHouseholdParameters">
+              Save Parameters
+            </b-button>
+          </div>
         </div>
       </div>
     </b-modal>
@@ -216,13 +210,9 @@
                 <span>Education Level <span class="has-text-danger">*</span> </span>
               </template>
               <b-select placeholder="Select Option" v-model="child.educationLevel" expanded>
-                <option value="Nursery">Nursery</option>
-                <option value="Primary">Primary</option>
-                <option value="Secondary">Secondary</option>
-                <option value="TrainingCollege">Training College</option>
-                <option value="University">University</option>
-                <option value="Other">Other</option>
-                <option value="None">None</option>
+                <option v-for="level in educationParametersLevels" :value="level">
+                  {{ level }}
+                </option>
               </b-select>
             </b-field>
 
@@ -276,6 +266,16 @@ class EducationParameter {
   }
 }
 
+class HouseholdParameter {
+  constructor(transferParameterId, numberOfMembers = null, condition = null, amount = null, active = null) {
+    this.transferParameterId = transferParameterId;
+    this.numberOfMembers = numberOfMembers;
+    this.condition = condition;
+    this.amount = amount;
+    this.active = active;
+  }
+}
+
 module.exports = {
   props: {
     transferParameterId: {
@@ -288,46 +288,38 @@ module.exports = {
       transferParameter: null,
       educationParameters: [],
       householdParameters: [],
+      educationParametersLevels: [],
+      householdParametersConditions: [],
       isEducationParametersEmpty: false,
       isHouseholdParametersEmpty: false,
       isEducationParametersLoading: false,
       isHouseholdParametersLoading: false,
-      totalEducationParameters: 0,
       totalHouseholdParameters: 0,
-      educationParametersSortField: 'amount',
       householdParametersSortField: 'amount',
-      educationParametersSortOrder: 'ASC',
       householdParametersSortOrder: 'ASC',
-      educationParametersPageSize: 50,
       householdParametersPageSize: 50,
-      educationParametersCurrentPage: 1,
       householdParametersCurrentPage: 1,
-      educationParametersSlice: false,
       householdParametersSlice: false,
       isSavingEducationParameters: false,
+      isSavingHouseholdParameters: false,
       isAddHouseholdParametersActive: false,
       isAddEducationParametersActive: false,
-      educationParametersToAdd: [new EducationParameter(this.transferParameterId)]
+      educationParametersToAdd: [new EducationParameter(this.transferParameterId)],
+      householdParametersToAdd: [new HouseholdParameter(this.transferParameterId)]
     }
   },
   mounted() {
-    this.getAllHouseholdTransferParameters();
     this.getAllEducationTransferParameters();
+    this.getAllEducationTransferParametersLevels();
+    this.getAllHouseholdTransferParameters();
+    this.getAllHouseholdTransferParametersConditions();
   },
   methods: {
     getAllEducationTransferParameters() {
       let vm = this;
       vm.isEducationParametersLoading = true;
 
-      const params = [
-        `page=${vm.educationParametersCurrentPage}`,
-        `size=${vm.educationParametersPageSize}`,
-        `sort=${vm.educationParametersSortField}`,
-        `order=${vm.educationParametersSortOrder}`,
-        `slice=${vm.educationParametersSlice}`
-      ].join('&');
-
-      axios.get(`/transfers/parameters/education/${vm.transferParameterId}/list?${params}`)
+      axios.get(`/transfers/parameters/education/${vm.transferParameterId}/list`)
           .then(function (response) {
             if (response.status === 200) {
               let hasData = response.data && response.data.length > 0;
@@ -335,12 +327,6 @@ module.exports = {
               if (hasData) {
                 if (isJsonContentType(response.headers['content-type'])) {
                   vm.educationParameters = response.data;
-
-                  // total will never change
-                  if (!vm.slice) {
-                    vm.totalEducationParameters = response.headers['x-data-total'];
-                    vm.educationParametersSlice = true; // only get the results from DB without "size"
-                  }
                 } else {
                   throw 'invalid type';
                 }
@@ -403,6 +389,66 @@ module.exports = {
             vm.isHouseholdParametersLoading = false;
           });
     },
+    getAllEducationTransferParametersLevels() {
+      let vm = this;
+      vm.isEducationParametersLoading = true;
+
+      axios.get(`/transfers/parameters/education/levels`)
+          .then(function (response) {
+            if (response.status === 200) {
+              let hasData = response.data && response.data.length > 0;
+
+              if (hasData) {
+                if (isJsonContentType(response.headers['content-type'])) {
+                  vm.educationParametersLevels = response.data;
+                } else {
+                  throw 'invalid type';
+                }
+              } else {
+                vm.snackbar('No more data to load');
+              }
+            } else {
+              throw `Server returned: ${response.status}`;
+            }
+          })
+          .catch(function (error) {
+            vm.errorDialog('There was an error loading transfer parameters. Please try again');
+            console.log(error);
+          })
+          .then(function () {
+            vm.isEducationParametersLoading = false;
+          });
+    },
+    getAllHouseholdTransferParametersConditions() {
+      let vm = this;
+      vm.isHouseholdParametersLoading = true;
+
+      axios.get(`/transfers/parameters/households/conditions`)
+          .then(function (response) {
+            if (response.status === 200) {
+              let hasData = response.data && response.data.length > 0;
+
+              if (hasData) {
+                if (isJsonContentType(response.headers['content-type'])) {
+                  vm.householdParametersConditions = response.data;
+                } else {
+                  throw 'invalid type';
+                }
+              } else {
+                vm.snackbar('No more data to load');
+              }
+            } else {
+              throw `Server returned: ${response.status}`;
+            }
+          })
+          .catch(function (error) {
+            vm.errorDialog('There was an error loading transfer parameters. Please try again');
+            console.log(error);
+          })
+          .then(function () {
+            vm.isHouseholdParametersLoading = false;
+          });
+    },
     saveEducationParameters() {
       const vm = this;
       vm.isSavingEducationParameters = true
@@ -410,7 +456,6 @@ module.exports = {
 
       vm.educationParametersToAdd = vm.educationParametersToAdd
           .filter(param => param.educationLevel && param.amount && param.active);
-      console.log(JSON.stringify(this.educationParametersToAdd))
 
       const error_message = 'Error adding new parameter'
       const config = { headers: { 'X-CSRF-TOKEN': csrf()['token'], 'Content-Type': 'application/json' } }
@@ -435,17 +480,41 @@ module.exports = {
             vm.isSavingEducationParameters = false
           });
     },
+    saveHouseholdParameters() {
+      const vm = this;
+      vm.isSavingHouseholdParameters = true
+
+      vm.householdParametersToAdd = vm.householdParametersToAdd
+          .filter(param => param.numberOfMembers && param.condition && param.amount && param.active);
+
+      const error_message = 'Error adding new parameter'
+      const config = { headers: { 'X-CSRF-TOKEN': csrf()['token'], 'Content-Type': 'application/json' } }
+
+      axios.post('/transfers/parameters/households/add', JSON.stringify(this.householdParametersToAdd), config )
+          .then(function (response) {
+            if (response.status === 200) {
+
+              vm.snackbar("Parameter added successfully", 'success');
+              vm.isAddHouseholdParametersActive = false;
+              vm.householdParametersToAdd = [new HouseholdParameter(vm.transferParameterId)];
+              vm.getAllHouseholdTransferParameters();
+            } else {
+              vm.snackbar(error_message, 'warning');
+            }
+          })
+          .catch(function (error) {
+            console.log(error)
+            vm.snackbar(error_message, 'danger');
+          })
+          .finally(function () {
+            vm.isSavingHouseholdParameters = false
+          });
+    },
     addEducationTransferParam() {
       this.educationParametersToAdd.push(new EducationParameter(this.transferParameterId))
     },
-    onEducationTransferPageChange(page) {
-      this.educationParametersCurrentPage = page;
-      this.getAllEducationTransferParameters();
-    },
-    onEducationTransferSort(field, order) {
-      this.educationParametersSortField = field
-      this.educationParametersSortOrder = order.toUpperCase();
-      this.getAllEducationTransferParameters();
+    addHouseholdTransferParam() {
+      this.householdParametersToAdd.push(new HouseholdParameter(this.transferParameterId))
     },
     onHouseholdTransferPageChange(page) {
       this.householdParametersCurrentPage = page;
