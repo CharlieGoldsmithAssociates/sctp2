@@ -92,7 +92,7 @@ public class TransferParametersController extends BaseController {
             @Valid @Min(1) @RequestParam("page") int page,
             @Valid @Min(10) @Max(100) @RequestParam(value = "size", defaultValue = "50", required = false) int size,
             @Valid @RequestParam(value = "order", required = false, defaultValue = "ASC") Sort.Direction sortDirection,
-            @Valid @SortFields({"title", "usageCount"})
+            @Valid @SortFields({"id", "title", "usageCount"})
             @RequestParam(value = "sort", required = false, defaultValue = "id") String sortColumn,
             @RequestParam(value = "slice", required = false, defaultValue = "false") boolean useSlice
     ) {
@@ -106,6 +106,17 @@ public class TransferParametersController extends BaseController {
                 .header("X-Data-Size", Integer.toString(transferParameterPage.getSize()))
                 .header("X-Data-Page", Integer.toString(transferParameterPage.getNumber() + 1))
                 .body(transferParameterPage.getContent());
+    }
+
+    @GetMapping("/{parameter-id}")
+    @AdminAndStandardAccessOnly
+    public ResponseEntity<TransferParameter> getTransferParameter(@PathVariable("parameter-id") Long parameterId) {
+        Optional<TransferParameter> transferParameterOptional = transferParameterRepository.findById(parameterId);
+        if (transferParameterOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(transferParameterOptional.get());
     }
 
     @GetMapping("/view/{parameter-id}")

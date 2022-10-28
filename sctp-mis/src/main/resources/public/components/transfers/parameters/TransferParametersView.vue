@@ -32,6 +32,31 @@
 
 <template>
   <section>
+
+    <section class="my-5">
+      <div class="columns">
+        <div class="column">
+          <h1 class="title is-6">Title:</h1>
+          <h2 v-if="transferParameter" class="subtitle is-6">{{ transferParameter.title }}</h2>
+        </div>
+        <div class="column">
+          <h1 class="title is-6">State:</h1>
+          <h2 v-if="transferParameter" class="subtitle is-6">
+            <b-tag v-if="transferParameter.active" type="is-success is-light">Active</b-tag>
+            <b-tag v-if="!transferParameter.active" type="is-danger is-light">Inactive</b-tag>
+          </h2>
+        </div>
+      </div>
+
+      <div class="columns">
+        <div class="column">
+          <h1 class="title is-6">Date Created:</h1>
+          <h2 v-if="transferParameter" class="subtitle is-6">{{ new Date(transferParameter.createdAt).toDateString() }}</h2>
+        </div>
+      </div>
+    </section>
+    <hr/>
+
     <b-tabs expanded>
       <b-tab-item label="Household Transfer Parameters">
         <nav class="level">
@@ -81,8 +106,9 @@
             {{ props.row.amount }}
           </b-table-column>
 
-          <b-table-column field="active" label="Active" sortable v-slot="props" width="6%">
-            {{ props.row.active }}
+          <b-table-column field="active" label="State" sortable v-slot="props" width="6%">
+            <b-tag v-if="props.row.active" type="is-success is-light">Active</b-tag>
+            <b-tag v-if="!props.row.active" type="is-danger is-light">Inactive</b-tag>
           </b-table-column>
 
           <b-table-column field="options" label="Options" v-slot="props" width="10%">
@@ -114,8 +140,9 @@
             {{ props.row.amount }}
           </b-table-column>
 
-          <b-table-column field="active" label="Active" sortable v-slot="props" width="6%">
-            {{ props.row.active }}
+          <b-table-column field="active" label="State" sortable v-slot="props" width="6%">
+            <b-tag v-if="props.row.active" type="is-success is-light">Active</b-tag>
+            <b-tag v-if="!props.row.active" type="is-danger is-light">Inactive</b-tag>
           </b-table-column>
 
           <b-table-column field="options" label="Options" v-slot="props" width="10%">
@@ -300,6 +327,7 @@ module.exports = {
       householdParametersPageSize: 50,
       householdParametersCurrentPage: 1,
       householdParametersSlice: false,
+      isTransferParameterLoading: false,
       isSavingEducationParameters: false,
       isSavingHouseholdParameters: false,
       isAddHouseholdParametersActive: false,
@@ -309,12 +337,36 @@ module.exports = {
     }
   },
   mounted() {
+    this.getTransferParameter();
     this.getAllEducationTransferParameters();
     this.getAllEducationTransferParametersLevels();
     this.getAllHouseholdTransferParameters();
     this.getAllHouseholdTransferParametersConditions();
   },
   methods: {
+    getTransferParameter(){
+      console.log("Getting...")
+      let vm = this;
+      vm.isTransferParameterLoading = true; // TODO us tp loader
+
+      console.log("Getting...")
+      axios.get(`/transfers/parameters/${vm.transferParameterId}`)
+          .then(function (response) {
+            console.log(response)
+            if (response.status === 200) {
+              vm.transferParameter = response.data;
+            } else {
+              throw `Server returned: ${response.status}`;
+            }
+          })
+          .catch(function (error) {
+            vm.errorDialog('There was an error loading transfer parameters. Please try again');
+            console.log(error);
+          })
+          .then(function () {
+            vm.isTransferParameterLoading = false;
+          });
+    },
     getAllEducationTransferParameters() {
       let vm = this;
       vm.isEducationParametersLoading = true;
@@ -330,8 +382,6 @@ module.exports = {
                 } else {
                   throw 'invalid type';
                 }
-              } else {
-                vm.snackbar('No more data to load');
               }
             } else {
               throw `Server returned: ${response.status}`;
@@ -374,8 +424,6 @@ module.exports = {
                 } else {
                   throw 'invalid type';
                 }
-              } else {
-                vm.snackbar('No more data to load');
               }
             } else {
               throw `Server returned: ${response.status}`;
@@ -404,8 +452,6 @@ module.exports = {
                 } else {
                   throw 'invalid type';
                 }
-              } else {
-                vm.snackbar('No more data to load');
               }
             } else {
               throw `Server returned: ${response.status}`;
@@ -434,8 +480,6 @@ module.exports = {
                 } else {
                   throw 'invalid type';
                 }
-              } else {
-                vm.snackbar('No more data to load');
               }
             } else {
               throw `Server returned: ${response.status}`;
@@ -532,7 +576,19 @@ module.exports = {
         position: 'is-bottom',
         type: 'is-' + msgType
       })
-    }
+    },
+    errorDialog(msg, titleText = 'Error') {
+      this.$buefy.dialog.alert({
+        title: titleText,
+        message: msg,
+        type: 'is-danger',
+        hasIcon: true,
+        icon: 'times-circle',
+        iconPack: 'fa',
+        ariaRole: 'alertdialog',
+        ariaModal: true
+      })
+    },
   }
 }
 </script>

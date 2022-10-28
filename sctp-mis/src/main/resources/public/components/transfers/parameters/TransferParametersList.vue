@@ -50,12 +50,9 @@
       <div class="level-right">
         <div class="level-item">
           <div class="level-right buttons">
-            <div class="buttons is-right">
-              <a href="/transfers/parameters/view/1" class="button is-primary">View Parameter</a>
-            </div>
             <b-button icon-left="plus" :loading="isLoading"
                       type="is-success" @click="openAddParameterModal">
-                New Parameter
+              New Parameter
             </b-button>
           </div>
         </div>
@@ -70,7 +67,7 @@
              aria-previous-label="Previous page" aria-page-label="Page" aria-current-label="Current page"
              :data="isEmpty ? [] : data" :striped="true" :narrowed="true" :hoverable="true" :loading="isLoading">
 
-      <b-table-column field="id" label="ID" v-slot="props" width="8%">
+      <b-table-column field="id" label="ID" v-slot="props" sortable width="8%">
         {{ props.row.id }}
       </b-table-column>
 
@@ -78,27 +75,18 @@
         {{ props.row.title }}
       </b-table-column>
 
-      <b-table-column field="active" label="Status" v-slot="props" width="8%">
-        <b-tag v-if="props.row.active" type="is-success">Active</b-tag>
-        <b-tag v-if="!props.row.active" type="is-danger">Inactive</b-tag>
+      <b-table-column field="active" label="State" v-slot="props" width="8%">
+        <b-tag v-if="props.row.active" type="is-success is-light">Active</b-tag>
+        <b-tag v-if="!props.row.active" type="is-danger is-light">Inactive</b-tag>
       </b-table-column>
 
-      <b-table-column field="usageCount" label="Usage Count" sortable v-slot="props" width="8%">
+      <b-table-column field="usageCount" label="Usage Count" v-slot="props" width="8%">
         {{ props.row.usageCount }}
       </b-table-column>
 
       <b-table-column field="actions" label="Actions" v-slot="props" width="8%">
-        <b-dropdown aria-role="list">
-          <template #trigger="{ active }">
-            <b-button label="Actions" size="is-small" type="is-light"
-                :icon-right="active ? 'menu-up' : 'menu-down'" />
-          </template>
-
-
-          <b-dropdown-item aria-role="list-item">View</b-dropdown-item>
-          <b-dropdown-item aria-role="list-item">Add Parameters</b-dropdown-item>
-          <b-dropdown-item aria-role="list-item">Delete</b-dropdown-item>
-        </b-dropdown>
+        <a :href="`/transfers/parameters/view/${props.row.id}`" class="button is-info is-small"> View </a>
+        <b-button type="is-danger" size="is-small">Delete</b-button>
       </b-table-column>
 
     </b-table>
@@ -124,7 +112,7 @@
             <template slot="label">
               <span>Title <span class="has-text-danger">*</span> </span>
             </template>
-            <b-input v-model="newParameter.title" ></b-input>
+            <b-input v-model="newParameter.title"></b-input>
           </b-field>
 
           <b-field horizontal>
@@ -140,7 +128,7 @@
           <b-field position="is-right" class="mt-5">
             <b-button @click="isAddParametersModalActive = false" type="is-light" class="mr-3">Cancel</b-button>
             <b-button :disabled="!(newParameter.title && newParameter.active && newParameter.programId)"
-                      type="is-primary" @click="addNewParameter" >
+                      type="is-primary" @click="addNewParameter">
               Save and Define Parameters
             </b-button>
           </b-field>
@@ -149,87 +137,6 @@
       </div>
     </b-modal>
 
-
-    <b-modal v-model="isAddHouseholdAndEducationParametersActive" trap-focus scroll="keep">
-      <div class="card">
-        <div class="card-header">
-          <p class="card-header-title">{{ newParameter.title }} | Household & Education Transfer Parameters</p>
-        </div>
-        <div class="card-content">
-          <b-tabs expanded>
-            <b-tab-item label="Household Transfer Parameters">
-              <b-field horizontal>
-                <template slot="label">
-                  <span>When Household Members <span class="has-text-danger">*</span> </span>
-                </template>
-                <b-select placeholder="Select Option" expanded>
-                  <option value="program">ED 1</option>
-                </b-select>
-              </b-field>
-
-              <b-field horizontal>
-                <template slot="label">
-                  <span>Number Of Members <span class="has-text-danger">*</span> </span>
-                </template>
-                <b-input type="number"></b-input>
-              </b-field>
-
-              <b-field horizontal>
-                <template slot="label">
-                  <span>Amount <span class="has-text-danger">*</span> </span>
-                </template>
-                <b-input type="number"></b-input>
-              </b-field>
-
-              <b-field horizontal>
-                <template slot="label">
-                  <span>Active <span class="has-text-danger">*</span> </span>
-                </template>
-                <b-select placeholder="Select Option" expanded>
-                  <option value="Yes">Yes</option>
-                  <option value="No">No</option>
-                </b-select>
-              </b-field>
-            </b-tab-item>
-            <b-tab-item label="Education Transfer Parameters">
-              <b-field horizontal>
-                <template slot="label">
-                  <span>Education Level <span class="has-text-danger">*</span> </span>
-                </template>
-                <b-select placeholder="Select Option" expanded>
-                  <option value="program">ED 1</option>
-                </b-select>
-              </b-field>
-
-              <b-field horizontal>
-                <template slot="label">
-                  <span>Amount <span class="has-text-danger">*</span> </span>
-                </template>
-                <b-input type="number" ></b-input>
-              </b-field>
-
-              <b-field horizontal>
-                <template slot="label">
-                  <span>Active <span class="has-text-danger">*</span> </span>
-                </template>
-                <b-select placeholder="Select Option" expanded>
-                  <option value="Yes">Yes</option>
-                  <option value="No">No</option>
-                </b-select>
-              </b-field>
-            </b-tab-item>
-          </b-tabs>
-
-          <b-field position="is-right" class="mt-5">
-            <b-button @click="isAddHouseholdAndEducationParametersActive = false" type="is-light" class="mr-3">Cancel</b-button>
-            <b-button type="is-success" @click="addNewParameter" >
-              Save Parameters
-            </b-button>
-          </b-field>
-
-        </div>
-      </div>
-    </b-modal>
   </section>
 </template>
 
@@ -242,15 +149,14 @@ module.exports = {
       isEmpty: false,
       isLoading: false,
       total: 0,
-      sortField: 'title',
+      sortField: 'id',
       sortOrder: 'ASC',
       pageSize: 50,
       currentPage: 1,
       slice: false,
       programs: [],
-      newParameter: { programId: null, title: null, active: null },
+      newParameter: {programId: null, title: null, active: null},
       isAddParametersModalActive: false,
-      isAddHouseholdAndEducationParametersActive: true
     }
   },
   mounted() {
@@ -276,7 +182,6 @@ module.exports = {
 
               if (hasData) {
                 if (isJsonContentType(response.headers['content-type'])) {
-                  console.log(response.data)
                   vm.data = response.data;
 
                   // total will never change
@@ -327,9 +232,9 @@ module.exports = {
       vm.isLoading = true
 
       const error_message = 'Error adding new parameter'
-      const config = { headers: { 'X-CSRF-TOKEN': csrf()['token'], 'Content-Type': 'application/json' } }
+      const config = {headers: {'X-CSRF-TOKEN': csrf()['token'], 'Content-Type': 'application/json'}}
 
-      axios.post('/transfers/parameters/new', JSON.stringify(vm.newParameter), config )
+      axios.post('/transfers/parameters/new', JSON.stringify(vm.newParameter), config)
           .then(function (response) {
             if (response.status === 200) {
 
@@ -370,6 +275,18 @@ module.exports = {
         message: msg,
         position: 'is-bottom',
         type: 'is-' + msgType
+      })
+    },
+    errorDialog(msg, titleText = 'Error') {
+      this.$buefy.dialog.alert({
+        title: titleText,
+        message: msg,
+        type: 'is-danger',
+        hasIcon: true,
+        icon: 'times-circle',
+        iconPack: 'fa',
+        ariaRole: 'alertdialog',
+        ariaModal: true
       })
     },
   }
