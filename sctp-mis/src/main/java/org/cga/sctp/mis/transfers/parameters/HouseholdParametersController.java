@@ -36,6 +36,9 @@ import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.mis.core.templating.Booleans;
 import org.cga.sctp.transfers.parameters.*;
 import org.cga.sctp.user.AdminAccessOnly;
+import org.cga.sctp.user.AdminAndStandardAccessOnly;
+import org.cga.sctp.user.AuthenticatedUser;
+import org.cga.sctp.user.AuthenticatedUserDetails;
 import org.cga.sctp.validation.SortFields;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -228,5 +231,19 @@ public class HouseholdParametersController extends BaseController {
 
         setSuccessFlashMessage("Household parameter updated successfully", attributes);
         return redirect("/transfers/parameters/households");
+    }
+
+    @DeleteMapping("/{parameter-id}")
+    @AdminAndStandardAccessOnly
+    public ResponseEntity<Void> deleteParameter(@AuthenticatedUserDetails AuthenticatedUser user,
+                                                @PathVariable("parameter-id") Long parameterId) {
+        Optional<HouseholdTransferParameter> transferParameterOptional = householdTransferParametersRepository.findById(parameterId);
+        if (transferParameterOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        HouseholdTransferParameter parameter = transferParameterOptional.get();
+        publishGeneralEvent("User %s deleted household transfer parameter with id=%s", user.username(), parameter.getId());
+        householdTransferParametersRepository.delete(parameter);
+        return ResponseEntity.ok().build();
     }
 }

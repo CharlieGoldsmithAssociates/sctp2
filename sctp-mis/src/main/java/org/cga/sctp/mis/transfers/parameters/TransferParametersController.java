@@ -229,4 +229,18 @@ public class TransferParametersController extends BaseController {
         return redirect("/transfers/parameters");
     }
 
+    @DeleteMapping("/{parameter-id}")
+    @AdminAndStandardAccessOnly
+    public ResponseEntity<Void> deleteParameter(@AuthenticatedUserDetails AuthenticatedUser user,
+                                       @PathVariable("parameter-id") Long parameterId) {
+        Optional<TransferParameter> transferParameterOptional = transferParameterRepository.findById(parameterId);
+        if (transferParameterOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        TransferParameter parameter = transferParameterOptional.get();
+        publishGeneralEvent("User %s deleted parameter with id=%s", user.username(), parameter.getId());
+        transferParameterRepository.delete(parameter);
+        return ResponseEntity.ok().build();
+    }
+
 }

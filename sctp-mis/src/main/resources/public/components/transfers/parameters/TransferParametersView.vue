@@ -112,7 +112,7 @@
           </b-table-column>
 
           <b-table-column field="options" label="Options" v-slot="props" width="10%">
-            Options
+            <b-button type="is-danger" size="is-small" @click="deleteParameter(props.row.id, true)" >Delete</b-button>
           </b-table-column>
 
           <template #empty>
@@ -146,7 +146,7 @@
           </b-table-column>
 
           <b-table-column field="options" label="Options" v-slot="props" width="10%">
-            Options
+            <b-button type="is-danger" size="is-small" @click="deleteParameter(props.row.id)" >Delete</b-button>
           </b-table-column>
 
           <template #empty>
@@ -382,6 +382,8 @@ module.exports = {
                 } else {
                   throw 'invalid type';
                 }
+              } else {
+                vm.educationParameters = [];
               }
             } else {
               throw `Server returned: ${response.status}`;
@@ -424,6 +426,8 @@ module.exports = {
                 } else {
                   throw 'invalid type';
                 }
+              }  else {
+                vm.householdParameters = [];
               }
             } else {
               throw `Server returned: ${response.status}`;
@@ -552,6 +556,36 @@ module.exports = {
           })
           .finally(function () {
             vm.isSavingHouseholdParameters = false
+          });
+    },
+    deleteParameter(parameterId, isHouseholdParameter = false) {
+      const vm = this;
+      vm.isLoading = true
+
+      const error_message = 'Error deleting new parameter'
+      const config = {headers: {'X-CSRF-TOKEN': csrf()['token']}}
+
+      axios.delete(`/transfers/parameters/${isHouseholdParameter ? 'households' : 'education'}/${parameterId}`, config)
+          .then(function (response) {
+            if (response.status === 200) {
+
+              vm.snackbar("Parameter deleted successfully", 'success');
+              vm.isAddParametersModalActive = false;
+
+              if (isHouseholdParameter) {
+                vm.getAllHouseholdTransferParameters();
+              } else {
+                vm.getAllEducationTransferParameters();
+              }
+            } else {
+              vm.snackbar(error_message, 'warning');
+            }
+          })
+          .catch(function (error) {
+            vm.snackbar(error_message, 'danger');
+          })
+          .then(function () {
+            vm.isLoading = false
           });
     },
     addEducationTransferParam() {

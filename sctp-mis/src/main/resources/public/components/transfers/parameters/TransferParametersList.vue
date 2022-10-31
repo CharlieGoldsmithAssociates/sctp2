@@ -86,7 +86,7 @@
 
       <b-table-column field="actions" label="Actions" v-slot="props" width="8%">
         <a :href="`/transfers/parameters/view/${props.row.id}`" class="button is-info is-small"> View </a>
-        <b-button type="is-danger" size="is-small">Delete</b-button>
+        <b-button type="is-danger" size="is-small" @click="deleteParameter(props.row.id)" >Delete</b-button>
       </b-table-column>
 
     </b-table>
@@ -242,6 +242,32 @@ module.exports = {
               vm.isAddParametersModalActive = false;
 
               window.location.href = `parameters/view/${response.data.id}`
+            } else {
+              vm.snackbar(error_message, 'warning');
+            }
+          })
+          .catch(function (error) {
+            vm.snackbar(error_message, 'danger');
+          })
+          .then(function () {
+            vm.isLoading = false
+          });
+    },
+    deleteParameter(parameterId) {
+      const vm = this;
+      vm.isLoading = true
+
+      const error_message = 'Error deleting new parameter'
+      const config = {headers: {'X-CSRF-TOKEN': csrf()['token']}}
+
+      axios.delete(`/transfers/parameters/${parameterId}`, config)
+          .then(function (response) {
+            if (response.status === 200) {
+
+              vm.snackbar("Parameter deleted successfully", 'success');
+              vm.isAddParametersModalActive = false;
+
+              vm.getAllTransferParameters();
             } else {
               vm.snackbar(error_message, 'warning');
             }

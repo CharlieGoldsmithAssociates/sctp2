@@ -37,6 +37,9 @@ import org.cga.sctp.mis.core.templating.Booleans;
 import org.cga.sctp.targeting.importation.parameters.EducationLevel;
 import org.cga.sctp.transfers.parameters.*;
 import org.cga.sctp.user.AdminAccessOnly;
+import org.cga.sctp.user.AdminAndStandardAccessOnly;
+import org.cga.sctp.user.AuthenticatedUser;
+import org.cga.sctp.user.AuthenticatedUserDetails;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -217,5 +220,19 @@ public class EducationTransferParameterController extends BaseController {
 
         setSuccessFlashMessage("Education parameter updated successfully", attributes);
         return redirect("/transfers/parameters/education");
+    }
+
+    @DeleteMapping("/{parameter-id}")
+    @AdminAndStandardAccessOnly
+    public ResponseEntity<Void> deleteParameter(@AuthenticatedUserDetails AuthenticatedUser user,
+                                                @PathVariable("parameter-id") Long parameterId) {
+        Optional<EducationTransferParameter> transferParameterOptional = educationTransferParameterRepository.findById(parameterId);
+        if (transferParameterOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        EducationTransferParameter parameter = transferParameterOptional.get();
+        publishGeneralEvent("User %s deleted education transfer parameter with id=%s", user.username(), parameter.getId());
+        educationTransferParameterRepository.delete(parameter);
+        return ResponseEntity.ok().build();
     }
 }
