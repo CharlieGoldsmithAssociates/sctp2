@@ -157,47 +157,18 @@ public class TransferParametersController extends BaseController {
 
     }
 
-    @GetMapping("/edit/{parameter-id}")
+    @PutMapping("/{parameter-id}")
     @AdminAndStandardAccessOnly
-    public ModelAndView getEditPage(@PathVariable("parameter-id") Long parameterId) {
-        Optional<TransferParameter> transferParameterOptional = transferParameterRepository.findById(parameterId);
-        if (transferParameterOptional.isEmpty()) {
-            return redirect("/transfers/parameters");
-        }
-
-        return view("transfers/parameters/edit")
-                .addObject("transferParameter", transferParameterOptional.get())
-                .addObject("householdParameters", householdTransferParametersRepository.findByTransferParameterId(parameterId))
-                .addObject("educationBonuses", educationTransferParameterRepository.findByTransferParameterId(parameterId));
-    }
-
-    @PostMapping("/edit/{parameter-id}")
-    @AdminAndStandardAccessOnly
-    public ModelAndView processEdit(@AuthenticatedUserDetails AuthenticatedUser user,
-                                   @PathVariable("parameter-id") Long parameterId,
-                                   @Validated @ModelAttribute TransferParameterForm form,
-                                   BindingResult result,
-                                   RedirectAttributes attributes) {
-        if (result.hasErrors()) {
-            setWarningFlashMessage("Failed to Save Parameter. Please fix the errors on the form", attributes);
-            return view("/transfers/parameters/edit")
-                    .addObject("booleans", Booleans.VALUES);
-        }
-
+    public ResponseEntity<TransferParameter> processEdit(@AuthenticatedUserDetails AuthenticatedUser user,
+                                                         @PathVariable("parameter-id") Long parameterId,
+                                                         @Validated @RequestBody TransferParameterForm form) {
         TransferParameter transferParameter = transferParameterRepository.getById(parameterId);
         transferParameter.setProgramId(form.getProgramId());
         transferParameter.setTitle(form.getTitle());
         transferParameter.setActive(form.getActive().value);
         transferParameter.setUpdatedAt(LocalDateTime.now());
 
-        if (transferParameterRepository.save(transferParameter) != null) {
-            return redirect(format("/transfers/parameters/view/%s", transferParameter.getId()));
-        }
-
-        List<Program> programs = programService.getActivePrograms();
-        return view("transfers/parameters/edit")
-                .addObject("programs", programs)
-                .addObject("booleans", Booleans.VALUES);
+        return ResponseEntity.ok(transferParameterRepository.save(transferParameter));
     }
 
     @GetMapping("/delete/{parameter-id}")
@@ -212,21 +183,6 @@ public class TransferParametersController extends BaseController {
                 .addObject("transferParameter", transferParameterOptional.get())
                 .addObject("householdParameters", householdTransferParametersRepository.findByTransferParameterId(parameterId))
                 .addObject("educationBonuses", educationTransferParameterRepository.findByTransferParameterId(parameterId));
-    }
-
-    @PostMapping("/delete/{parameter-id}")
-    @AdminAndStandardAccessOnly
-    public ModelAndView postDeletePage(@AuthenticatedUserDetails AuthenticatedUser user,
-                                       @PathVariable("parameter-id") Long parameterId,
-                                       RedirectAttributes attributes) {
-        Optional<TransferParameter> transferParameterOptional = transferParameterRepository.findById(parameterId);
-        if (transferParameterOptional.isEmpty()) {
-            return redirect("/transfers/parameters");
-        }
-        TransferParameter parameter = transferParameterOptional.get();
-        publishGeneralEvent("User %s deleted parameter with id=%s", user.username(), parameter.getId());
-        transferParameterRepository.delete(transferParameterOptional.get());
-        return redirect("/transfers/parameters");
     }
 
     @DeleteMapping("/{parameter-id}")

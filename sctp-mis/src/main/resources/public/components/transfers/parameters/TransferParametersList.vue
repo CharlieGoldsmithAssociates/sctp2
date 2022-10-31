@@ -86,6 +86,7 @@
 
       <b-table-column field="actions" label="Actions" v-slot="props" width="8%">
         <a :href="`/transfers/parameters/view/${props.row.id}`" class="button is-info is-small"> View </a>
+        <b-button type="is-primary" size="is-small" @click="editParameter(props.row)" >Edit</b-button>
         <b-button type="is-danger" size="is-small" @click="deleteParameter(props.row.id)" >Delete</b-button>
       </b-table-column>
 
@@ -127,9 +128,13 @@
 
           <b-field position="is-right" class="mt-5">
             <b-button @click="isAddParametersModalActive = false" type="is-light" class="mr-3">Cancel</b-button>
-            <b-button :disabled="!(newParameter.title && newParameter.active && newParameter.programId)"
+            <b-button v-if="!isEditingParameter" :disabled="!(newParameter.title && newParameter.active && newParameter.programId)"
                       type="is-primary" @click="addNewParameter">
               Save and Define Parameters
+            </b-button>
+            <b-button v-if="isEditingParameter" :disabled="!(newParameter.title && newParameter.active && newParameter.programId)"
+                      type="is-primary" @click="updateParameter">
+              Save
             </b-button>
           </b-field>
 
@@ -156,6 +161,7 @@ module.exports = {
       slice: false,
       programs: [],
       newParameter: {programId: null, title: null, active: null},
+      isEditingParameter: false,
       isAddParametersModalActive: false,
     }
   },
@@ -240,6 +246,7 @@ module.exports = {
 
               vm.snackbar("Parameter added successfully", 'success');
               vm.isAddParametersModalActive = false;
+              vm.newParameter = {programId: null, title: null, active: null};
 
               window.location.href = `parameters/view/${response.data.id}`
             } else {
@@ -252,6 +259,40 @@ module.exports = {
           .then(function () {
             vm.isLoading = false
           });
+    },
+    updateParameter() {
+      const vm = this;
+      vm.isLoading = true
+
+      const error_message = 'Error adding new parameter'
+      const config = {headers: {'X-CSRF-TOKEN': csrf()['token'], 'Content-Type': 'application/json'}}
+
+      axios.put(`/transfers/parameters/${vm.newParameter.id}`, JSON.stringify(vm.newParameter), config)
+          .then(function (response) {
+            if (response.status === 200) {
+
+              vm.snackbar("Parameter added successfully", 'success');
+              vm.isAddParametersModalActive = false;
+              vm.newParameter = {programId: null, title: null, active: null}
+
+              window.location.href = `parameters/view/${response.data.id}`
+            } else {
+              vm.snackbar(error_message, 'warning');
+            }
+          })
+          .catch(function (error) {
+            vm.snackbar(error_message, 'danger');
+          })
+          .then(function () {
+            vm.isLoading = false
+          });
+    },
+    editParameter(parameter) {
+      const vm = this;
+      vm.isEditingParameter = true;
+      vm.newParameter = parameter;
+      vm.newParameter.active = parameter.active ? "Yes" : "No";
+      vm.openAddParameterModal();
     },
     deleteParameter(parameterId) {
       const vm = this;
