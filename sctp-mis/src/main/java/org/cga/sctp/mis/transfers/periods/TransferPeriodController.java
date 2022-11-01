@@ -37,6 +37,9 @@ import org.cga.sctp.location.LocationService;
 import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.program.Program;
 import org.cga.sctp.program.ProgramService;
+import org.cga.sctp.transfers.TransferException;
+import org.cga.sctp.transfers.TransferService;
+import org.cga.sctp.transfers.TransferServiceImpl;
 import org.cga.sctp.transfers.agencies.TransferAgencyService;
 import org.cga.sctp.transfers.periods.TransferPeriod;
 import org.cga.sctp.transfers.periods.TransferPeriodException;
@@ -58,6 +61,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Collections.singletonMap;
+
 @Controller
 @RequestMapping("/transfers/periods")
 public class TransferPeriodController extends BaseController {
@@ -72,6 +77,9 @@ public class TransferPeriodController extends BaseController {
 
     @Autowired
     private TransferPeriodService transferPeriodService;
+
+    @Autowired
+    private TransferService transferService;
 
     @GetMapping
     @AdminAndStandardAccessOnly
@@ -119,19 +127,13 @@ public class TransferPeriodController extends BaseController {
         newPeriod.setProgramId(form.getProgramId());
         newPeriod.setDistrictId(form.getDistrictId());
         newPeriod.setOpenedBy(user.id());
-        //newPeriod.setTransferSessionId(form.getTransferSessionId());
         try {
-            TransferPeriod transferPeriod = transferPeriodService.openNewPeriod(newPeriod);
-            if (transferPeriod == null) {
-                return ResponseEntity.notFound().build();
-            }
-
+            transferPeriodService.openNewPeriod(newPeriod);
             publishGeneralEvent("User %s opened a new Transfer Period in district: %s", user.username(), form.getDistrictId());
-//            return redirect(String.format("/transfers/periods/in-districts/%d", form.getDistrictId()));
-
-            return ResponseEntity.ok(transferPeriod);
-        } catch (TransferPeriodException e) {
-            return ResponseEntity.notFound().build();
+            transferService.createTransfers(newPeriod, user.id());
+            return ResponseEntity.ok(newPeriod);
+        } catch (TransferPeriodException | TransferException e) {
+            return ResponseEntity.internalServerError().body(singletonMap("message", e.getMessage()));
         }
     }
 

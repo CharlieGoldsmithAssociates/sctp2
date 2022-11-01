@@ -35,17 +35,22 @@ package org.cga.sctp.transfers;
 import org.cga.sctp.beneficiaries.BeneficiaryService;
 import org.cga.sctp.beneficiaries.Household;
 import org.cga.sctp.location.Location;
+import org.cga.sctp.location.LocationService;
 import org.cga.sctp.targeting.CbtStatus;
+import org.cga.sctp.targeting.enrollment.EnrollmentService;
+import org.cga.sctp.targeting.enrollment.HouseholdEnrollmentData;
 import org.cga.sctp.transfers.accounts.BeneficiaryAccountService;
 import org.cga.sctp.transfers.accounts.TransferAccountNumberList;
 import org.cga.sctp.transfers.agencies.TransferAgenciesRepository;
 import org.cga.sctp.transfers.periods.TransferPeriod;
+import org.cga.sctp.transfers.periods.TransferPeriodException;
 import org.cga.sctp.transfers.periods.TransferPeriodRepository;
 import org.cga.sctp.transfers.reconciliation.TransferReconciliationRequest;
 import org.cga.sctp.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,6 +78,12 @@ public class TransferServiceImpl implements TransferService {
 
     @Autowired
     private TransferSessionRepository transferSessionRepository;
+
+    @Autowired
+    private LocationService locationService;
+
+    @Autowired
+    private EnrollmentService enrollmentService;
 
     @Autowired
     private BeneficiaryService beneficiaryService;
@@ -106,18 +117,71 @@ public class TransferServiceImpl implements TransferService {
         if (transferPeriod.isEmpty()) {
             throw new UnsupportedOperationException("Cannot initiate transfers without an open Transfer Period for the program in the given location");
         }
-
-        initiateRepo.initiateTransfersForEnrolledHouseholds(
-                // transferSession.getProgramId(),
-                transferSession.getEnrollmentSessionId(),
-                transferSession.getId(),
-                transferPeriod.get().getId(),
-                location.getId(),
-                userId
-        );
+//
+//        initiateRepo.initiateTransfersForEnrolledHouseholds(
+//                // transferSession.getProgramId(),
+//                transferSession.getEnrollmentSessionId(),
+//                transferSession.getId(),
+//                transferPeriod.get().getId(),
+//                location.getId(),
+//                userId
+//        );
         // TODO: Mark household status as Beneficiary
         // TODO: Close the district for other operations
         return transferSession;
+    }
+
+
+    @Override
+    public TransferSession createTransfers(TransferPeriod transferPeriod, long userId) {
+        Optional<TransferPeriod> existingPeriod = transferPeriodRepository.findFirstByProgramIdAndDistrictIdAndIsOpen(transferPeriod.getProgramId(), transferPeriod.getDistrictId());
+        if (existingPeriod.isEmpty()) {
+            throw new TransferException("Cannot initiate transfers without an open Transfer Period for the program in the given location");
+        }
+
+//        TransferSession transferSession = new TransferSession();
+//        // TODO: Fetch latest Enrollment Session for the location in the period
+//        transferSession.setEnrollmentSessionId();
+//
+//        if (getTranferSessionRepository().save(transferSession) == null) {
+//            throw new IllegalArgumentException("transferSession must be valid to initiate transfers");
+//        }
+        Location location = locationService.findById(transferPeriod.getDistrictId());
+
+        var enrollmentSession = enrollmentService.findMostRecentSessionByLocation(location.getCode());
+        if (enrollmentSession.isEmpty()) {
+            // TODO:
+            throw new TransferException("cannot initiate transfers in period when no enrollment sessions are available");
+        }
+        initiateRepo.initiateTransfersForEnrolledHouseholds(
+            enrollmentSession.get().getId(),
+            transferPeriod.getId(),
+            transferPeriod.getDistrictId(),
+            userId
+        );
+
+        return null;
+    }
+
+    // this implementation uses hibernate and pre-calculates the amounts for the transfers outside the db
+    private void initiateTransfersForEnrolledHouseholds(TransferPeriod transferPeriod) {
+        Location location = locationService.findById(transferPeriod.getDistrictId());
+
+        var enrollmentSession = enrollmentService.findMostRecentSessionByLocation(location.getCode());
+        if (enrollmentSession.isEmpty()) {
+            // TODO:
+            throw new TransferException("cannot initiate transfers in period when no enrollment sessions are available");
+        }
+        long enrollmentSesionId = -1L; // TODO:
+        Page<HouseholdEnrollmentData> householdEnrollmentData = enrollmentService.getHouseholdEnrollmentData(enrollmentSesionId, 1, 1000);
+
+        householdEnrollmentData.map(enrollmentRecord -> {
+            Transfer newTransfer = new Transfer();
+
+            return newTransfer;
+        });
+
+
     }
 
     @Override

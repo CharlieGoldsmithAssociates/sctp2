@@ -913,4 +913,8 @@ public class EnrollmentService extends TransactionalService {
                     .executeUpdate();
         }
     }
+
+    public Optional<EnrollmentSession> findMostRecentSessionByLocation(long code) {
+        return enrolmentSessionRepository.findLastByDistrictCode(code);
+    }
 }

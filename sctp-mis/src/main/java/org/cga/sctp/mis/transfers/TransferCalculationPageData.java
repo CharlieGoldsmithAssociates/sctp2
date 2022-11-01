@@ -51,7 +51,6 @@ public class TransferCalculationPageData {
     private List<HouseholdTransferParameter> householdParams;
     private Map<String, EducationTransferParameter> educationParams;
 
-
     public TransferSession getTransferSession() {
         return transferSession;
     }

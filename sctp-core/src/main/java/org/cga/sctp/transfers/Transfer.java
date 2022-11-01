@@ -53,9 +53,6 @@ public class Transfer {
     private Long householdId;
 
     @Column
-    private Long transferSessionId;
-
-    @Column
     @Convert(converter = TransferStatus.Converter.class)
     private TransferStatus transferState;
 
@@ -64,18 +61,6 @@ public class Transfer {
 
     @Column
     private Long transferPeriodId;
-
-    @Column
-    private Long districtId;
-
-    @Column
-    private Long villageClusterId;
-
-    @Column
-    private Long traditionalAuthorityId;
-
-    @Column
-    private Long zoneId;
 
     /**
      * Number of household Members during enrollment',
@@ -124,7 +109,7 @@ public class Transfer {
 
     /** TINYINT(1) DEFAULT 1 COMMENT 'Whether it is the first transfer for the household or not', */
     @Column(name = "is_first_transfer")
-    private Long isFirstTransfer;
+    private Boolean isFirstTransfer;
 
     /** TINYINT(1) COMMENT 'Whether the transfer has been Suspended for other reasons', */
     @Column(name = "is_suspended")
@@ -218,14 +203,6 @@ public class Transfer {
         this.householdId = householdId;
     }
 
-    public Long getTransferSessionId() {
-        return transferSessionId;
-    }
-
-    public void setTransferSessionId(Long transferSessionId) {
-        this.transferSessionId = transferSessionId;
-    }
-
     public TransferStatus getTransferState() {
         return transferState;
     }
@@ -248,38 +225,6 @@ public class Transfer {
 
     public void setTransferPeriodId(Long transferPeriodId) {
         this.transferPeriodId = transferPeriodId;
-    }
-
-    public Long getDistrictId() {
-        return districtId;
-    }
-
-    public void setDistrictId(Long districtId) {
-        this.districtId = districtId;
-    }
-
-    public Long getVillageClusterId() {
-        return villageClusterId;
-    }
-
-    public void setVillageClusterId(Long villageClusterId) {
-        this.villageClusterId = villageClusterId;
-    }
-
-    public Long getTraditionalAuthorityId() {
-        return traditionalAuthorityId;
-    }
-
-    public void setTraditionalAuthorityId(Long traditionalAuthorityId) {
-        this.traditionalAuthorityId = traditionalAuthorityId;
-    }
-
-    public Long getZoneId() {
-        return zoneId;
-    }
-
-    public void setZoneId(Long zoneId) {
-        this.zoneId = zoneId;
     }
 
     public Integer getHouseholdMemberCount() {
@@ -370,11 +315,11 @@ public class Transfer {
         this.secondaryBonusAmount = secondaryBonusAmount;
     }
 
-    public Long getIsFirstTransfer() {
+    public Boolean getIsFirstTransfer() {
         return isFirstTransfer;
     }
 
-    public void setIsFirstTransfer(Long isFirstTransfer) {
+    public void setIsFirstTransfer(Boolean isFirstTransfer) {
         this.isFirstTransfer = isFirstTransfer;
     }
 
