@@ -50,6 +50,7 @@ interface InitiateTransfersRepository extends JpaRepository<Transfer, Long> {
     @Modifying
     @Query(nativeQuery = true, value ="""   
             INSERT INTO transfers (
+                   transfer_period_id,
                    h.household_id,
                    receiver_id,
                    transfer_state,
@@ -82,6 +83,7 @@ interface InitiateTransfersRepository extends JpaRepository<Transfer, Long> {
                    modified_at
              )
             SELECT
+               :transferPeriodId,
                h.household_id,
                he.alternate_recipient as receiver_id,
                '19' as transfer_state, -- Pre-Close
@@ -117,7 +119,8 @@ interface InitiateTransfersRepository extends JpaRepository<Transfer, Long> {
             LEFT JOIN individuals i ON i.household_id = h.household_id AND i.relationship_to_head = 1
             LEFT JOIN locations l ON l.code = h.location_code
             LEFT JOIN enrollment_sessions es ON es.id = :enrollmentSessionId 
-            WHERE l.id = :districtId AND he.status = 'Enrolled'
+            WHERE l.id = :districtId AND he.status = 'Enrolled'd
+            
             """)
     void initiateTransfersForEnrolledHouseholds(@Param("enrollmentSessionId") Long enrollmentSessionId,
                                                 @Param("transferPeriodId") Long transferPeriodId,

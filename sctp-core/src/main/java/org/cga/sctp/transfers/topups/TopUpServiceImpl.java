@@ -34,8 +34,11 @@ package org.cga.sctp.transfers.topups;
 
 import org.cga.sctp.location.Location;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -56,9 +59,8 @@ public class TopUpServiceImpl implements TopUpService {
         topUp.setActive(params.isActive());
         topUp.setAmount(params.getAmount());
         topUp.setHouseholdStatus(params.getHouseholdStatus());
-        topUp.setLocationId(params.getLocationId());
+        topUp.setLocationCode(params.getLocationId());
         topUp.setLocationType(params.getLocationType());
-
         // new topups will by default not have been executed
         topUp.setExecuted(false);
         topUp.setAmountExecuted(null);
@@ -83,18 +85,18 @@ public class TopUpServiceImpl implements TopUpService {
     }
 
     @Override
-    public List<TopUp> fetchAllActive() {
-        return null;
+    public List<TopUp> fetchAllActive(Pageable pageable) {
+        return topUpRepository.findAllByIsActive(true, pageable);
     }
 
     @Override
-    public List<TopUp> fetchAllActive(Location location) {
-        return null;
+    public List<TopUp> fetchAllActive(@NonNull final Location location) {
+        return topUpRepository.findAllActiveByLocationCode(location.getCode());
     }
 
     @Override
-    public List<TopUp> fetchAllExecuted() {
-        return null;
+    public List<TopUp> fetchAllExecuted(@NonNull Pageable pageable) {
+        return topUpRepository.findAllByIsExecuted(true, pageable);
     }
 
     @Override
@@ -103,12 +105,12 @@ public class TopUpServiceImpl implements TopUpService {
     }
 
     @Override
-    public void markAsExecuted(TopUp topUp, Long amount) {
+    public void markAsExecuted(@NonNull TopUp topUp, @NonNull BigDecimal amount) {
         throw  new RuntimeException("not implemented");
     }
 
     @Override
-    public List<TopUp> findAllActive() {
-        return topUpRepository.findAllByIsActive(true);
+    public List<TopUp> findAllActive(@NonNull Pageable pageable) {
+        return topUpRepository.findAllByIsActive(true, pageable);
     }
 }

@@ -49,6 +49,7 @@ import org.cga.sctp.user.AuthenticatedUser;
 import org.cga.sctp.user.AuthenticatedUserDetails;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
@@ -152,7 +153,7 @@ public class TransferTopUpsController extends SecuredBaseController {
     @GetMapping
     @AdminAccessOnly
     public ModelAndView getIndex() {
-        List<TopUp> topups = topUpService.findAllActive();
+        List<TopUp> topups = topUpService.findAllActive(Pageable.unpaged()); // TODO: get page parameters from request
         return view("transfers/topups/list")
                 .addObject("topups", topups);
     }

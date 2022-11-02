@@ -54,8 +54,8 @@ public class TopUp {
     @Column(name = "funder_id")
     private Long funderId; // funder_id BIGINT(19) NOT NULL COMMENT 'Funding institution for this topup',
 
-    @Column(name = "location_id")
-    private Long locationId; // location_id INT(10) NOT NULL COMMENT 'FOREIGN KEY Table geolocation Field geo_id, District',
+    @Column(name = "location_code")
+    private Long locationCode; // location_id INT(10) NOT NULL COMMENT 'FOREIGN KEY Table geolocation Field geo_id, District',
 
     @Column(name = "location_type")
     @Enumerated(EnumType.STRING)
@@ -140,12 +140,12 @@ public class TopUp {
         this.programId = programId;
     }
 
-    public Long getLocationId() {
-        return locationId;
+    public Long getLocationCode() {
+        return locationCode;
     }
 
-    public void setLocationId(Long locationId) {
-        this.locationId = locationId;
+    public void setLocationCode(Long locationCode) {
+        this.locationCode = locationCode;
     }
 
     public LocationType getLocationType() {

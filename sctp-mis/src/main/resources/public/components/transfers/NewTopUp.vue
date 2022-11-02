@@ -348,7 +348,7 @@
     </div>
 </div>
 </template>
-<script>
+<script type="text/javascript">
 module.exports = {
     data() {
       return {
@@ -420,11 +420,11 @@ module.exports = {
         axios.post(url, this.topupForm, config)
           .then(response => {
             if (response.data) {
-                alert("Top Up saved successfully.")
+               this.showMessageDialog("Topups", "Top Up saved successfully.")
             }
           })
           .catch(err => {
-
+            this.showErrorDialog("Topups", "Failed to Create Top Up record.")
           })
         return false
       },
