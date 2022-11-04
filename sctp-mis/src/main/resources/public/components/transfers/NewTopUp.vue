@@ -159,7 +159,6 @@
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -182,39 +181,8 @@
                     </div>
                 </div>
 
-                <div class="geolocation-level columns">
-                    <div class="field column">
-                        <div class="is-normal">
-                            <label class="label is-required">Location Type</label>
-                        </div>
-                        <div class="field-body">
-                            <div class="field">
-                                <div class="select is-fullwidth">
-                                    <select id="locationType" name="locationType" v-model="topupForm.locationType" class="input" required="required">
-                                        <option disabled="disabled" selected="selected">Select Option</option>
-                                        <option value="SUBNATIONAL1">District</option>
-                                        <option value="SUBNATIONAL3">T / A</option>
-                                        <option value="SUBNATIONAL2">Village Cluster</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="field column">
-                        <div class="is-normal">
-                            <label class="label is-required">Location</label>
-                        </div>
-                        <div class="field-body">
-                            <div class="field">
-                                <div class="select is-fullwidth">
-                                    <select id="locationId" name="locationId" class="input" required="required">
-                                        <option disabled="disabled" selected="selected">Select Option</option>
-                                        <option v-for="l in locations" :value="l.id" :key="l.id">{{ l.name }}</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="columns">
+                    <location-selector />
                 </div>
 
                 <div class="categorical-topup-elements">
@@ -350,6 +318,9 @@
 </template>
 <script type="text/javascript">
 module.exports = {
+    components: {
+        'LocationSelector': httpVueLoader('/components/LocationSelector.vue'),
+    },
     data() {
       return {
         funders: window.__pageData.funders || [],
@@ -358,7 +329,7 @@ module.exports = {
           name: '',
           funderId: '',
           programId: '',
-          locationId: '',
+          locationCode: '',
           locationType: '',
           percentage: '',
           topupType: '',

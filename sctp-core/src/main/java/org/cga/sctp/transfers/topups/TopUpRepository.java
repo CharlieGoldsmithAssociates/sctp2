@@ -48,5 +48,8 @@ public interface TopUpRepository extends JpaRepository<TopUp, Long> {
     List<TopUp> findAllByIsExecuted(boolean value, Pageable pageable);
 
     @Query
-    List<TopUp> findAllActiveByLocationCode(long locationCode);
+    List<TopUp> findAllByIsExecutedAndDistrictCode(boolean value, long districtCode);
+
+    @Query
+    List<TopUp> findAllActiveByDistrictCode(long districtCode);
 }

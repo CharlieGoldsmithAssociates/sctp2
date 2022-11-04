@@ -54,4 +54,8 @@ public interface TopUpService {
     void markAsExecuted(TopUp topUp, BigDecimal amount);
 
     List<TopUp> findAllActive(Pageable pageable);
+
+    Optional<TopUp> findById(Long topupId);
+
+    void deleteById(Long topupId);
 }

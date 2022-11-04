@@ -83,8 +83,16 @@ public class TransferTopUpsController extends SecuredBaseController {
     @Autowired
     private TopUpService topUpService;
 
+    @GetMapping
+    @AdminAndStandardAccessOnly
+    public ModelAndView getIndex() {
+        List<TopUp> topups = topUpService.findAllActive(Pageable.unpaged()); // TODO: get page parameters from request
+        return view("transfers/topups/list")
+                .addObject("topups", topups);
+    }
+
     @GetMapping("/new")
-    @AdminAccessOnly
+    @AdminAndStandardAccessOnly
     public ModelAndView getNewPage(RedirectAttributes attributes) {
         List<Program> programs = programService.getActivePrograms();
         List<Location> districts = locationService.getActiveDistricts();
@@ -124,7 +132,7 @@ public class TransferTopUpsController extends SecuredBaseController {
     }
 
     @GetMapping("/new/preview")
-    @AdminAccessOnly
+    @AdminAndStandardAccessOnly
     public ResponseEntity<Object> getTopupAmountPreview() {
         // this action returns a preview of the topup applied to the given location and households there-in
         return null;
@@ -150,12 +158,35 @@ public class TransferTopUpsController extends SecuredBaseController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping
-    @AdminAccessOnly
-    public ModelAndView getIndex() {
-        List<TopUp> topups = topUpService.findAllActive(Pageable.unpaged()); // TODO: get page parameters from request
-        return view("transfers/topups/list")
-                .addObject("topups", topups);
+    @GetMapping("/view/{topup-id}")
+    @AdminAndStandardAccessOnly
+    public ModelAndView getView(@PathVariable("topup-id") final Long topupId, @AuthenticatedUserDetails AuthenticatedUser user, RedirectAttributes attributes) {
+        Optional<TopUp> optionalTopUp = topUpService.findById(topupId);
+        if (optionalTopUp.isEmpty()) {
+            return view(redirectWithDangerMessage("/transfers/topups", "Topup not found", attributes));
+        }
+
+        return view("/transfers/topups/view")
+                .addObject("topup", optionalTopUp.get());
     }
 
+    @GetMapping("/delete/{topup-id}")
+    @AdminAndStandardAccessOnly
+    public ModelAndView getDelete(@PathVariable("topup-id") final Long topupId) {
+        Optional<TopUp> optionalTopUp = topUpService.findById(topupId);
+        if (optionalTopUp.isEmpty()) {
+            return redirect("/transfers/topups"); // TODO: redirect with flash message?
+        }
+
+        return view("/transfers/topups/delete")
+                .addObject("topup", optionalTopUp.get());
+    }
+
+    @PostMapping("/delete/{topup-id}")
+    @AdminAndStandardAccessOnly
+    public ModelAndView postDelete(@PathVariable("topup-id") final Long topupId, @AuthenticatedUserDetails AuthenticatedUser user, RedirectAttributes attributes) {
+        topUpService.deleteById(topupId);
+        publishGeneralEvent("User %s deleted topup with id %s", user.username(), topupId);
+        return view(redirectWithSuccessMessage("/transfers/topups", "TopUp deleted successfully", attributes));
+    }
 }

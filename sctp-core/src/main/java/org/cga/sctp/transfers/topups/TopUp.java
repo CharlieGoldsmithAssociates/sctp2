@@ -43,70 +43,70 @@ import java.time.LocalDateTime;
 public class TopUp {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; //  id BIGINT(19) PRIMARY KEY NOT NULL AUTO_INCREMENT COMMENT 'Primary key',
+    private Long id;
 
     @Column(name = "name")
-    private String name; // name VARCHAR(90) NULL DEFAULT NULL COMMENT 'Name of topup' COLLATE 'utf8_unicode_ci',
+    private String name;
 
     @Column(name = "program_id")
-    private Long programId; // Program for the topup
+    private Long programId;
 
     @Column(name = "funder_id")
-    private Long funderId; // funder_id BIGINT(19) NOT NULL COMMENT 'Funding institution for this topup',
+    private Long funderId;
 
-    @Column(name = "location_code")
-    private Long locationCode; // location_id INT(10) NOT NULL COMMENT 'FOREIGN KEY Table geolocation Field geo_id, District',
+    @Column(name = "district_code")
+    private Long districtCode;
 
     @Column(name = "location_type")
     @Enumerated(EnumType.STRING)
-    private LocationType locationType; // location_type INT(10) NOT NULL COMMENT 'FOREIGN KEY Table item Field ite_id, Level',
+    private LocationType locationType;
 
     @Column(name = "is_discounted_from_funds")
-    private boolean isDiscountedFromFunds; // is_discounted_from_funds TINYINT(1) NULL DEFAULT NULL COMMENT 'The top-up arrears are discounted from the SCTP funds to be requested',
+    private boolean isDiscountedFromFunds;
 
     @Column(name = "is_categorical")
-    private boolean isCategorical; // is_categorical TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'Whether topup is categorical or not',
+    private boolean isCategorical;
 
     @Column(name = "is_active")
-    private boolean isActive; // is_active  TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'Active or not 1 = yes, 0 = no',
+    private boolean isActive;
 
     @Column(name = "is_executed")
-    private boolean isExecuted; // is_executed TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'Executed or not 1 = yes, 0 = no',
+    private boolean isExecuted;
 
     @Column(name = "topup_type")
     @Convert(converter = TopUpType.Converter.class)
-    private TopUpType topupType; // topup_type TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'Topup type, See TopupType enumeration',
+    private TopUpType topupType;
 
     @Column
     @Convert(converter = TopUpHouseholdStatus.Converter.class)
     private TopUpHouseholdStatus householdStatus;
 
     @Column(name = "percentage")
-    private BigDecimal percentage; // percentage DOUBLE COMMENT 'For percentage based topups, the percentage to use for calculation',
+    private BigDecimal percentage;
 
     @Column(name = "categorical_targeting_criteria_id")
-    private Long categoricalTargetingCriteriaId; // categorical_targeting_criteria_id BIGINT(19) NULL COMMENT 'For categorical topups, the criteria to use.',
+    private Long categoricalTargetingCriteriaId;
 
     @Column(name = "amount")
-    private BigDecimal amount; // amount BIGINT(19) NULL DEFAULT NULL COMMENT 'Amount to topup',
+    private BigDecimal amount;
 
     @Column(name = "amount_projected")
-    private BigDecimal amountProjected; // amount_projected BIGINT(19) NULL DEFAULT NULL COMMENT 'Amount projected',
+    private BigDecimal amountProjected;
 
     @Column(name = "amount_executed")
-    private BigDecimal amountExecuted; // amount_executed BIGINT(19) NULL DEFAULT NULL COMMENT 'Amount executed i.e. disbursed',
+    private BigDecimal amountExecuted;
 
     @Column(name = "created_by")
-    private Long createdBy; // created_by BIGINT(19) NOT NULL COMMENT 'User who created the topup',
+    private Long createdBy;
 
     @Column(name = "updated_by")
-    private Long updatedBy; // updated_by BIGINT(19) NOT NULL COMMENT 'User who updated the topup',
+    private Long updatedBy;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt; // created_at timestamp not null,
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt; // updated_at timestamp not null
+    private LocalDateTime updatedAt;
 
     public Long getId() {
         return id;
@@ -140,12 +140,12 @@ public class TopUp {
         this.programId = programId;
     }
 
-    public Long getLocationCode() {
-        return locationCode;
+    public Long getDistrictCode() {
+        return districtCode;
     }
 
-    public void setLocationCode(Long locationCode) {
-        this.locationCode = locationCode;
+    public void setDistrictCode(Long districtCode) {
+        this.districtCode = districtCode;
     }
 
     public LocationType getLocationType() {

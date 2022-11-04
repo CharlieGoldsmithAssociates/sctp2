@@ -304,7 +304,7 @@ public class LocationController extends BaseController {
 
     @AdminAndStandardAccessOnly
     @GetMapping(value = "/get-child-locations", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<SelectOptionItem>> getSubLocations(@RequestParam("id") Long parentId) {
+    public ResponseEntity<List<SelectOptionItem>> getSubLocations(@RequestParam("id") Long parentId) { // TODO: change the parameter to code because id can make it confusing....
         List<LocationCode> subLocations = locationService.getLocationCodesByParent(parentId);
         if (subLocations.isEmpty()) {
             return ResponseEntity

@@ -59,7 +59,7 @@ public class TopUpServiceImpl implements TopUpService {
         topUp.setActive(params.isActive());
         topUp.setAmount(params.getAmount());
         topUp.setHouseholdStatus(params.getHouseholdStatus());
-        topUp.setLocationCode(params.getLocationId());
+        topUp.setDistrictCode(params.getDistrictCode());
         topUp.setLocationType(params.getLocationType());
         // new topups will by default not have been executed
         topUp.setExecuted(false);
@@ -73,7 +73,6 @@ public class TopUpServiceImpl implements TopUpService {
             // TODO: handle params.getOrphanhoodStatuses() et al
         }
         topUp.setDiscountedFromFunds(params.isDiscountedFromFunds());
-
 
         LocalDateTime now = LocalDateTime.now();
         topUp.setCreatedBy(params.getUserId());
@@ -91,7 +90,7 @@ public class TopUpServiceImpl implements TopUpService {
 
     @Override
     public List<TopUp> fetchAllActive(@NonNull final Location location) {
-        return topUpRepository.findAllActiveByLocationCode(location.getCode());
+        return topUpRepository.findAllActiveByDistrictCode(location.getCode());
     }
 
     @Override
@@ -101,16 +100,34 @@ public class TopUpServiceImpl implements TopUpService {
 
     @Override
     public List<TopUp> fetchAllExecuted(Location location) {
-        return null;
+        return topUpRepository.findAllByIsExecutedAndDistrictCode(true, location.getCode());
     }
 
     @Override
     public void markAsExecuted(@NonNull TopUp topUp, @NonNull BigDecimal amount) {
-        throw  new RuntimeException("not implemented");
+        topUp.setExecuted(true);
+        topUp.setActive(false); // TODO(zikani03): review this if it is the right thing to do...
+        topUp.setAmountExecuted(amount);
+        topUpRepository.save(topUp);
     }
 
     @Override
     public List<TopUp> findAllActive(@NonNull Pageable pageable) {
         return topUpRepository.findAllByIsActive(true, pageable);
+    }
+
+    @Override
+    public Optional<TopUp> findById(@NonNull Long topupId) {
+        return topUpRepository.findById(topupId);
+    }
+
+    @Override
+    public void deleteById(Long topupId) {
+        topUpRepository.findById(topupId)
+            .ifPresent(topup -> {
+                if (!topup.isExecuted()) {
+                    topUpRepository.deleteById(topupId);
+                }
+            });
     }
 }

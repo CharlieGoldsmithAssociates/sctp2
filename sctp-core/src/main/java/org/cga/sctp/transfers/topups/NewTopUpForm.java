@@ -50,7 +50,7 @@ public class NewTopUpForm {
     private Long funderId;
 
     @NotNull(message = "Location(s) must be specified")
-    private Long locationId;
+    private Long districtCode;
 
     @NotNull(message = "Location Type must be specified")
     private LocationType locationType;
@@ -76,6 +76,9 @@ public class NewTopUpForm {
 
     @NotNull(message = "Please specify whether amount will be discounted from the program Funds")
     private boolean discountedFromFunds;
+
+
+    private boolean isApplyToNextPeriod;
 
     private Long userId;
 
@@ -124,12 +127,12 @@ public class NewTopUpForm {
         this.programId = programId;
     }
 
-    public Long getLocationId() {
-        return locationId;
+    public Long getDistrictCode() {
+        return districtCode;
     }
 
-    public void setLocationId(Long locationId) {
-        this.locationId = locationId;
+    public void setDistrictCode(Long districtCode) {
+        this.districtCode = districtCode;
     }
 
     public LocationType getLocationType() {
@@ -258,6 +261,14 @@ public class NewTopUpForm {
 
     public void setDisabilities(String disabilities) {
         this.disabilities = disabilities;
+    }
+
+    public boolean isApplyToNextPeriod() {
+        return isApplyToNextPeriod;
+    }
+
+    public void setApplyToNextPeriod(boolean applyToNextPeriod) {
+        isApplyToNextPeriod = applyToNextPeriod;
     }
 
     public static class Validator {
