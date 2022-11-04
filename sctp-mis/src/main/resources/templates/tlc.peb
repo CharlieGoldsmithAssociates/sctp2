@@ -1,0 +1,29 @@
+{% extends "base" %}
+{% block contextMenu %}
+    <div class="container context-nav-container">
+        <div class="buttons is-right">
+            <a href="{{ href('/transfers/topups') }}" class="button is-danger">Back to List</a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="vue-app-wrapper">
+        <location-selector />
+    </div>
+{% endblock %}
+{% block footerScripts %}
+    <script type="module">
+    const App = {
+        el: '#vapp',
+        mounted() {
+        },
+        created() {
+        },
+        components: {
+            'LocationSelector': httpVueLoader('/components/LocationSelector.vue')
+        }
+    };
+    domready(() => new Vue(App))
+    </script>
+{% endblock %}
