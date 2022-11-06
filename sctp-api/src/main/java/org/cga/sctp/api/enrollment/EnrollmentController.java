@@ -219,7 +219,8 @@ public class EnrollmentController extends BaseController {
         return ResponseEntity.notFound().build();
     }
 
-    @PostMapping(value = "/mobile-review-completed")
+    // TODO Add this functionality in the MIS. Remove block when implemented
+    /*@PostMapping(value = "/mobile-review-completed")
     @Operation(description = "Marks an enrollment session as having been reviewed on the mobile app.")
     @ApiResponses({
             @ApiResponse(responseCode = "404", description = "Session does not exist")
@@ -244,5 +245,28 @@ public class EnrollmentController extends BaseController {
         }
 
         return ResponseEntity.notFound().build();
+    }*/
+
+
+    @PostMapping("/{session-id}/update-member-details")
+    @Operation(description = "Updates household member details")
+    @ApiResponses({@ApiResponse(responseCode = "200")})
+    @IncludeGeneralResponses
+    public ResponseEntity<?> updateHouseholdMemberDetails(
+            @AuthenticatedUserDetails ApiUserDetails apiUserDetails,
+            @Valid @RequestBody HouseholdMemberUpdateRequest updateRequest,
+            @PathVariable(value = "session-id") Long sessionId
+    ) {
+        EnrollmentSession session = enrollmentService.getSessionById(sessionId);
+
+        if (session == null || !session.getMobileReview()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+
+        enrollmentService.updateHouseholdMemberDetails(sessionId, updateRequest.getUpdates());
+
+        LOG.warn("update member details");
+
+        return ResponseEntity.ok().build();
     }
 }

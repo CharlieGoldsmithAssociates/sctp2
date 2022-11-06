@@ -893,4 +893,24 @@ public class EnrollmentService extends TransactionalService {
         Cell cell = row.createCell(index);
         cell.setCellValue(data);
     }
+
+    public void updateHouseholdMemberDetails(long sessionId, List<HouseholdMemberUpdate> updates) {
+        ZonedDateTime timestamp = ZonedDateTime.now();
+        String sqlTemplate = """
+                UPDATE individuals i
+                 JOIN household_enrollment eh ON eh.household_id = i.household_id
+                 SET i.individual_id = :national_id, i.modified_at = :timestamp
+                 WHERE eh.session_id = :session_id and i.household_id = :household_id and i.id = :member_id AND i.individual_id != :national_id
+                ;""";
+
+        for (HouseholdMemberUpdate update : updates) {
+            entityManager.createNativeQuery(sqlTemplate)
+                    .setParameter("timestamp", timestamp)
+                    .setParameter("national_id", update.getNationalId())
+                    .setParameter("member_id", update.getMemberId())
+                    .setParameter("session_id", sessionId)
+                    .setParameter("household_id", update.getHouseholdId())
+                    .executeUpdate();
+        }
+    }
 }

@@ -1,0 +1,134 @@
+<html>
+  <body>
+    <div>
+        <h5>Household Image Name Converter</h5>
+        <p>The app saves images using <code>[household_id_base_10]_[primary|secondary].jpg</code></p>
+        <p>The server saves using <code>[household_id_base_16]_[main|alt].jpg</code></p>
+        <p>
+            <table border="1" cellspacing="1">
+                <caption>Naming Schemes</caption>
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Naming Scheme</th>
+                        <th>Main receiver</th>
+                        <th>Alt receiver</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Android Application</td>
+                        <td><code>[household_id_base_10]_[primary|secondary].jpg</code></td>
+                        <td>primary</td>
+                        <td>secondary</td>
+                    </tr>
+                    <tr>
+                        <td>Web Application</td>
+                        <td><code>[household_id_base_16]_[main|alt]</code></td>
+                        <td>main</td>
+                        <td>alt</td>
+                    </tr>
+                </tbody>
+            </table>
+        </p>
+        <p>This utility generates bash commands to copy files to using the MIS naming scheme as well as SQL script to for updating the DB</p>
+        <p>
+            <span style="color:red">NOTE</span>: Do not confuse household code (ML code) with household id.
+        </p>
+        <h4>Directions</h4>
+        <ol>
+            <li>Select all files extracted from app</li>
+            <li>Copy generated bash script</li>
+            <li>In terminal, navigate to list of extracted images. Paste script in terminal and execute</li>
+            <li>A zip file will be created containing the files. Upload these files to the server</li>
+            <li>Run the SQL queries to update the DB</li>
+        </ol>
+    </div>
+    <div>
+      <h3>BASH</h3>
+      <textarea id="output" rows="5" cols="100"> </textarea>
+      <p></p>
+      <h3>SQL</h3>
+      <textarea id="sqlOutput" rows="5" cols="100"> </textarea>
+      <p></p>
+      <input type="file" id="picker" multiple accept="image/jpeg" />
+    </div>
+
+    <script>
+      (function () {
+        const pattern = /^([0-9]+)_(primary|secondary)\.jpg$/gi;
+
+        window.prepare = function (files) {
+          var households = {};
+          for (var i = 0; i < files.length; i++) {
+            var name = files[i].name;
+            var parts = pattern.exec(name);
+            var household = parseInt(parts[0]);
+            var type = parts[1];
+
+            households[household].alternate = "secondary" == type;
+          }
+        };
+
+        picker.onchange = function () {
+          if (picker.files.length > 0) {
+            var timestamp = new Date().getTime();
+
+            var dst = `converted/${timestamp}`;
+
+            var commands = [`mkdir -p ${dst}`];
+            var files = picker.files;
+            var households = {};
+            var queries = [];
+
+            console.log('generation started...');
+
+            for (var i = 0; i < files.length; i++) {
+              file = files[i].name;
+              parts = file.split("_");
+
+              if(parts[1].startsWith("primary")){
+                type= "main"
+              }else if (parts[1].startsWith("secondary")){
+                type= "alt";
+              }else{
+                throw 'Invalid type ' + type;
+              }
+
+              id = parseInt(parts[0]);
+              household = id;
+              hexid = id.toString(16);
+
+              commands.push(`yes | cp -rf ${file} ${dst}/${hexid}_${type}`);
+
+              var sql = "UPDATE household_recipient SET created_at = created_at";
+
+              if (!(household in households)) {
+                households[household]= {query: sql};
+              }
+
+              if (type == "main") {
+                households[household].query += `, main_photo = '${hexid}_main', main_photo_type = 'image/jpeg'`;
+              } else if (type == "alt") {
+                households[household].query += `, alt_photo = '${hexid}_alt', alt_photo_type = 'image/jpeg'`;
+              } else {
+                households[household].query += ` WHERE household_id = ${household};`;
+              }
+            }
+            
+            commands.push(`cd converted`);
+            commands.push(`zip -r ${timestamp}.zip ${timestamp}/`);
+
+            output.value = commands.join('\n');
+
+            for(var hh in households){
+                sqlOutput.value += `${households[hh].query} WHERE household_id = ${hh};` + '\n';
+            }
+
+            console.log('generation ended');
+          }
+        };
+      })();
+    </script>
+  </body>
+</html>
