@@ -39,6 +39,7 @@ import org.cga.sctp.location.LocationService;
 import org.cga.sctp.targeting.CbtStatus;
 import org.cga.sctp.targeting.enrollment.EnrollmentService;
 import org.cga.sctp.targeting.enrollment.HouseholdEnrollmentData;
+import org.cga.sctp.targeting.enrollment.HouseholdMemberUpdate;
 import org.cga.sctp.transfers.accounts.BeneficiaryAccountService;
 import org.cga.sctp.transfers.accounts.TransferAccountNumberList;
 import org.cga.sctp.transfers.agencies.TransferAgenciesRepository;
@@ -55,7 +56,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -63,6 +66,9 @@ import java.util.Optional;
 @Service
 public class TransferServiceImpl implements TransferService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TransferServiceImpl.class);
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Autowired
     private TransferPeriodRepository transferPeriodRepository;
@@ -218,7 +224,27 @@ public class TransferServiceImpl implements TransferService {
 
     @Override
     public int reconcileTransfers(TransferReconciliationRequest transferReconciliationRequest) {
-        throw new UnsupportedOperationException("not yet implemented"); // TODO: implement me
+//        List<Transfer> transfers = transfersRepository.findAllByTransferPeriodId(transferReconciliationRequest.getTransferPeriodId());
+        ZonedDateTime timestamp = ZonedDateTime.now();
+        String sqlTemplate = """    
+                UPDATE transfers t
+                 JOIN household_enrollment eh ON eh.household_id = i.household_id
+                 SET t.amount_collected = :amount_collected, i.modified_at = :timestamp
+                 WHERE t.transfer_period_id = :transfer_period_id and t.household_id = :household_id
+                ;""";
+
+        int updated = 0;
+        for (TransferReconciliationRequest.TransferReconciliation update : transferReconciliationRequest.getReconciliationList()) {
+            entityManager.createNativeQuery(sqlTemplate)
+                    .setParameter("timestamp", timestamp)
+                    .setParameter("amount_collected", update.getAmountTransferred())
+                    .setParameter("transfer_period_id", transferReconciliationRequest.getTransferPeriodId())
+                    .setParameter("household_id", update.getHouseholdId())
+                    .executeUpdate();
+            updated++;
+        }
+
+        return updated;
     }
 
     @Override
