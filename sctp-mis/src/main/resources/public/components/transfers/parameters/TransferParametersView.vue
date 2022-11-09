@@ -57,8 +57,8 @@
     </section>
     <hr/>
 
-    <b-tabs expanded>
-      <b-tab-item label="Household Transfer Parameters">
+    <b-tabs type="is-toggle" expanded>
+      <b-tab-item label="Household Criteria">
         <nav class="level">
           <!-- Left side -->
           <div class="level-left">
@@ -78,7 +78,7 @@
               <div class="level-right buttons">
                 <b-button icon-left="plus" :loading="isHouseholdParametersLoading"
                           type="is-success" @click="isAddHouseholdParametersActive = true">
-                  New Household Transfer Parameter
+                  New Household Criteria
                 </b-button>
               </div>
             </div>
@@ -121,11 +121,11 @@
 
         </b-table>
       </b-tab-item>
-      <b-tab-item label="Education Transfer Parameters">
+      <b-tab-item label="Education Criteria">
         <div class="has-text-right">
           <b-button icon-left="plus" :loading="isEducationParametersLoading"
                     type="is-success" @click="isAddEducationParametersActive = true">
-            New Education Transfer Parameter
+            New Education Criteria
           </b-button>
         </div>
 
@@ -160,7 +160,7 @@
     <b-modal v-model="isAddHouseholdParametersActive" trap-focus scroll="keep">
       <div class="card my-5">
         <div class="card-header">
-          <p class="card-header-title">Add Household Transfer Parameters</p>
+          <p class="card-header-title">Add Household Criteria</p>
         </div>
         <div class="card-content">
           <template v-for="(child, index) in householdParametersToAdd">
@@ -225,7 +225,7 @@
     <b-modal v-model="isAddEducationParametersActive" scroll="keep">
       <div class="card my-5">
         <div class="card-header">
-          <p class="card-header-title">Add Education Transfer Parameters</p>
+          <p class="card-header-title">Add Education Criteria</p>
         </div>
         <div class="card-content">
 
@@ -268,12 +268,12 @@
                        && educationParametersToAdd[educationParametersToAdd.length - 1].amount
                         && educationParametersToAdd[educationParametersToAdd.length - 1].educationLevel)"
                       :loading="isSavingEducationParameters">
-              Add Another Parameter
+              Add Another Criteria
             </b-button>
             <b-button type="is-success" :disabled="educationParametersToAdd.length === 1 && !(educationParametersToAdd[0].active
                        && educationParametersToAdd[0].amount && educationParametersToAdd[0].educationLevel)" @click="saveEducationParameters"
                       :loading="isSavingEducationParameters">
-              Save Parameters
+              Save Criteria
             </b-button>
           </div>
         </div>
