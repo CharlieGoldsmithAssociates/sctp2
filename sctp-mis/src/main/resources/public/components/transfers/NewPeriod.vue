@@ -40,6 +40,10 @@ module.exports = {
       periodMonthlyView: {},
       selectedDistrict: null,
       districts: [],
+      villageClusters: [],
+      selectedVillageClusters: [],
+      traditionalAuthorities: [],
+      selectedTraditionalAuthority: null,
       selectedProgram: null,
       programs: []
     }
@@ -103,6 +107,30 @@ module.exports = {
             vm.isLoading = false
           });
     },
+    getChildLocations(id, isVillageCluster = false) {
+      const vm = this;
+
+      const error_message = 'Error getting child locations'
+
+      axios.get(`/locations/get-child-locations?id=${id}`)
+          .then(function (response) {
+            if (response.status === 200 && isJsonContentType(response.headers['content-type'])) {
+              if (isVillageCluster) {
+                vm.villageClusters = response.data;
+              } else {
+                vm.traditionalAuthorities = response.data;
+              }
+            } else {
+              vm.snackbar(error_message, 'warning');
+            }
+          })
+          .catch(function (error) {
+            vm.snackbar(error_message, 'danger');
+          })
+          .then(function () {
+            vm.isLoading = false
+          });
+    },
     getActiveDistricts() {
       const vm = this;
       vm.isLoading = true
@@ -133,10 +161,21 @@ module.exports = {
 
       const requestBody = {
         programId: vm.selectedProgram,
-        districtId: vm.selectedDistrict,
+        districtId: vm.selectedDistrict.id,
         startDate: this.formatDate(vm.startDate),
         endDate: this.formatDate(vm.endDate)
       }
+
+      if (vm.selectedTraditionalAuthority) {
+        requestBody.traditionalAuthorityId = vm.selectedTraditionalAuthority;
+      }
+
+      if (vm.selectedVillageClusters.length > 0) {
+        requestBody.villageClusters = vm.selectedVillageClusters;
+      }
+
+      console.log(requestBody)
+
       axios.post('/transfers/periods/open-new', JSON.stringify(requestBody), config)
           .then(function (response) {
             if (response.status === 200) {
@@ -229,16 +268,42 @@ module.exports = {
           </option>
         </b-select>
       </b-field>
-      <b-field>
-        <template slot="label">
-          <span>District <span class="has-text-danger">*</span> </span>
-        </template>
-        <b-select placeholder="Select a district" v-model="selectedDistrict" expanded required>
+      <div class="columns">
+        <div class="column">
+          <b-field>
+            <template slot="label">
+              <span>District <span class="has-text-danger">*</span> </span>
+            </template>
+            <b-select placeholder="Select a district" v-model="selectedDistrict" @input="value => getChildLocations(value.code)" expanded required>
+              <option
+                  v-for="option in districts"
+                  :value="option"
+                  :key="option.id">
+                {{ option.name }}
+              </option>
+            </b-select>
+          </b-field>
+        </div>
+        <div class="column">
+          <b-field label="T/A">
+            <b-select placeholder="Select a T/A" expanded v-model="selectedTraditionalAuthority" @input="value => getChildLocations(value, true)" >
+              <option
+                  v-for="option in traditionalAuthorities"
+                  :value="option.id"
+                  :key="option.id">
+                {{ option.text }}
+              </option>
+            </b-select>
+          </b-field>
+        </div>
+      </div>
+      <b-field label="Village Cluster">
+        <b-select multiple native-size="4" placeholder="Select a Village Cluster" v-model="selectedVillageClusters" expanded>
           <option
-              v-for="option in districts"
+              v-for="option in villageClusters"
               :value="option.id"
               :key="option.id">
-            {{ option.name }}
+            {{ option.text }}
           </option>
         </b-select>
       </b-field>
