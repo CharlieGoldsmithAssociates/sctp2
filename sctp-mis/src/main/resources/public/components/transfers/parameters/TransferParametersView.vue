@@ -98,6 +98,13 @@
                  :data="isHouseholdParametersEmpty ? [] : householdParameters" :striped="true" :narrowed="true"
                  :hoverable="true" :loading="isHouseholdParametersLoading">
 
+          <b-table-column field="condition" label="Condition" sortable v-slot="props" width="8%">
+            {{
+              `${householdParametersConditions.filter(c => c.name === props.row.condition)[0].name}
+                ( ${householdParametersConditions.filter(c => c.name === props.row.condition)[0].sign} )`
+            }}
+          </b-table-column>
+
           <b-table-column field="numberOfMembers" label="Number Of Members" sortable v-slot="props" width="8%">
             {{ props.row.numberOfMembers }}
           </b-table-column>
@@ -352,7 +359,6 @@ module.exports = {
       console.log("Getting...")
       axios.get(`/transfers/parameters/${vm.transferParameterId}`)
           .then(function (response) {
-            console.log(response)
             if (response.status === 200) {
               vm.transferParameter = response.data;
             } else {
