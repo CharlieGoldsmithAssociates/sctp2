@@ -648,9 +648,7 @@ public class EnrollmentService extends TransactionalService {
         return status;
     }
 
-<<<<<<< HEAD
-=======
-
+    
     /*private RecipientPictureUpdateStatus.UpdateStatus updateRecipientPictures(
             RecipientPictureUpdateRequest.RecipientInformation info, ZonedDateTime timestamp, long sessionId) {
         boolean alternateHasError = false, alternatePresent = false, primaryPresent = false, primaryHasError = false;
@@ -903,5 +901,5 @@ public class EnrollmentService extends TransactionalService {
                     .executeUpdate();
         }
     }
->>>>>>> master
+
 }
