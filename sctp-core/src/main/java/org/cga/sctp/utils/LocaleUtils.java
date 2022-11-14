@@ -48,4 +48,8 @@ public final class LocaleUtils {
     public static boolean isNumber(String txt) {
         return txt.matches("^\\d+$");
     }
+
+    public static String fileName(String name) {
+        return name.replaceAll("[\\\\/:*?\"<>|]", "_");
+    }
 }

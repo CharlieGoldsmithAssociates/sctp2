@@ -1,144 +1,47 @@
-{% extends "../base" %}
-{% import "../../utils/form" %}
-{% block contextMenu %}
+    {% extends "../base" %}
+        {% import "../../utils/form" %}
+        {% block contextMenu %}
 <div class="container context-nav-container">
     <div class="buttons is-right">
     {# TODO: Add context menu/actions here... #}
     </div>
 </div>
 {% endblock %}
-{% block content %}
-<div id="transfers:CreateNewPeriodApp" class="content-container">
+        {% block content %}
+<div id="transfers:CreateNewPeriodApp" class="content-container is-fullheight">
     <div class="card">
         <div class="card-header">
             <div class="column">
-                <h2 class="title">Open a New Transfer Period</h2>
+                <p class="card-header-title">Open a New Transfer Period</p>
             </div>
         </div>
-        <form method="post" action="/transfers/periods/open-new" enctype="application/x-www-form-urlencoded">
-            {{ csrf(_csrf) }}
-            <div class="card-content">
-            {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
-            <div class="columns-stuff">
-            <div class="field">
-                <div class="is-normal">
-                    <label class="label is-required">Program</label>
-                </div>
-                <div class="field-body">
-                    <div class="field">
-                        <div class="control">
-                            <div class="select is-fullwidth">
-                                    {{ selectField('programId', programs, form.programId, true) }}
-                            </div>
-                        </div>
-                        {{ printFieldErrors(getFieldErrors('form', 'programId')) }}
-                    </div>
-                </div>
-            </div>
-            <div class="field">
-                <div class="is-normal">
-                    <label class="label is-required">District</label>
-                </div>
-                <div class="field-body">
-                    <div class="field">
-                        <div class="control">
-                            <div class="select is-fullwidth">
-                                    {{ selectField('districtId', districts, form.districtId, true) }}
-                            </div>
-                        </div>
-                        {{ printFieldErrors(getFieldErrors('form', 'districtId')) }}
-                    </div>
-                </div>
-            </div>
-            <div class="columns">
-                <div class="column is-one-quarter">
-                    <div class="field">
-                        <label class="label is-required">Start Date</label>
-                        <div class="control">
-                                {{ dateField('startDate', form.startDate, true) }}
-                        </div>
-                        {{ printFieldErrors(getFieldErrors('form', 'startDate')) }}
-                    </div>
-                </div>
-                <div class="column is-one-quarter">
-                    <div class="field">
-                        <label class="label">End Date</label>
-                        <div class="control">
-                                {{ dateField('endDate', form.endDate, false) }}
-                        </div>
-                        {{ printFieldErrors(getFieldErrors('form', 'endDate')) }}
-                    </div>
-                </div>
-            </div>
-            <div class="columns">
-                <div class="buttons is-right">
-                    <button type="submit" class="button is-success">Open Transfer Period &gt;&gt;</button>
-                    <a href="/transfers/summary">Cancel</a>
-                </div>
-            </div>
-
-
-                    <div class="period-parameters">
-                        <div class="new-transfer-period-params has-text-centered">
-                            <div class="month-preview">
-                                <table class="table is-full-width is-striped">
-                                    <thead>
-                                    <tr>
-                                        <th></th>
-                                        <th>Jan</th>
-                                        <th>Feb</th>
-                                        <th>Mar</th>
-                                        <th>Apr</th>
-                                        <th>May</th>
-                                        <th>Jun</th>
-                                        <th>Jul</th>
-                                        <th>Aug</th>
-                                        <th>Sep</th>
-                                        <th>Oct</th>
-                                        <th>Nov</th>
-                                        <th>Dec</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr>
-                                        <td>2022</td>
-                                        <td>&times;</td>
-                                        <td>&times;</td>
-                                        <td>&times;</td>
-                                        <td>&times;</td>
-                                        <td>&times;</td>
-                                        <td>&times;</td>
-                                        <td>&times;</td>
-                                        <td>&times;</td>
-                                        <td>&times;</td>
-                                        <td>&times;</td>
-                                        <td>&times;</td>
-                                        <td>&times;</td>
-                                    </tr>
-                                    <tr>
-                                        <td>2023</td>
-                                        <td>&times;</td>
-                                        <td>&times;</td>
-                                        <td>&times;</td>
-                                        <td>&times;</td>
-                                        <td>&times;</td>
-                                        <td>&times;</td>
-                                        <td>&times;</td>
-                                        <td>&times;</td>
-                                        <td>&times;</td>
-                                        <td>&times;</td>
-                                        <td>&times;</td>
-                                        <td>&times;</td>
-                                    </tr>
-                                    </tbody>
-                                    <tr class=""></tr>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            </form>
+        <div class="card-content">
+            <New-Period />
+        </div>
     </div>
 </div>
 {% endblock %}
+    {% block footerScripts %}
+    {{ parent() }}
+    <script type="module">
+        const App = {
+            el: '#vapp',
+
+            mounted() {
+                console.log('application mounted. ')
+            },
+
+            created() {
+                console.log('application created')
+            },
+
+            components: {
+                'NewPeriod': httpVueLoader('/components/transfers/NewPeriod.vue')
+            }
+        };
+
+        window.addEventListener('load', () => {
+            var app = new Vue(App);
+        });
+    </script>
+    {% endblock %}

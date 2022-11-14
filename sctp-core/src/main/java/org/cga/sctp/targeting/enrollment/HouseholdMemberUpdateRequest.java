@@ -30,34 +30,23 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.transfers.agencies;
+package org.cga.sctp.targeting.enrollment;
 
-import org.cga.sctp.location.Location;
-
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.List;
-import java.util.Optional;
 
-public interface TransferAgencyService {
-    /**
-     * Assign a transfer agency to a location
-     * @param transferAgency
-     * @param location
-     * @param transferMethod
-     * @return
-     */
-    TransferAgencyAssignment assignAgency(Long programId,
-                                          TransferAgency transferAgency,
-                                          Location location,
-                                          TransferMethod transferMethod,
-                                          Long assignedBy) throws TransferAgencyAlreadyAssignedException;
+public class HouseholdMemberUpdateRequest {
+    @NotNull
+    @Size(max = 100, message = "Must have {min} - {max} updates")
+    private List<@Valid HouseholdMemberUpdate> updates;
 
-    Optional<TransferAgency> findById(Long transferAgencyId);
+    public List<HouseholdMemberUpdate> getUpdates() {
+        return updates;
+    }
 
-    void save(TransferAgency transferAgency);
-
-    List<TransferAgency> fetchAllTransferAgencies();
-
-    List<TransferAgency> findAllByTransferModality(String transferMethod);
-
-    List<TransferAgencyAssignmentView> getAssignmentsByAgency(Long agencyId);
+    public void setUpdates(List<HouseholdMemberUpdate> updates) {
+        this.updates = updates;
+    }
 }

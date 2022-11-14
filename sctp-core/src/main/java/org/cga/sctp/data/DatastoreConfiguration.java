@@ -40,17 +40,31 @@ import java.io.File;
 
 @Configuration
 public class DatastoreConfiguration {
+    private final File stagingDirectory;
     private final File recipientPhotoDirectory;
 
     public DatastoreConfiguration(
             @NotNull
-            @Value("${targeting.pictures:data/recipient_photos}") File directory) {
-        if (!directory.exists()) {
+            @Value("${targeting.pictures:data/recipient_photos}") File imageDir,
+            @NotNull
+            @Value("${imports.staging:data/imports/staging}") File stagingDir) {
+        imageDir = imageDir.getAbsoluteFile().toPath().normalize().toFile().getAbsoluteFile();
+        stagingDir = stagingDir.getAbsoluteFile().toPath().normalize().toFile().getAbsoluteFile();
+        this.stagingDirectory = initializeDirectory(stagingDir);
+        this.recipientPhotoDirectory = initializeDirectory(imageDir);
+    }
+
+    private File initializeDirectory(File directory) {
+        if (!directory.exists() || !directory.isDirectory()) {
             if (!directory.mkdirs()) {
-                throw new RuntimeException("Failed to initialize directory " + directory.getAbsolutePath());
+                throw new RuntimeException("Failed to initialize directory " + directory);
             }
         }
-        this.recipientPhotoDirectory = directory;
+        return directory;
+    }
+
+    public File getStagingDirectory() {
+        return stagingDirectory;
     }
 
     public File getRecipientPhotoDirectory() {

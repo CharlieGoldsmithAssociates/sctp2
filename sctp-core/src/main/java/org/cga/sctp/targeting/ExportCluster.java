@@ -30,34 +30,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.transfers.agencies;
+package org.cga.sctp.targeting;
 
-import org.cga.sctp.location.Location;
+public interface ExportCluster {
+    long getCode();
 
-import java.util.List;
-import java.util.Optional;
+    String getName();
 
-public interface TransferAgencyService {
-    /**
-     * Assign a transfer agency to a location
-     * @param transferAgency
-     * @param location
-     * @param transferMethod
-     * @return
-     */
-    TransferAgencyAssignment assignAgency(Long programId,
-                                          TransferAgency transferAgency,
-                                          Location location,
-                                          TransferMethod transferMethod,
-                                          Long assignedBy) throws TransferAgencyAlreadyAssignedException;
-
-    Optional<TransferAgency> findById(Long transferAgencyId);
-
-    void save(TransferAgency transferAgency);
-
-    List<TransferAgency> fetchAllTransferAgencies();
-
-    List<TransferAgency> findAllByTransferModality(String transferMethod);
-
-    List<TransferAgencyAssignmentView> getAssignmentsByAgency(Long agencyId);
+    long getHouseholds();
 }

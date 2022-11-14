@@ -226,7 +226,8 @@ public class TransferAgenciesController extends BaseController {
     public ModelAndView viewPage(@PathVariable("transfer-agency-id") Long id) {
         TransferAgency transferAgency = transferAgencyService.getTransferAgenciesRepository().getOne(id);
         return view("/transfers/agencies/view")
-                .addObject("transferAgency", transferAgency);
+                .addObject("transferAgency", transferAgency)
+                .addObject("assignments", transferAgencyService.getAssignmentsByAgency(id));
     }
 
     @GetMapping("/assign")

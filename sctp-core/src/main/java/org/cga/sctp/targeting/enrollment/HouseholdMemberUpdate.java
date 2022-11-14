@@ -30,34 +30,51 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.transfers.agencies;
+package org.cga.sctp.targeting.enrollment;
 
-import org.cga.sctp.location.Location;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.validation.annotation.Validated;
 
-import java.util.List;
-import java.util.Optional;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
-public interface TransferAgencyService {
-    /**
-     * Assign a transfer agency to a location
-     * @param transferAgency
-     * @param location
-     * @param transferMethod
-     * @return
-     */
-    TransferAgencyAssignment assignAgency(Long programId,
-                                          TransferAgency transferAgency,
-                                          Location location,
-                                          TransferMethod transferMethod,
-                                          Long assignedBy) throws TransferAgencyAlreadyAssignedException;
+@Validated
+public class HouseholdMemberUpdate {
 
-    Optional<TransferAgency> findById(Long transferAgencyId);
+    @NotNull(message = "Household id is required")
+    @JsonProperty("household_id")
+    private Long householdId;
 
-    void save(TransferAgency transferAgency);
+    @NotNull(message = "Member id is required")
+    @JsonProperty("member_id")
+    private Long memberId;
 
-    List<TransferAgency> fetchAllTransferAgencies();
+    @NotNull(message = "National id is required")
+    @JsonProperty("national_id")
+    @Pattern(regexp = "^[a-zA-Z0-9]{8}$", message = "Invalid national ID format")
+    private String nationalId;
 
-    List<TransferAgency> findAllByTransferModality(String transferMethod);
+    public Long getHouseholdId() {
+        return householdId;
+    }
 
-    List<TransferAgencyAssignmentView> getAssignmentsByAgency(Long agencyId);
+    public void setHouseholdId(Long householdId) {
+        this.householdId = householdId;
+    }
+
+    public Long getMemberId() {
+        return memberId;
+    }
+
+    public void setMemberId(Long memberId) {
+        this.memberId = memberId;
+    }
+
+    public String getNationalId() {
+        return nationalId;
+    }
+
+    public void setNationalId(String nationalId) {
+        this.nationalId = nationalId;
+    }
 }

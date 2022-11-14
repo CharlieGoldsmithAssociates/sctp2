@@ -315,4 +315,12 @@ public class LocationController extends BaseController {
                 .ok().contentType(MediaType.APPLICATION_JSON)
                 .body(toSelectOptions(subLocations));
     }
+
+
+
+    @GetMapping("/districts/active")
+    @AdminAndStandardAccessOnly
+    public ResponseEntity<List<Location>> getActiveDistricts() {
+        return ResponseEntity.ok(locationService.getActiveDistricts());
+    }
 }

@@ -33,12 +33,14 @@
 package org.cga.sctp.targeting.enrollment;
 
 import org.cga.sctp.targeting.enrollment.validators.ValidFile;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
 
+@Validated
 public class RecipientPictureUpdateRequest {
     public static class RecipientInformation {
         @NotNull(message = "Household id is required")

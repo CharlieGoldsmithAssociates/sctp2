@@ -3,7 +3,7 @@
     {% block contextMenu %}
         {% set isSessionOpen = sessionInfo.status == 'review' %}
         {% set canModify = hasRole("ADMINISTRATOR") and isSessionOpen %}
-        {% set canSendToTransfers = hasRole("ADMINISTRATOR") and sessionInfo.status == 'closed' %}
+        {% set canSendToTransfers = hasRole("ADMINISTRATOR") and sessionInfo.status == 'Closed' %}
         {% set useWideContainer = true %}
         <div class="context-nav-container">
             <div class="level">
@@ -21,7 +21,7 @@
                 </div>
                 <div class="level-right">
 
-                    <div class="level-item">
+                    {#<div class="level-item">
                         <div class="dropdown is-hoverable is-right">
                             <div class="dropdown-trigger">
                                 <button class="button is-primary" aria-haspopup="true" aria-controls="ibd">
@@ -39,7 +39,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div>#}
                     {% if canSendToTransfers %}
                         {% import "../../utils/form" %}
                         {#{% if sessionInfo.canSendToTransfers %}#}
@@ -55,6 +55,28 @@
                             </form>
                         </div>
                     {% endif %}
+
+                    <div class="level-item">
+                        <div class="dropdown is-hoverable is-right">
+                            <div class="dropdown-trigger">
+                                <button class="button is-primary" aria-haspopup="true" aria-controls="ibd">
+                                    <span>Export Household List</span>
+                                    <span class="icon is-small">
+                                        <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                    </span>
+                                </button>
+                            </div>
+                            <div class="dropdown-menu" id="ibd" role="menu">
+                                <div class="dropdown-content">
+                                    <a target="_blank" href="/targeting/enrollment/export/excel/{{ sessionInfo.id }}" class="dropdown-item">All Households</a>
+                                    <a target="_blank" href="/targeting/enrollment/export/excel/{{ sessionInfo.id }}?status=Eligible" class="dropdown-item">Eligible</a>
+                                    <a target="_blank" href="/targeting/enrollment/export/excel/{{ sessionInfo.id }}?status=Enrolled" class="dropdown-item">Enrolled</a>
+                                    <a target="_blank" href="/targeting/enrollment/export/excel/{{ sessionInfo.id }}?status=Selected" class="dropdown-item">Selected</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>

@@ -57,6 +57,9 @@ public class TransferAgencyServiceImpl implements TransferAgencyService {
     private TransferAgencyAssignmentRepository transferAgencyAssignmentRepository;
 
     @Autowired
+    private TransferAgencyAssignmentViewRepository transferAgencyAssignmentViewRepository;
+
+    @Autowired
     private LocationService locationService;
 
     public TransferAgenciesRepository getTransferAgenciesRepository() {
@@ -121,5 +124,10 @@ public class TransferAgencyServiceImpl implements TransferAgencyService {
     @Override
     public List<TransferAgency> findAllByTransferModality(String transferMethod) {
         return transferAgenciesRepository.findAllByTransferMethod(TransferMethod.valueOf(transferMethod));
+    }
+
+    @Override
+    public List<TransferAgencyAssignmentView> getAssignmentsByAgency(Long agencyId) {
+        return transferAgencyAssignmentViewRepository.findAllByTransferAgencyId(agencyId);
     }
 }

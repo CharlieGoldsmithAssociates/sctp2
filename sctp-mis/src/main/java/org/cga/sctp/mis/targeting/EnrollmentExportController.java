@@ -32,14 +32,12 @@
 
 package org.cga.sctp.mis.targeting;
 
-import org.cga.sctp.targeting.CbtStatus;
-import org.cga.sctp.targeting.TargetingService;
-import org.cga.sctp.targeting.TargetingSessionView;
+import org.cga.sctp.core.BaseComponent;
+import org.cga.sctp.targeting.enrollment.EnrollmentService;
+import org.cga.sctp.targeting.enrollment.EnrollmentSessionView;
+import org.cga.sctp.targeting.enrollment.EnrollmentUpdateForm;
 import org.cga.sctp.user.AdminAndStandardAccessOnly;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -49,52 +47,34 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.nio.file.Path;
+import java.util.Optional;
 
 @Controller
-@RequestMapping("/targeting/community/export")
-public class CommunityBasedTargetingExportController {
-
-    @Value("${imports.staging}")
-    private String stagingDirectory;
+@RequestMapping("/targeting/enrollment/export")
+public class EnrollmentExportController extends BaseComponent {
 
     @Autowired
-    private TargetingService targetingService;
+    private EnrollmentService enrollmentService;
 
-    // TODO: ? @GetMapping("/pdf/{session-id}")
 
-    /**
-     * Exports full targeting result for the given session to Excel file.
-     *
-     * @param targetingSessionId the session to export data for
-     * @return Response entity, possible to return 404 if session doesn't exist..
-     */
     @GetMapping("/excel/{session-id}")
     @AdminAndStandardAccessOnly
-    public ResponseEntity<Resource> generateExcel(@PathVariable("session-id") Long targetingSessionId,
-                                                  @RequestParam("status") String status) {
-        TargetingSessionView targetingSession = targetingService.findTargetingSessionViewById(targetingSessionId);
-        if (targetingSession == null) {
+    public ResponseEntity<Resource> exportEnrollmentList(@PathVariable("session-id") Long sessionId,
+                                                         @RequestParam("status") Optional<EnrollmentUpdateForm.EnrollmentStatus> status) {
+        EnrollmentSessionView session = enrollmentService.getEnrollmentSession(sessionId);
+        if (session == null) {
             return ResponseEntity.notFound().build();
         }
 
-        try {
-            Path filePath;
-            CbtStatus statusParam;
-            try {
-                statusParam = CbtStatus.valueOf(status);
-                filePath = targetingService.exportSessionDataByStatusToExcel(targetingSession, statusParam, stagingDirectory);
-            } catch (IllegalArgumentException e) {
-                filePath = targetingService.exportSessionDataToExcel(targetingSession, stagingDirectory);
-            }
+        final Resource resource = enrollmentService.exportEnrollmentList(session, status.orElse(null));
 
+        if (resource == null) {
+            return ResponseEntity.internalServerError().build();
+        } else {
             return ResponseEntity.status(200)
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .header("Content-Disposition", String.format("filename=Targeted-Households-%s.xlsx", targetingSessionId))
-                    .body(new FileSystemResource(filePath));
-        } catch (Exception e) {
-            LoggerFactory.getLogger(getClass()).error("Failed to export beneficiaries", e);
-            return ResponseEntity.internalServerError().build();
+                    .header("Content-Disposition", format("filename=%s", resource.getFilename()))
+                    .body(resource);
         }
     }
 }

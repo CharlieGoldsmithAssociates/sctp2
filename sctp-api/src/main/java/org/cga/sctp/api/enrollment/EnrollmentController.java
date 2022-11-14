@@ -63,6 +63,7 @@ import javax.validation.constraints.Min;
 @RestController
 @RequestMapping("/enrollment")
 @Tag(name = "Enrollment", description = "Endpoint for enrollment tasks")
+@Validated
 public class EnrollmentController extends BaseController {
 
     @Autowired
@@ -81,7 +82,12 @@ public class EnrollmentController extends BaseController {
     public ResponseEntity<?> updateHouseholdEnrollment(
             @AuthenticatedUserDetails ApiUserDetails user,
             @PathVariable("session-id") Long sessionId,
-            @Valid @RequestBody EnrollmentUpdateForm updateRequest) {
+            @Valid @Validated @RequestBody EnrollmentUpdateForm updateRequest,
+            BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body(bindingResult.getModel());
+        }
 
         EnrollmentSession session = enrollmentService.getSessionById(sessionId);
 
@@ -108,8 +114,9 @@ public class EnrollmentController extends BaseController {
     public ResponseEntity<RecipientPictureUpdateStatus> updateRecipientPictures(
             @AuthenticatedUserDetails ApiUserDetails user,
             @PathVariable("session-id") Long sessionId,
-            @Valid @Validated @ModelAttribute RecipientPictureUpdateRequest request,
+            @Valid @ModelAttribute RecipientPictureUpdateRequest request,
             BindingResult bindingResult) {
+
 
         if (bindingResult.hasErrors()) {
             LOG.error("Bad request {}", bindingResult.getModel());
@@ -212,7 +219,8 @@ public class EnrollmentController extends BaseController {
         return ResponseEntity.notFound().build();
     }
 
-    @PostMapping(value = "/mobile-review-completed")
+    // TODO Add this functionality in the MIS. Remove block when implemented
+    /*@PostMapping(value = "/mobile-review-completed")
     @Operation(description = "Marks an enrollment session as having been reviewed on the mobile app.")
     @ApiResponses({
             @ApiResponse(responseCode = "404", description = "Session does not exist")
@@ -237,5 +245,28 @@ public class EnrollmentController extends BaseController {
         }
 
         return ResponseEntity.notFound().build();
+    }*/
+
+
+    @PostMapping("/{session-id}/update-member-details")
+    @Operation(description = "Updates household member details")
+    @ApiResponses({@ApiResponse(responseCode = "200")})
+    @IncludeGeneralResponses
+    public ResponseEntity<?> updateHouseholdMemberDetails(
+            @AuthenticatedUserDetails ApiUserDetails apiUserDetails,
+            @Valid @RequestBody HouseholdMemberUpdateRequest updateRequest,
+            @PathVariable(value = "session-id") Long sessionId
+    ) {
+        EnrollmentSession session = enrollmentService.getSessionById(sessionId);
+
+        if (session == null || !session.getMobileReview()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+
+        enrollmentService.updateHouseholdMemberDetails(sessionId, updateRequest.getUpdates());
+
+        LOG.warn("update member details");
+
+        return ResponseEntity.ok().build();
     }
 }
