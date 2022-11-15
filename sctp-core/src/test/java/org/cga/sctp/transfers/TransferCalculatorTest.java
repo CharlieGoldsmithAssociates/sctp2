@@ -59,14 +59,14 @@ class TransferCalculatorTest {
         TransferParametersService service = new TransferParametersService();
 
         List<HouseholdTransferParameter> householdTransferParameters = List.of(
-                createParam(1, BigDecimal.valueOf(1000L), HouseholdParameterCondition.EQUALS),
-                createParam(2, BigDecimal.valueOf(2000L), HouseholdParameterCondition.EQUALS),
-                createParam(3, BigDecimal.valueOf(3000L), HouseholdParameterCondition.EQUALS),
-                createParam(4, BigDecimal.valueOf(4000L), HouseholdParameterCondition.GREATER_THAN_OR_EQUALS)
+                createParam(1, BigDecimal.valueOf(1000.0), HouseholdParameterCondition.EQUALS),
+                createParam(2, BigDecimal.valueOf(2000.0), HouseholdParameterCondition.EQUALS),
+                createParam(3, BigDecimal.valueOf(3000.0), HouseholdParameterCondition.EQUALS),
+                createParam(4, BigDecimal.valueOf(4000.0), HouseholdParameterCondition.GREATER_THAN_OR_EQUALS)
         );
         List<EducationTransferParameter> educationTransferParameters = List.of(
-                createEducationParam(BigDecimal.valueOf(2000L), EducationLevel.Primary),
-                createEducationParam(BigDecimal.valueOf(1000L), EducationLevel.Secondary)
+                createEducationParam(BigDecimal.valueOf(2000.0), EducationLevel.Primary),
+                createEducationParam(BigDecimal.valueOf(1000.0), EducationLevel.Secondary)
         );
 
         Location location = new Location();
@@ -84,7 +84,7 @@ class TransferCalculatorTest {
         transferPeriod.setDescription("Test");
         transferPeriod.setDistrictId(328);
         transferPeriod.setStartDate(LocalDate.now());
-        transferPeriod.setEndDate(LocalDate.now().plusMonths(2));
+        transferPeriod.setEndDate(LocalDate.now().plusMonths(1));
         transferPeriod.setName("Test Transfer Period");
         transferPeriod.setOpenedBy(1L);
         transferPeriod.setProgramId(1L);
@@ -93,8 +93,10 @@ class TransferCalculatorTest {
         transferPeriod.setUpdatedAt(LocalDateTime.now());
 
         Transfer transfer = new Transfer();
+
         transfer.setTransferPeriodId(transferPeriod.getId());
-        transfer.setNumberOfMonths(transfer.getNumberOfMonths());
+        transfer.setNumberOfMonths(transferPeriod.countNoOfMonths());
+
         transfer.setHouseholdMemberCount(3);
         transfer.setPrimaryChildrenCount(1L);
         transfer.setPrimaryIncentiveChildrenCount(1L);
@@ -103,17 +105,16 @@ class TransferCalculatorTest {
         List<TopUp> topUps = Collections.singletonList(createBasicTopUp());
 
         TransferCalculator transferCalculator = new TransferCalculator(householdTransferParameters, educationTransferParameters, topUps);
-        transferCalculator.calculateTransfersUpdate(location, transferPeriod, Collections.singletonList(transfer));
+        transferCalculator.calculateTransfers(location, transferPeriod, Collections.singletonList(transfer));
 
+        assertEquals(BigDecimal.valueOf(3000.0), transfer.getBasicSubsidyAmount());
+        assertEquals(BigDecimal.valueOf(1000.0), transfer.getSecondaryBonusAmount());
+        assertEquals(BigDecimal.valueOf(2000.0), transfer.getPrimaryBonusAmount());
+        assertEquals(BigDecimal.valueOf(2000.0), transfer.getPrimaryIncentiveAmount());
 
+        assertEquals(BigDecimal.valueOf(4000.0), transfer.getTopupAmount());
 
-        assertEquals(BigDecimal.valueOf(3000), transfer.getBasicSubsidyAmount());
-        assertEquals(BigDecimal.valueOf(1000), transfer.getSecondaryBonusAmount());
-        assertEquals(BigDecimal.valueOf(2000), transfer.getPrimaryBonusAmount());
-        assertEquals(BigDecimal.valueOf(2000), transfer.getPrimaryIncentiveAmount());
-        assertEquals(BigDecimal.valueOf(4000), transfer.getTopupAmount());
-
-        BigDecimal expectedTotal = BigDecimal.valueOf(12000);
+        BigDecimal expectedTotal = BigDecimal.valueOf(12000.0);
         assertEquals(expectedTotal, transfer.getTotalAmountToTransfer());
     }
 

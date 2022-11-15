@@ -86,87 +86,129 @@ public class Transfer {
     @Column
     private Long recipientId;
 
-    /** BIGINT COMMENT 'Amount to receive based on program basic amount or number of household members', */
+    /**
+     * BIGINT COMMENT 'Amount to receive based on program basic amount or number of household members',
+     */
     @Column
     private BigDecimal basicSubsidyAmount;
 
-    /** INT NOT NULL COMMENT 'Number of months in the transfer period', */
+    /**
+     * INT NOT NULL COMMENT 'Number of months in the transfer period',
+     */
     @Column
     private Long numberOfMonths;
 
-    /** INT COMMENT 'Total number of children', */
+    /**
+     * INT COMMENT 'Total number of children',
+     */
     @Column
     private Long childrenCount;
 
-    /** INT COMMENT 'Number of children in primary school', */
+    /**
+     * INT COMMENT 'Number of children in primary school',
+     */
     @Column
     private Long primaryChildrenCount;
 
-    /** INT COMMENT 'Number of children in primary school', */
+    /**
+     * INT COMMENT 'Number of children in primary school',
+     */
     @Column
     private Long primaryIncentiveChildrenCount;
 
-    /** BIGINT COMMENT 'Amount to add based on number of primary going children', */
+    /**
+     * BIGINT COMMENT 'Amount to add based on number of primary going children',
+     */
     @Column
     private BigDecimal primaryIncentiveAmount;
 
-    /** INT COMMENT 'Number of children in secondary education', */
+    /**
+     * INT COMMENT 'Number of children in secondary education',
+     */
     @Column
     private Long secondaryChildrenCount;
 
-    /** BIGINT COMMENT 'Amount to add based on number of primary going children', */
+    /**
+     * BIGINT COMMENT 'Amount to add based on number of primary going children',
+     */
     @Column
     private BigDecimal primaryBonusAmount;
 
-    /** BIGINT COMMENT 'Amount to add based on number of primary going children', */
+    /**
+     * BIGINT COMMENT 'Amount to add based on number of primary going children',
+     */
     @Column
     private BigDecimal secondaryBonusAmount;
 
-    /** TINYINT(1) DEFAULT 1 COMMENT 'Whether it is the first transfer for the household or not', */
+    /**
+     * TINYINT(1) DEFAULT 1 COMMENT 'Whether it is the first transfer for the household or not',
+     */
     @Column(name = "is_first_transfer")
     private Long isFirstTransfer;
 
-    /** TINYINT(1) COMMENT 'Whether the transfer has been Suspended for other reasons', */
+    /**
+     * TINYINT(1) COMMENT 'Whether the transfer has been Suspended for other reasons',
+     */
     @Column(name = "is_suspended")
     private Boolean isSuspended;
 
-    /** TINYINT(1) COMMENT 'Whether the transfer has been withheld because of case management issues', */
+    /**
+     * TINYINT(1) COMMENT 'Whether the transfer has been withheld because of case management issues',
+     */
     @Column
     private Boolean isWithheld;
 
-    /** BIGINT null COMMENT 'Receiever who will receive the funds, possible to be non-member of household', */
+    /**
+     * BIGINT null COMMENT 'Receiever who will receive the funds, possible to be non-member of household',
+     */
     @Column
     private Long receiverId;
 
-    /** VARCHAR(50) NULL COMMENT 'Account number assigned for transfer', */
+    /**
+     * VARCHAR(50) NULL COMMENT 'Account number assigned for transfer',
+     */
     @Column
     private String accountNumber;
 
-    /** BIGINT DEFAULT 0 COMMENT 'Amount received by the household', */
+    /**
+     * BIGINT DEFAULT 0 COMMENT 'Amount received by the household',
+     */
     @Column
     private BigDecimal amountDisbursed;
 
-    /** TINYINT(1) DEFAULT 0 COMMENT 'Whether the amount was disbursed/delivered to the household', */
+    /**
+     * TINYINT(1) DEFAULT 0 COMMENT 'Whether the amount was disbursed/delivered to the household',
+     */
     @Column(name = "is_collected")
     private Boolean isCollected;
 
-    /** DATE COMMENT 'When the amount was disbursed', */
+    /**
+     * DATE COMMENT 'When the amount was disbursed',
+     */
     @Column
     private LocalDateTime disbursementDate;
 
-    /** BIGINT null COMMENT 'Amount that is pending from this transfer', */
+    /**
+     * BIGINT null COMMENT 'Amount that is pending from this transfer',
+     */
     @Column
     private BigDecimal arrearsAmount;
 
-    /** BIGINT NULL COMMENT 'User who disbursed the amount for Manual transfers', */
+    /**
+     * BIGINT NULL COMMENT 'User who disbursed the amount for Manual transfers',
+     */
     @Column
     private Long disbursedByUserId;
 
-    /** BIGINT COMMENT 'TODO: Review and create topup_events table which will describe why topup exists', */
+    /**
+     * BIGINT COMMENT 'TODO: Review and create topup_events table which will describe why topup exists',
+     */
     @Column
     private Long topupEventId;
 
-    /** BIGINT COMMENT 'Amount to be disbursed for topup', */
+    /**
+     * BIGINT COMMENT 'Amount to be disbursed for topup',
+     */
     @Column
     private BigDecimal topupAmount;
 
@@ -522,15 +564,17 @@ public class Transfer {
         this.reviewedBy = reviewedBy;
     }
 
-    // TODO: Make this a property in the database ? or pre-compute
-    public BigDecimal getTotalAmountToTransfer() {
-        BigDecimal total = new BigDecimal("0.0");
-        total.add(this.basicSubsidyAmount);
-        total.add(this.secondaryBonusAmount);
-        total.add(this.primaryBonusAmount);
-        total.add(this.primaryIncentiveAmount);
-        total.add(this.topupAmount);
+    public BigDecimal calculateMonthlyAmount() {
+        return new BigDecimal("0.0")
+                .add(this.basicSubsidyAmount)
+                .add(this.secondaryBonusAmount)
+                .add(this.primaryBonusAmount)
+                .add(this.primaryIncentiveAmount);
+    }
 
-        return total;
+    public BigDecimal getTotalAmountToTransfer() {
+        return this.calculateMonthlyAmount()
+                .multiply(BigDecimal.valueOf(this.numberOfMonths))
+                .add(this.topupAmount);
     }
 }
