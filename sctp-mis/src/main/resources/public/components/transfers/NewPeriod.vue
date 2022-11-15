@@ -30,6 +30,7 @@
   ~ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 <script>
+
 module.exports = {
   data() {
     return {
@@ -41,11 +42,12 @@ module.exports = {
       selectedDistrict: null,
       districts: [],
       villageClusters: [],
-      selectedVillageClusters: [],
+      selectedVillageClusters: new Set(),
       traditionalAuthorities: [],
       selectedTraditionalAuthority: null,
       selectedProgram: null,
-      programs: []
+      programs: [],
+      isSelectAllVillageClusters: false
     }
   },
   mounted() {
@@ -170,11 +172,9 @@ module.exports = {
         requestBody.traditionalAuthorityId = vm.selectedTraditionalAuthority;
       }
 
-      if (vm.selectedVillageClusters.length > 0) {
-        requestBody.villageClusters = vm.selectedVillageClusters;
+      if (vm.selectedVillageClusters.size > 0) {
+        requestBody.villageClusters = [...vm.selectedVillageClusters];
       }
-
-      console.log(requestBody)
 
       axios.post('/transfers/periods/open-new', JSON.stringify(requestBody), config)
           .then(function (response) {
@@ -297,16 +297,10 @@ module.exports = {
           </b-field>
         </div>
       </div>
-      <b-field label="Village Cluster">
-        <b-select multiple native-size="4" placeholder="Select a Village Cluster" v-model="selectedVillageClusters" expanded>
-          <option
-              v-for="option in villageClusters"
-              :value="option.id"
-              :key="option.id">
-            {{ option.text }}
-          </option>
-        </b-select>
-      </b-field>
+
+      <v-multiselect label="Village Clusters" :options="villageClusters" option-label-field="text" option-value-field="id"
+                     :selected="selectedVillageClusters"></v-multiselect>
+
       <div class="buttons is-right mt-5">
         <a class="button" href="/transfers/periods">Cancel</a>
         <button @click="openTransferPeriod" class="button is-success" :disabled="!(selectedDistrict && selectedProgram)" >Open Transfer Period &gt;&gt;</button>
