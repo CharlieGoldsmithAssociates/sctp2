@@ -342,7 +342,7 @@ public class EnrollmentController extends SecuredBaseController {
         };
 
         if (!updateResult.stored()) {
-            return ResponseEntity.badRequest().body("Cannot upload the file");
+           // return ResponseEntity.badRequest().body("Cannot upload the file");
         }
 
        switch (type) {
