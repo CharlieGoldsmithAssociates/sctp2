@@ -198,6 +198,11 @@ public class UserController extends BaseController {
             user.setEmail(editForm.getEmail());
         }
 
+        // activating a deactivated account? Reset auth attempts
+        if (editForm.getActive().value && !user.isActive()) {
+            user.setAuthAttempts(0);
+        }
+
         user.setRole(editForm.getRole());
         user.setModifiedAt(LocalDateTime.now());
         user.setLastName(editForm.getLastName());
@@ -277,6 +282,7 @@ public class UserController extends BaseController {
         }
 
         user.setPassword(authService.hashPassword(passwordForm.getPassword()));
+        user.setAuthAttempts(0);
         userService.saveUser(user);
 
         publishEvent(UserAuditEvent.password(username, user.getUsername(), request.getRemoteAddr()));
