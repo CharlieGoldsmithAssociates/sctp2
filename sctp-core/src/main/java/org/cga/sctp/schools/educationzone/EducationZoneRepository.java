@@ -32,12 +32,56 @@
 
 package org.cga.sctp.schools.educationzone;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface EducationZoneRepository extends JpaRepository<EducationZone, Long> {
+
+
+    @Query(nativeQuery = true, value = """
+                SELECT 
+                    eduzone.id AS id,
+                    ta.name AS taName ,
+                    district.name as districtName,
+                    eduzone.ta_code AS taCode,
+                    eduzone.district_code AS districtCode,
+                    eduzone.name,
+                    eduzone.alt_name AS altName,
+                    eduzone.code,
+                    eduzone.active,
+                    eduzone.created_at AS createdAt,
+                    eduzone.updated_at AS updatedAt
+                FROM education_zones eduzone
+                LEFT JOIN locations district ON district.code = eduzone.district_code
+                LEFT JOIN locations ta ON ta.code = eduzone.ta_code
+            """)
+    Page<EducationZoneView> fetchAllZonesPaged(Pageable pageable);
+
+    @Query(nativeQuery = true, value = """
+                SELECT 
+                    eduzone.id AS id,
+                    ta.name AS taName ,
+                    district.name as districtName,
+                    eduzone.ta_code AS taCode,
+                    eduzone.district_code AS districtCode,
+                    eduzone.name,
+                    eduzone.alt_name AS altName,
+                    eduzone.code,
+                    eduzone.active,
+                    eduzone.created_at AS createdAt,
+                    eduzone.updated_at AS updatedAt
+                FROM education_zones eduzone
+                LEFT JOIN locations district ON district.code = eduzone.district_code
+                LEFT JOIN locations ta ON ta.code = eduzone.ta_code
+                WHERE eduzone.id = :educationZoneId
+            """)
+    Optional<EducationZoneView> findByIdAsView(@Param("educationZoneId") Long educationZoneId);
 }

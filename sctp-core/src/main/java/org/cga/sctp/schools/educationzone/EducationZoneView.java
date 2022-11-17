@@ -30,86 +30,30 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.mis.schools.educationzone;
+package org.cga.sctp.schools.educationzone;
 
-import org.cga.sctp.mis.core.templating.Booleans;
+import java.time.LocalDateTime;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+public interface EducationZoneView {
+    Long getId();
 
-public class EducationZoneForm {
-    private Long id;
-    @NotNull
-    private Long taCode;
+    String getTaName();
 
-    @NotNull
-    private Long districtCode;
+    Long getTaCode();
 
-    @NotEmpty
-    private String name;
+    String getDistrictName();
 
-    @NotEmpty
-    private String altName;
+    Long getDistrictCode();
 
-    @NotEmpty
-    private String code;
+    String getName();
 
-    @NotNull
-    private Booleans active;
+    String getAltName();
 
-    public Long getId() {
-        return id;
-    }
+    String getCode();
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    boolean getActive();
 
-    public Long getTaCode() {
-        return taCode;
-    }
+    LocalDateTime getCreatedAt();
 
-    public void setTaCode(Long taCode) {
-        this.taCode = taCode;
-    }
-
-    public Long getDistrictCode() {
-        return districtCode;
-    }
-
-    public void setDistrictCode(Long districtCode) {
-        this.districtCode = districtCode;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getAltName() {
-        return altName;
-    }
-
-    public void setAltName(String altName) {
-        this.altName = altName;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public Booleans isActive() {
-        return active;
-    }
-
-    public void setActive(Booleans active) {
-        this.active = active;
-    }
+    LocalDateTime getUpdatedAt();
 }
