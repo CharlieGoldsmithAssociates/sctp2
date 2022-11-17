@@ -59,6 +59,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
@@ -304,7 +305,7 @@ public class EnrollmentController extends SecuredBaseController {
             @Valid @ModelAttribute UpdateHouseholdRecipientForm form,
             BindingResult bindingResult
     ) {
-
+        FieldError fieldError = null;
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(bindingResult.getAllErrors());
         }
@@ -342,7 +343,8 @@ public class EnrollmentController extends SecuredBaseController {
         };
 
         if (!updateResult.stored()) {
-           // return ResponseEntity.badRequest().body("Cannot upload the file");
+            fieldError = new FieldError("form", "File", "Cannot upload the file.");
+            return ResponseEntity.badRequest().body(fieldError);
         }
 
        switch (type) {

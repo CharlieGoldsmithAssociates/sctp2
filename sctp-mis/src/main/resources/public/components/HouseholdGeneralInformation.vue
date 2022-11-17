@@ -241,6 +241,10 @@ module.exports = {
     saveStatus() {
       let vm = this;
       vm.isLoading = true;
+      if(vm.newHouseholdStatus == null){
+        vm.errorDialog("Please select status");
+        return;
+      }
       fData = new FormData();
       fData.append("household", vm.householdId);
       fData.append("session", vm.sessionId);
@@ -263,7 +267,11 @@ module.exports = {
         })
         .catch(function (error) {
           console.log(error);
-          vm.errorDialog("Error saving status");
+          if(error.response.data){
+            vm.errorDialog(error.response.data);
+          }else{
+            vm.errorDialog("Error saving status");
+          }
         })
         .then(function () {
           vm.isLoading = false;

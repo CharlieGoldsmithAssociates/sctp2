@@ -236,6 +236,17 @@ module.exports = {
       let vm = this;
       vm.isLoading = true;
       var photo = document.querySelector("#mainPhotoSelection").files[0];
+      
+      if(photo == null){
+        this.errorDialog("Photo is required")
+        return;
+      }
+
+      if(vm.memberId == null){
+        this.errorDialog("Please select a recipient")
+        return;
+      }
+      
       fData = new FormData();
       fData.append("id", vm.memberId);
       fData.append("household", vm.householdId);
@@ -262,7 +273,11 @@ module.exports = {
         })
         .catch(function (error) {
           console.log(error);
-          vm.errorDialog("Error updating data");
+          if(error.response.data.defaultMessage){
+            vm.errorDialog(error.response.data.defaultMessage);
+          }else{
+            vm.errorDialog("Error updating data");
+          }
         })
         .then(function () {
           vm.isLoading = false;

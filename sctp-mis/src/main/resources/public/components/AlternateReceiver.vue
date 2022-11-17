@@ -399,6 +399,12 @@ module.exports = {
       fData.append("session", vm.sessionId);
       fData.append("photo", photo);
       var altType = "";
+
+      if(photo == null){
+        this.errorDialog("Photo is required")
+        return;
+      }
+
       if (vm.isHouseholdMember) {
         fData.append("id", vm.memberId);
         altType = "member";
@@ -435,7 +441,11 @@ module.exports = {
         })
         .catch(function (error) {
           console.log(error);
-          vm.errorDialog("Error updating data");
+          if(error.response.data.defaultMessage){
+            vm.errorDialog(error.response.data.defaultMessage);
+          }else{
+            vm.errorDialog("Error updating data");
+          }
         })
         .then(function () {
           vm.isLoading = false;
