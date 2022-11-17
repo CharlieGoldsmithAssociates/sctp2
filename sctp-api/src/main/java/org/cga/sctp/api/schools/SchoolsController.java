@@ -40,7 +40,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.cga.sctp.api.core.BaseController;
 import org.cga.sctp.api.core.IncludeGeneralResponses;
-import org.cga.sctp.api.locations.LocationDownloadResponse;
 import org.cga.sctp.schools.SchoolService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -49,6 +48,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 
 @Controller
 @RequestMapping("/schools")
@@ -68,5 +71,19 @@ public class SchoolsController extends BaseController {
         var pageable = Pageable.ofSize(500).withPage(page);
         SchoolsResponse response = new SchoolsResponse(schoolService.getActiveSchoolsPaged(pageable));
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/detailed")
+    @Operation(description = "Returns list of schools with education zone location details")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = SchoolViewsResponse.class)))
+    })
+    @IncludeGeneralResponses
+    public ResponseEntity<SchoolViewsResponse> getDetailedSchools(
+            @Valid @Min(0) @RequestParam(value = "page", defaultValue = "0") int page,
+            @Valid @Min(1) @Max(1000) @RequestParam(value = "pageSize", defaultValue = "500") int pageSize
+    ) {
+        Pageable pageable = Pageable.ofSize(pageSize).withPage(page);
+        return ResponseEntity.ok(new SchoolViewsResponse(schoolService.getSchoolViews(pageable)));
     }
 }

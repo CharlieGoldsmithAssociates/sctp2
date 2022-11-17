@@ -32,6 +32,7 @@
 
 package org.cga.sctp.schools;
 
+import org.cga.sctp.core.BaseService;
 import org.cga.sctp.schools.educationzone.EducationZone;
 import org.cga.sctp.schools.educationzone.EducationZoneRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,19 +44,22 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class SchoolService {
+public class SchoolService extends BaseService {
 
     @Autowired
-    SchoolRepository schoolRepository;
+    private SchoolRepository schoolRepository;
 
     @Autowired
-    EducationZoneRepository educationZoneRepository;
+    private SchoolViewRepository schoolViewRepository;
+
+    @Autowired
+    private EducationZoneRepository educationZoneRepository;
 
     public SchoolRepository getSchoolRepository() {
         return schoolRepository;
     }
 
-    public List<SchoolsView> getSchools(){
+    public List<SchoolsView> getSchools() {
         return schoolRepository.getSchools();
     }
 
@@ -80,5 +84,9 @@ public class SchoolService {
 
     public Page<School> getActiveSchoolsPaged(Pageable pageable) {
         return schoolRepository.findAllByActive(true, pageable);
+    }
+
+    public Page<SchoolView> getSchoolViews(Pageable pageable) {
+        return schoolViewRepository.findAll(pageable);
     }
 }
