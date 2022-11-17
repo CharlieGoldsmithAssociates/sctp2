@@ -316,7 +316,19 @@ public class LocationController extends BaseController {
                 .body(toSelectOptions(subLocations));
     }
 
-
+    @AdminAndStandardAccessOnly
+    @GetMapping(value = "/get-child-locations/multiple", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<SelectOptionItem>> getSubLocations(@RequestParam("ids") List<Long> parentIds) {
+        List<LocationCode> subLocations = locationService.getLocationCodesByParentIn(parentIds);
+        if (subLocations.isEmpty()) {
+            return ResponseEntity
+                    .ok().contentType(MediaType.APPLICATION_JSON)
+                    .body(Collections.emptyList());
+        }
+        return ResponseEntity
+                .ok().contentType(MediaType.APPLICATION_JSON)
+                .body(toSelectOptions(subLocations));
+    }
 
     @GetMapping("/districts/active")
     @AdminAndStandardAccessOnly

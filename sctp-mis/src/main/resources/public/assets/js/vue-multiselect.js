@@ -1,11 +1,12 @@
 (function () {
     Vue.component('v-multiselect', {
+        inheritAttrs: false,
         template: `
             <b-field :label="label">
                 <template slot="label">
                 <span class="is-flex is-justify-content-space-between is-align-items-center">
                     <span>
-                        Village Cluster 
+                        {{ label }}
                         <span v-if="required" class="has-text-danger">*</span> 
                     </span>
                     <span class="has-text-weight-light is-family-secondary is-size-6" >
@@ -23,6 +24,7 @@
                 </div>
             </b-field>
         `,
+        emits: ['input'],
         methods: {
             attachCustomCss() {
                 const css_text = `input[type=checkbox] {
@@ -65,9 +67,11 @@
                         this.selected.delete(option);
                     }
                 }
+
+                this.$emit('input');
             },
-            selectAll() {
-                const checkboxes = document.getElementsByName('option');
+            selectAll(event) {
+                const checkboxes = this.$el.querySelectorAll('input[type="checkbox"]');
                 for(let i = 0 , n = checkboxes.length; i < n; i++) {
                     checkboxes[i].checked = true;
                 }
@@ -79,13 +83,17 @@
                         this.selected.add(option);
                     }
                 });
+
+                this.$emit('input');
             },
-            clear() {
-                const checkboxes = document.getElementsByName('option');
+            clear(event) {
+                const checkboxes = this.$el.querySelectorAll('input[type="checkbox"]');
                 for(let i = 0 , n = checkboxes.length; i < n; i++) {
                     checkboxes[i].checked = false;
                 }
                 this.selected.clear();
+
+                this.$emit('input');
             }
         },
         props: {

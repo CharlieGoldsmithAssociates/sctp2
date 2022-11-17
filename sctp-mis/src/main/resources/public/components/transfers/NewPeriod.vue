@@ -44,7 +44,7 @@ module.exports = {
       villageClusters: [],
       selectedVillageClusters: new Set(),
       traditionalAuthorities: [],
-      selectedTraditionalAuthority: null,
+      selectedTraditionalAuthorities: new Set(),
       selectedProgram: null,
       programs: [],
       isSelectAllVillageClusters: false
@@ -109,19 +109,44 @@ module.exports = {
             vm.isLoading = false
           });
     },
-    getChildLocations(id, isVillageCluster = false) {
+    getTraditionalAuthorities() {
       const vm = this;
 
-      const error_message = 'Error getting child locations'
+      const error_message = 'Error getting child locations';
 
-      axios.get(`/locations/get-child-locations?id=${id}`)
+      vm.selectedTraditionalAuthorities = new Set();
+
+      axios.get(`/locations/get-child-locations?id=${vm.selectedDistrict.code}`)
           .then(function (response) {
             if (response.status === 200 && isJsonContentType(response.headers['content-type'])) {
-              if (isVillageCluster) {
-                vm.villageClusters = response.data;
-              } else {
-                vm.traditionalAuthorities = response.data;
-              }
+              vm.traditionalAuthorities = response.data;
+            } else {
+              vm.snackbar(error_message, 'warning');
+            }
+          })
+          .catch(function (error) {
+            vm.snackbar(error_message, 'danger');
+          })
+          .then(function () {
+            vm.isLoading = false
+          });
+    },
+    getVillageClusters() {
+      const vm = this;
+
+      const error_message = 'Error getting child locations';
+
+      vm.selectedVillageClusters = new Set();
+
+      if (vm.selectedTraditionalAuthorities.size === 0) {
+        vm.villageClusters = [];
+        return;
+      }
+
+      axios.get(`/locations/get-child-locations/multiple?ids=${[...vm.selectedTraditionalAuthorities]}`)
+          .then(function (response) {
+            if (response.status === 200 && isJsonContentType(response.headers['content-type'])) {
+              vm.villageClusters = response.data;
             } else {
               vm.snackbar(error_message, 'warning');
             }
@@ -268,38 +293,39 @@ module.exports = {
           </option>
         </b-select>
       </b-field>
+      <b-field>
+        <template slot="label">
+          <span>District <span class="has-text-danger">*</span> </span>
+        </template>
+        <b-select placeholder="Select a district" v-model="selectedDistrict" @input="getTraditionalAuthorities" expanded required>
+          <option
+              v-for="option in districts"
+              :value="option"
+              :key="option.id">
+            {{ option.name }}
+          </option>
+        </b-select>
+      </b-field>
       <div class="columns">
         <div class="column">
-          <b-field>
-            <template slot="label">
-              <span>District <span class="has-text-danger">*</span> </span>
-            </template>
-            <b-select placeholder="Select a district" v-model="selectedDistrict" @input="value => getChildLocations(value.code)" expanded required>
-              <option
-                  v-for="option in districts"
-                  :value="option"
-                  :key="option.id">
-                {{ option.name }}
-              </option>
-            </b-select>
-          </b-field>
+<!--          <b-field label="T/A">-->
+<!--            <b-select placeholder="Select a T/A" expanded v-model="selectedTraditionalAuthority" @input="value => getChildLocations(value, true)" >-->
+<!--              <option-->
+<!--                  v-for="option in traditionalAuthorities"-->
+<!--                  :value="option.id"-->
+<!--                  :key="option.id">-->
+<!--                {{ option.text }}-->
+<!--              </option>-->
+<!--            </b-select>-->
+<!--          </b-field>-->
+          <v-multiselect label="T/A" :options="traditionalAuthorities" option-label-field="text" option-value-field="id"
+                         :selected="selectedTraditionalAuthorities" @input="getVillageClusters" ></v-multiselect>
         </div>
         <div class="column">
-          <b-field label="T/A">
-            <b-select placeholder="Select a T/A" expanded v-model="selectedTraditionalAuthority" @input="value => getChildLocations(value, true)" >
-              <option
-                  v-for="option in traditionalAuthorities"
-                  :value="option.id"
-                  :key="option.id">
-                {{ option.text }}
-              </option>
-            </b-select>
-          </b-field>
+          <v-multiselect label="Village Clusters" :options="villageClusters" option-label-field="text" option-value-field="id"
+                         :selected="selectedVillageClusters"></v-multiselect>
         </div>
       </div>
-
-      <v-multiselect label="Village Clusters" :options="villageClusters" option-label-field="text" option-value-field="id"
-                     :selected="selectedVillageClusters"></v-multiselect>
 
       <div class="buttons is-right mt-5">
         <a class="button" href="/transfers/periods">Cancel</a>

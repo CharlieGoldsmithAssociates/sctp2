@@ -125,6 +125,10 @@ public class LocationService extends BaseService {
         return locationRepository.getCodesByParentCode(parentCode);
     }
 
+    public List<LocationCode> getLocationCodesByParentIn(List<Long> parentCodes) {
+        return locationRepository.getCodesByParentCodeIn(parentCodes);
+    }
+
     public List<LocationCode> getActiveDistrictCodes() {
         return locationRepository.getActiveCodesByType(LocationType.SUBNATIONAL1.name());
     }
