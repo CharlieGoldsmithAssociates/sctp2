@@ -33,14 +33,15 @@
 package org.cga.sctp.transfers.parameters;
 
 import org.cga.sctp.targeting.importation.parameters.EducationLevel;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface EducationTransferParameterRepository extends JpaRepository<EducationTransferParameter, Long> {
     EducationTransferParameter findDistinctByEducationLevel(EducationLevel educationLevel);
-
     List<EducationTransferParameter> findByTransferParameterId(Long transferParameterId);
+    Page<EducationTransferParameter> findByTransferParameterId(Long transferParameterId, Pageable pageable);
+    boolean existsByTransferParameterIdAndEducationLevel(Long transferParameterId, EducationLevel educationLevel);
 }

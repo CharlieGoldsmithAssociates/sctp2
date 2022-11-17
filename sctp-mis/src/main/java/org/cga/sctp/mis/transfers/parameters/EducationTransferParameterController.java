@@ -35,13 +35,14 @@ package org.cga.sctp.mis.transfers.parameters;
 import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.mis.core.templating.Booleans;
 import org.cga.sctp.targeting.importation.parameters.EducationLevel;
-import org.cga.sctp.transfers.parameters.EducationTransferParameter;
-import org.cga.sctp.transfers.parameters.EducationTransferParameterRepository;
-import org.cga.sctp.transfers.parameters.TransferParameter;
-import org.cga.sctp.transfers.parameters.TransferParametersRepository;
+import org.cga.sctp.transfers.parameters.*;
 import org.cga.sctp.user.AdminAccessOnly;
+import org.cga.sctp.user.AdminAndStandardAccessOnly;
+import org.cga.sctp.user.AuthenticatedUser;
+import org.cga.sctp.user.AuthenticatedUserDetails;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -51,8 +52,11 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/transfers/parameters/education")
@@ -71,6 +75,11 @@ public class EducationTransferParameterController extends BaseController {
                 .addObject("educationParameters", educationParameterList);
     }
 
+    @GetMapping("{transferParameterId}/list")
+    public ResponseEntity<List<EducationTransferParameter>> getEducationTransferParameters(@PathVariable Long transferParameterId) {
+        return ResponseEntity.ok(educationTransferParameterRepository.findByTransferParameterId(transferParameterId));
+    }
+
     @GetMapping("/new")
     @AdminAccessOnly
     public ModelAndView viewAdd() {
@@ -79,6 +88,44 @@ public class EducationTransferParameterController extends BaseController {
                 .addObject("booleans", Booleans.VALUES)
                 .addObject("educationLevels", EducationLevel.values())
                 .addObject("transferParameters", transferParameters);
+    }
+
+    @GetMapping("/levels")
+    @AdminAccessOnly
+    public ResponseEntity<EducationLevel[]> getAllEducationLevels() {
+        return ResponseEntity.ok(EducationLevel.VALUES);
+    }
+
+    @PostMapping("/add")
+    @AdminAccessOnly
+    public ResponseEntity<List<EducationTransferParameter>> addParameters(@AuthenticationPrincipal String username,
+                                                                          @Validated @RequestBody List<EducationTransferParameterForm> parameterForms) {
+        Set<EducationLevel> educationLevels = new HashSet<>();
+
+        Set<EducationTransferParameter> transferParameters =  parameterForms.stream()
+                .map(parameterForm -> {
+                    EducationLevel educationLevel = parameterForm.getEducationLevel();
+
+                    if (!educationLevels.add(educationLevel)) {
+                        throw new EducationTransferParameterException("Cannot have multiple Education parameters with same Education level ('%s').", educationLevel);
+                    }
+
+                    if (educationTransferParameterRepository.existsByTransferParameterIdAndEducationLevel(parameterForm.getTransferParameterId(), educationLevel)) {
+                        throw new EducationTransferParameterException("Education parameter with that Education level ('%s') already exists.", educationLevel);
+                    }
+
+                    EducationTransferParameter educationParameter = new EducationTransferParameter();
+                    educationParameter.setTransferParameterId(parameterForm.getTransferParameterId());
+                    educationParameter.setEducationLevel(parameterForm.getEducationLevel());
+                    educationParameter.setActive(parameterForm.isActive().value);
+                    educationParameter.setAmount(parameterForm.getAmount());
+                    educationParameter.setCreatedAt(LocalDateTime.now());
+                    educationParameter.setModifiedAt(educationParameter.getCreatedAt());
+
+                    return educationParameter;
+                }).collect(Collectors.toSet());
+
+        return ResponseEntity.ok(educationTransferParameterRepository.saveAll(transferParameters));
     }
 
     @PostMapping("/new")
@@ -173,5 +220,19 @@ public class EducationTransferParameterController extends BaseController {
 
         setSuccessFlashMessage("Education parameter updated successfully", attributes);
         return redirect("/transfers/parameters/education");
+    }
+
+    @DeleteMapping("/{parameter-id}")
+    @AdminAndStandardAccessOnly
+    public ResponseEntity<Void> deleteParameter(@AuthenticatedUserDetails AuthenticatedUser user,
+                                                @PathVariable("parameter-id") Long parameterId) {
+        Optional<EducationTransferParameter> transferParameterOptional = educationTransferParameterRepository.findById(parameterId);
+        if (transferParameterOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        EducationTransferParameter parameter = transferParameterOptional.get();
+        publishGeneralEvent("User %s deleted education transfer parameter with id=%s", user.username(), parameter.getId());
+        educationTransferParameterRepository.delete(parameter);
+        return ResponseEntity.ok().build();
     }
 }

@@ -32,31 +32,14 @@
 
 package org.cga.sctp.transfers.parameters;
 
-public enum HouseholdParameterCondition {
-    EQUALS("is equal to", "="),
-    GREATER_THAN("is greater than", ">"),
-    GREATER_THAN_OR_EQUALS("is greater than or equals", ">=");
+import java.util.Locale;
 
-    private String description;
-    private String sign;
-
-    HouseholdParameterCondition(String description, String sign) {
-        this.description = description;
-        this.sign = sign;
+public class EducationTransferParameterException extends RuntimeException {
+    public EducationTransferParameterException(String message) {
+        super(message);
     }
 
-    @Override
-    public String toString() {
-        return name();
+    public EducationTransferParameterException(String format, Object ...args) {
+        this(String.format(Locale.US, format, args));
     }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getSign() {
-        return sign;
-    }
-
-    public static final HouseholdParameterCondition[] VALUES = values();
 }

@@ -1,120 +1,49 @@
-{% extends "../../base" %}
-{% import "../../../utils/form" %}
-{% block contextMenu %}
-<div class="container context-nav-container">
-    <div class="buttons is-right">
-        <a href="{{ href('/transfers/parameters/new') }}" class="button is-primary">Add New</a>
-    </div>
-</div>
-{% endblock %}
+    {% extends "../../base" %}
 
-{% block content %}
+        {% block content %}
 
 <div class="container">
-<div class="card no-overlap">
-    <header class="card-header">
-        <p class="card-header-title">View Transfer Parameter</p>
-    </header>
-    <div class="card-content">
-        <div class="display-content">
-            <div class="field-display">
-                <label class="label">Parameter Title</label>
-                <h3 class="subtitle">{{ transferParameter.title }}</h3>
-            </div>
-        </div>
+    <div class="buttons">
+        <a href="/transfers/parameters" class="button is-danger">
+            <span class="icon is-small">
+                <i class="fas fa-angle-left" aria-hidden="true"></i>
+            </span>
+            <span>Back</span>
+        </a>
+    </div>
 
-        <div class="household-subsidy-parameters">
-            {% if (householdParameters == null or householdParameters.isEmpty()) %}
-                <p class="notification">This Parameter is not Linked to any Subsidy Calculation Options</p>
-            {% endif %}
-            <a href="{{ href("/transfers/parameters/households/new?parameter-id=" + transferParameter.id) }}" class="button is-primary is-small">Add New Parameter</a>
-            <table class="table is-fullwidth is-narrow is-striped is-hoverable">
-                <thead>
-                <tr>
-                    <th>Number Of Members</th>
-                    <th>Amount</th>
-                    <th>Active</th>
-                    <th width="20%">Options</th>
-                </tr>
-                </thead>
-                <tbody>
-                        {% for transferParameter in householdParameters %}
-                    <tr>
-                        {# TODO(zikani03): Fix how we present the condition here #}
-                        <td>{{ transferParameter.numberOfMembers }} ({{ transferParameter.condition }})</td>
-                        <td>MWK {{ transferParameter.amount | numberformat("#,###.##") }}</td>
-                        <td>{{ yesOrNo(transferParameter.active) }}</td>
-                        <td>
-                                {% if canModify %}
-                                <div class="dropdown is-hoverable">
-                                    <div class="dropdown-trigger">
-                                        <button class="button button is-info is-inverted is-options"
-                                                aria-haspopup="true" aria-controls="dropdown-menu2">
-                                            <span>Options</span>
-                                            <span class="icon is-small">
-                                                <i class="fas fa-angle-down" aria-hidden="true"></i>
-                                            </span>
-                                        </button>
-                                    </div>
-                                    <div class="dropdown-menu" id="dropdown-menu2" role="menu">
-                                        <div class="dropdown-content">
-                                            <a href="/transfers/parameters/households/{{ transferParameter.id }}/edit" class="dropdown-item">Edit</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                {% endif %}
-                        </td>
-                    </tr>
-                        {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <div class="education-bonus-parameters">
-            {% if (educationBonuses == null or educationBonuses.isEmpty()) %}
-            <p class="notification">This Parameter is not Linked to any Education Bonus options</p>
-            {% endif %}
-            <a href="{{ href("/transfers/parameters/education/new?parameter-id=" + transferParameter.id) }}" class="button is-primary is-small">Add New Parameter</a>
-            <table class="table is-fullwidth is-narrow is-striped is-hoverable">
-                <thead>
-                <tr>
-                    <th>Education Level</th>
-                    <th>Amount</th>
-                    <th>Active</th>
-                    <th width="20%">Options</th>
-                </tr>
-                </thead>
-                <tbody>
-                        {% for transferParameter in educationBonuses %}
-                    <tr>
-                        <td>{{ transferParameter.educationLevel }} </td>
-                        <td>MWK {{ transferParameter.amount | numberformat("#,###.##") }}</td>
-                        <td>{{ yesOrNo(transferParameter.active) }}</td>
-                        <td>
-                                {% if canModify %}
-                                <div class="dropdown is-hoverable">
-                                    <div class="dropdown-trigger">
-                                        <button class="button button is-info is-inverted is-options"
-                                                aria-haspopup="true" aria-controls="dropdown-menu2">
-                                            <span>Options</span>
-                                            <span class="icon is-small">
-                                                <i class="fas fa-angle-down" aria-hidden="true"></i>
-                                            </span>
-                                        </button>
-                                    </div>
-                                    <div class="dropdown-menu" id="dropdown-menu2" role="menu">
-                                        <div class="dropdown-content">
-                                            <a href="/transfers/parameters/education/{{ transferParameter.id }}/edit" class="dropdown-item">Edit</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                {% endif %}
-                        </td>
-                    </tr>
-                        {% endfor %}
-                </tbody>
-            </table>
+    <div class="card no-overlap">
+        <header class="card-header">
+            <p class="card-header-title">View Transfer Parameter</p>
+        </header>
+        <div class="card-content">
+            <Transfer-Parameters-View :transfer-parameter-id="{{ transferParameter.id }}" />
         </div>
     </div>
 </div>
-</div>
 {% endblock %}
+
+    {% block footerScripts %}
+    {{ parent() }}
+        <script type="module">
+        const App = {
+            el: '#vapp',
+
+            mounted() {
+                console.log('application mounted. ')
+            },
+
+            created() {
+                console.log('application created')
+            },
+
+            components: {
+                'TransferParametersView': httpVueLoader('/components/transfers/parameters/TransferParametersView.vue')
+            }
+        };
+
+        window.addEventListener('load', () => {
+            var app = new Vue(App);
+        });
+    </script>
+    {% endblock %}

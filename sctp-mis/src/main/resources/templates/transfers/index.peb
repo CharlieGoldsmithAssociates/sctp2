@@ -5,92 +5,170 @@
     {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
     <div class="card">
         <div class="card-header">
-            <div class="card-title">Transfers Module</div>
+            <p class="card-header-title">Transfers Menu</p>
         </div>
         <div class="card-content">
-            <p>What would you like to do ?</p>
-
             <div class="columns">
                 <div class="column">
-                    <h4 class="subtitle">Transfer Periods</h4>
-                    <ul>
-                        <li>
-                            <a href="/transfers/periods">List Open Transfer Periods</a>
-                        </li>
-                        <li>
-                            <a href="/transfers/periods/open-new">Open New Transfer Period</a>
-                        </li>
-                        <li>
-                            <a href="/transfers/summary">View Districts Transfer Period Summary </a>
-                        </li>
-                    </ul>
+                    <div class="menu">
+                         <p class="menu-label has-text-primary">
+                            Transfer Periods
+                          </p>
+                          <ul class="menu-list">
+                              <li>
+                                  <a href="/transfers/periods">
+                                    <span class="icon">
+                                        <i class="fas fa-angle-right"></i>
+                                    </span>
+                                    Open Transfer Periods
+                                  </a>
+                              </li>
+                              <li>
+                                  <a href="/transfers/periods/open-new">
+                                    <span class="icon">
+                                        <i class="fas fa-angle-right"></i>
+                                    </span>
+                                    New Transfer Period</a>
+                              </li>
+                              <li>
+                                  <a href="/transfers/summary">
+                                    <span class="icon">
+                                        <i class="fas fa-angle-right"></i>
+                                    </span>
+                                    Districts Transfer Period Summary </a>
+                              </li>
+                          </ul>
+                    </div>
                 </div>
                 <div class="column">
-                    <h4 class="subtitle">Parameters &amp; Top Ups</h4>
-                    <ul>
-                        <li>
-                            <a href="/transfers/parameters">List Transfer Parameters</a>
-                        </li>
-                        <li>
-                            <a href="/transfers/parameters/new">Add New Transfer Parameter</a>
-                        </li>
-                        <li>
-                            <a href="/transfers/topups">List TopUps</a>
-                        </li>
-                        <li>
-                            <a href="/transfers/topups/new">Add New TopUp</a>
-                        </li>
-                    </ul>
+                    <div class="menu">
+                        <h4 class="menu-label has-text-primary">Parameters &amp; Top Ups</h4>
+                        <ul class="menu-list">
+                            <li>
+                                <a href="/transfers/parameters">
+                                    <span class="icon">
+                                        <i class="fas fa-angle-right"></i>
+                                    </span>
+                                    Transfer Parameters</a>
+                            </li>
+                            <li>
+                                <a href="/transfers/parameters/new">
+                                    <span class="icon">
+                                        <i class="fas fa-angle-right"></i>
+                                    </span>
+                                    New Transfer Parameter</a>
+                            </li>
+                            <li>
+                                <a href="/transfers/topups">
+                                    <span class="icon">
+                                        <i class="fas fa-angle-right"></i>
+                                    </span>
+                                    TopUps</a>
+                            </li>
+                            <li>
+                                <a href="/transfers/topups/new">
+                                    <span class="icon">
+                                        <i class="fas fa-angle-right"></i>
+                                    </span>
+                                    New TopUp</a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
                 <div class="column">
-                    <h4 class="subtitle">Transfer Agencies</h4>
-                    <ul>
-                        <li>
-                            <a href="/transfers/agencies">List All Agencies</a>
-                        </li>
-                        <li>
-                            <a href="/transfers/agencies/assign">Assign a Transfer Agency to a Location</a>
-                        </li>
-                        <li>
-                            <a href="">Change a Transfer Agency to another Location</a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="column">
-                    <h4 class="subtitle">Beneficiaries</h4>
-                    <ul class="nav nav-list">
-                        <li>
-                            <a href="">List Transfer Beneficiaries</a>
-                        </li>
-                        <li>
-                            <a href="">Assign Account Numbers to Transfer Beneficiaries</a>
-                        </li>
-                        <li>
-                            <a href="">List-Non Recertified Beneficiaries</a>
-                        </li>
-                        <li></li>
-                    </ul>
-                </div>
-                <div class="column">
-                    <h4 class="subtitle">Reconciliations</h4>
-                    <ul class="nav nav-list">
-                        <li>
-                            <a href="">Perform Reconciliations</a>
-                        </li>
-                        <li>
-                            <a href="">View the E-Payments Log</a>
-                        </li>
-                    </ul>
+                    <div class="menu">
+                        <h4 class="menu-label has-text-primary">Transfer Agencies</h4>
+                        <ul class="menu-list">
+                            <li>
+                                <a href="/transfers/agencies">
+                                    <span class="icon">
+                                        <i class="fas fa-angle-right"></i>
+                                    </span>
+                                    Transfer Agencies</a>
+                            </li>
+                            <li>
+                                <a href="/transfers/agencies/assign">
+                                    <span class="icon">
+                                        <i class="fas fa-angle-right"></i>
+                                    </span>
+                                    Assign Transfer Agency to Location</a>
+                            </li>
+                            <li>
+                                <a href="">
+                                    <span class="icon">
+                                        <i class="fas fa-angle-right"></i>
+                                    </span>
+                                    Change Transfer Agency Location</a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             <div class="columns">
                 <div class="column">
-                    <h4 class="subtitle">Reports</h4>
-                    <ul class="nav nav-list">
-                        <li>
-                            <a href="">View the E-Account Report</a>
-                        </li>
-                    </ul>
+                    <div class="menu">
+                        <h4 class="menu-label has-text-primary">Beneficiaries</h4>
+                        <ul class="menu-list">
+                            <li>
+                                <a href="">
+                                    <span class="icon">
+                                        <i class="fas fa-angle-right"></i>
+                                    </span>
+                                    Transfer Beneficiaries</a>
+                            </li>
+                            <li>
+                                <a href="">
+                                    <span class="icon">
+                                        <i class="fas fa-angle-right"></i>
+                                    </span>
+                                    Assign Account Numbers to Transfer Beneficiaries</a>
+                            </li>
+                            <li>
+                                <a href="">
+                                    <span class="icon">
+                                        <i class="fas fa-angle-right"></i>
+                                    </span>
+                                    Non-Recertified Beneficiaries</a>
+                            </li>
+                            <li></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="menu">
+                        <h4 class="menu-label has-text-primary">Reconciliations</h4>
+                        <ul class="menu-list">
+                            <li>
+                                <a href="">
+                                    <span class="icon">
+                                        <i class="fas fa-angle-right"></i>
+                                    </span>
+                                    Perform Reconciliations</a>
+                            </li>
+                            <li>
+                                <a href="">
+                                    <span class="icon">
+                                        <i class="fas fa-angle-right"></i>
+                                    </span>
+                                    E-Payments Log</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="menu">
+                        <h4 class="menu-label has-text-primary">Reports</h4>
+                        <ul class="menu-list">
+                            <li>
+                                <a href="">
+                                    <span class="icon">
+                                        <i class="fas fa-angle-right"></i>
+                                    </span>
+                                    E-Account Report
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
 

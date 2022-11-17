@@ -43,7 +43,13 @@ import org.cga.sctp.transfers.parameters.TransferParametersRepository;
 import org.cga.sctp.user.AdminAndStandardAccessOnly;
 import org.cga.sctp.user.AuthenticatedUser;
 import org.cga.sctp.user.AuthenticatedUserDetails;
+import org.cga.sctp.validation.SortFields;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -51,6 +57,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -74,9 +83,40 @@ public class TransferParametersController extends BaseController {
     @GetMapping
     @AdminAndStandardAccessOnly
     public ModelAndView getParametersList() {
-        List<TransferParameter> transferParameters = transferParameterRepository.findAll();
-        return view("transfers/parameters/index")
-                .addObject("transferParameters", transferParameters);
+        return view("transfers/parameters/index");
+    }
+
+    @GetMapping("list")
+    @AdminAndStandardAccessOnly
+    ResponseEntity<List<TransferParameter>> getParametersList(
+            @Valid @Min(1) @RequestParam("page") int page,
+            @Valid @Min(10) @Max(100) @RequestParam(value = "size", defaultValue = "50", required = false) int size,
+            @Valid @RequestParam(value = "order", required = false, defaultValue = "ASC") Sort.Direction sortDirection,
+            @Valid @SortFields({"id", "title", "usageCount"})
+            @RequestParam(value = "sort", required = false, defaultValue = "id") String sortColumn,
+            @RequestParam(value = "slice", required = false, defaultValue = "false") boolean useSlice
+    ) {
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(sortDirection, sortColumn));
+        Page<TransferParameter> transferParameterPage = transferParameterRepository.findAll(pageable);
+
+        return ResponseEntity.ok()
+                .header("X-Is-Slice", Boolean.toString(useSlice))
+                .header("X-Data-Total", Long.toString(transferParameterPage.getTotalElements()))
+                .header("X-Data-Pages", Long.toString(transferParameterPage.getTotalPages()))
+                .header("X-Data-Size", Integer.toString(transferParameterPage.getSize()))
+                .header("X-Data-Page", Integer.toString(transferParameterPage.getNumber() + 1))
+                .body(transferParameterPage.getContent());
+    }
+
+    @GetMapping("/{parameter-id}")
+    @AdminAndStandardAccessOnly
+    public ResponseEntity<TransferParameter> getTransferParameter(@PathVariable("parameter-id") Long parameterId) {
+        Optional<TransferParameter> transferParameterOptional = transferParameterRepository.findById(parameterId);
+        if (transferParameterOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(transferParameterOptional.get());
     }
 
     @GetMapping("/view/{parameter-id}")
@@ -88,9 +128,7 @@ public class TransferParametersController extends BaseController {
         }
 
         return view("transfers/parameters/view")
-                .addObject("transferParameter", transferParameterOptional.get())
-                .addObject("householdParameters", householdTransferParametersRepository.findByTransferParameterId(parameterId))
-                .addObject("educationBonuses", educationTransferParameterRepository.findByTransferParameterId(parameterId));
+                .addObject("transferParameter", transferParameterOptional.get());
     }
 
     @GetMapping("/new")
@@ -104,16 +142,8 @@ public class TransferParametersController extends BaseController {
 
     @PostMapping("/new")
     @AdminAndStandardAccessOnly
-    public ModelAndView processAdd(@AuthenticatedUserDetails AuthenticatedUser user,
-                                   @Validated @ModelAttribute TransferParameterForm form,
-                                   BindingResult result,
-                                   RedirectAttributes attributes) {
-        if (result.hasErrors()) {
-            setWarningFlashMessage("Failed to Save Parameter. Please fix the errors on the form", attributes);
-            return view("/transfers/parameters/new")
-                    .addObject("booleans", Booleans.VALUES);
-        }
-
+    public ResponseEntity<TransferParameter> processAdd(@AuthenticatedUserDetails AuthenticatedUser user,
+                                   @Validated @RequestBody TransferParameterForm form) {
         TransferParameter transferParameter = new TransferParameter();
         transferParameter.setProgramId(form.getProgramId());
         transferParameter.setTitle(form.getTitle());
@@ -122,57 +152,23 @@ public class TransferParametersController extends BaseController {
         transferParameter.setCreatedAt(LocalDateTime.now());
         transferParameter.setUpdatedAt(LocalDateTime.now());
 
-        if (transferParameterRepository.save(transferParameter) != null) {
-            return redirect(format("/transfers/parameters/view/%s", transferParameter.getId()));
-        }
+        transferParameterRepository.save(transferParameter);
+        return ResponseEntity.ok(transferParameter);
 
-        List<Program> programs = programService.getActivePrograms();
-        return view("transfers/parameters/new")
-                .addObject("programs", programs)
-                .addObject("booleans", Booleans.VALUES);
     }
 
-    @GetMapping("/edit/{parameter-id}")
+    @PutMapping("/{parameter-id}")
     @AdminAndStandardAccessOnly
-    public ModelAndView getEditPage(@PathVariable("parameter-id") Long parameterId) {
-        Optional<TransferParameter> transferParameterOptional = transferParameterRepository.findById(parameterId);
-        if (transferParameterOptional.isEmpty()) {
-            return redirect("/transfers/parameters");
-        }
-
-        return view("transfers/parameters/edit")
-                .addObject("transferParameter", transferParameterOptional.get())
-                .addObject("householdParameters", householdTransferParametersRepository.findByTransferParameterId(parameterId))
-                .addObject("educationBonuses", educationTransferParameterRepository.findByTransferParameterId(parameterId));
-    }
-
-    @PostMapping("/edit/{parameter-id}")
-    @AdminAndStandardAccessOnly
-    public ModelAndView processEdit(@AuthenticatedUserDetails AuthenticatedUser user,
-                                   @PathVariable("parameter-id") Long parameterId,
-                                   @Validated @ModelAttribute TransferParameterForm form,
-                                   BindingResult result,
-                                   RedirectAttributes attributes) {
-        if (result.hasErrors()) {
-            setWarningFlashMessage("Failed to Save Parameter. Please fix the errors on the form", attributes);
-            return view("/transfers/parameters/edit")
-                    .addObject("booleans", Booleans.VALUES);
-        }
-
+    public ResponseEntity<TransferParameter> processEdit(@AuthenticatedUserDetails AuthenticatedUser user,
+                                                         @PathVariable("parameter-id") Long parameterId,
+                                                         @Validated @RequestBody TransferParameterForm form) {
         TransferParameter transferParameter = transferParameterRepository.getById(parameterId);
         transferParameter.setProgramId(form.getProgramId());
         transferParameter.setTitle(form.getTitle());
         transferParameter.setActive(form.getActive().value);
         transferParameter.setUpdatedAt(LocalDateTime.now());
 
-        if (transferParameterRepository.save(transferParameter) != null) {
-            return redirect(format("/transfers/parameters/view/%s", transferParameter.getId()));
-        }
-
-        List<Program> programs = programService.getActivePrograms();
-        return view("transfers/parameters/edit")
-                .addObject("programs", programs)
-                .addObject("booleans", Booleans.VALUES);
+        return ResponseEntity.ok(transferParameterRepository.save(transferParameter));
     }
 
     @GetMapping("/delete/{parameter-id}")
@@ -189,19 +185,18 @@ public class TransferParametersController extends BaseController {
                 .addObject("educationBonuses", educationTransferParameterRepository.findByTransferParameterId(parameterId));
     }
 
-    @PostMapping("/delete/{parameter-id}")
+    @DeleteMapping("/{parameter-id}")
     @AdminAndStandardAccessOnly
-    public ModelAndView postDeletePage(@AuthenticatedUserDetails AuthenticatedUser user,
-                                       @PathVariable("parameter-id") Long parameterId,
-                                       RedirectAttributes attributes) {
+    public ResponseEntity<Void> deleteParameter(@AuthenticatedUserDetails AuthenticatedUser user,
+                                       @PathVariable("parameter-id") Long parameterId) {
         Optional<TransferParameter> transferParameterOptional = transferParameterRepository.findById(parameterId);
         if (transferParameterOptional.isEmpty()) {
-            return redirect("/transfers/parameters");
+            return ResponseEntity.notFound().build();
         }
         TransferParameter parameter = transferParameterOptional.get();
         publishGeneralEvent("User %s deleted parameter with id=%s", user.username(), parameter.getId());
-        transferParameterRepository.delete(transferParameterOptional.get());
-        return redirect("/transfers/parameters");
+        transferParameterRepository.delete(parameter);
+        return ResponseEntity.ok().build();
     }
 
 }
