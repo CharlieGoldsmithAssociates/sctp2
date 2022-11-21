@@ -203,18 +203,19 @@ public class EducationZoneController extends SecuredBaseController {
     public ModelAndView postDelete(@AuthenticatedUserDetails AuthenticatedUser user,
                                    @PathVariable("education-zone-id") Long id,
                                    RedirectAttributes attributes) {
-        Optional<EducationZoneView> educationZone = educationZoneRepository.findByIdAsView(id);
+        Optional<EducationZone> educationZone = educationZoneRepository.findById(id);
         if (educationZone.isEmpty()) {
             return redirectWithDangerMessageModelAndView("/schools/education-zones", "Education Zone with given ID does not exist", attributes);
         }
 
         try {
-            educationZoneRepository.deleteById(id);
-            publishGeneralEvent("User %s updated existing EducationZone id=%s name=%s", user.username(), id, educationZone.get().getName());
-            return view(redirectWithSuccessMessage("/schools/education-zones", "Education Zone with given ID deleted", attributes));
+            educationZone.get().setActive(false);
+            educationZoneRepository.save(educationZone.get());
+            publishGeneralEvent("User %s de-activated existing EducationZone id=%s name=%s", user.username(), id, educationZone.get().getName());
+            return view(redirectWithSuccessMessage("/schools/education-zones", "Education Zone with given ID de-activated", attributes));
         } catch (Exception e) {
-            LOG.error("Failed to deleted EducationZone", e);
-            return redirectWithDangerMessageModelAndView("/schools/education-zones", "Education Zone with given ID could not be deleted", attributes);
+            LOG.error("Failed to de-activate EducationZone", e);
+            return redirectWithDangerMessageModelAndView("/schools/education-zones", "Education Zone with given ID could not be de-activated", attributes);
         }
     }
 }

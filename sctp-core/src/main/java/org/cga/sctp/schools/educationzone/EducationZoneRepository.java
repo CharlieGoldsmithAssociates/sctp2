@@ -62,6 +62,7 @@ public interface EducationZoneRepository extends JpaRepository<EducationZone, Lo
                 FROM education_zones eduzone
                 LEFT JOIN locations district ON district.code = eduzone.district_code
                 LEFT JOIN locations ta ON ta.code = eduzone.ta_code
+                WHERE eduzone.active = 1 
             """)
     Page<EducationZoneView> fetchAllZonesPaged(Pageable pageable);
 
