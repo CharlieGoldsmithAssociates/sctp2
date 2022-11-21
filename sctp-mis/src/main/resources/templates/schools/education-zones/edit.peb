@@ -42,7 +42,7 @@
                     <div class="field">
                         <label for="name" class="label">Alt. Name</label>
                         <div class="control">
-                                {{ textField('altName', form.altName, 1, 200, true, null) }}
+                                {{ textField('altName', form.altName, 1, 200, false, null) }}
                         </div>
                         {{ printFieldErrors(getFieldErrors('form', 'altName')) }}
                     </div>

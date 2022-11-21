@@ -48,7 +48,6 @@ public class EducationZoneForm {
     @NotEmpty
     private String name;
 
-    @NotEmpty
     private String altName;
 
     @NotEmpty

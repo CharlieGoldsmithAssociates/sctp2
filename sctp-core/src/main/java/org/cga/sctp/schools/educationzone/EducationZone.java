@@ -55,7 +55,6 @@ public class EducationZone {
     @Column(name = "name")
     private String name;
 
-    @NotEmpty
     @Column(name = "alt_name")
     private String altName;
 

@@ -55,7 +55,7 @@ public class SchoolService {
         return schoolRepository;
     }
 
-    public List<SchoolsView> getSchools(){
+    public List<SchoolsView> getSchools() {
         return schoolRepository.getSchools();
     }
 
@@ -74,8 +74,8 @@ public class SchoolService {
         return educationZoneRepository.findAll();
     }
 
-    public List<School> getActiveSchools() {
-        return schoolRepository.findAllByActive(true, Pageable.unpaged()).toList();
+    public Page<SchoolsView> getActiveSchools(Pageable pageable) {
+        return schoolRepository.getActiveSchoolsView(pageable);
     }
 
     public Page<School> getActiveSchoolsPaged(Pageable pageable) {

@@ -47,6 +47,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -76,7 +77,7 @@ public class EducationZoneController extends SecuredBaseController {
 
     @GetMapping("/new")
     @AdminAndStandardAccessOnly
-    public ModelAndView getCreate() {
+    public ModelAndView getCreate(@ModelAttribute("form") EducationZoneForm form) {
         return view("schools/education-zones/new")
                 .addObject("districts", toSelectOptions(locationService.getActiveDistrictCodes()))
                 .addObject("traditionalAuthorities", locationService.getActiveByType(LocationType.SUBNATIONAL2))
@@ -86,7 +87,7 @@ public class EducationZoneController extends SecuredBaseController {
     @PostMapping("/new")
     @AdminAndStandardAccessOnly
     public ModelAndView postCreate(@AuthenticatedUserDetails AuthenticatedUser user,
-                                   @ModelAttribute EducationZoneForm form,
+                                   @Validated @ModelAttribute("form") EducationZoneForm form,
                                    BindingResult result,
                                    RedirectAttributes attributes) {
 
