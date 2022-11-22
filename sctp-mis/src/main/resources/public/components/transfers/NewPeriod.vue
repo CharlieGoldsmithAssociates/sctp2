@@ -147,6 +147,7 @@ module.exports = {
           .then(function (response) {
             if (response.status === 200 && isJsonContentType(response.headers['content-type'])) {
               vm.villageClusters = response.data;
+              console.log(response.data)
             } else {
               vm.snackbar(error_message, 'warning');
             }
@@ -190,15 +191,9 @@ module.exports = {
         programId: vm.selectedProgram,
         districtId: vm.selectedDistrict.id,
         startDate: this.formatDate(vm.startDate),
-        endDate: this.formatDate(vm.endDate)
-      }
-
-      if (vm.selectedTraditionalAuthority) {
-        requestBody.traditionalAuthorityId = vm.selectedTraditionalAuthority;
-      }
-
-      if (vm.selectedVillageClusters.size > 0) {
-        requestBody.villageClusters = [...vm.selectedVillageClusters];
+        endDate: this.formatDate(vm.endDate),
+        traditionalAuthorityCodes: [...vm.selectedTraditionalAuthorities],
+        villageClusterCodes: [...vm.selectedVillageClusters]
       }
 
       axios.post('/transfers/periods/open-new', JSON.stringify(requestBody), config)
@@ -308,16 +303,6 @@ module.exports = {
       </b-field>
       <div class="columns">
         <div class="column">
-<!--          <b-field label="T/A">-->
-<!--            <b-select placeholder="Select a T/A" expanded v-model="selectedTraditionalAuthority" @input="value => getChildLocations(value, true)" >-->
-<!--              <option-->
-<!--                  v-for="option in traditionalAuthorities"-->
-<!--                  :value="option.id"-->
-<!--                  :key="option.id">-->
-<!--                {{ option.text }}-->
-<!--              </option>-->
-<!--            </b-select>-->
-<!--          </b-field>-->
           <v-multiselect label="T/A" :options="traditionalAuthorities" option-label-field="text" option-value-field="id"
                          :selected="selectedTraditionalAuthorities" @input="getVillageClusters" ></v-multiselect>
         </div>

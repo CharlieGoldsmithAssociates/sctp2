@@ -32,6 +32,7 @@
 
 package org.cga.sctp.mis.transfers.periods;
 
+import org.apache.commons.lang3.StringUtils;
 import org.cga.sctp.location.Location;
 import org.cga.sctp.location.LocationService;
 import org.cga.sctp.mis.core.BaseController;
@@ -57,6 +58,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/transfers/periods")
@@ -120,7 +122,14 @@ public class TransferPeriodController extends BaseController {
         newPeriod.setDistrictId(form.getDistrictId());
         newPeriod.setOpenedBy(user.id());
         //newPeriod.setTransferSessionId(form.getTransferSessionId());
+
         try {
+            String villageClusterCodes = convertToLocationCodesString(form.getVillageClusterCodes());
+            newPeriod.setVillageClusterCodes(villageClusterCodes);
+
+            String traditionalAuthorityCodes = convertToLocationCodesString(form.getTraditionalAuthorityCodes());
+            newPeriod.setTraditionalAuthorityCodes(traditionalAuthorityCodes);
+
             TransferPeriod transferPeriod = transferPeriodService.openNewPeriod(newPeriod);
             if (transferPeriod == null) {
                 return ResponseEntity.notFound().build();
@@ -177,5 +186,15 @@ public class TransferPeriodController extends BaseController {
         return view("transfers/periods/list_by_district")
                 .addObject("district", district)
                 .addObject("transferPeriods", transferPeriods);
+    }
+
+    private String convertToLocationCodesString(List<Long> codes) throws TransferPeriodException {
+        for (Long code: codes) {
+            if (!locationService.isValidLocationCode(code)) {
+                throw new TransferPeriodException("Location with code: " + code + " not found");
+            }
+        }
+
+        return StringUtils.join(codes, ",");
     }
 }

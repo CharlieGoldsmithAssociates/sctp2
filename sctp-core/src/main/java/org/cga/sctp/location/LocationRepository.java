@@ -75,6 +75,8 @@ interface LocationRepository extends JpaRepository<Location, Long> {
 
     Location findByCode(long code);
 
+    Boolean existsByCode(long code);
+
     @Query(nativeQuery = true, value = "select id, name, code, parentCode, location_type locationType from location_by_codes_v where parentCode = :code  ORDER BY name, code")
     List<LocationCode> getCodesByParentCode(@Param("code") Long code);
 

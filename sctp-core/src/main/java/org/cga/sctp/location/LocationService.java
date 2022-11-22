@@ -61,6 +61,10 @@ public class LocationService extends BaseService {
         return parent.level < child.level;
     }
 
+    public boolean isValidLocationCode(Long code) {
+        return locationRepository.existsByCode(code);
+    }
+
     public void addLocation(Location geoLocation) {
         locationRepository.save(geoLocation);
     }
