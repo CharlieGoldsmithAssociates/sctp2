@@ -1,0 +1,38 @@
+
+    {% extends "../../base" %}
+        {% import "../../../utils/form" %}
+        {% block contextMenu %}
+        <div class="container context-nav-container">
+            <div class="buttons is-right">
+                <a href="{{ href('/schools/education-zones') }}" class="button is-warning">Back</a>
+            </div>
+        </div>
+        {% endblock %}
+
+    {% block content %}
+
+    <div class="container">
+        <div class="card no-overlap">
+            <header class="card-header">
+                <p class="card-header-title">Are you sure you want delete the following Education Zone?</p>
+            </header>
+            <div class="card-content">
+                <div class="action-buttons well">
+                    <form method="post" action="/schools/education-zones/{{ educationZone.id }}/delete">
+                        {{ csrf(_csrf) }}
+                        <input type="hidden" name="periodId" value="{{ educationZone.id }}">
+                        <button name="confirmDelete" class="button is-danger">Yes, delete Education Zone</button>
+                        <a href="/schools/education-zones" class="button is-warning">No, Cancel</a>
+                    </form>
+                </div>
+
+                <div class="display-content">
+                    <div class="field-display">
+                        <label class="label">Name</label>
+                        <h3 class="subtitle">{{ educationZone.name }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}

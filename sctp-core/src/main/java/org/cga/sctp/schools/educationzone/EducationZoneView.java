@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,29 +30,30 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.schools;
+package org.cga.sctp.schools.educationzone;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 
-public interface SchoolsView {
-
+public interface EducationZoneView {
     Long getId();
 
-    String getName();
+    String getTaName();
 
-    String getCode();
-
-   // @Convert(converter = EducationLevelParameterValueConverter.class)
-   //  EducationLevel getEducationLevel();
-    Long getEducationLevel();
-
-    String getEducationZone();
+    Long getTaCode();
 
     String getDistrictName();
 
+    Long getDistrictCode();
+
+    String getName();
+
+    String getAltName();
+
+    String getCode();
+
+    boolean getActive();
+
     LocalDateTime getCreatedAt();
 
-    Boolean getActive();
+    LocalDateTime getUpdatedAt();
 }
