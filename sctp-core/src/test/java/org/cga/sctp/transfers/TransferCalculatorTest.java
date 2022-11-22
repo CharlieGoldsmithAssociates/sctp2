@@ -82,7 +82,7 @@ class TransferCalculatorTest {
         transferPeriod.setBonusSecondaryParameterId(0L);
         transferPeriod.setClosed(false);
         transferPeriod.setDescription("Test");
-        transferPeriod.setDistrictId(328);
+        transferPeriod.setDistrictCode(328L);
         transferPeriod.setStartDate(LocalDate.now());
         transferPeriod.setEndDate(LocalDate.now().plusMonths(1));
         transferPeriod.setName("Test Transfer Period");
