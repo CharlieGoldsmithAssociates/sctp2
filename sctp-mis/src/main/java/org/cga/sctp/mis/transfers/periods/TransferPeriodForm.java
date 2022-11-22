@@ -37,6 +37,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.List;
 
 
 public class TransferPeriodForm {
@@ -48,9 +49,13 @@ public class TransferPeriodForm {
     private Long programId;
 
     @NotNull
-    private Long districtId;
+    private Long districtCode;
 
     private Long transferAgencyId;
+
+    private List<Long> villageClusterCodes;
+
+    private List<Long> traditionalAuthorityCodes;
 
     @NotNull
     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -84,12 +89,12 @@ public class TransferPeriodForm {
         this.programId = programId;
     }
 
-    public Long getDistrictId() {
-        return districtId;
+    public Long getDistrictCode() {
+        return districtCode;
     }
 
-    public void setDistrictId(Long districtId) {
-        this.districtId = districtId;
+    public void setDistrictCode(Long districtCode) {
+        this.districtCode = districtCode;
     }
 
     public Long getTransferAgencyId() {
@@ -98,6 +103,22 @@ public class TransferPeriodForm {
 
     public void setTransferAgencyId(Long transferAgencyId) {
         this.transferAgencyId = transferAgencyId;
+    }
+
+    public List<Long> getVillageClusterCodes() {
+        return villageClusterCodes;
+    }
+
+    public void setVillageClusterCodes(List<Long> villageClusterCodes) {
+        this.villageClusterCodes = villageClusterCodes;
+    }
+
+    public List<Long> getTraditionalAuthorityCodes() {
+        return traditionalAuthorityCodes;
+    }
+
+    public void setTraditionalAuthorityCodes(List<Long> traditionalAuthorityCodes) {
+        this.traditionalAuthorityCodes = traditionalAuthorityCodes;
     }
 
     public LocalDate getStartDate() {
