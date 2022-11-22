@@ -108,7 +108,7 @@ public class TransferPeriodController extends BaseController {
                                                      @Validated @RequestBody TransferPeriodForm form) {
 
         TransferPeriod newPeriod = new TransferPeriod();
-        Location district = locationService.findById(form.getDistrictId());
+        Location district = locationService.findByCode(form.getDistrictCode());
         if (district == null) {
             return ResponseEntity.notFound().build();
         }
@@ -119,7 +119,7 @@ public class TransferPeriodController extends BaseController {
         newPeriod.setName(name);
         newPeriod.setDescription(name);
         newPeriod.setProgramId(form.getProgramId());
-        newPeriod.setDistrictId(form.getDistrictId());
+        newPeriod.setDistrictCode(form.getDistrictCode());
         newPeriod.setOpenedBy(user.id());
         //newPeriod.setTransferSessionId(form.getTransferSessionId());
 
@@ -135,7 +135,7 @@ public class TransferPeriodController extends BaseController {
                 return ResponseEntity.notFound().build();
             }
 
-            publishGeneralEvent("User %s opened a new Transfer Period in district: %s", user.username(), form.getDistrictId());
+            publishGeneralEvent("User %s opened a new Transfer Period in district: %s", user.username(), form.getDistrictCode());
 //            return redirect(String.format("/transfers/periods/in-districts/%d", form.getDistrictId()));
 
             return ResponseEntity.ok(transferPeriod);
@@ -177,11 +177,11 @@ public class TransferPeriodController extends BaseController {
         return view("/transfers/periods/close");
     }
 
-    @GetMapping("/in-district/{district-id}")
+    @GetMapping("/in-district/{district-code}")
     @AdminAndStandardAccessOnly
-    public ModelAndView viewGetTransferPeriodsInDistrict(@PathVariable("district-id") Long districtId) {
-        Location district = locationService.findById(districtId);
-        List<TransferPeriod> transferPeriods = transferPeriodService.findAllByDistrictId(districtId);
+    public ModelAndView viewGetTransferPeriodsInDistrict(@PathVariable("district-code") Long districtCode) {
+        Location district = locationService.findById(districtCode);
+        List<TransferPeriod> transferPeriods = transferPeriodService.findAllByDistrictCode(districtCode);
 
         return view("transfers/periods/list_by_district")
                 .addObject("district", district)

@@ -53,7 +53,7 @@ public class TransferPeriod {
     private Long programId;
 
     @Column
-    private Long districtId;
+    private Long districtCode;
 
     @Column
     private long transferSessionId;
@@ -118,12 +118,12 @@ public class TransferPeriod {
         this.programId = programId;
     }
 
-    public long getDistrictId() {
-        return districtId;
+    public Long getDistrictCode() {
+        return districtCode;
     }
 
-    public void setDistrictId(long districtId) {
-        this.districtId = districtId;
+    public void setDistrictCode(Long districtCode) {
+        this.districtCode = districtCode;
     }
 
     public long getTransferSessionId() {

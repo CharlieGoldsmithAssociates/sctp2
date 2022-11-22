@@ -169,6 +169,7 @@ module.exports = {
           .then(function (response) {
             if (response.status === 200 && isJsonContentType(response.headers['content-type'])) {
               vm.districts = response.data;
+              console.log(response.data)
             } else {
               vm.snackbar(error_message, 'warning');
             }
@@ -189,7 +190,7 @@ module.exports = {
 
       const requestBody = {
         programId: vm.selectedProgram,
-        districtId: vm.selectedDistrict.id,
+        districtCode: vm.selectedDistrict.code,
         startDate: this.formatDate(vm.startDate),
         endDate: this.formatDate(vm.endDate),
         traditionalAuthorityCodes: [...vm.selectedTraditionalAuthorities],

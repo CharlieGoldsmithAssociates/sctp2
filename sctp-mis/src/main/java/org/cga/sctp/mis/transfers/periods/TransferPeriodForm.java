@@ -49,7 +49,7 @@ public class TransferPeriodForm {
     private Long programId;
 
     @NotNull
-    private Long districtId;
+    private Long districtCode;
 
     private Long transferAgencyId;
 
@@ -89,12 +89,12 @@ public class TransferPeriodForm {
         this.programId = programId;
     }
 
-    public Long getDistrictId() {
-        return districtId;
+    public Long getDistrictCode() {
+        return districtCode;
     }
 
-    public void setDistrictId(Long districtId) {
-        this.districtId = districtId;
+    public void setDistrictCode(Long districtCode) {
+        this.districtCode = districtCode;
     }
 
     public Long getTransferAgencyId() {

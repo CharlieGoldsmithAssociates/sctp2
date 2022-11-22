@@ -30,23 +30,5 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.transfers.periods;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-
-import java.util.List;
-import java.util.Optional;
-
-public interface TransferPeriodRepository extends JpaRepository<TransferPeriod, Long> {
-
-    @Query("SELECT COUNT(id) FROM TransferPeriod WHERE programId = :programId AND districtCode = :districtCode AND closed = false")
-    int countAllOpenInProgramAndDistrict(@Param("programId") long programId, @Param("districtCode") long districtCode);
-
-    @Query("FROM TransferPeriod WHERE programId = :programId AND districtCode = :districtCode AND closed = false")
-    Optional<TransferPeriod> findFirstByProgramIdAndDistrictIdAndIsOpen(@Param("programId") long programId, @Param("districtCode") long districtCode);
-
-    @Query
-    List<TransferPeriod> findAllByDistrictCode(Long districtCode);
-}
+ALTER TABLE transfer_periods
+    RENAME COLUMN district_id TO district_code
