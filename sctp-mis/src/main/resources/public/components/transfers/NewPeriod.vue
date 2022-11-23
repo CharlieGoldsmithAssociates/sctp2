@@ -147,7 +147,6 @@ module.exports = {
           .then(function (response) {
             if (response.status === 200 && isJsonContentType(response.headers['content-type'])) {
               vm.villageClusters = response.data;
-              console.log(response.data)
             } else {
               vm.snackbar(error_message, 'warning');
             }
@@ -202,11 +201,11 @@ module.exports = {
               vm.districts = response.data;
               window.location.href = '/transfers/periods'
             } else {
-              vm.snackbar(error_message, 'warning');
+              vm.snackbar(response.data, 'warning');
             }
           })
           .catch(function (error) {
-            vm.snackbar(error_message, 'danger');
+            vm.snackbar(error.response.data, 'danger');
           })
           .then(function () {
             vm.isLoading = false

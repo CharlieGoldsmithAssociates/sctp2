@@ -123,25 +123,21 @@ public class TransferPeriodController extends BaseController {
         newPeriod.setOpenedBy(user.id());
         //newPeriod.setTransferSessionId(form.getTransferSessionId());
 
-        try {
-            String villageClusterCodes = convertToLocationCodesString(form.getVillageClusterCodes());
-            newPeriod.setVillageClusterCodes(villageClusterCodes);
+        String villageClusterCodes = convertToLocationCodesString(form.getVillageClusterCodes());
+        newPeriod.setVillageClusterCodes(villageClusterCodes);
 
-            String traditionalAuthorityCodes = convertToLocationCodesString(form.getTraditionalAuthorityCodes());
-            newPeriod.setTraditionalAuthorityCodes(traditionalAuthorityCodes);
+        String traditionalAuthorityCodes = convertToLocationCodesString(form.getTraditionalAuthorityCodes());
+        newPeriod.setTraditionalAuthorityCodes(traditionalAuthorityCodes);
 
-            TransferPeriod transferPeriod = transferPeriodService.openNewPeriod(newPeriod);
-            if (transferPeriod == null) {
-                return ResponseEntity.notFound().build();
-            }
-
-            publishGeneralEvent("User %s opened a new Transfer Period in district: %s", user.username(), form.getDistrictCode());
-//            return redirect(String.format("/transfers/periods/in-districts/%d", form.getDistrictId()));
-
-            return ResponseEntity.ok(transferPeriod);
-        } catch (TransferPeriodException e) {
+        TransferPeriod transferPeriod = transferPeriodService.openNewPeriod(newPeriod);
+        if (transferPeriod == null) {
             return ResponseEntity.notFound().build();
         }
+
+        publishGeneralEvent("User %s opened a new Transfer Period in district: %s", user.username(), form.getDistrictCode());
+//            return redirect(String.format("/transfers/periods/in-districts/%d", form.getDistrictId()));
+
+        return ResponseEntity.ok(transferPeriod);
     }
 
     @GetMapping("/delete/{period-id}")
@@ -188,7 +184,7 @@ public class TransferPeriodController extends BaseController {
                 .addObject("transferPeriods", transferPeriods);
     }
 
-    private String convertToLocationCodesString(List<Long> codes) throws TransferPeriodException {
+    private String convertToLocationCodesString(List<Long> codes) {
         for (Long code: codes) {
             if (!locationService.isValidLocationCode(code)) {
                 throw new TransferPeriodException("Location with code: " + code + " not found");

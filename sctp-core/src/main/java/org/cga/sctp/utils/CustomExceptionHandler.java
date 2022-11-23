@@ -30,15 +30,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.transfers.periods;
+package org.cga.sctp.utils;
 
-public class TransferPeriodException extends RuntimeException {
+import org.cga.sctp.transfers.periods.TransferPeriodException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-    public TransferPeriodException(String message) {
-        super(message);
-    }
+@ControllerAdvice
+@RestControllerAdvice
+public class CustomExceptionHandler {
 
-    public TransferPeriodException(String message, Throwable cause) {
-        super(message, cause);
+    @ExceptionHandler(TransferPeriodException.class)
+    protected ResponseEntity<Object> handleTransferPeriodException(TransferPeriodException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ex.getMessage());
     }
 }
