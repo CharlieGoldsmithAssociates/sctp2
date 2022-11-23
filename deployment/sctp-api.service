@@ -1,0 +1,15 @@
+[Unit]
+Description=SCTP MIS Service
+
+[Service]
+Type=simple
+User=ec2-user
+WorkingDirectory=/var/sctp/api
+ExecStart=/usr/bin/java $JAVA_OPTS -jar -Dspring.profiles.active=prod /var/sctp/api/sctp-api.jar
+SuccessExitStatus=143
+Restart=always
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
