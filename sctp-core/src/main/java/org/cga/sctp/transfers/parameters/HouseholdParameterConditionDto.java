@@ -32,31 +32,42 @@
 
 package org.cga.sctp.transfers.parameters;
 
-public enum HouseholdParameterCondition {
-    EQUALS("is equal to", "="),
-    GREATER_THAN("is greater than", ">"),
-    GREATER_THAN_OR_EQUALS("is greater than or equals", ">=");
 
-    private String description;
+public class HouseholdParameterConditionDto {
     private String sign;
+    private String name;
+    private String description;
 
-    HouseholdParameterCondition(String description, String sign) {
-        this.description = description;
+    public HouseholdParameterConditionDto() {
+    }
+
+    public HouseholdParameterConditionDto(String sign, String name, String description) {
         this.sign = sign;
-    }
-
-    @Override
-    public String toString() {
-        return name();
-    }
-
-    public String getDescription() {
-        return description;
+        this.name = name;
+        this.description = description;
     }
 
     public String getSign() {
         return sign;
     }
 
-    public static final HouseholdParameterCondition[] VALUES = values();
+    public void setSign(String sign) {
+        this.sign = sign;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

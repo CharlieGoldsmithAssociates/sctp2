@@ -27,12 +27,13 @@
                   method="post"
                   enctype="application/x-www-form-urlencoded" >
                 <div class="card-content">
+                    <input type="hidden" name="id" value="{{ educationZone.id }}" />
 
                     {{ showMessages(successMessage, infoMessage, dangerMessage, warningMessage) }}
-                    <input type="hidden" name="id" value="{{ educationZone.id }}" />
+
                     {{ csrf(_csrf) }}
                     <div class="field">
-                        <label for="name" class="label">Name</label>
+                        <label for="name" class="label is-required">Name</label>
                         <div class="control">
                                 {{ textField('name', form.name, 1, 200, true, null) }}
                         </div>
@@ -41,37 +42,37 @@
                     <div class="field">
                         <label for="name" class="label">Alt. Name</label>
                         <div class="control">
-                                {{ textField('altName', form.altName, 1, 200, true, null) }}
+                                {{ textField('altName', form.altName, 1, 200, false, null) }}
                         </div>
                         {{ printFieldErrors(getFieldErrors('form', 'altName')) }}
                     </div>
                     <div class="field">
-                        <label for="name" class="label">Code</label>
+                        <label for="name" class="label is-required">Code</label>
                         <div class="control">
                                 {{ textField('code', form.code, 1, 100, true, null) }}
                         </div>
                         {{ printFieldErrors(getFieldErrors('form', 'code')) }}
                     </div>
                     <div class="field">
-                        <label for="name" class="label">District</label>
+                        <label for="name" class="label is-required">District</label>
                         <div class="control">
                             <div class="select is-fullwidth">
-                                    {{ selectField('districtId', districts, form.districtId, true) }}
+                                    {{ selectField('districtCode', districts, form.districtCode, true) }}
                             </div>
                         </div>
-                        {{ printFieldErrors(getFieldErrors('form', 'districtId')) }}
+                        {{ printFieldErrors(getFieldErrors('form', 'districtCode')) }}
                     </div>
                     <div class="field">
-                        <label for="name" class="label">Traditional Authority</label>
+                        <label class="label is-required">T / A</label>
                         <div class="control">
                             <div class="select is-fullwidth">
-                                    {{ selectField('taId', traditionalAuthorities, form.taId, true) }}
+                                {{ selectField('taCode', taCodes, form.taCode, true) }}
                             </div>
+                            {{ printFieldErrors(getFieldErrors('form', 'taCode')) }}
                         </div>
-                        {{ printFieldErrors(getFieldErrors('form', 'taId')) }}
                     </div>
                     <div class="field">
-                        <label for="name" class="label">Active</label>
+                        <label for="name" class="label is-required">Active</label>
                         <div class="control">
                             <div class="select is-fullwidth">
                                     {{ selectField('active', booleans, form.active, true) }}
@@ -89,3 +90,6 @@
         </div>
     </div>
     {% endblock%}
+    {% block footerScripts %}
+    <script type="text/javascript" src="/assets/js/education_zones_locations.js"></script>
+    {% endblock %}

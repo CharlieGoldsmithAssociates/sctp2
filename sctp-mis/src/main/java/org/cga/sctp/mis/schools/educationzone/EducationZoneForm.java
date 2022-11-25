@@ -36,20 +36,18 @@ import org.cga.sctp.mis.core.templating.Booleans;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 
 public class EducationZoneForm {
     private Long id;
     @NotNull
-    private Long taId;
+    private Long taCode;
 
     @NotNull
-    private Long districtId;
+    private Long districtCode;
 
     @NotEmpty
     private String name;
 
-    @NotEmpty
     private String altName;
 
     @NotEmpty
@@ -66,20 +64,20 @@ public class EducationZoneForm {
         this.id = id;
     }
 
-    public Long getTaId() {
-        return taId;
+    public Long getTaCode() {
+        return taCode;
     }
 
-    public void setTaId(Long taId) {
-        this.taId = taId;
+    public void setTaCode(Long taCode) {
+        this.taCode = taCode;
     }
 
-    public Long getDistrictId() {
-        return districtId;
+    public Long getDistrictCode() {
+        return districtCode;
     }
 
-    public void setDistrictId(Long districtId) {
-        this.districtId = districtId;
+    public void setDistrictCode(Long districtCode) {
+        this.districtCode = districtCode;
     }
 
     public String getName() {

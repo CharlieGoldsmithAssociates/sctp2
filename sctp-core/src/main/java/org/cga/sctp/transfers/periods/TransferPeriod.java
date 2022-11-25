@@ -39,6 +39,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "transfer_periods")
@@ -52,7 +53,7 @@ public class TransferPeriod {
     private Long programId;
 
     @Column
-    private Long districtId;
+    private Long districtCode;
 
     @Column
     private long transferSessionId;
@@ -72,6 +73,12 @@ public class TransferPeriod {
     @NotEmpty(message = "Description cannot be null")
     @Column
     private String description;
+
+    @Column
+    private String villageClusterCodes;
+
+    @Column
+    private String traditionalAuthorityCodes;
 
     @Column
     private Long bonusPrimaryParameterId;
@@ -111,12 +118,12 @@ public class TransferPeriod {
         this.programId = programId;
     }
 
-    public long getDistrictId() {
-        return districtId;
+    public Long getDistrictCode() {
+        return districtCode;
     }
 
-    public void setDistrictId(long districtId) {
-        this.districtId = districtId;
+    public void setDistrictCode(Long districtCode) {
+        this.districtCode = districtCode;
     }
 
     public long getTransferSessionId() {
@@ -157,6 +164,22 @@ public class TransferPeriod {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getVillageClusterCodes() {
+        return villageClusterCodes;
+    }
+
+    public void setVillageClusterCodes(String villageClusterCodes) {
+        this.villageClusterCodes = villageClusterCodes;
+    }
+
+    public String getTraditionalAuthorityCodes() {
+        return traditionalAuthorityCodes;
+    }
+
+    public void setTraditionalAuthorityCodes(String traditionalAuthorityCodes) {
+        this.traditionalAuthorityCodes = traditionalAuthorityCodes;
     }
 
     public Long getBonusPrimaryParameterId() {

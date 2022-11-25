@@ -70,7 +70,7 @@ public class TransferPeriodService {
         // TODO: check for minimum duration of transfer
         // Check if we don't have another period already running
         // Check if the program is allowed to have a new period
-        if (transferPeriodRepository.countAllOpenInProgramAndDistrict(newPeriod.getProgramId(), newPeriod.getDistrictId()) > 0L) {
+        if (transferPeriodRepository.countAllOpenInProgramAndDistrict(newPeriod.getProgramId(), newPeriod.getDistrictCode()) > 0L) {
             throw new TransferPeriodException("Found an open Transfer Period in the district");
         }
         newPeriod.setClosed(false);
@@ -106,8 +106,8 @@ public class TransferPeriodService {
         throw new UnsupportedOperationException("not yet implemented");
     }
 
-    public List<TransferPeriod> findAllByDistrictId(Long districtId) {
-        return transferPeriodRepository.findAllByDistrictId(districtId);
+    public List<TransferPeriod> findAllByDistrictCode(Long districtCode) {
+        return transferPeriodRepository.findAllByDistrictCode(districtCode);
     }
 
     public Optional<TransferPeriod> findById(Long periodId) {

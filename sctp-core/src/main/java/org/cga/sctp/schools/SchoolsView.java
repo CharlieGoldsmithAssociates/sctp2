@@ -32,6 +32,10 @@
 
 package org.cga.sctp.schools;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+
 public interface SchoolsView {
 
     Long getId();
@@ -47,4 +51,8 @@ public interface SchoolsView {
     String getEducationZone();
 
     String getDistrictName();
+
+    LocalDateTime getCreatedAt();
+
+    Boolean getActive();
 }

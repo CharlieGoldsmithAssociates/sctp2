@@ -32,6 +32,7 @@
 
 package org.cga.sctp.mis.transfers.periods;
 
+import org.apache.commons.lang3.StringUtils;
 import org.cga.sctp.location.Location;
 import org.cga.sctp.location.LocationService;
 import org.cga.sctp.mis.core.BaseController;
@@ -57,6 +58,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/transfers/periods")
@@ -106,7 +108,7 @@ public class TransferPeriodController extends BaseController {
                                                      @Validated @RequestBody TransferPeriodForm form) {
 
         TransferPeriod newPeriod = new TransferPeriod();
-        Location district = locationService.findById(form.getDistrictId());
+        Location district = locationService.findByCode(form.getDistrictCode());
         if (district == null) {
             return ResponseEntity.notFound().build();
         }
@@ -117,22 +119,25 @@ public class TransferPeriodController extends BaseController {
         newPeriod.setName(name);
         newPeriod.setDescription(name);
         newPeriod.setProgramId(form.getProgramId());
-        newPeriod.setDistrictId(form.getDistrictId());
+        newPeriod.setDistrictCode(form.getDistrictCode());
         newPeriod.setOpenedBy(user.id());
         //newPeriod.setTransferSessionId(form.getTransferSessionId());
-        try {
-            TransferPeriod transferPeriod = transferPeriodService.openNewPeriod(newPeriod);
-            if (transferPeriod == null) {
-                return ResponseEntity.notFound().build();
-            }
 
-            publishGeneralEvent("User %s opened a new Transfer Period in district: %s", user.username(), form.getDistrictId());
-//            return redirect(String.format("/transfers/periods/in-districts/%d", form.getDistrictId()));
+        String villageClusterCodes = convertToLocationCodesString(form.getVillageClusterCodes());
+        newPeriod.setVillageClusterCodes(villageClusterCodes);
 
-            return ResponseEntity.ok(transferPeriod);
-        } catch (TransferPeriodException e) {
+        String traditionalAuthorityCodes = convertToLocationCodesString(form.getTraditionalAuthorityCodes());
+        newPeriod.setTraditionalAuthorityCodes(traditionalAuthorityCodes);
+
+        TransferPeriod transferPeriod = transferPeriodService.openNewPeriod(newPeriod);
+        if (transferPeriod == null) {
             return ResponseEntity.notFound().build();
         }
+
+        publishGeneralEvent("User %s opened a new Transfer Period in district: %s", user.username(), form.getDistrictCode());
+//            return redirect(String.format("/transfers/periods/in-districts/%d", form.getDistrictId()));
+
+        return ResponseEntity.ok(transferPeriod);
     }
 
     @GetMapping("/delete/{period-id}")
@@ -168,14 +173,24 @@ public class TransferPeriodController extends BaseController {
         return view("/transfers/periods/close");
     }
 
-    @GetMapping("/in-district/{district-id}")
+    @GetMapping("/in-district/{district-code}")
     @AdminAndStandardAccessOnly
-    public ModelAndView viewGetTransferPeriodsInDistrict(@PathVariable("district-id") Long districtId) {
-        Location district = locationService.findById(districtId);
-        List<TransferPeriod> transferPeriods = transferPeriodService.findAllByDistrictId(districtId);
+    public ModelAndView viewGetTransferPeriodsInDistrict(@PathVariable("district-code") Long districtCode) {
+        Location district = locationService.findById(districtCode);
+        List<TransferPeriod> transferPeriods = transferPeriodService.findAllByDistrictCode(districtCode);
 
         return view("transfers/periods/list_by_district")
                 .addObject("district", district)
                 .addObject("transferPeriods", transferPeriods);
+    }
+
+    private String convertToLocationCodesString(List<Long> codes) {
+        for (Long code: codes) {
+            if (!locationService.isValidLocationCode(code)) {
+                throw new TransferPeriodException("Location with code: " + code + " not found");
+            }
+        }
+
+        return StringUtils.join(codes, ",");
     }
 }

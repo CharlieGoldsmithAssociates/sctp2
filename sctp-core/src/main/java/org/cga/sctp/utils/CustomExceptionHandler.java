@@ -30,33 +30,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.transfers.parameters;
+package org.cga.sctp.utils;
 
-public enum HouseholdParameterCondition {
-    EQUALS("is equal to", "="),
-    GREATER_THAN("is greater than", ">"),
-    GREATER_THAN_OR_EQUALS("is greater than or equals", ">=");
+import org.cga.sctp.transfers.periods.TransferPeriodException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-    private String description;
-    private String sign;
+@ControllerAdvice
+@RestControllerAdvice
+public class CustomExceptionHandler {
 
-    HouseholdParameterCondition(String description, String sign) {
-        this.description = description;
-        this.sign = sign;
+    @ExceptionHandler(TransferPeriodException.class)
+    protected ResponseEntity<Object> handleTransferPeriodException(TransferPeriodException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ex.getMessage());
     }
-
-    @Override
-    public String toString() {
-        return name();
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getSign() {
-        return sign;
-    }
-
-    public static final HouseholdParameterCondition[] VALUES = values();
 }

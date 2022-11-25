@@ -37,8 +37,8 @@
                             <tr>
                                 <td>{{ e.name }}</td>
                                 <td>{{ e.code }}</td>
-                                <td>{{ e.districtId }}</td>
-                                <td>{{ e.taid }}</td>
+                                <td>{{ e.districtName }}</td>
+                                <td>{{ e.taName }}</td>
                                 <td>{{ printDate(e.createdAt) }}</td>
                                 <td>{{ yesOrNo(e.active) }}</td>
                                 <td>
@@ -56,6 +56,7 @@
                                             <div class="dropdown-menu" id="dropdown-menu2" role="menu">
                                                 <div class="dropdown-content">
                                                     <a href="/schools/education-zones/{{ e.id }}/edit" class="dropdown-item">Edit Education Zone</a>
+                                                    <a href="/schools/education-zones/{{ e.id }}/delete" class="dropdown-item is-warning">Delete Education Zone</a>
                                                 </div>
                                             </div>
                                         </div>

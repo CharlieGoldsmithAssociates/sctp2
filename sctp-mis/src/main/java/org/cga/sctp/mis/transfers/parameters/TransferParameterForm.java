@@ -39,7 +39,6 @@ import org.springframework.validation.annotation.Validated;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
-@Validated
 public class TransferParameterForm {
     private Long id;
     @NotNull
@@ -81,5 +80,15 @@ public class TransferParameterForm {
 
     public void setActive(Booleans active) {
         this.active = active;
+    }
+
+    @Override
+    public String toString() {
+        return "TransferParameterForm{" +
+                "id=" + id +
+                ", programId=" + programId +
+                ", title='" + title + '\'' +
+                ", active=" + active +
+                '}';
     }
 }

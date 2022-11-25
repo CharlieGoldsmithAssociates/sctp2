@@ -30,33 +30,5 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.transfers.parameters;
-
-public enum HouseholdParameterCondition {
-    EQUALS("is equal to", "="),
-    GREATER_THAN("is greater than", ">"),
-    GREATER_THAN_OR_EQUALS("is greater than or equals", ">=");
-
-    private String description;
-    private String sign;
-
-    HouseholdParameterCondition(String description, String sign) {
-        this.description = description;
-        this.sign = sign;
-    }
-
-    @Override
-    public String toString() {
-        return name();
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getSign() {
-        return sign;
-    }
-
-    public static final HouseholdParameterCondition[] VALUES = values();
-}
+ALTER TABLE transfer_periods
+    RENAME COLUMN district_id TO district_code

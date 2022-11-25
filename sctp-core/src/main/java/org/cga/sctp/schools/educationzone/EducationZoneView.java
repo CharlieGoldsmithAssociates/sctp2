@@ -30,33 +30,30 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.transfers.parameters;
+package org.cga.sctp.schools.educationzone;
 
-public enum HouseholdParameterCondition {
-    EQUALS("is equal to", "="),
-    GREATER_THAN("is greater than", ">"),
-    GREATER_THAN_OR_EQUALS("is greater than or equals", ">=");
+import java.time.LocalDateTime;
 
-    private String description;
-    private String sign;
+public interface EducationZoneView {
+    Long getId();
 
-    HouseholdParameterCondition(String description, String sign) {
-        this.description = description;
-        this.sign = sign;
-    }
+    String getTaName();
 
-    @Override
-    public String toString() {
-        return name();
-    }
+    Long getTaCode();
 
-    public String getDescription() {
-        return description;
-    }
+    String getDistrictName();
 
-    public String getSign() {
-        return sign;
-    }
+    Long getDistrictCode();
 
-    public static final HouseholdParameterCondition[] VALUES = values();
+    String getName();
+
+    String getAltName();
+
+    String getCode();
+
+    boolean getActive();
+
+    LocalDateTime getCreatedAt();
+
+    LocalDateTime getUpdatedAt();
 }
