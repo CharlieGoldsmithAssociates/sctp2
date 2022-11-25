@@ -10,7 +10,7 @@
       v-for="individual in candidates"
       :value="individual.id"
       :selected="individual.id == editingMemberId"
-      v-if="!isEditing || (isEditing && individual.id == editingMemberId)"
+      v-if="(!isEditing && (!((isSchoolMembers && individual.age>25) || (isSchoolMembers && individual.age<5)))) || (isEditing && individual.id == editingMemberId)"
     >
       {{ individual.name }} ({{ individual.gender }}, {{ individual.age }} yrs)
     </option>
@@ -32,6 +32,11 @@ module.exports = {
       type: Number,
       required: false,
     },
+    isSchoolMembers: {
+      type: Boolean,
+      required: false,
+      default: false,
+    }
   },
   data() {
     return {

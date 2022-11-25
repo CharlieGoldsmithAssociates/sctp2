@@ -128,6 +128,7 @@
                   :household-id="householdId"
                   :is-editing="isEditing"
                   :editing-member-id="schoolMemberId"
+                  :is-school-members = "isSchoolMembers"
                   v-model="memberId"
                 />
               </b-field>
@@ -258,6 +259,7 @@ module.exports = {
       gradeLevel: null,
       isModalActive: false,
       isEditing: false,
+      isSchoolMembers : true,
     };
   },
   components: {
