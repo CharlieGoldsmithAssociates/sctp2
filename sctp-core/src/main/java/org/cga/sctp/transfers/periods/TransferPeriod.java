@@ -43,7 +43,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "transfer_periods")
-public class TransferPeriod {
+public class  TransferPeriod {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;

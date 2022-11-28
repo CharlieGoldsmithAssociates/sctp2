@@ -330,6 +330,20 @@ public class LocationController extends BaseController {
                 .body(toSelectOptions(subLocations));
     }
 
+    @AdminAndStandardAccessOnly
+    @GetMapping(value = "/get-locations", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<SelectOptionItem>> findAllByCodeIn(@RequestParam("codes") List<Long> locationCodes) {
+        List<LocationCode> subLocations = locationService.findAllByCodeIn(locationCodes);
+        if (subLocations.isEmpty()) {
+            return ResponseEntity
+                    .ok().contentType(MediaType.APPLICATION_JSON)
+                    .body(Collections.emptyList());
+        }
+        return ResponseEntity
+                .ok().contentType(MediaType.APPLICATION_JSON)
+                .body(toSelectOptions(subLocations));
+    }
+
     @GetMapping("/districts/active")
     @AdminAndStandardAccessOnly
     public ResponseEntity<List<Location>> getActiveDistricts() {
