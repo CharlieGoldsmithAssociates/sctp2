@@ -121,7 +121,7 @@ class TransferCalculatorTest {
     private static TopUp createBasicTopUp() {
         TopUp topUp = new TopUp();
         topUp.setName("Basic TopUp");
-        topUp.setAmount(BigDecimal.ZERO);
+        topUp.setFixedAmount(BigDecimal.ZERO);
         topUp.setDiscountedFromFunds(false);
         topUp.setTopupType(TopUpType.PERCENTAGE_OF_RECIPIENT_AMOUNT);
         topUp.setPercentage(BigDecimal.valueOf(50.00));

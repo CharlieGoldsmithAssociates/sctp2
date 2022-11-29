@@ -39,7 +39,6 @@ import org.cga.sctp.transfers.parameters.HouseholdParameterCondition;
 import org.cga.sctp.transfers.parameters.HouseholdTransferParameter;
 import org.cga.sctp.transfers.periods.TransferPeriod;
 import org.cga.sctp.transfers.topups.TopUp;
-import org.cga.sctp.utils.BigDecimalUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -146,11 +145,11 @@ public class TransferCalculator {
         BigDecimal curTopUp = null;
         for (var topup : topUpList) {
             curTopUp = switch (topup.getTopupType()) {
-                case FIXED_AMOUNT -> topup.getAmount();
+                case FIXED_AMOUNT -> topup.getFixedAmount();
                 case EQUIVALENT_BENEFICIARY_AMOUNT -> monthlyAmount;
                 case PERCENTAGE_OF_RECIPIENT_AMOUNT ->
                         monthlyAmount.multiply(topup.getPercentage()).divide(new BigDecimal("100.00"));
-                default -> topup.getAmount();
+                default -> topup.getFixedAmount();
             };
             totalTopupAmout = totalTopupAmout.add(curTopUp);
         }

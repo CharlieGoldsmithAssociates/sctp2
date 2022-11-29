@@ -50,10 +50,15 @@ public class NewTopUpForm {
     private Long funderId;
 
     @NotNull(message = "Location(s) must be specified")
-    private Long locationId;
+    private Long districtCode;
 
     @NotNull(message = "Location Type must be specified")
-    private LocationType locationType;
+    private String locationType;
+
+
+    private String taCodes;
+
+    private String clusterCodes;
 
     @Nullable
     private BigDecimal percentage;
@@ -67,7 +72,7 @@ public class NewTopUpForm {
     @NotNull
     private boolean active;
 
-    private BigDecimal amount;
+    private BigDecimal fixedAmount;
 
     @NotNull(message = "Specify whether the topup is categorical or not")
     private boolean categorical;
@@ -124,19 +129,35 @@ public class NewTopUpForm {
         this.programId = programId;
     }
 
-    public Long getLocationId() {
-        return locationId;
+    public Long getDistrictCode() {
+        return districtCode;
     }
 
-    public void setLocationId(Long locationId) {
-        this.locationId = locationId;
+    public void setDistrictCode(Long districtCode) {
+        this.districtCode = districtCode;
     }
 
-    public LocationType getLocationType() {
+    public String getTaCodes() {
+        return taCodes;
+    }
+
+    public void setTaCodes(String taCodes) {
+        this.taCodes = taCodes;
+    }
+
+    public String getClusterCodes() {
+        return clusterCodes;
+    }
+
+    public void setClusterCodes(String clusterCodes) {
+        this.clusterCodes = clusterCodes;
+    }
+
+    public String getLocationType() {
         return locationType;
     }
 
-    public void setLocationType(LocationType locationType) {
+    public void setLocationType(String locationType) {
         this.locationType = locationType;
     }
 
@@ -172,12 +193,12 @@ public class NewTopUpForm {
         this.active = active;
     }
 
-    public BigDecimal getAmount() {
-        return amount;
+    public BigDecimal getFixedAmount() {
+        return fixedAmount;
     }
 
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
+    public void setFixedAmount(BigDecimal fixedAmount) {
+        this.fixedAmount = fixedAmount;
     }
 
     public boolean isCategorical() {

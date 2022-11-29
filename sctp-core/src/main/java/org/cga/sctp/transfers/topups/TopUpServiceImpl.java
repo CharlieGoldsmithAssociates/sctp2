@@ -33,6 +33,7 @@
 package org.cga.sctp.transfers.topups;
 
 import org.cga.sctp.location.Location;
+import org.cga.sctp.location.LocationType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -54,11 +55,11 @@ public class TopUpServiceImpl implements TopUpService {
         topUp.setFunderId(params.getFunderId());
         topUp.setProgramId(params.getProgramId());
         topUp.setActive(params.isActive());
-        topUp.setAmount(params.getAmount());
+        topUp.setFixedAmount(params.getFixedAmount());
         topUp.setHouseholdStatus(params.getHouseholdStatus());
-        topUp.setLocationId(params.getLocationId());
-        topUp.setLocationType(params.getLocationType());
-
+        topUp.setDistrictCode(params.getDistrictCode());
+//        topUp.setLocationType(params.getLocationType());
+        topUp.setLocationType(LocationType.SUBNATIONAL1); // TODO:
         // new topups will by default not have been executed
         topUp.setExecuted(false);
         topUp.setAmountExecuted(null);

@@ -135,7 +135,7 @@ public class TransferTopUpsController extends SecuredBaseController {
     )
     @AdminAndStandardAccessOnly
     public ResponseEntity<Object> postNewPage(@AuthenticatedUserDetails AuthenticatedUser user,
-                                              @RequestBody NewTopUpForm form) {
+                                              @Validated @RequestBody NewTopUpForm form) {
         try {
             form.setUserId(user.id());
             Optional<TopUp> topUp = topUpService.newTopup(form);
@@ -143,7 +143,7 @@ public class TransferTopUpsController extends SecuredBaseController {
                 return ResponseEntity.ok(topUp.get());
             }
         } catch (ConstraintViolationException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e);
         }
 
         return ResponseEntity.noContent().build();

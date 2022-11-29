@@ -167,6 +167,21 @@ public class TransferPeriodController extends BaseController {
         return redirect("/transfers/periods");
     }
 
+
+    @GetMapping("/calculate-transfers/{period-id}")
+    @AdminAndStandardAccessOnly
+    public ModelAndView getCalculatePage(@AuthenticatedUserDetails AuthenticatedUser user,
+                                         @PathVariable("period-id") Long periodId,
+                                         RedirectAttributes attributes) {
+        Optional<TransferPeriod> transferPeriod = transferPeriodService.findById(periodId);
+        if (transferPeriod.isEmpty()) {
+            return redirectWithDangerMessageModelAndView("/transfers/periods", "Transfer Period does not exist", attributes);
+        }
+
+        return view("/transfers/periods/calculate-transfers")
+                .addObject("transferPeriod", transferPeriod.get());
+    }
+
    @GetMapping("/close")
     @AdminAndStandardAccessOnly
     public ModelAndView viewCloseTransferPeriod() {

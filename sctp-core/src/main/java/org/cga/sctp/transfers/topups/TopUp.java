@@ -33,62 +33,84 @@
 package org.cga.sctp.transfers.topups;
 
 import org.cga.sctp.location.LocationType;
+import org.cga.sctp.targeting.LongSetConverter;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Table(name="transfer_topups")
+@ValidTopupTypeAndAmount
 public class TopUp {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; //  id BIGINT(19) PRIMARY KEY NOT NULL AUTO_INCREMENT COMMENT 'Primary key',
+    private Long id;
 
+    @NotEmpty
     @Column(name = "name")
-    private String name; // name VARCHAR(90) NULL DEFAULT NULL COMMENT 'Name of topup' COLLATE 'utf8_unicode_ci',
+    private String name;
 
+    @NotNull
     @Column(name = "program_id")
-    private Long programId; // Program for the topup
+    private Long programId;
 
+    @NotNull
     @Column(name = "funder_id")
-    private Long funderId; // funder_id BIGINT(19) NOT NULL COMMENT 'Funding institution for this topup',
+    private Long funderId;
 
-    @Column(name = "location_id")
-    private Long locationId; // location_id INT(10) NOT NULL COMMENT 'FOREIGN KEY Table geolocation Field geo_id, District',
+    @Column(name = "district_code")
+    private Long districtCode;
 
     @Column(name = "location_type")
     @Enumerated(EnumType.STRING)
-    private LocationType locationType; // location_type INT(10) NOT NULL COMMENT 'FOREIGN KEY Table item Field ite_id, Level',
+    private LocationType locationType;
 
+    @Column(name = "cluster_codes")
+    @Convert(converter = LongSetConverter.class)
+    private Set<Long> clusterCodes;
+
+    @Column(name = "ta_codes")
+    @Convert(converter = LongSetConverter.class)
+    private Set<Long> taCodes;
+
+    /**
+     * The top-up arrears are discounted from the SCTP funds to be requested'
+     */
     @Column(name = "is_discounted_from_funds")
-    private boolean isDiscountedFromFunds; // is_discounted_from_funds TINYINT(1) NULL DEFAULT NULL COMMENT 'The top-up arrears are discounted from the SCTP funds to be requested',
+    private boolean isDiscountedFromFunds;
 
+    /**
+     * Whether topup is categorical or not
+     */
     @Column(name = "is_categorical")
-    private boolean isCategorical; // is_categorical TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'Whether topup is categorical or not',
+    private boolean isCategorical;
 
     @Column(name = "is_active")
-    private boolean isActive; // is_active  TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'Active or not 1 = yes, 0 = no',
+    private boolean isActive;
 
     @Column(name = "is_executed")
-    private boolean isExecuted; // is_executed TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'Executed or not 1 = yes, 0 = no',
+    private boolean isExecuted;
 
     @Column(name = "topup_type")
     @Convert(converter = TopUpType.Converter.class)
-    private TopUpType topupType; // topup_type TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'Topup type, See TopupType enumeration',
+    private TopUpType topupType;
 
     @Column
     @Convert(converter = TopUpHouseholdStatus.Converter.class)
     private TopUpHouseholdStatus householdStatus;
 
     @Column(name = "percentage")
-    private BigDecimal percentage; // percentage DOUBLE COMMENT 'For percentage based topups, the percentage to use for calculation',
+    private BigDecimal percentage;
 
     @Column(name = "categorical_targeting_criteria_id")
-    private Long categoricalTargetingCriteriaId; // categorical_targeting_criteria_id BIGINT(19) NULL COMMENT 'For categorical topups, the criteria to use.',
+    private Long categoricalTargetingCriteriaId;
 
-    @Column(name = "amount")
-    private BigDecimal amount; // amount BIGINT(19) NULL DEFAULT NULL COMMENT 'Amount to topup',
+    @Column(name = "fixedAmount")
+    private BigDecimal fixedAmount; // amount BIGINT(19) NULL DEFAULT NULL COMMENT 'Amount to topup',
 
     @Column(name = "amount_projected")
     private BigDecimal amountProjected; // amount_projected BIGINT(19) NULL DEFAULT NULL COMMENT 'Amount projected',
@@ -140,12 +162,28 @@ public class TopUp {
         this.programId = programId;
     }
 
-    public Long getLocationId() {
-        return locationId;
+    public Long getDistrictCode() {
+        return districtCode;
     }
 
-    public void setLocationId(Long locationId) {
-        this.locationId = locationId;
+    public void setDistrictCode(Long districtCode) {
+        this.districtCode = districtCode;
+    }
+
+    public Set<Long> getClusterCodes() {
+        return clusterCodes;
+    }
+
+    public void setClusterCodes(Set<Long> clusterCodes) {
+        this.clusterCodes = clusterCodes;
+    }
+
+    public Set<Long> getTaCodes() {
+        return taCodes;
+    }
+
+    public void setTaCodes(Set<Long> taCodes) {
+        this.taCodes = taCodes;
     }
 
     public LocationType getLocationType() {
@@ -220,12 +258,12 @@ public class TopUp {
         this.categoricalTargetingCriteriaId = categoricalTargetingCriteriaId;
     }
 
-    public BigDecimal getAmount() {
-        return amount;
+    public BigDecimal getFixedAmount() {
+        return fixedAmount;
     }
 
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
+    public void setFixedAmount(BigDecimal fixedAmount) {
+        this.fixedAmount = fixedAmount;
     }
 
     public BigDecimal getAmountProjected() {
