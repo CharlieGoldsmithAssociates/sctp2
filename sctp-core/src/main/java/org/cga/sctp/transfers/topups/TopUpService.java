@@ -52,4 +52,6 @@ public interface TopUpService {
     void markAsExecuted(TopUp topUp, Long amount);
 
     List<TopUp> findAllActive();
+
+    Optional<TopUp> findById(Long topupId);
 }

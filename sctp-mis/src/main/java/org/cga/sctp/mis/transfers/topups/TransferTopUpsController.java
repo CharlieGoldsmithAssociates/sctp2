@@ -83,7 +83,7 @@ public class TransferTopUpsController extends SecuredBaseController {
     private TopUpService topUpService;
 
     @GetMapping("/new")
-    @AdminAccessOnly
+    @AdminAndStandardAccessOnly
     public ModelAndView getNewPage(RedirectAttributes attributes) {
         List<Program> programs = programService.getActivePrograms();
         List<Location> districts = locationService.getActiveDistricts();
@@ -123,7 +123,7 @@ public class TransferTopUpsController extends SecuredBaseController {
     }
 
     @GetMapping("/new/preview")
-    @AdminAccessOnly
+    @AdminAndStandardAccessOnly
     public ResponseEntity<Object> getTopupAmountPreview() {
         // this action returns a preview of the topup applied to the given location and households there-in
         return null;
@@ -150,11 +150,27 @@ public class TransferTopUpsController extends SecuredBaseController {
     }
 
     @GetMapping
-    @AdminAccessOnly
+    @AdminAndStandardAccessOnly
     public ModelAndView getIndex() {
         List<TopUp> topups = topUpService.findAllActive();
         return view("transfers/topups/list")
                 .addObject("topups", topups);
+    }
+
+    @GetMapping("/view/{topup-id}")
+    @AdminAndStandardAccessOnly
+    public ModelAndView getView(@PathVariable("topup-id") Long topupId,
+                                @AuthenticatedUserDetails AuthenticatedUser user,
+                                RedirectAttributes attributes)  {
+
+        Optional<TopUp> topup = topUpService.findById(topupId);
+        if (topup.isEmpty()) {
+            return redirectWithDangerMessageModelAndView("/transfers/topups", "Topup does not exist or could not be loaded", attributes);
+        }
+
+        return view("transfers/topups/view")
+                .addObject("topup", topup.get())
+                .addObject("topupPeriods", new Object() /* TODO: fetch periods topup applies to */);
     }
 
 }

@@ -112,4 +112,9 @@ public class TopUpServiceImpl implements TopUpService {
     public List<TopUp> findAllActive() {
         return topUpRepository.findAllByIsActive(true);
     }
+
+    @Override
+    public Optional<TopUp> findById(Long topupId) {
+        return topUpRepository.findById(topupId);
+    }
 }
