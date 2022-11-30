@@ -114,7 +114,7 @@ public class TopUpServiceImpl implements TopUpService {
     }
 
     @Override
-    public Optional<TopUp> findById(Long topupId) {
-        return topUpRepository.findById(topupId);
+    public Optional<TopUpView> findById(Long topupId) {
+        return topUpRepository.findOneTopupById(topupId);
     }
 }

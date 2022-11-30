@@ -67,8 +67,8 @@
                 <div class="field"><label>Amount</label>
                     {% if (topup.topupType == "FIXED_AMOUNT") %}
                         <div>{{ topup.fixedAmount}}</div>
-                    {% elseif (topup.topupType == "PERCENTAGE_OF_HOUSEHOLD_AMOUNT") %}
-                        <div>{{ topup.percentage}} %</div>
+                    {% elseif (topup.topupType == "PERCENTAGE_OF_RECIPIENT_AMOUNT") %}
+                        <div>{{ topup.percentage }} %</div>
                     {% else %}
                         <div>{{ topup.topupType }} %</div>
                     {% endif %}

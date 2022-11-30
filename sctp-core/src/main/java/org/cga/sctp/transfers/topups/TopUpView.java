@@ -32,26 +32,37 @@
 
 package org.cga.sctp.transfers.topups;
 
-import org.cga.sctp.location.Location;
+import org.cga.sctp.location.LocationType;
 
-import java.util.List;
-import java.util.Optional;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Set;
 
-public interface TopUpService {
-
-    Optional<TopUp> newTopup(NewTopUpForm params);
-
-    List<TopUp> fetchAllActive();
-
-    List<TopUp> fetchAllActive(Location location);
-
-    List<TopUp> fetchAllExecuted();
-
-    List<TopUp> fetchAllExecuted(Location location);
-
-    void markAsExecuted(TopUp topUp, Long amount);
-
-    List<TopUp> findAllActive();
-
-    Optional<TopUpView> findById(Long topupId);
+public interface TopUpView {
+    Long getId();
+    String getName();
+    Long getFunderId();
+    String getFunderName();
+    Long getProgramId();
+    String getProgramName();
+    Long getDistrictCode();
+    String getDistrictName();
+    Set<Long> getClusterCodes();
+    Set<Long> getTaCodes();
+    LocationType getLocationType();
+    Boolean getDiscountedFromFunds();
+    Boolean getCategorical();
+    Boolean getActive();
+    Boolean getExecuted();
+    TopUpType getTopupType();
+    TopUpHouseholdStatus getHouseholdStatus();
+    BigDecimal getPercentage();
+    Long getCategoricalTargetingCriteriaId();
+    BigDecimal getFixedAmount();
+    BigDecimal getAmountProjected();
+    BigDecimal getAmountExecuted();
+    Long getCreatedBy();
+    Long getUpdatedBy();
+    LocalDateTime getCreatedAt();
+    LocalDateTime getUpdatedAt();
 }

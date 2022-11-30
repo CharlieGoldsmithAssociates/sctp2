@@ -163,7 +163,7 @@ public class TransferTopUpsController extends SecuredBaseController {
                                 @AuthenticatedUserDetails AuthenticatedUser user,
                                 RedirectAttributes attributes)  {
 
-        Optional<TopUp> topup = topUpService.findById(topupId);
+        Optional<TopUpView> topup = topUpService.findById(topupId);
         if (topup.isEmpty()) {
             return redirectWithDangerMessageModelAndView("/transfers/topups", "Topup does not exist or could not be loaded", attributes);
         }
