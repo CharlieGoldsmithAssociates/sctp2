@@ -134,7 +134,7 @@ public class LocationService extends BaseService {
     }
 
     public Location findActiveLocationByCodeAndType(Long code, LocationType type) {
-        return locationRepository.findByActiveAndCodeAndLocationType(true, code, type);
+        return locationRepository.findByActiveAndCodeAndLocationType(code, type.name());
     }
 
     public Page<LocationStatus> getLocationStatuses(Pageable pageable) {

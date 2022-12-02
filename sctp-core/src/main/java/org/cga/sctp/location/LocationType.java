@@ -41,7 +41,7 @@ package org.cga.sctp.location;
 //
 public enum LocationType {
     COUNTRY(0, true, false, "Country", null),
-    SUBNATIONAL1(1, false, false, "Subnational 1", COUNTRY),
+    SUBNATIONAL1(1, false, false, "Subnational 1", COUNTRY), // District
     SUBNATIONAL2(2, false, false, "Subnational 2", SUBNATIONAL1),
     SUBNATIONAL3(3, false, false, "Subnational 3", SUBNATIONAL2),
     SUBNATIONAL4(4, false, false, "Subnational 4", SUBNATIONAL3),

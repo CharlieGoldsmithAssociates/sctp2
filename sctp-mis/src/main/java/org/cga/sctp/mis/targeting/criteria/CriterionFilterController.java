@@ -194,7 +194,7 @@ public class CriterionFilterController extends BaseController {
 
     @PostMapping
     @AdminAccessOnly
-    ModelAndView add(
+    public ModelAndView add(
             @AuthenticationPrincipal String username,
             @PathVariable("criterion-id") Long id,
             @Valid @ModelAttribute("form") AddCriteriaFilterForm form,

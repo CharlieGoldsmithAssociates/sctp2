@@ -46,6 +46,8 @@ import java.util.List;
 
 @Repository
 interface LocationRepository extends JpaRepository<Location, Long> {
+    @Query("select (count(l) > 0) from Location l where l.code = ?1 and l.locationType = ?2")
+    boolean existsByCodeAndType(long code, LocationType locationType);
 
 
     @Query(value = "SELECT * FROM locations_info_v WHERE active = :active ORDER BY id", nativeQuery = true)
@@ -81,7 +83,8 @@ interface LocationRepository extends JpaRepository<Location, Long> {
     @Query(nativeQuery = true, value = "select id, name, code, parentCode, location_type locationType from location_by_codes_v where location_type = :type ORDER BY name, code")
     List<LocationCode> getActiveCodesByType(@Param("type") String type);
 
-    Location findByActiveAndCodeAndLocationType(boolean active, Long code, LocationType type);
+    @Query(value = "select * from active_locations where code = :code and location_type = :type", nativeQuery = true)
+    Location findByActiveAndCodeAndLocationType(@Param("code") long code, @Param("type") String type);
 
     @Query(nativeQuery = true, value = "SELECT COUNT(l.id) FROM locations l INNER JOIN transfer_agencies_assignments taa ON taa.location_id = l.id  WHERE l.id = :id AND l.active = 1;")
     Integer countNumberOfTransferAgenciesAssigned(@Param("id") Long locationId);

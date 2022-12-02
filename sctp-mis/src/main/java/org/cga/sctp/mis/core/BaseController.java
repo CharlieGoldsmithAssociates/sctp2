@@ -5,11 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@Validated
 public class BaseController extends BaseComponent {
     private static final String MESSAGE_SUCCESS = "successMessage";
     private static final String MESSAGE_WARNING = "warningMessage";

@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,20 +32,42 @@
 
 package org.cga.sctp.targeting.criteria;
 
-public interface CriteriaFilterInfo {
-    Long getId();
+import java.util.Locale;
 
-    String getTableName();
+/**
+ * <p>Used for building SQL queries that have multiple ranged options</p>
+ */
+public enum Operator {
+    EQUALS(false),
+    NOT_EQUALS(false),
+    GREATER_THAN(false),
+    LESS_THAN(false),
+    GREATER_THAN_OR_EQUAL_TO(false),
+    LESS_THAN_OR_EQUAL_TO(false),
+    BETWEEN(true);
 
-    String getColumnName();
+    Operator(boolean isRanged) {
+        this.isRanged = isRanged;
+    }
 
-    CriteriaFilterObject.Conjunction getConjunction();
+    /**
+     * <p>Indicates whether this operator is ranged, i.e, requires two numbers to complete the comparison</p>
+     */
+    public final boolean isRanged;
 
-    String getFilterValue();
+    public <T> String buildCondition(String column, String placeholder) {
+        return switch (this) {
+            case EQUALS -> format(" (%s = :%s)", column, placeholder);
+            case NOT_EQUALS -> format(" (%s != :%s)", column, placeholder);
+            case GREATER_THAN -> format(" (%s > :%s)", column, placeholder);
+            case LESS_THAN -> format(" (%s < :%s)", column, placeholder);
+            case GREATER_THAN_OR_EQUAL_TO -> format(" (%s >= :%s)", column, placeholder);
+            case LESS_THAN_OR_EQUAL_TO -> format(" (%s <= :%s)", column, placeholder);
+            case BETWEEN -> format(" (%1$s BETWEEN :%2$s_1 AND :%2$s_2)", column, placeholder);
+        };
+    }
 
-    FilterTemplate.FieldType getFieldType();
-
-    String getLabel();
-
-    Operator getOperator();
+    private String format(String fmt, Object... args) {
+        return String.format(Locale.US, fmt, args);
+    }
 }

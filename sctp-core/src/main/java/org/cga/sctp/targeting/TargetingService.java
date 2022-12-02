@@ -59,12 +59,9 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.isNull;
 
 @Service
 public class TargetingService extends TransactionalService {
@@ -212,7 +209,7 @@ public class TargetingService extends TransactionalService {
     }
 
     public List<CriteriaFilterTemplate> getIndividualFilterTemplates() {
-        return filterTemplateRepository.getByTableName("individuals");
+        return filterTemplateRepository.findAllByTableNameIn(Set.of("individuals", "individuals_view"));
     }
 
     public List<CriteriaFilterTemplate> getHouseholdFilterTemplates() {
@@ -251,6 +248,13 @@ public class TargetingService extends TransactionalService {
         );
     }
 
+    private String column(CriteriaFilterInfo info) {
+        return switch (info.getTableName()) {
+            case "individuals", "individuals_view" -> format("`individuals_view`.`%s`", info.getColumnName());
+            default -> format("`%s`.`%s`", info.getTableName(), info.getColumnName());
+        };
+    }
+
     public void compileFilterQuery(Criterion criterion) {
         List<CriteriaFilterInfo> criteriaFilterInfoList =
                 criteriaFilterRepository.getFilterValuesForCriterion(criterion.getId());
@@ -274,7 +278,7 @@ public class TargetingService extends TransactionalService {
                 .collect(Collectors.toList());
 
         hasIndividualFilters = criteriaFilterInfoList.stream()
-                .anyMatch(cfi -> cfi.getTableName().equalsIgnoreCase("individuals"));
+                .anyMatch(cfi -> cfi.getTableName().equalsIgnoreCase("individuals") || cfi.getTableName().equalsIgnoreCase("individuals_view"));
 
         hasHouseholdFilters = criteriaFilterInfoList.stream()
                 .anyMatch(cfi -> cfi.getTableName().equalsIgnoreCase("households"));
@@ -289,10 +293,7 @@ public class TargetingService extends TransactionalService {
                     clauseBuilder.append(" AND ");
                 }
                 first = false;
-                clauseBuilder.append(info.getTableName())
-                        .append(".")
-                        .append(info.getColumnName())
-                        .append(" = :").append(placeholder(info));
+                clauseBuilder.append(info.getOperator().buildCondition(column(info), placeholder(info)));
             }
             clauseBuilder.append(')');
         }
@@ -308,10 +309,7 @@ public class TargetingService extends TransactionalService {
                     clauseBuilder.append(" OR ");
                 }
                 first = false;
-                clauseBuilder.append(info.getTableName())
-                        .append(".")
-                        .append(info.getColumnName())
-                        .append(" = :").append(placeholder(info));
+                clauseBuilder.append(info.getOperator().buildCondition(column(info), placeholder(info)));
             }
             clauseBuilder.append(')');
         }
@@ -319,14 +317,14 @@ public class TargetingService extends TransactionalService {
         // Compile the query only. The actual run and parameter binding will be done later.
 
         builder = new StringBuilder("SELECT households.household_id, households.location_code, households.ta_code,")
-                .append("households.zone_code, households.cluster_code FROM households");
+                .append("households.zone_code, households.cluster_code FROM households JOIN non_empty_households_v ON non_empty_households_v.household_id = households.household_id");
 
         if (hasHouseholdFilters) {
             if (hasIndividualFilters) {
-                builder.append(" JOIN individuals ON individuals.household_id = households.household_id");
+                builder.append(" JOIN individuals_view ON individuals_view.household_id = households.household_id");
             }
         } else {
-            builder.append(" JOIN individuals ON individuals.household_id = households.household_id");
+            builder.append(" JOIN individuals_view ON individuals_view.household_id = households.household_id");
         }
 
         builder.append(" WHERE (").append(clauseBuilder).append(") GROUP BY household_id");
@@ -392,7 +390,17 @@ public class TargetingService extends TransactionalService {
                 .setParameter("clusterCodes", CollectionUtils.join(session.getClusters()));
 
         for (CriteriaFilterInfo info : criteriaFilterInfoList) {
-            query.setParameter(placeholder(info), info.getFilterValue());
+            final String placeholder = placeholder(info);
+            if (info.getOperator().isRanged) {
+                String placeholder1 = format("%s_1", placeholder);
+                String placeholder2 = format("%s_2", placeholder);
+                String[] values = info.getFilterValue().split(",");
+
+                query.setParameter(placeholder1, values[0]);
+                query.setParameter(placeholder2, values[1]);
+            } else {
+                query.setParameter(placeholder, info.getFilterValue());
+            }
         }
 
         query.executeUpdate();
