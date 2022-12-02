@@ -36,6 +36,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cga.sctp.beneficiaries.BeneficiaryService;
 import org.cga.sctp.beneficiaries.Individual;
 import org.cga.sctp.data.ResourceService;
+import org.cga.sctp.data.UploadFileValidator;
 import org.cga.sctp.mis.core.SecuredBaseController;
 import org.cga.sctp.mis.file_upload.FileUploadService;
 import org.cga.sctp.schools.SchoolService;
@@ -102,6 +103,12 @@ public class EnrollmentController extends SecuredBaseController {
 
     @Autowired
     private FileUploadService fileUploadService;
+
+    @Autowired
+    private UploadFileValidator uploadFileValidator;
+
+    @Autowired
+    private ResourceService resourceService;
 
     @GetMapping
     @AdminAndStandardAccessOnly
@@ -305,14 +312,15 @@ public class EnrollmentController extends SecuredBaseController {
             @Valid @ModelAttribute UpdateHouseholdRecipientForm form,
             BindingResult bindingResult
     ) {
-        FieldError fieldError = null;
+        FieldError fieldError;
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(bindingResult.getAllErrors());
         }
         Long householdId = form.getHousehold();
-        HouseholdEnrollment enrollment = enrollmentService
-                .findHouseholdEnrollment(form.getSession(), householdId);
-        // TODO send the whole form, extract what data you want
+        MultipartFile formPhoto = form.getPhoto();
+        UploadFileValidator.UploadedFile picture = null;
+        HouseholdEnrollment enrollment = enrollmentService.findHouseholdEnrollment(form.getSession(), householdId);
+
         if (enrollment == null) {
             return ResponseEntity.notFound().build();
         }
@@ -330,20 +338,39 @@ public class EnrollmentController extends SecuredBaseController {
         recipient.setModifiedAt(timestamp);
         enrollment.setUpdatedAt(timestamp);
 
-        MultipartFile photo = form.getPhoto();
+        RecipientPictureUpdateStatus status = new RecipientPictureUpdateStatus();
+        String[] types = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE};
 
-        if (!fileUploadService.getResourceService().isAcceptedImageFile(photo)) {
-            return ResponseEntity.badRequest().build();
+            if (formPhoto != null && !formPhoto.isEmpty()) {
+                picture = uploadFileValidator.convertMultipartFile(formPhoto);
+            }
+
+        if (picture != null) {
+            if (picture.isStaged()) {
+                if (!picture.hasType(types)) {
+                    picture.delete();
+                    status.setFailed(status.getFailed() + 1);
+                    LOG.error("Invalid file type for primary recipient {}. expected: {}", picture, types);
+                    fieldError = new FieldError("form", "Photo", "Photo is invalid");
+                    return ResponseEntity.badRequest().body(fieldError);
+
+                }
+            } else {
+                status.setFailed(status.getFailed() + 1);
+                LOG.error("Error staging recipient picture file {}", picture);
+                fieldError = new FieldError("form", "Photo", "Cannot upload the file.");
+                return ResponseEntity.badRequest().body(fieldError);
+            }
         }
 
         ResourceService.UpdateResult updateResult = switch (type) {
-            case primary -> fileUploadService.getResourceService().storeMainRecipientPhoto(photo, householdId);
+            case primary -> resourceService.storeMainRecipientPhoto(picture, householdId);
             case secondary ->
-                    fileUploadService.getResourceService().storeAlternateRecipientPhoto(photo, householdId);
+                    resourceService.storeAlternateRecipientPhoto(picture, householdId);
         };
 
         if (!updateResult.stored()) {
-            fieldError = new FieldError("form", "File", "Cannot upload the file.");
+            fieldError = new FieldError("form", "File", "File upload failed.");
             return ResponseEntity.badRequest().body(fieldError);
         }
 
@@ -386,14 +413,13 @@ public class EnrollmentController extends SecuredBaseController {
                     altRecipient.setNationalId(form.getNationalId());
                     altRecipient.setHouseholdId(form.getHousehold());
                     altRecipient.setDateOfBirth(form.getDateOfBirth());
-                    altRecipient.setIdExpiryDate(form.getIdExpiryDate()); // TODO but must be optional
-                    altRecipient.setIdIssueDate(form.getIdIssueDate());  // TODO but must be optional
+                    altRecipient.setIdExpiryDate(form.getIdExpiryDate());
+                    altRecipient.setIdIssueDate(form.getIdIssueDate());
                     // TODO All data must be validated if present,
                 }
 
                 enrollmentService.saveAlternateRecipient(altRecipient);
                 recipient.setAltRecipient(altRecipient.getId());
-
             }
         }
 
