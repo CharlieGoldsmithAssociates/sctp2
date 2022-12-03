@@ -62,6 +62,9 @@ public class CriterionFilterController extends BaseController {
     @Autowired
     private TargetingService targetingService;
 
+    @Autowired
+    private FilterTemplateValidator templateValidator;
+
     /**
      * This is a hidden setting. Controls whether filters that have already been applied
      * to pre-eligibility verification runs can be modified.
@@ -245,6 +248,14 @@ public class CriterionFilterController extends BaseController {
                         .addObject("conjunctions", CriteriaFilterObject.Conjunction.VALUES)
                         .addObject("templates", Collections.emptyList());
             }
+        }
+
+        final TemplateValue value = new TemplateValue(template, form.getValue());
+        if (!templateValidator.validate(value)) {
+            return withDangerMessage("targeting/criteria/filters/new", value.getErrorMessage())
+                    .addObject("criterion", criterion)
+                    .addObject("conjunctions", CriteriaFilterObject.Conjunction.VALUES)
+                    .addObject("templates", Collections.emptyList());
         }
 
         CriteriaFilter filter = new CriteriaFilter();

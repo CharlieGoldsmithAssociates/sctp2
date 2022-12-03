@@ -40,13 +40,14 @@ public abstract class FilterTemplate {
 
     public enum FieldType {
         Number,
+        NumberSigned,
         Decimal,
         Text,
         Date,
         ListSingle,
         ListMultiple,
         NumberRange,
-        DecimalRange
+        DecimalRange;
     }
 
     @Id

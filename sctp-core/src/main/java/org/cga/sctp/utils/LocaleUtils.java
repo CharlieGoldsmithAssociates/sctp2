@@ -49,7 +49,19 @@ public final class LocaleUtils {
         return txt.matches("^\\d+$");
     }
 
+    public static boolean isSignedNumber(String input) {
+        return input.matches("^-?\\d+$");
+    }
+
+    public static boolean isSignedDecimal(String input) {
+        return input.matches("^-?\\d{1,19}(\\.\\d{1,19})?$");
+    }
+
     public static String fileName(String name) {
         return name.replaceAll("[\\\\/:*?\"<>|]", "_");
+    }
+
+    public static boolean isDecimalNumber(String value) {
+        return value.matches("^\\d{1,19}(\\.\\d{1,19})?$");
     }
 }
