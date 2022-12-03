@@ -16,6 +16,7 @@ import org.cga.sctp.program.Program;
 import org.cga.sctp.program.ProgramService;
 import org.cga.sctp.targeting.*;
 import org.cga.sctp.targeting.criteria.Criterion;
+import org.cga.sctp.targeting.criteria.HouseholdCountParameters;
 import org.cga.sctp.user.AdminAccessOnly;
 import org.cga.sctp.user.AdminAndStandardAccessOnly;
 import org.cga.sctp.user.AuthenticatedUser;
@@ -23,6 +24,8 @@ import org.cga.sctp.user.AuthenticatedUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -80,6 +83,22 @@ public class EligibilityVerificationController extends BaseController {
     @BreadcrumbPath(link = "/new", title = "New Eligibility Verification Session")
     public ModelAndView newVerificationSession(@ModelAttribute("form") NewVerificationSessionForm form) {
         return newModel();
+    }
+
+    @AdminAccessOnly
+    @PostMapping(value = "/count-matching-households", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Long> countHouseholdsMatchingCriterionFilters(
+            @Valid @RequestBody HouseholdCountParameters parameters,
+            BindingResult bindingResult
+    ) {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().build();
+        }
+        final Criterion criterion = targetingService.findCriterionById(parameters.getCriterionId());
+        if (criterion == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(targetingService.countHouseholdsMatchingCriterionFilters(parameters, criterion));
     }
 
     @AdminAccessOnly

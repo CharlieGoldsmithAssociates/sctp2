@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,26 +30,59 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.utils;
+package org.cga.sctp.targeting.criteria;
 
-import java.util.Collection;
-import java.util.Objects;
-import java.util.StringJoiner;
 
-public final class CollectionUtils {
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.util.Set;
 
-    public static String join(Collection<?> collection) {
-        return join(collection, ",");
+public class HouseholdCountParameters {
+
+    @NotNull(message = "Criterion is required")
+    private long criterionId;
+
+    @NotNull(message = "District code is required")
+    private long districtCode;
+
+    @NotNull(message = "Traditional authority code is required")
+    private long taCode;
+
+    @NotNull(message = "Cluster codes are required")
+    @NotEmpty(message = "Cluster codes cannot be empty")
+    @Size(min = 1, max = 100, message = "Must have {min} - {max} cluster codes")
+    private Set<Long> clusterCodes;
+
+    public long getDistrictCode() {
+        return districtCode;
     }
 
-    public static String join(Collection<?> collection, String glue) {
-        if (glue == null || glue.isEmpty()) {
-            return "";
-        }
-        final StringJoiner joiner = new StringJoiner(glue);
-        for (Object o : collection) {
-            joiner.add(Objects.toString(o));
-        }
-        return joiner.toString();
+    public void setDistrictCode(long districtCode) {
+        this.districtCode = districtCode;
+    }
+
+    public long getTaCode() {
+        return taCode;
+    }
+
+    public void setTaCode(long taCode) {
+        this.taCode = taCode;
+    }
+
+    public Set<Long> getClusterCodes() {
+        return clusterCodes;
+    }
+
+    public void setClusterCodes(Set<Long> clusterCodes) {
+        this.clusterCodes = clusterCodes;
+    }
+
+    public long getCriterionId() {
+        return criterionId;
+    }
+
+    public void setCriterionId(long criterionId) {
+        this.criterionId = criterionId;
     }
 }

@@ -53,6 +53,7 @@ import javax.persistence.Query;
 import javax.transaction.Transactional;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -404,6 +405,47 @@ public class TargetingService extends TransactionalService {
         }
 
         query.executeUpdate();
+    }
+
+    /**
+     * @param parameters .
+     * @param criterion  .
+     * @return Number of households that match the filters under the given criterion
+     */
+    public long countHouseholdsMatchingCriterionFilters(HouseholdCountParameters parameters, Criterion criterion) {
+
+        List<CriteriaFilterInfo> criteriaFilterInfoList = criteriaFilterRepository
+                .getFilterValuesForCriterion(parameters.getCriterionId());
+
+        StringBuilder builder = new StringBuilder("WITH _cte_ AS (")
+                .append(criterion.getCompiledQuery()).append(")")
+                .append(" SELECT COUNT(DISTINCT _cte_.household_id)")
+                .append(" FROM _cte_")
+                .append(" WHERE location_code = :districtCode AND ta_code = :taCode")
+                .append(" AND FIND_IN_SET(cluster_code, :clusterCodes)");
+
+        String sql = builder.toString();
+
+        Query query = entityManager.createNativeQuery(sql);
+
+        query.setParameter("taCode", parameters.getTaCode())
+                .setParameter("districtCode", parameters.getDistrictCode())
+                .setParameter("clusterCodes", CollectionUtils.join(parameters.getClusterCodes()));
+
+        for (CriteriaFilterInfo info : criteriaFilterInfoList) {
+            final String placeholder = placeholder(info);
+            if (info.getOperator().isRanged) {
+                String placeholder1 = format("%s_1", placeholder);
+                String placeholder2 = format("%s_2", placeholder);
+                String[] values = info.getFilterValue().split(",");
+
+                query.setParameter(placeholder1, values[0]);
+                query.setParameter(placeholder2, values[1]);
+            } else {
+                query.setParameter(placeholder, info.getFilterValue());
+            }
+        }
+        return ((BigInteger) query.getSingleResult()).longValue();
     }
 
     public Page<EligibilityVerificationSessionView> getVerificationSessionViews(Pageable pageable) {
