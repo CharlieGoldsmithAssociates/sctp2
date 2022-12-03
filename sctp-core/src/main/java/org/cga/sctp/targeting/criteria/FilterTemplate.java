@@ -67,6 +67,8 @@ public abstract class FilterTemplate {
     private LocalDateTime createdAt;
     private String hint;
 
+    private Operator operator;
+
     public Long getId() {
         return id;
     }
@@ -129,5 +131,13 @@ public abstract class FilterTemplate {
 
     public void setHint(String hint) {
         this.hint = hint;
+    }
+
+    public Operator getOperator() {
+        return operator;
+    }
+
+    public void setOperator(Operator operator) {
+        this.operator = operator;
     }
 }
