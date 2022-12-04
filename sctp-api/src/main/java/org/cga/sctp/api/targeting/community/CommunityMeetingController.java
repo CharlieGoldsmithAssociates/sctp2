@@ -41,7 +41,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.cga.sctp.api.core.BaseController;
 import org.cga.sctp.api.core.IncludeGeneralResponses;
 import org.cga.sctp.api.user.ApiUserDetails;
-import org.cga.sctp.api.utils.LangUtils;
 import org.cga.sctp.audit.TargetingEvent;
 import org.cga.sctp.beneficiaries.BeneficiaryService;
 import org.cga.sctp.targeting.*;
@@ -80,16 +79,14 @@ public class CommunityMeetingController extends BaseController {
             @AuthenticatedUserDetails ApiUserDetails apiUserDetails,
             @Valid @Min(0) @RequestParam(value = "page", defaultValue = "0") int page,
             @Valid @Min(100) @Max(1000) @RequestParam(value = "pageSize", defaultValue = "1000") int pageSize,
-            @RequestParam(value = "traditional-authority-code", required = false) Long taCode,
-            @RequestParam(value = "village-cluster-code", required = false) Long villageCluster,
-            @RequestParam(value = "zone-code", required = false) Long zone,
-            @RequestParam(value = "village-code", required = false) Long village) {
+            @RequestParam(value = "traditional-authority-code") long taCode,
+            @RequestParam(value = "village-cluster-code") long villageCluster) {
 
         Page<TargetingSessionView> sessions = targetingService
                 .getOpenTargetingSessionsForSecondCommunityMeeting(
                         apiUserDetails.getAccessTokenClaims().getDistrictCode().longValue(),
-                        LangUtils.nullIfZeroOrLess(taCode),
-                        LangUtils.nullIfZeroOrLess(villageCluster),
+                        taCode,
+                        villageCluster,
                         page,
                         pageSize
                 );
@@ -106,16 +103,14 @@ public class CommunityMeetingController extends BaseController {
             @AuthenticatedUserDetails ApiUserDetails apiUserDetails,
             @Valid @Min(0) @RequestParam(value = "page", defaultValue = "0") int page,
             @Valid @Min(100) @Max(1000) @RequestParam(value = "pageSize", defaultValue = "1000") int pageSize,
-            @RequestParam(value = "traditional-authority-code", required = false) Long taCode,
-            @RequestParam(value = "village-cluster-code", required = false) Long villageCluster,
-            @RequestParam(value = "zone-code", required = false) Long zone,
-            @RequestParam(value = "village-code", required = false) Long village) {
+            @RequestParam(value = "traditional-authority-code") long taCode,
+            @RequestParam(value = "village-cluster-code") long villageCluster) {
 
         Page<TargetingSessionView> sessions = targetingService
                 .getOpenTargetingSessionsForDistrictMeeting(
                         apiUserDetails.getAccessTokenClaims().getDistrictCode().longValue(),
-                        LangUtils.nullIfZeroOrLess(taCode),
-                        LangUtils.nullIfZeroOrLess(villageCluster),
+                        taCode,
+                        villageCluster,
                         page,
                         pageSize
                 );
