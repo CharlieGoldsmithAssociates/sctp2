@@ -45,25 +45,25 @@ public class FilterTemplateValidator extends BaseComponent {
         switch (value.getTemplate().getFieldType()) {
             case Number -> {
                 if (!LocaleUtils.isNumber(value.getValue())) {
-                    value.setErrorMessage("invalid number value");
+                    value.setErrorMessage("Value must be a valid positive number");
                     return false;
                 }
             }
             case NumberSigned -> {
                 if (!LocaleUtils.isSignedNumber(value.getValue())) {
-                    value.setErrorMessage("invalid number value");
+                    value.setErrorMessage("Invalid number value");
                     return false;
                 }
             }
             case Decimal -> {
                 if (!LocaleUtils.isDecimalNumber(value.getValue())) {
-                    value.setErrorMessage("invalid decimal value");
+                    value.setErrorMessage("Invalid decimal value");
                     return false;
                 }
             }
             case Text -> {
                 if (LocaleUtils.isStringNullOrEmpty(value.getValue())) {
-                    value.setErrorMessage("value is required");
+                    value.setErrorMessage("Value is required");
                     return false;
                 }
             }
