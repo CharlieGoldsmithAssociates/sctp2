@@ -67,6 +67,7 @@ public abstract class FilterTemplate {
     private LocalDateTime createdAt;
     private String hint;
 
+    @Enumerated(EnumType.STRING)
     private Operator operator;
 
     public Long getId() {
