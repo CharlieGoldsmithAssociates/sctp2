@@ -59,6 +59,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -371,6 +372,8 @@ public class TargetingService extends TransactionalService {
         List<CriteriaFilterInfo> criteriaFilterInfoList = criteriaFilterRepository
                 .getFilterValuesForCriterion(session.getCriterionId());
 
+        ZonedDateTime timestamp = ZonedDateTime.now();
+
         StringBuilder builder = new StringBuilder(" INSERT INTO eligible_households (session_id, household_id, created_at, run_by, selection_status)")
                 .append(" WITH _insert_ AS (").append(criterion.getCompiledQuery()).append(")")
                 .append(" SELECT :sessionId, household_id, :createdAt, :runBy, :selectionStatus")
@@ -386,7 +389,7 @@ public class TargetingService extends TransactionalService {
                 .setParameter("selectionStatus", CbtStatus.PreEligible.name())
                 .setParameter("taCode", session.getTaCode())
                 .setParameter("sessionId", session.getId())
-                .setParameter("createdAt", LocalDateTime.now())
+                .setParameter("createdAt", timestamp)
                 .setParameter("districtCode", session.getDistrictCode())
                 .setParameter("clusterCodes", CollectionUtils.join(session.getClusters()));
 
