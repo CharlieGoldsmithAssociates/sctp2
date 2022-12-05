@@ -32,14 +32,9 @@
 
 package org.cga.sctp.transfers;
 
-import org.hibernate.annotations.SQLUpdate;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -94,18 +89,14 @@ public interface TransfersRepository extends JpaRepository<Transfer, Long> {
             LEFT JOIN locations l4 ON l4.code = h.cluster_code
             LEFT JOIN locations l5 ON l5.code = h.village_code
             LEFT JOIN individuals i ON i.household_id = h.household_id AND i.relationship_to_head = 1
-            LEFT JOIN individuals i2 ON i2.id = t.recipient_id
-            ;
-            """)
-    /*
-                WHERE t.status = :transferStatusCode
-              AND (  l.code = :districtCode
-                AND l2.code = :taCode
-                AND l3.code = :clusterCode
-                AND l4.code = :zoneCode
+            LEFT JOIN individuals i2 ON i2.id = t.recipient_id 
+            WHERE t.status = :transferStatusCode 
+              AND (  l.code = :districtCode 
+                AND l2.code = :taCode 
+                AND l3.code = :clusterCode 
+                AND l4.code = :zoneCode 
                 AND l5.code = :villageCode )
-              LIMIT :pageNumber, :pageSize
-     */
+              LIMIT :pageNumber, :pageSize""")
     List<Transfer> findAllByStatusByLocationToVillageLevel(@Param("transferStatusCode") int transferStatusCode,
                                                            @Param("districtCode") long districtCode,
                                                            @Param("taCode") Long taCode,
@@ -144,4 +135,7 @@ public interface TransfersRepository extends JpaRepository<Transfer, Long> {
 
     @Query
     Optional<Transfer> findByHouseholdId(Long householdId);
+
+    @Query(nativeQuery = true, value = "SELECT COUNT(id) FROM transfers WHERE  transfers.transfer_state <> 21 AND transfer_period_id = :transferPeriodId;")
+    int countOpenOrPreCloseTransfersInPeriod(@Param("transferPeriodId") Long transferPeriodId);
 }

@@ -51,6 +51,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -209,13 +211,41 @@ public class TransferServiceImpl implements TransferService {
 
     @Override
     public int closeTransfers(List<Transfer> transferList, User user) {
-        throw new UnsupportedOperationException("not yet implemented"); // TODO: implement me
+        int numUpdated = 0;
+        for(Transfer transfer: transferList) {
+            transfer.setCollected(true);
+            transfer.setTransferState(TransferStatus.CLOSED);
+            try {
+                transfersRepository.save(transfer);
+                numUpdated++;
+            } catch (Exception e) {
+                LOGGER.warn("Failed to update transfer {} got errror", transfer.getId(), e);
+            }
+        }
+        return numUpdated;
     }
 
     @Override
     public int assignAccountNumbers(TransferSession session, TransferPeriod period, TransferAccountNumberList transferAccountNumberList) {
         // TODO: validate the session, check if the the period is open and check transfer agency for E-Payments which is the valid reason to assign account numbers
-        return beneficiaryAccountService.assignAccountNumbers(session, period, transferAccountNumberList);
+        // TODO: validate the session, check if the the period is open and check transfer agency for E-Payments which is the valid reason to assign account numbers
+        List<Long> householdsAssigned = new ArrayList<>();
+        for (TransferAccountNumberList.HouseholdAccountNumber hh : transferAccountNumberList.getAccountNumberList()) {
+            transfersRepository.findByHouseholdId(hh.getHouseholdId())
+                    .ifPresent(transfer -> {
+                        // TODO: Check if the transfer period matches the period in the request
+                        if (transfer.getTransferPeriodId() != period.getId()) {
+                            transfer.setAccountNumber(hh.getAccountNumber());
+                            transfer.setModifiedAt(LocalDateTime.now());
+                            transfersRepository.save(transfer);
+
+                            householdsAssigned.add(hh.getHouseholdId());
+                        }
+                    });
+        }
+        LoggerFactory.getLogger(getClass()).info("Assigned {} account numbers", householdsAssigned.size());
+        // TODO: return the actual list?
+        return householdsAssigned.size();
     }
 
     @Override
@@ -246,7 +276,9 @@ public class TransferServiceImpl implements TransferService {
 
     @Override
     public int countUnreconciledTransfers(TransferPeriod transferPeriod) {
-        // TODO: count unreconciled transfers
-        return 0;
+        if (transferPeriod == null) {
+            return 0;
+        }
+        return transfersRepository.countOpenOrPreCloseTransfersInPeriod(transferPeriod.getTransferSessionId());
     }
 }

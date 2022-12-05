@@ -125,7 +125,7 @@ public class AccountNumbersController extends SecuredBaseController {
                             TransferSession transferSession = null;
                             TransferPeriod transferPeriod = null;
                             TransferAccountNumberList accountNumberList = beneficiaryAccountService.extractAccountNumberFromCSV(uploadedFilePath.get());
-                            beneficiaryAccountService.assignAccountNumbers(transferSession, transferPeriod, accountNumberList);
+                            transferService.assignAccountNumbers(transferSession, transferPeriod, accountNumberList);
                         }
                     }
                     // upload is finished, move to staging directory, Update to processing
