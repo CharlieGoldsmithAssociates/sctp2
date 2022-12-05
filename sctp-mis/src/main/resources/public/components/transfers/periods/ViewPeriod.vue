@@ -56,6 +56,13 @@
       </div>
 
       <div class="columns">
+        <div v-if="district" class="column">
+          <h1 class="title is-6">District:</h1>
+          <h2 v-if="district" class="subtitle has-text-weight-light  is-6">{{ district.name }}</h2>
+        </div>
+      </div>
+
+      <div class="columns">
         <div v-if="traditionalAuthorities" class="column">
           <h1 class="title is-6">Traditional Authorities:</h1>
           <b-field>
@@ -105,7 +112,6 @@ module.exports = {
           .then(function (response) {
             if (response.status === 200 && isJsonContentType(response.headers['content-type'])) {
               vm.transferPeriod = response.data;
-              console.log(response.data)
             } else {
               vm.snackbar(error_message, 'warning');
             }
@@ -141,6 +147,27 @@ module.exports = {
           .then(function () {
             vm.isLoading = false
           });
+    },
+    getDistrict(code) {
+      const vm = this;
+      vm.isLoading = true
+
+      const error_message = 'Error getting districts'
+
+      axios.get(`/locations/get-location?code=${code}`)
+          .then(function (response) {
+            if (response.status === 200 && isJsonContentType(response.headers['content-type'])) {
+              vm.district = response.data;
+            } else {
+              vm.snackbar(error_message, 'warning');
+            }
+          })
+          .catch(function (error) {
+            vm.snackbar(error_message, 'danger');
+          })
+          .then(function () {
+            vm.isLoading = false
+          });
     }
   },
   watch: {
@@ -154,8 +181,9 @@ module.exports = {
           this.getLocations(newValue.villageClusterCodes, true);
         }
 
-        console.log(this.villageClusters);
-        console.log(this.traditionalAuthorities);
+        if (newValue.districtCode){
+          this.getDistrict(newValue.districtCode);
+        }
       }
     }
   },
@@ -163,6 +191,7 @@ module.exports = {
     return {
       isLoading: false,
       transferPeriod: null,
+      district: null,
       traditionalAuthorities: [],
       villageClusters: [],
     }
