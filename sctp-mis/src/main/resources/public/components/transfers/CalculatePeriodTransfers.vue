@@ -31,57 +31,160 @@
   -->
 <script>
 module.exports = {
+  props: {
+    transferPeriodId: Number
+  },
   data() {
     return {
-      program: null,
-      transferPeriod: null,
-      transfers: [],
-      filteredTraditionalAuthorities: new Set(),
-      filteredClusters: new Set(),
-      topups: [],
-      isLoadingHouseholds: false,
-      isCalculatingAmounts: false,
-      aggregatedTotals: {
-        totalHouseholds: 0,
-        totalHouseholdMembers: 0,
-        totalTopupAmount: 0.0,
-        totalPeriodTransfer: 0.0,
-        totalMonthlyAmount: 0.0
-      }
+      applicableTopups: [],
+      transferPeriod: {},
+      enableExtraColumns: {
+        topups: false,
+        arrears: false,
+      },
+      transfers: [ ],
     }
   },
 
   mounted() {
-    // this.getTransferPeriodInfo();
-    // this.getPrograms().then(() => this.getEnrolledHouseholdsInLocation())
-    // this.getApplicableTopupsForLocation();
   },
 
   methods: {
-    getTransferPeriodInfo() {
-      console.error("NOT IMPLEMENTED YET!")
+
+    viewSingleTransfer(transferId) {
+      throw new Error('not implemented yet');
     },
 
-    getPrograms() {
-      console.error("NOT IMPLEMENTED YET!")
+    viewHouseholdDetail(transferId) {
+      throw new Error('not implemented yet');
     },
 
-    getEnrolledHousheholds(districtCode, taCodes = [], clusterCodes = []) {
-      console.error("NOT IMPLEMENTED YET!")
+    updateAccountNumber(transferId) {
+      throw new Error('not implemented yet');
     },
 
-    getDistricts() {
-      console.error("NOT IMPLEMENTED YET!")
+    viewTopupsOn(transferId) {
+      throw new Error('not implemented yet');
     },
 
-    getApplicableTopupsForLocation() {
-      console.error("NOT IMPLEMENTED YET!")
+    performReconciliationOn(transferId) {
+      throw new Error('not implemented yet');
     },
+
+    viewReconciliationStatus(transferId) {
+      throw new Error('not implemented yet');
+    },
+
+    suspendHousehold(transferId) {
+      throw new Error('not implemented yet');
+    },
+
+    exitHousehold(transferId) {
+      throw new Error('not implemented yet');
+    },
+
+    initiateTransfers() {
+      // TODO: implement me
+      axios.post(`/transfers/periods/${this.transferPeriod.id}/initiate`)
+        .then(response => {
+
+        })
+        .catch(err => {
+          vm.snackbar("")
+        })
+    }
+
   }
 }
 </script>
 <template>
-  <div class="calculate-wrapper">
-
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-title">Calculate Transfers</div>
+    </div>
+    <div class="card-content">
+      <div class="actions">
+        <button class="button is-default">Re-Run Calculations</button>&nbsp;
+        <button class="button is-danger">Save Calculations</button>
+      </div>
+      <div v-if="transfers.length < 1" class="p">
+        <div class="notification  is-link is-light m-4 is-text-3xl has-text-centered">
+          <p>There are not Transfers records created for this Transfer Period.</p>
+          <button @click="initiateTransfers" class="button is-warning"><i class="fa fa-add"></i> Create Transfers &amp; Run Calculations</button>
+        </div>
+      </div>
+      <div class="table-wrapper" style="overflow-x: scroll" v-else>
+        <div class="table-wrapper-inner" style="width: 200%; height: 80vh; padding-left: 50px;">
+          <table class="table">
+            <thead>
+            <tr>
+              <th>Form Number</th>
+              <th>Household Head</th>
+              <th>Main Receiver</th>
+              <th>Alternate Receiver</th>
+              <th># of Members</th>
+              <th># Children</th>
+              <th>Household Amount</th>
+              <th>Primary Bonus</th>
+              <th>Primary Incentive</th>
+              <th>Seconday Bonus</th>
+              <th v-show="enableExtraColumns.topups">Total Topup</th>
+              <th>Total Monthly</th>
+              <th>Total Amount Without Arrears</th>
+              <th v-show="enableExtraColumns.arrears">Arrears Amount</th>
+              <th v-show="enableExtraColumns.arrears">Total Amount With Arrears</th>
+              <th>Options</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="t in transfers" :key="t.id">
+              <td>{{ t.formNumber }}</td>
+              <td>{{ t.householdHead }}</td>
+              <td>{{ t.mainReceiver }}</td>
+              <td>{{ t.alternateReceiver }}</td>
+              <td>{{ t.numOfMembers }}</td>
+              <td>{{ t.numOfChildren }}</td>
+              <td>{{ t.householdAmount }}</td>
+              <td>{{ t.primaryBonus }}</td>
+              <td>{{ t.primaryIncentive }}</td>
+              <td>{{ t.secondayBonus }}</td>
+              <td v-show="enableExtraColumns.topups">{{ t.totalTopup }}</td>
+              <td>{{ t.totalMonthly }}</td>
+              <td>{{ t.totalAmountWithoutArrears }}</td>
+              <td v-show="enableExtraColumns.arrears">{{ t.arrearsAmount }}</td>
+              <td v-show="enableExtraColumns.arrears">{{ t.totalAmountWithArrears }}</td>
+              <td>
+                <div class="dropdown is-hoverable">
+                  <div class="dropdown-trigger">
+                    <button class="button button is-info is-inverted is-options" aria-haspopup="true"
+                            aria-controls="dropdown-menu2">
+                      <span>Options</span>
+                      <span class="icon is-small">
+                          <i class="fas fa-angle-down" aria-hidden="true"></i>
+                        </span>
+                    </button>
+                  </div>
+                  <div class="dropdown-menu" id="dropdown-menu2" role="menu">
+                    <div class="dropdown-content">
+                      <a href="#" @click="viewSingleTransfer(t.id)" class="dropdown-item">View Transfer</a>
+                      <a href="#" @click="viewHouseholdDetail(t.id)" class="dropdown-item">View Household Detail</a>
+                      <a href="#" @click="updateAccountNumber(t.id)" class="dropdown-item">Update Account Number</a>
+                      <a href="#" @click="viewTopupsOn(t.id)" class="dropdown-item">View Topups</a>
+                      <a class="divider"></a>
+                      <a href="#" @click="performReconciliationOn(t.id)" class="dropdown-item">Reconcile</a>
+                      <a href="#" @click="viewReconciliationStatus(t.id)" class="dropdown-item">Reconciliation Status</a>
+                      <a class="divider"></a>
+                      <a href="#" @click="suspendHousehold(t.id)" class="dropdown-item">Suspend Household</a>
+                      <a href="#" @click="exitHousehold(t.id)" class="dropdown-item">Exit Household</a>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
 </template>

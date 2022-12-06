@@ -8,17 +8,8 @@
     </div>
     {% endblock %}
     {% block content %}
-    <div id="transfers:CreateNewPeriodApp" class="content-container is-fullheight">
-        <div class="card">
-            <div class="card-header">
-                <div class="column">
-                    <p class="card-header-title">Calculate Transfers for Period {{ transferPeriod.id }}</p>
-                </div>
-            </div>
-            <div class="card-content">
-                <Calculate-Period-Transfers />
-            </div>
-        </div>
+    <div id="transfers:CreateNewPeriodApp">
+        <Calculate-Period-Transfers  transferPeriodId="{{ transferPeriod.id }}" />
     </div>
     {% endblock %}
 {% block footerScripts %}
