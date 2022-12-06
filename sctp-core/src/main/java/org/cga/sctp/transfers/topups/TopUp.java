@@ -50,11 +50,11 @@ public class TopUp {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotEmpty
+    @NotEmpty(message = "Topup name must be specified")
     @Column(name = "name")
     private String name;
 
-    @NotNull
+    @NotNull(message = "Program must be specified")
     @Column(name = "program_id")
     private Long programId;
 

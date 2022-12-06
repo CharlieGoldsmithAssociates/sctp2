@@ -182,6 +182,48 @@ public class TransferPeriodController extends BaseController {
                 .addObject("transferPeriod", transferPeriod.get());
     }
 
+    @GetMapping("/reconcile/{period-id}")
+    @AdminAndStandardAccessOnly
+    public ModelAndView getReconcilePage(@AuthenticatedUserDetails AuthenticatedUser user,
+                                         @PathVariable("period-id") Long periodId,
+                                         RedirectAttributes attributes) {
+        Optional<TransferPeriod> transferPeriod = transferPeriodService.findById(periodId);
+        if (transferPeriod.isEmpty()) {
+            return redirectWithDangerMessageModelAndView("/transfers/periods", "Transfer Period does not exist", attributes);
+        }
+
+        return view("/transfers/periods/reconcile")
+                .addObject("transferPeriod", transferPeriod.get());
+    }
+
+    @GetMapping("/transfer-list/{period-id}")
+    @AdminAndStandardAccessOnly
+    public ModelAndView getTransferListPage(@AuthenticatedUserDetails AuthenticatedUser user,
+                                         @PathVariable("period-id") Long periodId,
+                                         RedirectAttributes attributes) {
+        Optional<TransferPeriod> transferPeriod = transferPeriodService.findById(periodId);
+        if (transferPeriod.isEmpty()) {
+            return redirectWithDangerMessageModelAndView("/transfers/periods", "Transfer Period does not exist", attributes);
+        }
+
+        return view("/transfers/periods/transfer-list")
+                .addObject("transferPeriod", transferPeriod.get());
+    }
+
+    @GetMapping("/close/{period-id}")
+    @AdminAndStandardAccessOnly
+    public ModelAndView getClosePage(@AuthenticatedUserDetails AuthenticatedUser user,
+                                         @PathVariable("period-id") Long periodId,
+                                         RedirectAttributes attributes) {
+        Optional<TransferPeriod> transferPeriod = transferPeriodService.findById(periodId);
+        if (transferPeriod.isEmpty()) {
+            return redirectWithDangerMessageModelAndView("/transfers/periods", "Transfer Period does not exist", attributes);
+        }
+
+        return view("/transfers/periods/close")
+                .addObject("transferPeriod", transferPeriod.get());
+    }
+
    @GetMapping("/close")
     @AdminAndStandardAccessOnly
     public ModelAndView viewCloseTransferPeriod() {
