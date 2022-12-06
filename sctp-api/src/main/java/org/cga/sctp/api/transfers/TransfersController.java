@@ -39,8 +39,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.cga.sctp.api.core.IncludeGeneralResponses;
 import org.cga.sctp.api.user.ApiUserDetails;
+import org.cga.sctp.api.utils.LangUtils;
 import org.cga.sctp.transfers.Transfer;
 import org.cga.sctp.transfers.TransferService;
+import org.cga.sctp.transfers.periods.TransferPeriodView;
 import org.cga.sctp.transfers.reconciliation.TransferReconciliationRequest;
 import org.cga.sctp.user.AuthenticatedUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +52,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 import static java.util.Collections.singletonMap;
@@ -89,11 +94,11 @@ public class TransfersController {
     })
     @IncludeGeneralResponses
     public ResponseEntity<?> getPendingTransferListForLocation(@AuthenticatedUserDetails ApiUserDetails user,
-                                                        @RequestParam(value = "page", defaultValue = "0") int page,
-                                                        @RequestParam(value = "traditional-authority-code", required = false, defaultValue = "0") Long taCode,
-                                                        @RequestParam(value = "village-cluster-code", required = false, defaultValue = "0") Long villageCluster,
-                                                        @RequestParam(value = "zone-code", required = false, defaultValue = "0") Long zone,
-                                                        @RequestParam(value = "village-code", required = false, defaultValue = "0") Long village) {
+                                                               @RequestParam(value = "page", defaultValue = "0") int page,
+                                                               @RequestParam(value = "traditional-authority-code", required = false, defaultValue = "0") Long taCode,
+                                                               @RequestParam(value = "village-cluster-code", required = false, defaultValue = "0") Long villageCluster,
+                                                               @RequestParam(value = "zone-code", required = false, defaultValue = "0") Long zone,
+                                                               @RequestParam(value = "village-code", required = false, defaultValue = "0") Long village) {
 
         Pageable pageable = Pageable.ofSize(PAGE_SIZE).withPage(page);
         long districtCode = user.getAccessTokenClaims().getDistrictCode().longValue();
@@ -103,14 +108,15 @@ public class TransfersController {
 
     /**
      * This endpoint is mostly intended for use by the App client
+     *
      * @param request detail fo transfers to update
      * @return
      */
     @PostMapping
-    @RequestMapping({ "/update", "/perform" })
+    @RequestMapping({"/update", "/perform"})
     @Operation(
             description = "Updates/performs Transfers with amounts disbursed, dates and personnel.  Applies only to manual transfers",
-            tags = { "transfers", "manual-transfers" })
+            tags = {"transfers", "manual-transfers"})
     @ApiResponses({
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "400", description = "Invalid request")
@@ -127,10 +133,44 @@ public class TransfersController {
     @GetMapping
     @Operation(
             description = "Gets status of E-Payment/automated transfers",
-            tags = { "transfers", "epayment-transfers" })
+            tags = {"transfers", "epayment-transfers"})
     @RequestMapping("/epayments")
     public ResponseEntity<Object> getEPaymentTransfersStatus(@RequestBody Object epaymentTransferRequestDto) {
         // TODO: Implement me!
         return ResponseEntity.badRequest().build();
+    }
+
+    /*   @GetMapping
+       @Operation(
+               description = "Gets list of transfer periods",
+               tags = { "transfers", "periods" })
+       @RequestMapping("/periods")
+       public ResponseEntity<Object> getTransferPeriods(@RequestBody Object epaymentTransferRequestDto) {
+           // TODO: Implement me!
+
+       }
+       //*/
+    @GetMapping("/periods")
+    @Operation(description = "Returns a list of transfer periods")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = TransferPeriodResponse.class)))
+    })
+    @IncludeGeneralResponses
+    public ResponseEntity<TransferPeriodResponse> getTransferPeriods(
+            @AuthenticatedUserDetails ApiUserDetails apiUserDetails,
+            @Valid @Min(0) @RequestParam(value = "page", defaultValue = "0") int page,
+            @Valid @Min(100) @Max(1000) @RequestParam(value = "pageSize", defaultValue = "1000") int pageSize,
+            @RequestParam(value = "traditional-authority-code", required = false) Long taCode,
+            @RequestParam(value = "village-cluster-code", required = false) Long villageCluster
+    ) {
+        Page<TransferPeriodView> transferPeriods = transferService
+                .getTransferPeriodsForMobile(
+                        apiUserDetails.getAccessTokenClaims().getDistrictCode().longValue(),
+                        LangUtils.nullIfZeroOrLess(taCode),
+                        LangUtils.nullIfZeroOrLess(villageCluster),
+                        page,
+                        pageSize
+                );
+        return ResponseEntity.ok(new TransferPeriodResponse(transferPeriods));
     }
 }
