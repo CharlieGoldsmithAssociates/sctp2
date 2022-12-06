@@ -7,7 +7,7 @@ CREATE PROCEDURE countTransferPeriodsForMobile(
     IN _taCode bigint,
     IN _clusterCode bigint
 )
-    COMMENT 'Counts the total records that would be returned by getEnrollmentSessionsForMobileReview. This is used for paging in the API.'
+    COMMENT 'Counts the total records that would be returned by countTransferPeriodsForMobile. This is used for paging in the API.'
 BEGIN
 
 SELECT count(tp.id) totalPeriods
