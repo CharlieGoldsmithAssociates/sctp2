@@ -68,6 +68,8 @@ module.exports = {
         chronicIllnesses: '',
         orphanhoodStatuses: '',
         disabilities: '',
+        isCategoricalTopUp: false,
+        applyNextPeriod:false,
       }
     }
   },
@@ -93,16 +95,16 @@ module.exports = {
     createTopup(event) {
       event.preventDefault()
       const url = "/transfers/topups/new";
-      const config = { headers: { 'X-CSRF-TOKEN': csrf()['token'] } };
+      const config = {headers: {'X-CSRF-TOKEN': csrf()['token']}};
 
       this.topupForm.districtCode = this.selectedDistrict.code;
       this.topupForm.taCodes = [...this.selectedTraditionalAuthorities].join(',');
-      this.topupForm.clusterCodes  = [...this.selectedVillageClusters].join(',');
+      this.topupForm.clusterCodes = [...this.selectedVillageClusters].join(',');
       var vm = this;
       var error_message = 'Error saving topup to database'
       axios.post(url, this.topupForm, config)
         .then(response => {
-           if (response.status === 200 && isJsonContentType(response.headers['content-type'])) {
+          if (response.status === 200 && isJsonContentType(response.headers['content-type'])) {
             vm.districts = response.data;
           } else {
             vm.snackbar(error_message, 'warning');
@@ -185,322 +187,329 @@ module.exports = {
         .then(function () {
           vm.isLoading = false
         });
+    },
+
+    range(startAt, endAt) {
+      return [...Array((endAt - startAt) + 1).keys()].map(i => i + startAt);
     }
-  }
+}
 }
 </script>
 <template>
-    <div class="container">
-        <!-- start content -->
-        <div class="card card-default">
-            <div class="card-header">
-                <div class="card-header-title">New Top Up</div>
+  <div class="container">
+    <!-- start content -->
+    <div class="card card-default">
+      <div class="card-header">
+        <div class="card-header-title">New Top Up</div>
+      </div>
+      <div class="card-content">
+        <for action="" method="post" enctype="application/x-www-form-urlencoded">
+          <div class="columns">
+            <div class="column is-half">
+              <div class="field">
+                <div class="is-normal">
+                  <label class="label is-required">Top Up Name</label>
+                </div>
+                <div class="field-body">
+                  <div class="field">
+                    <div class="control">
+                      <input id="name" name="name" required="required"
+                             type="text"
+                             v-model="topupForm.name"
+                             autocomplete="off" value=""
+                             minlength="1" maxlength="100" class="input">
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="card-content">
-                <for action="" method="post" enctype="application/x-www-form-urlencoded">
-                    <div class="columns">
-                        <div class="column is-half">
-                            <div class="field">
-                                <div class="is-normal">
-                                    <label class="label is-required">Top Up Name</label>
-                                </div>
-                                <div class="field-body">
-                                    <div class="field">
-                                        <div class="control">
-                                            <input id="name" name="name" required="required"
-                                                   type="text"
-                                                   v-model="topupForm.name"
-                                                   autocomplete="off" value=""
-                                                   minlength="1" maxlength="100" class="input">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="column is-half">
-                            <div class="field">
-                                <div class="is-normal">
-                                    <label class="label is-required">Program</label>
-                                </div>
-                                <div class="field-body">
-                                    <div class="field">
-                                        <div class="select is-fullwidth">
-                                            <select id="programId" name="programId" v-model="topupForm.programId" class="input"
-                                                    required="required">
-                                                <option disabled="disabled" selected="selected">Select Option</option>
-                                                <option v-for="p in programs" :value="p.id" :key="p.id">{{ p.name }}
-                                                </option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <div class="column is-half">
+              <div class="field">
+                <div class="is-normal">
+                  <label class="label is-required">Program</label>
+                </div>
+                <div class="field-body">
+                  <div class="field">
+                    <div class="select is-fullwidth">
+                      <select id="programId" name="programId" v-model="topupForm.programId" class="input"
+                              required="required">
+                        <option disabled="disabled" selected="selected">Select Option</option>
+                        <option v-for="p in programs" :value="p.id" :key="p.id">{{ p.name }}
+                        </option>
+                      </select>
                     </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-                    <div class="columns">
-                        <div class="column">
+          <div class="columns">
+            <div class="column">
 
-                        </div>
-                        <div class="column">
-                            <div class="field">
-                                <div class="is-normal">
-                                    <label class="label is-required">Funder / Sponsor</label>
-                                </div>
-                                <div class="field-body">
-                                    <div class="field">
-                                        <div class="select is-fullwidth">
-                                            <select id="funderId" name="funderId" v-model="topupForm.funderId" class="input"
-                                                    required="required">
-                                                <option disabled="disabled" selected="selected">Select Option</option>
-                                                <option v-for="f in funders" :value="f.id" :key="f.id">{{ f.name }}
-                                                </option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            </div>
+            <div class="column">
+              <div class="field">
+                <div class="is-normal">
+                  <label class="label is-required">Funder / Sponsor</label>
+                </div>
+                <div class="field-body">
+                  <div class="field">
+                    <div class="select is-fullwidth">
+                      <select id="funderId" name="funderId" v-model="topupForm.funderId" class="input"
+                              required="required">
+                        <option disabled="disabled" selected="selected">Select Option</option>
+                        <option v-for="f in funders" :value="f.id" :key="f.id">{{ f.name }}
+                        </option>
+                      </select>
                     </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-                    <div class="columns">
-                        <div class="column">
-                            <div class="field">
-                                <div class="is-normal">
-                                    <label class="label is-required">TopUp Types</label>
-                                </div>
-                                <div class="field-body">
-                                    <div class="field">
-                                        <div class="select">
-                                            <select id="topupType" name="topupType" class="input" required="required"
-                                                    v-model="topupForm.topupType">
-                                                <option disabled="disabled" selected="selected">Select Option</option>
-                                                <option value="FIXED_AMOUNT">Fixed Amount</option>
-                                                <option value="PERCENTAGE_OF_RECIPIENT_AMOUNT">% of Recipient Amount
-                                                </option>
-                                                <option value="EQUIVALENT_BENEFICIARY_AMOUNT">Current HH monthly
-                                                    amount
-                                                </option>
-                                                <option value="EPAYMENT_ADMIN_FEE_TOPUP">E-Payment admin/cashout fee
-                                                </option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-
-                        </div>
-
-                        <div class="column">
-                            <div class="optional-collapsible field">
-
-                                <div class="field" v-if="isFixedTopup">
-                                    <div class="is-normal">
-                                        <label class="label ">Fixed Amount Value</label>
-                                    </div>
-                                    <div class="field-body">
-                                        <div class="field">
-                                            <div class="control">
-                                                <input name="fixedAmount" type="number" v-model="topupForm.fixedAmount" autocomplete="off"
-                                                       class="input">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="field" v-if="isPercentageTopup">
-                                    <div class="is-normal">
-                                        <label class="label ">Percentage</label>
-                                    </div>
-                                    <div class="field-body">
-                                        <div class="field">
-                                            <div class="control">
-                                                <input id="percentage" name="percentage" type="text" v-model="topupForm.percentage"
-                                                       autocomplete="off" value="" minlength="0" maxlength="3" class="input">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
+          <div class="columns">
+            <div class="column">
+              <div class="field">
+                <div class="is-normal">
+                  <label class="label is-required">TopUp Types</label>
+                </div>
+                <div class="field-body">
+                  <div class="field">
+                    <div class="select is-fullwidth">
+                      <select id="topupType" name="topupType" class="input" required="required"
+                              v-model="topupForm.topupType">
+                        <option disabled="disabled" selected="selected">Select Option</option>
+                        <option value="FIXED_AMOUNT">Fixed Amount</option>
+                        <option value="PERCENTAGE_OF_RECIPIENT_AMOUNT">% of Recipient Amount
+                        </option>
+                        <option value="EQUIVALENT_BENEFICIARY_AMOUNT">Current HH monthly
+                          amount
+                        </option>
+                        <option value="EPAYMENT_ADMIN_FEE_TOPUP">E-Payment admin/cashout fee
+                        </option>
+                      </select>
                     </div>
+                  </div>
+                </div>
+              </div>
 
+
+            </div>
+
+            <div class="column">
+              <div class="optional-collapsible field">
+
+                <div class="field" v-if="isFixedTopup">
+                  <div class="is-normal">
+                    <label class="label ">Fixed Amount Value</label>
+                  </div>
+                  <div class="field-body">
                     <div class="field">
-                        <div class="is-normal">
-                            <label class="label is-required">Household Status</label>
-                        </div>
-                        <div class="field-body">
-                            <div class="select">
-                                <div class="select is-fullwidth">
-                                    <select id="householdStatus" name="householdStatus" v-model="topupForm.householdStatus" class="input"
-                                            required="required">
-                                        <option disabled="disabled" selected="selected">Select Option</option>
-                                        <option value="BOTH">Both</option>
-                                        <option value="RECERTIFIED">Recertified</option>
-                                        <option value="NON_RECERTIFIED">Non-Recertified</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
+                      <div class="control">
+                        <input name="fixedAmount" type="number" v-model="topupForm.fixedAmount" autocomplete="off"
+                               class="input">
+                      </div>
                     </div>
-                    <b-field>
-                        <template slot="label">
-                            <span>District <span class="has-text-danger">*</span> </span>
-                        </template>
-                        <b-select placeholder="Select a district" v-model="selectedDistrict" @input="getTraditionalAuthorities"
-                                  expanded required>
-                            <option v-for="option in districts" :value="option" :key="option.id">
-                                {{ option.name }}
+                  </div>
+                </div>
+
+                <div class="field" v-if="isPercentageTopup">
+                  <div class="is-normal">
+                    <label class="label ">Percentage</label>
+                  </div>
+                  <div class="field-body">
+                    <div class="field">
+                      <div class="control">
+                        <input id="percentage" name="percentage" type="text" v-model="topupForm.percentage"
+                               autocomplete="off" value="" minlength="0" maxlength="3" class="input">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="is-normal">
+              <label class="label is-required">Household Status</label>
+            </div>
+            <div class="field-body">
+              <div class="field">
+                <div class="select is-fullwidth">
+                  <select id="householdStatus" name="householdStatus" v-model="topupForm.householdStatus" class="input"
+                          required="required">
+                    <option disabled="disabled" selected="selected">Select Option</option>
+                    <option value="BOTH">Both</option>
+                    <option value="RECERTIFIED">Recertified</option>
+                    <option value="NON_RECERTIFIED">Non-Recertified</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <b-field>
+            <template slot="label">
+              <span>District <span class="has-text-danger">*</span> </span>
+            </template>
+            <b-select placeholder="Select a district" v-model="selectedDistrict" @input="getTraditionalAuthorities"
+                      expanded required>
+              <option v-for="option in districts" :value="option" :key="option.id">
+                {{ option.name }}
+              </option>
+            </b-select>
+          </b-field>
+          <div class="columns">
+            <div class="column">
+              <v-multiselect label="T/A" :options="traditionalAuthorities" option-label-field="text"
+                             option-value-field="id" :selected="selectedTraditionalAuthorities"
+                             @input="getVillageClusters">
+              </v-multiselect>
+            </div>
+            <div class="column">
+              <v-multiselect label="Village Clusters" :options="villageClusters" option-label-field="text"
+                             option-value-field="id" :selected="selectedVillageClusters"></v-multiselect>
+            </div>
+          </div>
+
+          <div class="categorical-topup-elements">
+            <div class="option-wrapper">
+              <div class="checkbox-selector">
+                <label for="isCategorical">
+                  <input type="checkbox" name="isCategorical" id="isCategorical" v-model="topupForm.isCategoricalTopUp">
+                  &nbsp; Categorical TopUp?</label>
+              </div>
+              <div class="box-wrapper">
+                <div class="create-categorical-topups box" v-if="topupForm.isCategoricalTopUp">
+                  <div class="field level-of-calculation">
+                    <label class="label">Level of Calculation</label>
+                    <div class="select">
+                      <select name="levelOfCalculation" v-model="topupForm.levelOfCalculation" class="control">
+                        <option value="">By Household</option>
+                        <option value="">By Individual</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="field age-range">
+                    <label class="label">Age Range</label>
+                    <div class="age-range">
+                      <div class="field is-pulled-left">
+                        <label class="label">From</label>
+                        <div class="select">
+                          <select class="control" v-model="topupForm.ageFrom">
+                            <option value="" selected>Age From...</option>
+                            <option v-for="age in range(0, 99)" :key="age" value="age">
+                              {{ age }}
                             </option>
-                        </b-select>
-                    </b-field>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="field px-5 is-pulled-left">
+                        <label class="label">To</label>
+                        <div class="select">
+                          <select class="control" v-model="topupForm.ageTo">
+                            <option value="" selected>Age To ...</option>
+                            <option v-for="age in range(0, 99)" :key="age">
+                              {{ age }}
+                            </option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="is-clearfix"></div>
+                  <div class="field">
+                    <label class="label">Gender</label>
+                    <div class="select control">
+                      <select name="gender" v-model="topupForm.gender">
+                        <option value="male">Both</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Disability</label>
                     <div class="columns">
-                        <div class="column">
-                            <v-multiselect label="T/A" :options="traditionalAuthorities" option-label-field="text"
-                                           option-value-field="id" :selected="selectedTraditionalAuthorities" @input="getVillageClusters">
-                            </v-multiselect>
-                        </div>
-                        <div class="column">
-                            <v-multiselect label="Village Clusters" :options="villageClusters" option-label-field="text"
-                                           option-value-field="id" :selected="selectedVillageClusters"></v-multiselect>
-                        </div>
+                      <div class="column" v-for="d in disabilityOptions" :key="d.id">
+                        <label class="checkbox-label">
+                          <input type="checkbox" value="d.id" v-model="topupForm.disabilities"> {{ d.description }}
+                        </label>
+                      </div>
                     </div>
+                  </div>
 
-                    <div class="categorical-topup-elements">
-                        <div class="option-wrapper">
-                            <div class="checkbox-selector">
-                                <label for="isCategorical">
-                                    <input type="checkbox" name="isCategorical" id="isCategorical" v-model="topupForm.isCategoricalTopUp">
-                                    Categorical TopUp?</label>
-                            </div>
-                            <div class="box-wrapper">
-                                <div class="create-categorical-topups box" v-if="topupForm.isCategoricalTopUp">
-                                    <div class="field level-of-calculation">
-                                        <label class="label">Level of Calculation</label>
-                                        <div class="select">
-                                            <select name="levelOfCalculation"  v-model="topupForm.levelOfCalculation" class="control">
-                                                <option value="">By Household</option>
-                                                <option value="">By Individual</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="field age-range">
-                                        <h5>Age Range</h5>
-                                        <div class="age-range">
-                                            <div class="field is-pulled-left">
-                                                <label class="label">From</label>
-                                                <div class="select">
-                                                    <select class="control" v-model="topupForm.ageFrom">
-                                                        <option value="" selected>Age From...</option>
-                                                        <option v-for="age in range(0, 99)" :key="age" value="age">
-                                                            {{ age }}
-                                                        </option>
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <div class="field px-5 is-pulled-left">
-                                                <label class="label">To</label>
-                                                <div class="select">
-                                                    <select class="control" v-model="topupForm.ageTo">
-                                                        <option value="" selected>Age To ...</option>
-                                                        <option v-for="age in range(0, 99)" :key="age" >
-                                                            {{ age }}
-                                                        </option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="is-clearfix"></div>
-                                    <div class="field">
-                                        <label class="label">Gender</label>
-                                        <div class="select control">
-                                            <select name="gender" v-model="topupForm.gender">
-                                                <option value="male">Both</option>
-                                                <option value="male">Male</option>
-                                                <option value="female">Female</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div class="field">
-                                        <label class="label">Disability</label>
-                                        <div class="columns">
-                                            <div class="column" v-for="d in disabilityOptions" :key="d.id">
-                                                <label class="checkbox-label">
-                                                    <input type="checkbox" value="d.id" v-model="topupForm.disabilities"> {{ d.description }}
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="field">
-                                        <label>Chronic Illness</label>
-                                        <div class="columns is-full">
-                                            <div class="column" v-for="d in chronicIllnessOptions" :key="d.id">
-                                                <label class="checkbox-label">
-                                                    <input type="checkbox" value="d.id" v-model="topupForm.chronicIllnesses"> {{ d.description }}
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="field">
-                                        <label>Orphan Hood</label>
-                                        <div class="columns is-gapless is-full">
-                                            <div class="column" v-for="d in orphanhoodOptions" :key="d.id">
-                                                <label class="checkbox-label">
-                                                    <input type="checkbox" value="d.id" v-model="topupForm.orphanhoodStatuses"> {{ d.description }}
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-                            <div class="column"></div>
-                        </div>
-
+                  <div class="field">
+                    <label>Chronic Illness</label>
+                    <div class="columns is-full">
+                      <div class="column" v-for="d in chronicIllnessOptions" :key="d.id">
+                        <label class="checkbox-label">
+                          <input type="checkbox" value="d.id" v-model="topupForm.chronicIllnesses"> {{ d.description }}
+                        </label>
+                      </div>
                     </div>
+                  </div>
 
-                    <div class="field">
-                        <div class="is-normal">
-                            <label class="label is-required">Active</label>
-                        </div>
-                        <div class="field-body">
-                            <div class="field">
-                                <div class="select">
-                                    <select id="active" name="active" class="input" required="required"  v-model="topupForm.active">
-                                        <option disabled="disabled" selected="selected">Select Option</option>
-                                        <option value="true">Yes</option>
-                                        <option value="false">No</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
+                  <div class="field">
+                    <label>Orphan Hood</label>
+                    <div class="columns is-gapless is-full">
+                      <div class="column" v-for="d in orphanhoodOptions" :key="d.id">
+                        <label class="checkbox-label">
+                          <input type="checkbox" value="d.id" v-model="topupForm.orphanhoodStatuses"> {{
+                            d.description
+                          }}
+                        </label>
+                      </div>
                     </div>
+                  </div>
+                </div>
 
-                    <div class="apply-period block">
-                        <div class="field">
-                            <label class="checkbox-">
-                                <input type="checkbox" v-model="topupForm.applyNextPeriod">&nbsp;Apply to Next Transfer
-                                Period
-                            </label>
-                        </div>
-                        <p class="notification is-info" v-show="topupForm.applyNextPeriod">
-                            Please note that created Topups will affect subsequent transfer calculations.
-                        </p>
-                    </div>
-
-                    <div class="action-buttons">
-<!--                        <button class="button is-default" >Preview Top Up Calculation</button>&nbsp;-->
-                        <button class="button is-success" @click="createTopup">Create TopUp</button>
-                    </div>
-                </for>
+              </div>
+              <div class="column"></div>
             </div>
-        </div>
+
+          </div>
+
+          <div class="field">
+            <div class="is-normal">
+              <label class="label is-required">Active</label>
+            </div>
+            <div class="field-body">
+              <div class="field">
+                <div class="select">
+                  <select id="active" name="active" class="input" required="required" v-model="topupForm.active">
+                    <option disabled="disabled" selected="selected">Select Option</option>
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="apply-period block">
+            <div class="field">
+              <label class="checkbox-">
+                <input type="checkbox" v-model="topupForm.applyNextPeriod">&nbsp; Apply to Next Transfer
+                Period
+              </label>
+            </div>
+            <p class="notification is-info" v-show="topupForm.applyNextPeriod">
+              Please note that created Topups will affect subsequent transfer calculations.
+            </p>
+          </div>
+
+          <div class="action-buttons">
+            <!--                        <button class="button is-default" >Preview Top Up Calculation</button>&nbsp;-->
+            <button class="button is-success" @click="createTopup">Create TopUp</button>
+          </div>
+        </for>
+      </div>
     </div>
-</template >
+  </div>
+</template>
