@@ -157,7 +157,7 @@ public class TransferCalculator {
         return totalTopupAmout;
     }
 
-    protected void calculateTransferAmount(Transfer transfer, Location location, TransferPeriod transferPeriod) {
+    public void calculateTransferAmount(Transfer transfer, Location location, TransferPeriod transferPeriod) {
         final BigDecimal basicAmount = determineAmountByHouseholdSize(transfer.getHouseholdMemberCount(), householdTransferParameters);
         final BigDecimal secondaryBonus = getSecondaryBonusAmount(educationTransferParameters).multiply(BigDecimal.valueOf(transfer.getSecondaryChildrenCount()));
         final BigDecimal primaryBonus = getPrimaryBonusAmount(educationTransferParameters).multiply(BigDecimal.valueOf(transfer.getPrimaryChildrenCount()));

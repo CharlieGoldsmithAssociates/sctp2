@@ -34,13 +34,121 @@ module.exports = {
     data() {
         return {
             currentLevel: 'SUBNATIONAL1',
-            selectedLocations: [],
+            selectedDistrictCode: '',
+            selectedTraditionalAuthorities: [],
+            selectedClusters: [],
+            districts: [],
+            traditionalAuthorities: [],
+            villageClusters: [],
         }
+    },
+
+    mounted() {
+        this.fetchDistricts()
+    },
+
+    methods: {
+        fetchDistricts() {
+            return axios.get("/locations/districts/active")
+                .then(response => {
+                    this.districts = response.data
+                })
+                .catch(err => {
+                    this.showErrorMessage("Location Selector", "Failed to load Districts data...")
+                })
+        },
+
+        fetchTraditionalAuthorities() {
+            let locationQueryParam = this.selectedDistrictCode
+            return axios.get("/locations/get-child-locations?id=" + locationQueryParam)
+                .then(response => {
+                    let mappedLocations = response.data.map(e => {
+                        return { code: e.id, name: e.text }
+                    })
+                    this.traditionalAuthorities = mappedLocations
+                    this.selectedTraditionalAuthorities.splice(0)
+                })
+                .catch(err => {
+                    this.showErrorDialog("Failed to load location data...", "Failed to load location data...")
+                })
+        },
+
+        fetchSublocations(codeOrArrayOfCodes, fieldName) {
+            let locationQueryParam = codeOrArrayOfCodes
+            if (Array.isArray(codeOrArrayOfCodes)) {
+                locationQueryParam = codeOrArrayOfCodes.join(',')
+            }
+
+            return axios.get("/locations/get-child-locations?id=" + locationQueryParam)
+                .then(response => {
+                    let mappedLocations = response.data.map(e => {
+                        return { code: e.id, name: e.text }
+                    })
+                    fieldName.splice(0, fieldName.length, ...mappedLocations)
+                })
+                .catch(err => {
+                    this.showErrorDialog("Failed to load location data...", "Failed to load location data...")
+                })
+        },
     }
 }
 </script>
 <template>
     <div>
+        <div class="field column">
+            <div class="is-normal">
+                <label class="label is-required">District</label>
+            </div>
+            <div class="field-body">
+                <div class="field">
+                    <div class="select is-fullwidth">
+                        <select name="districtCode"
+                                class="input"
+                                required="required"
+                                v-model="selectedDistrictCode"
+                                @change.prevent="fetchTraditionalAuthorities">
+                            <option disabled="disabled" selected="selected">Select Option</option>
+                            <option v-for="l in districts" :value="l.code" :key="l.code">{{ l.name }}</option>
+                        </select>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="field column">
+            <div class="is-normal">
+                <label class="label is-required">T/A</label>
+            </div>
+            <div class="field-body">
+                <div class="field">
+                    <div class="select is-fullwidth">
+                        <select name="taCode"
+                                class="input"
+                                v-model="selectedTraditionalAuthorities"
+                                @change.prevent="fetchSublocations(selectedTraditionalAuthorities, villageClusters)"
+                        >
+                            <option disabled="disabled" selected="selected">Select Option</option>
+                            <option v-for="l in traditionalAuthorities" :value="l.code" :key="l.code">{{ l.name }}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="field column">
+            <div class="is-normal">
+                <label class="label is-required">Village Cluster</label>
+            </div>
+            <div class="field-body">
+                <div class="field">
+                    <div class="select is-fullwidth">
+                        <select name="clusterCode" class="input" v-model="selectedClusters" multiple>
+                            <option disabled="disabled" selected="selected">Select Option</option>
+                            <option v-for="l in villageClusters" :value="l.code" :key="l.code">{{ l.name }}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </div>
 </template>

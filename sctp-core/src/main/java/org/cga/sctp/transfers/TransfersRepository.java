@@ -138,4 +138,7 @@ public interface TransfersRepository extends JpaRepository<Transfer, Long> {
 
     @Query(nativeQuery = true, value = "SELECT COUNT(id) FROM transfers WHERE  transfers.transfer_state <> 21 AND transfer_period_id = :transferPeriodId;")
     int countOpenOrPreCloseTransfersInPeriod(@Param("transferPeriodId") Long transferPeriodId);
+
+    @Query
+    List<Transfer> findAllByTransferPeriodId(Long transferPeriodId);
 }

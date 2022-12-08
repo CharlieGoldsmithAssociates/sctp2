@@ -32,12 +32,12 @@
 
 package org.cga.sctp.transfers.topups;
 
-import org.cga.sctp.location.LocationType;
 import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.Set;
 
 public class NewTopUpForm {
     @NotEmpty(message = "name cannot be empty")
@@ -52,13 +52,12 @@ public class NewTopUpForm {
     @NotNull(message = "Location(s) must be specified")
     private Long districtCode;
 
+    private Set<String> taCodes;
+
+    private Set<String> clusterCodes;
+
     @NotNull(message = "Location Type must be specified")
     private String locationType;
-
-
-    private String taCodes;
-
-    private String clusterCodes;
 
     @Nullable
     private BigDecimal percentage;
@@ -81,6 +80,8 @@ public class NewTopUpForm {
 
     @NotNull(message = "Please specify whether amount will be discounted from the program Funds")
     private boolean discountedFromFunds;
+
+    private boolean isApplyToNextPeriod;
 
     private Long userId;
 
@@ -137,19 +138,19 @@ public class NewTopUpForm {
         this.districtCode = districtCode;
     }
 
-    public String getTaCodes() {
+    public Set<String> getTaCodes() {
         return taCodes;
     }
 
-    public void setTaCodes(String taCodes) {
+    public void setTaCodes(Set<String> taCodes) {
         this.taCodes = taCodes;
     }
 
-    public String getClusterCodes() {
+    public Set<String> getClusterCodes() {
         return clusterCodes;
     }
 
-    public void setClusterCodes(String clusterCodes) {
+    public void setClusterCodes(Set<String> clusterCodes) {
         this.clusterCodes = clusterCodes;
     }
 
@@ -279,6 +280,14 @@ public class NewTopUpForm {
 
     public void setDisabilities(String disabilities) {
         this.disabilities = disabilities;
+    }
+
+    public boolean isApplyToNextPeriod() {
+        return isApplyToNextPeriod;
+    }
+
+    public void setApplyToNextPeriod(boolean applyToNextPeriod) {
+        isApplyToNextPeriod = applyToNextPeriod;
     }
 
     public static class Validator {

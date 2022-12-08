@@ -38,8 +38,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
+import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "transfer_periods")
@@ -94,13 +93,13 @@ public class TransferPeriod {
     @Column
     private long openedBy;
 
+    @Column
     @NotNull(message = "Created at must be specified")
-    @Column
-    private LocalDateTime createdAt;
+    private ZonedDateTime createdAt;
 
-    @NotNull(message = "Updated at must be specified")
     @Column
-    private LocalDateTime updatedAt;
+    @NotNull(message = "Updated at must be specified")
+    private ZonedDateTime updatedAt;
 
     public long getId() {
         return id;
@@ -214,19 +213,19 @@ public class TransferPeriod {
         this.openedBy = openedBy;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public @NotNull(message = "Created at must be specified") ZonedDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(@NotNull(message = "Created at must be specified") ZonedDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
+    public @NotNull(message = "Created at must be specified") ZonedDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(@NotNull(message = "Created at must be specified") ZonedDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 

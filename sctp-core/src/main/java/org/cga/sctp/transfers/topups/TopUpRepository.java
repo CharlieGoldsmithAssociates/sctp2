@@ -32,6 +32,7 @@
 
 package org.cga.sctp.transfers.topups;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -122,4 +123,15 @@ public interface TopUpRepository extends JpaRepository<TopUp, Long> {
             WHERE top.id = :topupId
             """)
     Optional<TopUpView> findOneTopupById(@Param("topupId") Long topupId);
+
+    List<TopUp> findAllByIsActive(boolean value, Pageable pageable);
+
+    @Query
+    List<TopUp> findAllByIsExecuted(boolean value, Pageable pageable);
+
+    @Query
+    List<TopUp> findAllByIsExecutedAndDistrictCode(boolean value, long districtCode);
+
+    @Query
+    List<TopUp> findAllActiveByDistrictCode(long districtCode);
 }

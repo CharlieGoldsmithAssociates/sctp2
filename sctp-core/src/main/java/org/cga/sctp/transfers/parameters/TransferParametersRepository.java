@@ -37,9 +37,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TransferParametersRepository extends JpaRepository<TransferParameter, Long> {
     @Query("FROM TransferParameter t where t.active = true")
     List<TransferParameter> findAllActive();
+
+    @Query
+    Optional<TransferParameter> findByProgramId(long programId);
 }

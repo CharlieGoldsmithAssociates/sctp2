@@ -38,6 +38,7 @@ import org.cga.sctp.location.LocationService;
 import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.program.Program;
 import org.cga.sctp.program.ProgramService;
+import org.cga.sctp.transfers.TransferService;
 import org.cga.sctp.transfers.agencies.TransferAgencyService;
 import org.cga.sctp.transfers.periods.TransferPeriod;
 import org.cga.sctp.transfers.periods.TransferPeriodException;
@@ -45,11 +46,9 @@ import org.cga.sctp.transfers.periods.TransferPeriodService;
 import org.cga.sctp.user.AdminAndStandardAccessOnly;
 import org.cga.sctp.user.AuthenticatedUser;
 import org.cga.sctp.user.AuthenticatedUserDetails;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -58,7 +57,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/transfers/periods")
@@ -74,6 +72,9 @@ public class TransferPeriodController extends BaseController {
 
     @Autowired
     private TransferPeriodService transferPeriodService;
+
+    @Autowired
+    private TransferService transferService;
 
     @GetMapping
     @AdminAndStandardAccessOnly
@@ -171,11 +172,12 @@ public class TransferPeriodController extends BaseController {
     @GetMapping("/calculate-transfers/{period-id}")
     @AdminAndStandardAccessOnly
     public ModelAndView getCalculatePage(@AuthenticatedUserDetails AuthenticatedUser user,
-                                         @PathVariable("period-id") Long periodId,
+                                         @PathVariable("period-id") Long transferPeriodId,
                                          RedirectAttributes attributes) {
-        Optional<TransferPeriod> transferPeriod = transferPeriodService.findById(periodId);
+
+        Optional<TransferPeriod> transferPeriod = transferPeriodService.findById(transferPeriodId);
         if (transferPeriod.isEmpty()) {
-            return redirectWithDangerMessageModelAndView("/transfers/periods", "Transfer Period does not exist", attributes);
+            return redirectWithDangerMessageModelAndView("/transfers/periods", "Transfer Period does not exist or cannot calculate transfers for it", attributes);
         }
 
         return view("/transfers/periods/calculate-transfers")
@@ -242,7 +244,7 @@ public class TransferPeriodController extends BaseController {
     }
 
     private String convertToLocationCodesString(List<Long> codes) {
-        for (Long code: codes) {
+        for (Long code : codes) {
             if (!locationService.isValidLocationCode(code)) {
                 throw new TransferPeriodException("Location with code: " + code + " not found");
             }

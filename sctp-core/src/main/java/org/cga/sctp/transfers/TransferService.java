@@ -75,6 +75,15 @@ public interface TransferService {
      */
     TransferSession initiateTransfers(Location location, TransferSession transferSession, long userId);
 
+    /**
+     * Creates transfer records and pre-computes the transfer amounts for the households
+     * that will get transfers in the period.
+     *
+     * @param transferPeriod the transfer period to create transfers in
+     * @param userId user who performed activity
+     */
+    TransferSession createTransfers(TransferPeriod transferPeriod, long userId);
+
     List<Transfer> fetchPendingTransferListByLocation(long districtCode, Long taCode, Long villageCluster, Long zone, Long village, Pageable pageable);
 
     /**

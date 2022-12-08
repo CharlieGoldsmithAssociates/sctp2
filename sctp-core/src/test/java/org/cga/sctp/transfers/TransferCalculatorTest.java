@@ -46,7 +46,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -89,8 +89,8 @@ class TransferCalculatorTest {
         transferPeriod.setOpenedBy(1L);
         transferPeriod.setProgramId(1L);
         transferPeriod.setTransferSessionId(1L);
-        transferPeriod.setCreatedAt(LocalDateTime.now());
-        transferPeriod.setUpdatedAt(LocalDateTime.now());
+        transferPeriod.setCreatedAt(ZonedDateTime.now());
+        transferPeriod.setUpdatedAt(ZonedDateTime.now());
 
         Transfer transfer = new Transfer();
 
