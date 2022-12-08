@@ -33,6 +33,9 @@
 module.exports = {
   mounted() {
     this.getActiveDistricts();
+    this.getOrphanhoodOptions();
+    this.getDisabilityOptions();
+    this.getChronicIllnessOptions();
   },
   data() {
     return {
@@ -45,13 +48,16 @@ module.exports = {
       selectedVillageClusters: new Set(),
       traditionalAuthorities: [],
       selectedTraditionalAuthorities: new Set(),
+      disabilityOptions: [],
+      selectedDisabilities: new Set(),
+      chronicIllnessOptions: [],
+      selectedChronicIllnesses: new Set(),
+      orphanhoodOptions: [],
+      selectedOrphanhoodStatuses: new Set(),
       topupForm: {
         name: '',
         funderId: '',
         programId: '',
-        districtCode: '',
-        taCodes: [],
-        clusterCodes: [],
         locationType: '',
         percentage: '',
         topupType: '',
@@ -65,11 +71,9 @@ module.exports = {
         categoricalTargetingLevel: '',
         ageFrom: '',
         ageTo: '',
-        chronicIllnesses: '',
-        orphanhoodStatuses: '',
-        disabilities: '',
+        gender: 'both',
         isCategoricalTopUp: false,
-        applyNextPeriod:false,
+        applyNextPeriod: false,
       }
     }
   },
@@ -100,12 +104,15 @@ module.exports = {
       this.topupForm.districtCode = this.selectedDistrict.code;
       this.topupForm.taCodes = [...this.selectedTraditionalAuthorities].join(',');
       this.topupForm.clusterCodes = [...this.selectedVillageClusters].join(',');
+      this.topupForm.chronicIllnesses = [...this.selectedChronicIllnesses].join(',');
+      this.topupForm.disabilities = [...this.selectedDisabilities].join(',');
+      this.topupForm.orphanhoodStatuses = [...this.selectedOrphanhoodStatuses].join(',');
       var vm = this;
       var error_message = 'Error saving topup to database'
       axios.post(url, this.topupForm, config)
         .then(response => {
           if (response.status === 200 && isJsonContentType(response.headers['content-type'])) {
-            vm.districts = response.data;
+            window.location = '/transfers/topups';
           } else {
             vm.snackbar(error_message, 'warning');
           }
@@ -189,10 +196,67 @@ module.exports = {
         });
     },
 
+    getDisabilityOptions() {
+      const vm = this;
+
+      axios.get('/transfers/topups/categorical/options/disabilities')
+        .then(function (response) {
+          if (response.status === 200 && isJsonContentType(response.headers['content-type'])) {
+            vm.disabilityOptions = response.data;
+          } else {
+            vm.snackbar(error_message, 'warning');
+          }
+        })
+        .catch(function (error) {
+          vm.snackbar(error_message, 'danger');
+        })
+        .then(function () {
+          vm.isLoading = false
+        });
+    },
+
+    getChronicIllnessOptions() {
+      const vm = this;
+
+      axios.get('/transfers/topups/categorical/options/chronic-illness')
+        .then(function (response) {
+          if (response.status === 200 && isJsonContentType(response.headers['content-type'])) {
+            vm.chronicIllnessOptions = response.data;
+          } else {
+            vm.snackbar(error_message, 'warning');
+          }
+        })
+        .catch(function (error) {
+          vm.snackbar(error_message, 'danger');
+        })
+        .then(function () {
+          vm.isLoading = false
+        });
+    },
+
+    getOrphanhoodOptions() {
+      const vm = this;
+
+      axios.get('/transfers/topups/categorical/options/orphanhood')
+        .then(function (response) {
+          if (response.status === 200 && isJsonContentType(response.headers['content-type'])) {
+            vm.orphanhoodOptions = response.data;
+          } else {
+            vm.snackbar(error_message, 'warning');
+          }
+        })
+        .catch(function (error) {
+          vm.snackbar(error_message, 'danger');
+        })
+        .then(function () {
+          vm.isLoading = false
+        });
+    },
+
     range(startAt, endAt) {
       return [...Array((endAt - startAt) + 1).keys()].map(i => i + startAt);
     }
-}
+  }
 }
 </script>
 <template>
@@ -384,87 +448,71 @@ module.exports = {
               </div>
               <div class="box-wrapper">
                 <div class="create-categorical-topups box" v-if="topupForm.isCategoricalTopUp">
-                  <div class="field level-of-calculation">
-                    <label class="label">Level of Calculation</label>
-                    <div class="select">
-                      <select name="levelOfCalculation" v-model="topupForm.levelOfCalculation" class="control">
-                        <option value="">By Household</option>
-                        <option value="">By Individual</option>
-                      </select>
+                  <div class="columns">
+
+                    <div class="column">
+                      <b-field label="Level of Calculation">
+                        <b-select placeholder="Select level of calculation" v-model="topupForm.categoricalTargetingLevel"
+                                  expanded required>
+                          <option value="Household">By Household</option>
+                          <option value="Individual">By Individual</option>
+                        </b-select>
+                      </b-field>
                     </div>
                   </div>
-                  <div class="field age-range">
-                    <label class="label">Age Range</label>
-                    <div class="age-range">
-                      <div class="field is-pulled-left">
-                        <label class="label">From</label>
-                        <div class="select">
-                          <select class="control" v-model="topupForm.ageFrom">
-                            <option value="" selected>Age From...</option>
-                            <option v-for="age in range(0, 99)" :key="age" value="age">
-                              {{ age }}
-                            </option>
-                          </select>
+                  <div class="columns">
+                    <div class="column">
+                      <p class="label">Age Range</p>
+                      <div class="columns">
+                        <div class="column">
+                          <b-field label="From" horizontal>
+                            <b-select placeholder="Select a district" v-model="topupForm.ageFrom"
+                                      expanded required>
+                              <option value="">Age From...</option>
+                              <option v-for="age in range(0, 99)" :key="age" :value="age">
+                                {{ age }}
+                              </option>
+                            </b-select>
+                          </b-field>
+                        </div>
+                        <div class="column">
+                          <b-field label="To" horizontal>
+                            <b-select placeholder="Select a district" v-model="topupForm.ageTo"
+                                      expanded required>
+                              <option value="">Age To...</option>
+                              <option v-for="age in range(0, 99)" :key="age" :value="age">
+                                {{ age }}
+                              </option>
+                            </b-select>
+                          </b-field>
                         </div>
                       </div>
-
-                      <div class="field px-5 is-pulled-left">
-                        <label class="label">To</label>
-                        <div class="select">
-                          <select class="control" v-model="topupForm.ageTo">
-                            <option value="" selected>Age To ...</option>
-                            <option v-for="age in range(0, 99)" :key="age">
-                              {{ age }}
-                            </option>
-                          </select>
-                        </div>
-                      </div>
                     </div>
-                  </div>
-                  <div class="is-clearfix"></div>
-                  <div class="field">
-                    <label class="label">Gender</label>
-                    <div class="select control">
-                      <select name="gender" v-model="topupForm.gender">
-                        <option value="male">Both</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                      </select>
+                    <div class="column">
+                      <b-field label="Gender">
+                        <b-select placeholder="Select Gender" v-model="topupForm.gender"
+                                  expanded required>
+                          <option value="both">Both</option>
+                          <option value="male">Male</option>
+                          <option value="female">Female</option>
+                        </b-select>
+                      </b-field>
                     </div>
                   </div>
 
-                  <div class="field">
-                    <label class="label">Disability</label>
-                    <div class="columns">
-                      <div class="column" v-for="d in disabilityOptions" :key="d.id">
-                        <label class="checkbox-label">
-                          <input type="checkbox" value="d.id" v-model="topupForm.disabilities"> {{ d.description }}
-                        </label>
-                      </div>
+                  <div class="columns">
+                    <div class="column">
+                      <v-multiselect label="Disability" :options="disabilityOptions" option-label-field="text"
+                                     option-value-field="code" :selected="selectedDisabilities"></v-multiselect>
                     </div>
-                  </div>
-
-                  <div class="field">
-                    <label>Chronic Illness</label>
-                    <div class="columns is-full">
-                      <div class="column" v-for="d in chronicIllnessOptions" :key="d.id">
-                        <label class="checkbox-label">
-                          <input type="checkbox" value="d.id" v-model="topupForm.chronicIllnesses"> {{ d.description }}
-                        </label>
-                      </div>
+                    <div class="column">
+                      <v-multiselect label="Chronic Illness" :options="chronicIllnessOptions"
+                                     option-label-field="text"
+                                     option-value-field="code" :selected="selectedChronicIllnesses"></v-multiselect>
                     </div>
-                  </div>
-
-                  <div class="field">
-                    <label>Orphan Hood</label>
-                    <div class="columns is-gapless is-full">
-                      <div class="column" v-for="d in orphanhoodOptions" :key="d.id">
-                        <label class="checkbox-label">
-                          <input type="checkbox" value="d.id" v-model="topupForm.orphanhoodStatuses"> {{
-                            d.description
-                          }}
-                        </label>
-                      </div>
+                    <div class="column">
+                      <v-multiselect label="Orphan Hood" :options="orphanhoodOptions" option-label-field="text"
+                                     option-value-field="code" :selected="selectedOrphanhoodStatuses"></v-multiselect>
                     </div>
                   </div>
                 </div>

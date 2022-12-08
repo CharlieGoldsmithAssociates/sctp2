@@ -38,8 +38,8 @@ auth:
 logging:
   level:
     org:
-      cga: WARN
-    root: ERROR
+      cga: DEBUG
+    root: DEBUG
 
 # Pebble configuration
 pebble:
