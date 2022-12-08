@@ -1,0 +1,27 @@
+    {% extends "locations/base" %}
+
+    {% block content %}
+    <div class="card no-overlap">
+        <header class="card-header">
+            <p class="card-header-title">Import locations from UBR</p>
+        </header>
+        <div class="card-content">
+            <Location-Import />
+        </div>
+    </div>
+    {% endblock %}
+
+{% block footerScripts %}
+    {{ parent() }}
+    <script type="module">
+        const App = {
+            el: '#vapp',
+            components: {
+                'LocationImport': httpVueLoader('/components/locations/LocationImport.vue')
+            }
+        };
+        window.addEventListener('load', () => {
+            var app = new Vue(App);
+        });
+    </script>
+{% endblock %}

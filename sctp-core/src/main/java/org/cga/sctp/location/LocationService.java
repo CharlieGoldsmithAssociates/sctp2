@@ -35,23 +35,75 @@
 
 package org.cga.sctp.location;
 
-import org.cga.sctp.core.BaseService;
+import org.cga.sctp.application.SystemInformation;
+import org.cga.sctp.core.TransactionalService;
+import org.cga.sctp.targeting.importation.location.GeoLocationImport;
+import org.cga.sctp.targeting.importation.location.ImportLocationType;
+import org.cga.sctp.targeting.importation.location.task.LocationImportSessionCleaner;
+import org.cga.sctp.targeting.importation.location.task.UbrGeoLocationImportTask;
+import org.cga.sctp.targeting.importation.ubrapi.UbrApiConfiguration;
+import org.jobrunr.scheduling.BackgroundJob;
+import org.jobrunr.scheduling.JobScheduler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Service
-public class LocationService extends BaseService {
+@Transactional
+public class LocationService extends TransactionalService {
 
     @Autowired
     private LocationRepository locationRepository;
 
     @Autowired
+    private LocationImportSessionRepository importSessionRepository;
+
+    @Autowired
     private LocationStatusRepository locationStatusRepository;
+
+    @Autowired
+    private EntityManager entityManager;
+
+    @Autowired
+    private UbrApiConfiguration apiConfiguration;
+
+    @Autowired
+    private SystemInformation systemInformation;
+
+    @Autowired
+    private JobScheduler jobScheduler;
+
+    private LocationImportSessionCleaner importSessionCleaner;
+    private UbrGeoLocationImportTask ubrGeoLocationImportTask;
+
+    @Bean
+    public LocationImportSessionCleaner importSessionCleaner() {
+        return importSessionCleaner = new LocationImportSessionCleaner(this);
+    }
+
+    @Bean
+    public UbrGeoLocationImportTask ubrGeoLocationImportTask() {
+        return ubrGeoLocationImportTask = new UbrGeoLocationImportTask(
+                this,
+                systemInformation,
+                apiConfiguration
+        );
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    void onApplicationStartup() {
+        jobScheduler.enqueue(importSessionCleaner::doWork);
+    }
 
     public Page<Location> getLocations(Pageable pageable) {
         return locationRepository.findAll(pageable);
@@ -150,5 +202,74 @@ public class LocationService extends BaseService {
      */
     public boolean locationHasTransferAgency(@NonNull final Location location) {
         return locationRepository.countNumberOfTransferAgenciesAssigned(location.getId()) > 0;
+    }
+
+    public boolean hasActiveLocationImportSession() {
+        return importSessionRepository.getActiveSessionCount() >= 1;
+    }
+
+    @Transactional
+    public void importLocations(List<GeoLocationImport> list, ImportLocationType locationType) {
+        if (list.isEmpty()) {
+            return;
+        }
+        ZonedDateTime timestamp = ZonedDateTime.now();
+        LocationType misLocationType = locationType.asSubnation();
+
+        for (GeoLocationImport location : list) {
+
+            String sql = """
+                    INSERT INTO locations (code, name, created_at, parent_id, location_type, active, tmp_parent_code)
+                     VALUES (:code, :name, :created_at, :parent_id, :location_type, :active, :tmp_parent_code)
+                     ON DUPLICATE KEY
+                     UPDATE name = :name, location_type = :location_type, active = :active, tmp_parent_code = :tmp_parent_code
+                    """;
+            entityManager.createNativeQuery(sql)
+                    .setParameter("code", location.getCode())
+                    .setParameter("name", location.getName())
+                    .setParameter("created_at", timestamp)
+                    .setParameter("parent_id", null) // temporary
+                    .setParameter("location_type", misLocationType.name())
+                    .setParameter("active", location.isActive())
+                    .setParameter("tmp_parent_code", location.getParentCode())
+                    .executeUpdate();
+        }
+
+        // update the relationship
+        String sql = """
+                UPDATE locations c
+                 JOIN locations p ON p.code = c.tmp_parent_code
+                 SET c.parent_id = p.id
+                 WHERE c.tmp_parent_code IS NOT NULL;
+                """;
+        entityManager.createNativeQuery(sql)
+                .executeUpdate();
+
+        // set districts parent to COUNTRY(1)
+        sql = "UPDATE locations SET parent_id = 1, tmp_parent_code = 1 WHERE location_type = :location_type";
+        entityManager.createNativeQuery(sql)
+                .setParameter("location_type", LocationType.SUBNATIONAL1.name())
+                .executeUpdate();
+    }
+
+    public LocationImportSessionSummary getLatestImportSession() {
+        return importSessionRepository.getLatestSessionImportSummary();
+    }
+
+    public void saveLocationImportSession(LocationImportSession session) {
+        importSessionRepository.save(session);
+    }
+
+    public void startLocationImport(LocationImportSession session) {
+        saveLocationImportSession(session);
+        BackgroundJob.enqueue(() -> ubrGeoLocationImportTask.doWork(session.getId()));
+    }
+
+    public void markFailedImportSessionsAsInterrupted(String status) {
+        importSessionRepository.markInterrupted(status);
+    }
+
+    public LocationImportSession getLocationImportSessionById(long sessionId) {
+        return importSessionRepository.findById(sessionId).orElse(null);
     }
 }

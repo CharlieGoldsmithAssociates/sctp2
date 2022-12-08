@@ -42,10 +42,11 @@ package org.cga.sctp.location;
 public enum LocationType {
     COUNTRY(0, true, false, "Country", null),
     SUBNATIONAL1(1, false, false, "Subnational 1", COUNTRY), // District
-    SUBNATIONAL2(2, false, false, "Subnational 2", SUBNATIONAL1),
-    SUBNATIONAL3(3, false, false, "Subnational 3", SUBNATIONAL2),
-    SUBNATIONAL4(4, false, false, "Subnational 4", SUBNATIONAL3),
-    SUBNATIONAL5(5, false, true, "Subnational 5", SUBNATIONAL4);
+    SUBNATIONAL2(2, false, false, "Subnational 2", SUBNATIONAL1), // TA
+    SUBNATIONAL3(3, false, false, "Subnational 3", SUBNATIONAL2), // Cluster
+    SUBNATIONAL4(4, false, false, "Subnational 4", SUBNATIONAL3), // Zone
+    SUBNATIONAL5(5, false, true, "Subnational 5", SUBNATIONAL4), // Village
+    SUBNATIONAL6(6, false, true, "Subnational 6", SUBNATIONAL1); // GVH support (under TA)
 
     LocationType(int level, boolean isRoot, boolean isLast, String description, LocationType parent) {
         this.level = level;
