@@ -737,9 +737,10 @@ public class EnrollmentService extends TransactionalService {
                 .withLocale(Locale.US)
                 .format(session.getCreatedAt());
 
+        var fileName = LocaleUtils.fileName(session.getDistrictName());
         String filename = format(
                 "%s_%s_%s_", timestamp,
-                LocaleUtils.fileName(session.getDistrictName()),
+                fileName,
                 status == null ? "All" : status.name()
         );
 
