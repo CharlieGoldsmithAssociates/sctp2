@@ -82,6 +82,8 @@ public interface TransferService {
 
     List<Transfer> fetchPendingTransferListByLocation(long districtCode, Long taCode, Long villageCluster, Long zone, Long village, Pageable pageable);
 
+    List<Transfer> fetchTransferListByPeriodAndLocation(Long periodId, long districtCode, Long taCode, Long villageCluster, Long zone, Long village, Pageable pageable);
+
     /**
      * Removes a household from transfer with given reason
      * @param household houshold to remove

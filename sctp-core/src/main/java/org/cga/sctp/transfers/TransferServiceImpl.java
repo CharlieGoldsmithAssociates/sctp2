@@ -161,6 +161,20 @@ public class TransferServiceImpl implements TransferService {
     }
 
     @Override
+    public List<Transfer> fetchTransferListByPeriodAndLocation(Long periodId, long districtCode, Long taCode, Long villageCluster, Long zone, Long village, Pageable pageable) {
+        return transfersRepository.findAllByPeriodByLocationToVillageLevel(
+                periodId,
+                districtCode,
+                taCode,
+                villageCluster,
+                zone,
+                village,
+                pageable.getPageNumber(),
+                pageable.getPageSize()
+        );
+    }
+
+    @Override
     public void removeHouseholdFromTransfers(Household household, TransferPeriod transferPeriod, String reason) {
         throw new UnsupportedOperationException("not yet implemented"); // TODO: implement me
     }
@@ -208,7 +222,7 @@ public class TransferServiceImpl implements TransferService {
                 continue;
             }
 
-            transfer.setRecipientId(reconciliation.getRecipientId());
+            transfer.setReceiverId(reconciliation.getRecipientId());
             transfer.setDisbursementDate(reconciliation.getTimestamp().toLocalDateTime());
             transfer.setAmountDisbursed(reconciliation.getAmountTransferred());
             transfer.setCollected(true);

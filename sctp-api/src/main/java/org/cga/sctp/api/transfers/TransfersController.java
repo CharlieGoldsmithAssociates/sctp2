@@ -106,6 +106,38 @@ public class TransfersController {
         return ResponseEntity.ok(new TransferListResponse(page, PAGE_SIZE, transferListSummary.size(), transferListSummary));
     }
 
+
+    /**
+     * This endpoint is mostly intended for use by the App client
+     * It displays a list of transfers in a certain period
+     * @param periodId
+     * @param page
+     * @param taCode
+     * @param villageCluster
+     * @param zone
+     * @return
+     */
+    @GetMapping("/periods/{period-id}")
+    @Operation(description = "Retrieves Transfer List for the given Geolocation. Does not include full household detail")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = TransferListResponse.class)))
+    })
+    @IncludeGeneralResponses
+    public ResponseEntity<TransferListResponse> getPeriodTransfers(
+            @AuthenticatedUserDetails ApiUserDetails user,
+            @PathVariable(value = "period-id") Long periodId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "traditional-authority-code", required = false, defaultValue = "0") Long taCode,
+            @RequestParam(value = "village-cluster-code", required = false, defaultValue = "0") Long villageCluster,
+            @RequestParam(value = "zone-code", required = false, defaultValue = "0") Long zone,
+            @RequestParam(value = "village-code", required = false, defaultValue = "0") Long villageCode
+    ) {
+        Pageable pageable = Pageable.ofSize(PAGE_SIZE).withPage(page);
+        long districtCode = user.getAccessTokenClaims().getDistrictCode().longValue();
+        List<Transfer> transferListSummary = transferService.fetchTransferListByPeriodAndLocation(periodId, districtCode, taCode, villageCluster, zone, villageCode, pageable);
+        return ResponseEntity.ok(new TransferListResponse(page, PAGE_SIZE, transferListSummary.size(), transferListSummary));
+    }
+
     /**
      * This endpoint is mostly intended for use by the App client
      *
