@@ -9,7 +9,7 @@
     {% endblock %}
     {% block content %}
     <div id="transfers:CreateNewPeriodApp">
-        <Calculate-Period-Transfers  transferPeriodId="{{ transferPeriod.id }}" />
+        <Calculate-Period-Transfers  transfer-period-id="{{ transferPeriod.id }}" />
     </div>
     {% endblock %}
 {% block footerScripts %}

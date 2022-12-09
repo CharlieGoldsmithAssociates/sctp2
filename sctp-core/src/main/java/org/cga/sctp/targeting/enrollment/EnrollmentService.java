@@ -339,6 +339,9 @@ public class EnrollmentService extends TransactionalService {
         return enrollmentDataRepository.findBySessionId(sessionId,
                 PageRequest.of(page, Math.max(pageSize, PAGE_SIZE)));
     }
+    public Page<HouseholdEnrollmentData> getAllHouseholdEnrollmentData(Long sessionId) {
+        return enrollmentDataRepository.findBySessionId(sessionId, Pageable.unpaged());
+    }
 
     @Transactional
     public void updateEnrollmentHouseholdStatuses(Long sessionId, Long userId, List<EnrollmentUpdateForm.HouseholdEnrollment> list) {

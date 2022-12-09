@@ -32,12 +32,13 @@
 <script>
 module.exports = {
   props: {
-    transferPeriodId: Number
+    transferPeriodId: String
   },
   data() {
     return {
       applicableTopups: [],
       transferPeriod: {},
+      isLoading: false,
       enableExtraColumns: {
         topups: false,
         arrears: false,
@@ -84,16 +85,22 @@ module.exports = {
     },
 
     initiateTransfers() {
-      // TODO: implement me
-      axios.post(`/transfers/periods/${this.transferPeriod.id}/initiate`)
-        .then(response => {
+      const vm = this;
+      vm.isLoading = true;
+      const config = { headers: { 'X-CSRF-TOKEN': csrf()['token'], 'Content-Type': 'application/json' } }
 
+      axios.post(`/transfers/periods/initiate-calculations/${this.transferPeriodId}`, {id: this.transferPeriodId}, config)
+        .then(response => {
+          if (response.status === 200 && isJsonContentType(response.headers['content-type'])) {
+            vm.showMessage('Initiated calculation of transfer amounts')
+          } else {
+            vm.showErrorDialog('Failed to initiated calculations', 'warning');
+          }
         })
         .catch(err => {
-          vm.snackbar("")
+          vm.showErrorDialog('Failed to initiated calculations', 'warning');
         })
     }
-
   }
 }
 </script>

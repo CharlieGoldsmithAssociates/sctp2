@@ -60,10 +60,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class TransferServiceImpl implements TransferService {
@@ -153,28 +150,14 @@ public class TransferServiceImpl implements TransferService {
 
 
     @Override
-    public TransferSession createTransfers(TransferPeriod transferPeriod, long userId) {
+    public TransferSession createTransfers(TransferPeriod transferPeriod, long userId, List<HouseholdEnrollmentData> households) {
         Optional<TransferPeriod> existingPeriod = transferPeriodRepository.findFirstByProgramIdAndDistrictIdAndIsOpen(transferPeriod.getProgramId(), transferPeriod.getDistrictCode());
         if (existingPeriod.isEmpty()) {
             throw new TransferException("Cannot initiate transfers without an open Transfer Period for the program in the given location");
         }
 
-//        TransferSession transferSession = new TransferSession();
-//        // TODO: Fetch latest Enrollment Session for the location in the period
-//        transferSession.setEnrollmentSessionId();
-//
-//        if (getTranferSessionRepository().save(transferSession) == null) {
-//            throw new IllegalArgumentException("transferSession must be valid to initiate transfers");
-//        }
-        Location location = locationService.findById(transferPeriod.getDistrictCode());
-
-        var enrollmentSession = enrollmentService.findMostRecentSessionByLocation(location.getCode());
-        if (enrollmentSession.isEmpty()) {
-            // TODO:
-            throw new TransferException("cannot initiate transfers in period when no enrollment sessions are available");
-        }
-        List<TopUp> topupsList = topUpService.findAllInLocation(location.getCode());
-        Optional<TransferParameter> transferParameter =  transferParametersRepository.findByProgramId(transferPeriod.getProgramId());
+        List<TopUp> topupsList = topUpService.findAllInLocation(transferPeriod.getDistrictCode());
+        Optional<TransferParameter> transferParameter = transferParametersRepository.findByProgramId(transferPeriod.getProgramId());
         if (transferParameter.isEmpty()) {
             throw new TransferException("Program does not have an 'active' or valid transfer parameter");
         }
@@ -183,36 +166,54 @@ public class TransferServiceImpl implements TransferService {
         TransferCalculator transferCalculator = new TransferCalculator(programHouseholdParameters, programEducationParameters, topupsList);
         List<Transfer> transferList = new ArrayList<>();
 
-        transferCalculator.calculateTransfers(location, transferPeriod, transferList);
-        initiateRepo.initiateTransfersForEnrolledHouseholds(
-            enrollmentSession.get().getId(),
-            transferPeriod.getId(),
-            transferPeriod.getDistrictCode(),
-            userId
-        );
-
-        return null;
-    }
-
-    // this implementation uses hibernate and pre-calculates the amounts for the transfers outside the db
-    private void initiateTransfersForEnrolledHouseholds(TransferPeriod transferPeriod) {
-        Location location = locationService.findById(transferPeriod.getDistrictCode());
-
-        var enrollmentSession = enrollmentService.findMostRecentSessionByLocation(location.getCode());
-        if (enrollmentSession.isEmpty()) {
-            // TODO:
-            throw new TransferException("cannot initiate transfers in period when no enrollment sessions are available");
-        }
-        long enrollmentSesionId = -1L; // TODO:
-        Page<HouseholdEnrollmentData> householdEnrollmentData = enrollmentService.getHouseholdEnrollmentData(enrollmentSesionId, 1, 1000);
-
-        householdEnrollmentData.map(enrollmentRecord -> {
+        for (HouseholdEnrollmentData hh: households) {
             Transfer newTransfer = new Transfer();
+            newTransfer.setProgramId(transferPeriod.getProgramId());
+            newTransfer.setHouseholdId(hh.getHouseholdId());
+            newTransfer.setTransferState(TransferStatus.OPEN);
+            newTransfer.setTransferAgencyId(0L);
+            var recipientId = Long.parseLong(hh.getPrimaryRecipient().getIndividualId());
+            newTransfer.setReceiverId(recipientId); // TODO: remove fields?
+            newTransfer.setRecipientId(recipientId); // TODO: remove fields?
+            newTransfer.setTransferPeriodId(transferPeriod.getId());
+            newTransfer.setHouseholdMemberCount(hh.getMemberCount().intValue());
+            newTransfer.setChildrenCount(hh.getChildEnrollment6to15());
+            newTransfer.setPrimaryIncentiveChildrenCount(hh.getChildEnrollment6to15());
+            newTransfer.setPrimaryChildrenCount(hh.getPrimaryChildren());
+            newTransfer.setSecondaryChildrenCount(hh.getSecondaryChildren());
+            newTransfer.setNumberOfMonths(transferPeriod.countNoOfMonths());
+    //        newTransfer.setIsFirstTransfer(false);
+    //        newTransfer.setSuspended(false);
+    //        newTransfer.setWithheld(false);
+    //        newTransfer.setAccountNumber(null);
+    //        newTransfer.setAmountDisbursed(null);
+    //        newTransfer.setCollected(false);
+    //        newTransfer.setDisbursementDate(null);
+    //        newTransfer.setArrearsAmount(null);
+    //        newTransfer.setDisbursedByUserId(null);
+    //        newTransfer.setTopupEventId(null);
+    //        newTransfer.setTopupAmount(null);
+    //        newTransfer.setReconciled(false);
+    //        newTransfer.setReconciliationMethod(null);
+    //        newTransfer.setDateReconciled(null);
+            newTransfer.setCreatedAt(ZonedDateTime.now());
+            newTransfer.setModifiedAt(ZonedDateTime.now());
+            newTransfer.setCreatedBy(userId);
+            newTransfer.setReviewedBy(null);
 
-            return newTransfer;
-        });
+            transferList.add(newTransfer);
+        }
 
+        transferCalculator.calculateTransfers(transferPeriod, transferList);
 
+        transfersRepository.saveAll(transferList);
+//        initiateRepo.initiateTransfersForEnrolledHouseholds(
+//            enrollmentSession.get().getId(),
+//            transferPeriod.getId(),
+//            transferPeriod.getDistrictCode(),
+//            userId
+//        );
+        return null;
     }
 
     @Override
