@@ -58,9 +58,17 @@ public interface EnrolmentSessionRepository extends JpaRepository<EnrollmentSess
             @Param("user_id") Long userId
     );
 
+//    @Modifying
+//    @Query(value = "UPDATE household_enrollment SET status = :statusCode WHERE household_id = :householdId", nativeQuery = true)
+//    void updateHouseholdEnrollmentStatus(@Param("householdId") Long id, @Param("statusCode") int status);
+
     @Modifying
-    @Query(value = "UPDATE household_enrollment SET status = :statusCode WHERE household_id = :householdId", nativeQuery = true)
-    void updateHouseholdEnrollmentStatus(@Param("householdId") Long id, @Param("statusCode") int status);
+    @Query(value = "UPDATE household_enrollment SET status = :status WHERE session_id = :sessionId AND household_id = :householdId", nativeQuery = true)
+    void updateHouseholdEnrollmentStatus(@Param("sessionId") Long sessionId, @Param("householdId") Long householdId, @Param("status") String status);
+
+    @Query(value = "SELECT status FROM household_enrollment WHERE session_id = :sessionId AND household_id = :householdId", nativeQuery = true)
+    String getHouseholdEnrollmentStatus(@Param("sessionId") Long sessionId, @Param("householdId") Long householdId);
+
 
     /**
      * Counts the households in the enrollment session with the given

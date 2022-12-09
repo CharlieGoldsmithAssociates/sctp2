@@ -32,14 +32,17 @@
 
 package org.cga.sctp.targeting.enrollment;
 
-import javax.persistence.*;
-import java.time.OffsetDateTime;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "household_recipient")
 public class HouseholdRecipient {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "household_id", nullable = false, unique = true)
     private Long householdId;
     private Long mainRecipient;
     private Long altRecipient;
@@ -49,8 +52,8 @@ public class HouseholdRecipient {
     private Long enrollmentSession;
     private String altPhoto;
     private Long altOther;
-    private OffsetDateTime createdAt;
-    private OffsetDateTime modifiedAt;
+    private ZonedDateTime createdAt;
+    private ZonedDateTime modifiedAt;
 
     public Long getHouseholdId() {
         return householdId;
@@ -84,38 +87,6 @@ public class HouseholdRecipient {
         this.mainPhoto = mainPhoto;
     }
 
-    public String getAltPhoto() {
-        return altPhoto;
-    }
-
-    public void setAltPhoto(String altPhoto) {
-        this.altPhoto = altPhoto;
-    }
-
-    public Long getAltOther() {
-        return altOther;
-    }
-
-    public void setAltOther(Long altOther) {
-        this.altOther = altOther;
-    }
-
-    public OffsetDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(OffsetDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public OffsetDateTime getModifiedAt() {
-        return modifiedAt;
-    }
-
-    public void setModifiedAt(OffsetDateTime modifiedAt) {
-        this.modifiedAt = modifiedAt;
-    }
-
     public String getMainPhotoType() {
         return mainPhotoType;
     }
@@ -138,5 +109,37 @@ public class HouseholdRecipient {
 
     public void setEnrollmentSession(Long enrollmentSession) {
         this.enrollmentSession = enrollmentSession;
+    }
+
+    public String getAltPhoto() {
+        return altPhoto;
+    }
+
+    public void setAltPhoto(String altPhoto) {
+        this.altPhoto = altPhoto;
+    }
+
+    public Long getAltOther() {
+        return altOther;
+    }
+
+    public void setAltOther(Long altOther) {
+        this.altOther = altOther;
+    }
+
+    public ZonedDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(ZonedDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public ZonedDateTime getModifiedAt() {
+        return modifiedAt;
+    }
+
+    public void setModifiedAt(ZonedDateTime modifiedAt) {
+        this.modifiedAt = modifiedAt;
     }
 }

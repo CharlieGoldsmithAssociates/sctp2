@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,8 +32,16 @@
 
 package org.cga.sctp.targeting;
 
-import javax.persistence.*;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
-@Entity
-@Table(name = "school_enrolled")
-public class SchoolEnrolled extends SchoolEnrolledBase {}
+import java.util.List;
+
+@Repository
+public interface SchoolEnrolledViewRepository extends JpaRepository<SchoolEnrolledView, Long> {
+    @Query(value = "select * FROM school_enrolled_v WHERE household_id = :household", nativeQuery = true)
+    List<SchoolEnrolledView> findHouseholdSchoolEnrolledView(@Param("household") long household);
+
+}

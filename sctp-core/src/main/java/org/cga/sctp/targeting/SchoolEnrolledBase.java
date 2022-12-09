@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,41 +30,38 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting.enrollment;
+package org.cga.sctp.targeting;
 
-// TODO Needs validation annotations
-
+import org.cga.sctp.targeting.importation.converters.EducationLevelParameterValueConverter;
+import org.cga.sctp.targeting.importation.converters.GradeLevelParameterValueConverter;
 import org.cga.sctp.targeting.importation.parameters.EducationLevel;
 import org.cga.sctp.targeting.importation.parameters.GradeLevel;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
+import javax.persistence.*;
 
-public class SchoolEnrollmentForm {
-    @NotNull
-    @Min(1)
+@MappedSuperclass
+public class SchoolEnrolledBase {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
     private long householdId;
-
-    @NotNull
-    @Min(1)
     private long individualId;
-
-    @NotNull
-    @Min(1)
-    private long schoolId;
-
-    @NotNull
-    @Min(1)
-    private long sessionId;
-
-    @NotNull
+    @Enumerated(value = EnumType.STRING)
+    @Convert(converter = EducationLevelParameterValueConverter.class)
     private EducationLevel educationLevel;
-
-    @NotNull
+    @Enumerated(value = EnumType.STRING)
+    @Convert(converter = GradeLevelParameterValueConverter.class)
     private GradeLevel grade;
+    private long schoolId;
+    private int status;
 
-    @NotNull
-    private Boolean status;
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public long getHouseholdId() {
         return householdId;
@@ -80,22 +77,6 @@ public class SchoolEnrollmentForm {
 
     public void setIndividualId(long individualId) {
         this.individualId = individualId;
-    }
-
-    public long getSchoolId() {
-        return schoolId;
-    }
-
-    public void setSchoolId(long schoolId) {
-        this.schoolId = schoolId;
-    }
-
-    public long getSessionId() {
-        return sessionId;
-    }
-
-    public void setSessionId(long sessionId) {
-        this.sessionId = sessionId;
     }
 
     public EducationLevel getEducationLevel() {
@@ -114,11 +95,19 @@ public class SchoolEnrollmentForm {
         this.grade = grade;
     }
 
-    public Boolean getStatus() {
+    public long getSchoolId() {
+        return schoolId;
+    }
+
+    public void setSchoolId(long schoolId) {
+        this.schoolId = schoolId;
+    }
+
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(Boolean status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 }

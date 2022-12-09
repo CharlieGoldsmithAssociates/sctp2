@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,8 +32,55 @@
 
 package org.cga.sctp.targeting;
 
-import javax.persistence.*;
+import org.hibernate.annotations.Immutable;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+@Immutable
 @Entity
-@Table(name = "school_enrolled")
-public class SchoolEnrolled extends SchoolEnrolledBase {}
+@Table(name = "school_enrolled_v")
+public class SchoolEnrolledView extends SchoolEnrolledBase {
+    @Column(name = "school_name", nullable = false)
+    private String schoolName;
+    @Column(name = "school_code")
+    private String schoolCode;
+    @Column(name = "individual_name", nullable = false)
+    private String individualName;
+
+    @Column(name = "household_member_code", nullable = false)
+    private String householdMemberCode;
+
+    public String getSchoolName() {
+        return schoolName;
+    }
+
+    public void setSchoolName(String schoolName) {
+        this.schoolName = schoolName;
+    }
+
+    public String getSchoolCode() {
+        return schoolCode;
+    }
+
+    public void setSchoolCode(String schoolCode) {
+        this.schoolCode = schoolCode;
+    }
+
+    public String getIndividualName() {
+        return individualName;
+    }
+
+    public void setIndividualName(String individualName) {
+        this.individualName = individualName;
+    }
+
+    public String getHouseholdMemberCode() {
+        return householdMemberCode;
+    }
+
+    public void setHouseholdMemberCode(String householdMemberCode) {
+        this.householdMemberCode = householdMemberCode;
+    }
+}

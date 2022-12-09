@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,10 +30,44 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting;
+package org.cga.sctp.mis.targeting;
 
-import javax.persistence.*;
+import org.cga.sctp.targeting.CbtStatus;
 
-@Entity
-@Table(name = "school_enrolled")
-public class SchoolEnrolled extends SchoolEnrolledBase {}
+import javax.persistence.Convert;
+import javax.validation.constraints.NotNull;
+
+public class UpdateHouseholdStatusForm {
+
+    @NotNull(message = "Household is required")
+    private Long household;
+    @NotNull(message = "Session is required")
+    private Long session;
+    @NotNull(message = "Status is required")
+    @Convert(converter = CbtStatus.Converter.class)
+    private CbtStatus status;
+
+    public Long getHousehold() {
+        return household;
+    }
+
+    public void setHousehold(Long household) {
+        this.household = household;
+    }
+
+    public Long getSession() {
+        return session;
+    }
+
+    public void setSession(Long session) {
+        this.session = session;
+    }
+
+    public CbtStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(CbtStatus status) {
+        this.status = status;
+    }
+}
