@@ -52,6 +52,7 @@
     <script src="/assets/js/vendor/htmx/htmx.min.js" type="text/javascript"></script>
     <script src="/assets/js/vendor/htmx/ext/client-side-templates.js"></script>
     <script src="/assets/js/vendor/mustache.min.js"></script>
+    <script src="/assets/js/vue_mixins.js" type="text/javascript"></script>
     <script src="/assets/js/app.js" type="text/javascript"></script>
     {% block footerScripts %}{% endblock %}
     {% if useWideContainer %}

@@ -30,32 +30,38 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.transfers;
+package org.cga.sctp.transfers.periods;
 
-import java.math.BigDecimal;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.query.Procedure;
+import org.springframework.data.repository.query.Param;
 
-public interface TransferEventHouseholdView {
-    Long getHouseholdId();
-    String getFormNumber();
-    String getDistrictName();
-    String getTaName();
-    String getZoneName();
-    String getClusterName();
-    String getVillageName();
-    String getMlCode();
-    String getVillageHeadName();
-    String getHouseholdHead();
-    Long getMemberCount();
-    Long getTotalChildren();
-    Long getPrimaryChildren();
-    Long getSecondaryChildren();
-    String getReceiverName();
-    BigDecimal getPrimaryIncentive();
-     BigDecimal getSecondaryIncentive();
-    BigDecimal getMonthlyAmount();
-    Long getNumberOfMonths();
-    BigDecimal getTotalMonthlyAmount();
-    BigDecimal getTotalArrears();
-    BigDecimal getTotalAmount();
-    Boolean getIsFirstTransfer();
+import java.util.List;
+
+public interface TransferPeriodViewRepository extends JpaRepository<TransferPeriodView, Long> {
+
+    @Procedure(procedureName = "getTransferPeriodsForMobile")
+    List<TransferPeriodView> getTransferPeriodsForMobile(
+            @Param("district") long districtCode,
+            @Param("ta") Long taCode,
+            @Param("cluster") Long clusterCode,
+            @Param("page") int page,
+            @Param("pageSize") int pageSize
+    );
+
+    @Query(
+            value = """
+                    CALL countTransferPeriodsForMobile(
+                        :_districtCode
+                       ,:_taCode
+                       ,:_clusterCode)
+                    """
+            , nativeQuery = true
+    )
+    Long countTransferPeriodsForMobile(
+            @Param("_districtCode") long districtCode,
+            @Param("_taCode") Long taCode,
+            @Param("_clusterCode") Long clusterCode
+    );
 }

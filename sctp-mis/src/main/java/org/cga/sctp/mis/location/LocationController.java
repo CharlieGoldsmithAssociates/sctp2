@@ -55,6 +55,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
+import static java.util.Objects.isNull;
 import static org.cga.sctp.mis.location.LocationCodeUtil.toSelectOptions;
 
 /**
@@ -304,7 +305,7 @@ public class LocationController extends BaseController {
 
     @AdminAndStandardAccessOnly
     @GetMapping(value = "/get-child-locations", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<SelectOptionItem>> getSubLocations(@RequestParam("id") Long parentId) {
+    public ResponseEntity<List<SelectOptionItem>> getSubLocations(@RequestParam("id") Long parentId) { // TODO: change the parameter to code because id can make it confusing....
         List<LocationCode> subLocations = locationService.getLocationCodesByParent(parentId);
         if (subLocations.isEmpty()) {
             return ResponseEntity
@@ -328,6 +329,32 @@ public class LocationController extends BaseController {
         return ResponseEntity
                 .ok().contentType(MediaType.APPLICATION_JSON)
                 .body(toSelectOptions(subLocations));
+    }
+
+    @AdminAndStandardAccessOnly
+    @GetMapping(value = "/get-locations", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<SelectOptionItem>> findAllByCodeIn(@RequestParam("codes") List<Long> locationCodes) {
+        List<LocationCode> subLocations = locationService.findAllByCodeIn(locationCodes);
+        if (subLocations.isEmpty()) {
+            return ResponseEntity
+                    .ok().contentType(MediaType.APPLICATION_JSON)
+                    .body(Collections.emptyList());
+        }
+        return ResponseEntity
+                .ok().contentType(MediaType.APPLICATION_JSON)
+                .body(toSelectOptions(subLocations));
+    }
+
+    @AdminAndStandardAccessOnly
+    @GetMapping(value = "/get-location", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Location> findAllByCodeIn(@RequestParam("code") Long locationCode) {
+        Location location = locationService.findByCode(locationCode);
+        if (isNull(location)) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity
+                .ok().contentType(MediaType.APPLICATION_JSON)
+                .body(location);
     }
 
     @GetMapping("/districts/active")

@@ -339,6 +339,9 @@ public class EnrollmentService extends TransactionalService {
         return enrollmentDataRepository.findBySessionId(sessionId,
                 PageRequest.of(page, Math.max(pageSize, PAGE_SIZE)));
     }
+    public Page<HouseholdEnrollmentData> getAllHouseholdEnrollmentData(Long sessionId) {
+        return enrollmentDataRepository.findBySessionId(sessionId, Pageable.unpaged());
+    }
 
     @Transactional
     public void updateEnrollmentHouseholdStatuses(Long sessionId, Long userId, List<EnrollmentUpdateForm.HouseholdEnrollment> list) {
@@ -737,9 +740,10 @@ public class EnrollmentService extends TransactionalService {
                 .withLocale(Locale.US)
                 .format(session.getCreatedAt());
 
+        var fileName = LocaleUtils.fileName(session.getDistrictName());
         String filename = format(
                 "%s_%s_%s_", timestamp,
-                LocaleUtils.fileName(session.getDistrictName()),
+                fileName,
                 status == null ? "All" : status.name()
         );
 
@@ -912,5 +916,9 @@ public class EnrollmentService extends TransactionalService {
                     .setParameter("household_id", update.getHouseholdId())
                     .executeUpdate();
         }
+    }
+
+    public Optional<EnrollmentSession> findMostRecentSessionByLocation(long code) {
+        return enrolmentSessionRepository.findLastByDistrictCode(code);
     }
 }

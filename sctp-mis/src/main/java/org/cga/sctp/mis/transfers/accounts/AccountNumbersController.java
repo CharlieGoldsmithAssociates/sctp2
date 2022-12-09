@@ -149,9 +149,11 @@ public class AccountNumbersController extends SecuredBaseController {
 
         if (districtId != null) {
             transferSession = transferService.findLatestSessionInDistrict(districtId);
-        } else if (sessionId != null) {
-            transferSession = transferService.getTranferSessionRepository().findById(sessionId);
         }
+        // TODO: implement
+//        } else if (sessionId != null) {
+//            transferSession = transferService.getTranferSessionRepository().findById(sessionId);
+//        }
 
         transferSession.ifPresent(session -> {
             householdList.addAll(transferService.findAllHouseholdsInSession(session.getId()));

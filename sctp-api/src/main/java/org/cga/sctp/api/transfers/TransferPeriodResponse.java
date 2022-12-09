@@ -30,32 +30,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.transfers;
+package org.cga.sctp.api.transfers;
 
-import java.math.BigDecimal;
+import org.cga.sctp.api.core.pagination.PagedResponse;
+import org.cga.sctp.transfers.periods.TransferPeriodView;
+import org.springframework.data.domain.Page;
 
-public interface TransferEventHouseholdView {
-    Long getHouseholdId();
-    String getFormNumber();
-    String getDistrictName();
-    String getTaName();
-    String getZoneName();
-    String getClusterName();
-    String getVillageName();
-    String getMlCode();
-    String getVillageHeadName();
-    String getHouseholdHead();
-    Long getMemberCount();
-    Long getTotalChildren();
-    Long getPrimaryChildren();
-    Long getSecondaryChildren();
-    String getReceiverName();
-    BigDecimal getPrimaryIncentive();
-     BigDecimal getSecondaryIncentive();
-    BigDecimal getMonthlyAmount();
-    Long getNumberOfMonths();
-    BigDecimal getTotalMonthlyAmount();
-    BigDecimal getTotalArrears();
-    BigDecimal getTotalAmount();
-    Boolean getIsFirstTransfer();
+import java.util.List;
+
+public class TransferPeriodResponse extends PagedResponse<TransferPeriodView> {
+    public TransferPeriodResponse(Page<TransferPeriodView> page) {
+        super(page);
+    }
+
+    public TransferPeriodResponse(int page, long totalItems, int totalPages, List<TransferPeriodView> items) {
+        super(page, totalItems, totalPages, items);
+    }
+
+
 }

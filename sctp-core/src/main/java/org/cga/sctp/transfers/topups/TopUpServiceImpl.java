@@ -35,10 +35,13 @@ package org.cga.sctp.transfers.topups;
 import org.cga.sctp.location.Location;
 import org.cga.sctp.location.LocationType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -54,14 +57,21 @@ public class TopUpServiceImpl implements TopUpService {
     public Optional<TopUp> newTopup(NewTopUpForm params) {
         TopUp topUp = new TopUp();
         topUp.setName(params.getName());
-        topUp.setPercentage(params.getPercentage());
         topUp.setTopupType(params.getTopupType());
         topUp.setFunderId(params.getFunderId());
         topUp.setProgramId(params.getProgramId());
         topUp.setActive(params.isActive());
+
+        topUp.setHouseholdStatus(params.getHouseholdStatus());
+        topUp.setDistrictCode(params.getDistrictCode());
+        // topUp.setLocationType(params.getLocationType()); // TODO: set based on location type
+        topUp.setLocationType(LocationType.SUBNATIONAL1); // TODO: remove hardcoded location level
+        // The amount and percentage depend on the topup type
+        topUp.setPercentage(params.getPercentage());
         topUp.setFixedAmount(params.getFixedAmount());
         topUp.setHouseholdStatus(params.getHouseholdStatus());
         topUp.setDistrictCode(params.getDistrictCode());
+
 
         Set<Long> taCodes = Stream.of(params.getTaCodes().split(","))
                 .filter(StringUtils::hasText)
@@ -90,8 +100,7 @@ public class TopUpServiceImpl implements TopUpService {
         }
         topUp.setDiscountedFromFunds(params.isDiscountedFromFunds());
 
-
-        LocalDateTime now = LocalDateTime.now();
+        ZonedDateTime now = ZonedDateTime.now();
         topUp.setCreatedBy(params.getUserId());
         topUp.setUpdatedBy(params.getUserId());
         topUp.setCreatedAt(now);
@@ -101,33 +110,51 @@ public class TopUpServiceImpl implements TopUpService {
     }
 
     @Override
-    public List<TopUp> fetchAllActive() {
-        return null;
+    public List<TopUp> fetchAllActive(Pageable pageable) {
+        return topUpRepository.findAllByIsActive(true, pageable);
     }
 
     @Override
-    public List<TopUp> fetchAllActive(Location location) {
-        return null;
+    public List<TopUp> fetchAllActive(@NonNull final Location location) {
+        return topUpRepository.findAllActiveByDistrictCode(location.getCode());
     }
 
     @Override
-    public List<TopUp> fetchAllExecuted() {
-        return null;
+    public List<TopUp> fetchAllExecuted(@NonNull Pageable pageable) {
+        return topUpRepository.findAllByIsExecuted(true, pageable);
     }
 
     @Override
     public List<TopUp> fetchAllExecuted(Location location) {
+        return topUpRepository.findAllByIsExecutedAndDistrictCode(true, location.getCode());
+    }
+
+    @Override
+    public void markAsExecuted(@NonNull TopUp topUp, @NonNull BigDecimal amount) {
+        topUp.setExecuted(true);
+        topUp.setActive(false); // TODO(zikani03): review this if it is the right thing to do...
+        topUp.setAmountExecuted(amount);
+        topUpRepository.save(topUp);
+    }
+
+    @Override
+    public List<TopUp> findAllActive(@NonNull Pageable pageable) {
+        return topUpRepository.findAllByIsActive(true, pageable);
+    }
+
+    @Override
+    public void deleteById(Long topupId) {
+        topUpRepository.findById(topupId)
+            .ifPresent(topup -> {
+                if (!topup.isExecuted()) {
+                    topUpRepository.deleteById(topupId);
+                }
+            });
+    }
+
+    @Override
+    public List<TopUp> findAllInLocation(Long code) {
         return null;
-    }
-
-    @Override
-    public void markAsExecuted(TopUp topUp, Long amount) {
-        throw  new RuntimeException("not implemented");
-    }
-
-    @Override
-    public List<TopUp> findAllActive() {
-        return topUpRepository.findAllByIsActive(true);
     }
 
     @Override

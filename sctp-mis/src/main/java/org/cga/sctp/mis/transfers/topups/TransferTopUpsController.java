@@ -43,24 +43,20 @@ import org.cga.sctp.mis.core.templating.Booleans;
 import org.cga.sctp.program.Program;
 import org.cga.sctp.program.ProgramService;
 import org.cga.sctp.transfers.topups.*;
-import org.cga.sctp.user.AdminAccessOnly;
 import org.cga.sctp.user.AdminAndStandardAccessOnly;
 import org.cga.sctp.user.AuthenticatedUser;
 import org.cga.sctp.user.AuthenticatedUserDetails;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.ConstraintViolationException;
-import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -81,6 +77,14 @@ public class TransferTopUpsController extends SecuredBaseController {
 
     @Autowired
     private TopUpService topUpService;
+
+    @GetMapping
+    @AdminAndStandardAccessOnly
+    public ModelAndView getIndex() {
+        List<TopUp> topups = topUpService.findAllActive(Pageable.unpaged()); // TODO: get page parameters from request
+        return view("transfers/topups/list")
+                .addObject("topups", topups);
+    }
 
     @GetMapping("/new")
     @AdminAndStandardAccessOnly
@@ -149,28 +153,35 @@ public class TransferTopUpsController extends SecuredBaseController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping
-    @AdminAndStandardAccessOnly
-    public ModelAndView getIndex() {
-        List<TopUp> topups = topUpService.findAllActive();
-        return view("transfers/topups/list")
-                .addObject("topups", topups);
-    }
-
     @GetMapping("/view/{topup-id}")
     @AdminAndStandardAccessOnly
-    public ModelAndView getView(@PathVariable("topup-id") Long topupId,
-                                @AuthenticatedUserDetails AuthenticatedUser user,
-                                RedirectAttributes attributes)  {
-
-        Optional<TopUpView> topup = topUpService.findById(topupId);
-        if (topup.isEmpty()) {
-            return redirectWithDangerMessageModelAndView("/transfers/topups", "Topup does not exist or could not be loaded", attributes);
+    public ModelAndView getView(@PathVariable("topup-id") final Long topupId, @AuthenticatedUserDetails AuthenticatedUser user, RedirectAttributes attributes) {
+        Optional<TopUpView> optionalTopUp = topUpService.findById(topupId);
+        if (optionalTopUp.isEmpty()) {
+            return view(redirectWithDangerMessage("/transfers/topups", "Topup not found", attributes));
         }
 
-        return view("transfers/topups/view")
-                .addObject("topup", topup.get())
-                .addObject("topupPeriods", new Object() /* TODO: fetch periods topup applies to */);
+        return view("/transfers/topups/view")
+                .addObject("topup", optionalTopUp.get());
     }
 
+    @GetMapping("/delete/{topup-id}")
+    @AdminAndStandardAccessOnly
+    public ModelAndView getDelete(@PathVariable("topup-id") final Long topupId) {
+        Optional<TopUpView> optionalTopUp = topUpService.findById(topupId);
+        if (optionalTopUp.isEmpty()) {
+            return redirect("/transfers/topups"); // TODO: redirect with flash message?
+        }
+
+        return view("/transfers/topups/delete")
+                .addObject("topup", optionalTopUp.get());
+    }
+
+    @PostMapping("/delete/{topup-id}")
+    @AdminAndStandardAccessOnly
+    public ModelAndView postDelete(@PathVariable("topup-id") final Long topupId, @AuthenticatedUserDetails AuthenticatedUser user, RedirectAttributes attributes) {
+        topUpService.deleteById(topupId);
+        publishGeneralEvent("User %s deleted topup with id %s", user.username(), topupId);
+        return view(redirectWithSuccessMessage("/transfers/topups", "TopUp deleted successfully", attributes));
+    }
 }

@@ -12,11 +12,11 @@
             <div class="card">
                 <div class="card-header">
                     <div class="column">
-                        <p class="card-header-title">Close Transfer Period</p>
+                        <p class="card-header-title">Reconcile an Open Transfer Period</p>
                     </div>
                 </div>
                 <div class="card-content">
-                    {# TODO: implement component here #}
+                    <Reconcile-Period transferPeriodId="{{ transferPeriod.id }}"/>
                 </div>
             </div>
         </div>
@@ -24,23 +24,24 @@
     {% block footerScripts %}
     {{ parent() }}
     <script type="module">
-    const App = {
-        el: '#vapp',
+        const App = {
+            el: '#vapp',
 
-        mounted() {
-            console.log('application mounted. ')
-        },
+            mounted() {
+                console.log('application mounted. ')
+            },
 
-        created() {
-            console.log('application created')
-        },
+            created() {
+                console.log('application created')
+            },
 
-        components: {
-        }
-    };
+            components: {
+                'ReconcilePeriod': httpVueLoader('/components/transfers/ReconcilePeriod.vue')
+            }
+        };
 
-    window.addEventListener('load', () => {
-        var app = new Vue(App);
-    });
-</script>
+        window.addEventListener('load', () => {
+            var app = new Vue(App);
+        });
+    </script>
     {% endblock %}

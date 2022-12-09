@@ -157,7 +157,7 @@ public class TransferCalculator {
         return totalTopupAmout;
     }
 
-    protected void calculateTransferAmount(Transfer transfer, Location location, TransferPeriod transferPeriod) {
+    public void calculateTransferAmount(Transfer transfer, TransferPeriod transferPeriod) {
         final BigDecimal basicAmount = determineAmountByHouseholdSize(transfer.getHouseholdMemberCount(), householdTransferParameters);
         final BigDecimal secondaryBonus = getSecondaryBonusAmount(educationTransferParameters).multiply(BigDecimal.valueOf(transfer.getSecondaryChildrenCount()));
         final BigDecimal primaryBonus = getPrimaryBonusAmount(educationTransferParameters).multiply(BigDecimal.valueOf(transfer.getPrimaryChildrenCount()));
@@ -178,13 +178,13 @@ public class TransferCalculator {
      *
      * @param transferPeriod
      */
-    public void calculateTransfers(Location location, TransferPeriod transferPeriod, List<Transfer> transferList) {
+    public void calculateTransfers(TransferPeriod transferPeriod, List<Transfer> transferList) {
         for (var transfer : transferList) {
             if (transfer.getTransferPeriodId() != transferPeriod.getId()) {
                 continue;
             }
             if (transfer != null)
-                this.calculateTransferAmount(transfer, location, transferPeriod);
+                this.calculateTransferAmount(transfer, transferPeriod);
         }
     }
 }

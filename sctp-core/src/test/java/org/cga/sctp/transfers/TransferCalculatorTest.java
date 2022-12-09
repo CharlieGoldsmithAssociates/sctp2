@@ -47,6 +47,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -105,7 +106,7 @@ class TransferCalculatorTest {
         List<TopUp> topUps = Collections.singletonList(createBasicTopUp());
 
         TransferCalculator transferCalculator = new TransferCalculator(householdTransferParameters, educationTransferParameters, topUps);
-        transferCalculator.calculateTransfers(location, transferPeriod, Collections.singletonList(transfer));
+        transferCalculator.calculateTransfers(transferPeriod, Collections.singletonList(transfer));
 
         assertEquals(BigDecimal.valueOf(3000.0), transfer.getBasicSubsidyAmount());
         assertEquals(BigDecimal.valueOf(1000.0), transfer.getSecondaryBonusAmount());

@@ -1,0 +1,40 @@
+{% extends "base" %}
+
+{% block contextMenu %}
+    <div class="container context-nav-container">
+        <div class="buttons is-left">
+            <a href="{{ href('/transfers/periods') }}" class="button is-warning">
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fa fa-chevron-left"></i>
+                    </span>
+                    <span>Back to Transfer Periods</span>
+                </span>
+            </a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+<div class="transfers-module">
+    <calculate-transfers />
+</div>
+{% endblock %}
+{% block footerScripts %}
+<script type="text/javascript">
+window.__pageData = {{ toJSON(pageData) | raw }};
+const App = {
+    el: '#vapp',
+    mounted() {
+    },
+    created() {
+    },
+    components: {
+        'CalculateTransfers': httpVueLoader('/components/transfers/CalculateTransferAmounts.vue')
+    }
+};
+domready(() => {
+    var app = new Vue(App);
+});
+</script>
+{% endblock %}

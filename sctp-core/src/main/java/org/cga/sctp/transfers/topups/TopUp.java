@@ -39,7 +39,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Set;
 
 @Entity
@@ -50,11 +50,11 @@ public class TopUp {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotEmpty
+    @NotEmpty(message = "Topup name must be specified")
     @Column(name = "name")
     private String name;
 
-    @NotNull
+    @NotNull(message = "Program must be specified")
     @Column(name = "program_id")
     private Long programId;
 
@@ -65,17 +65,18 @@ public class TopUp {
     @Column(name = "district_code")
     private Long districtCode;
 
-    @Column(name = "location_type")
-    @Enumerated(EnumType.STRING)
-    private LocationType locationType;
+    @Column(name = "ta_codes")
+    @Convert(converter = LongSetConverter.class)
+    private Set<Long> taCodes;
 
     @Column(name = "cluster_codes")
     @Convert(converter = LongSetConverter.class)
     private Set<Long> clusterCodes;
 
-    @Column(name = "ta_codes")
-    @Convert(converter = LongSetConverter.class)
-    private Set<Long> taCodes;
+
+    @Column(name = "location_type")
+    @Enumerated(EnumType.STRING)
+    private LocationType locationType;
 
     /**
      * The top-up arrears are discounted from the SCTP funds to be requested'
@@ -103,32 +104,42 @@ public class TopUp {
     @Convert(converter = TopUpHouseholdStatus.Converter.class)
     private TopUpHouseholdStatus householdStatus;
 
+    /**
+     * Percentage amount only applies for {@link TopUpType#PERCENTAGE_OF_RECIPIENT_AMOUNT}
+     */
     @Column(name = "percentage")
     private BigDecimal percentage;
 
     @Column(name = "categorical_targeting_criteria_id")
     private Long categoricalTargetingCriteriaId;
 
-    @Column(name = "fixedAmount")
-    private BigDecimal fixedAmount; // amount BIGINT(19) NULL DEFAULT NULL COMMENT 'Amount to topup',
+    /**
+     * Fixed amount only applies for {@link TopUpType#FIXED_AMOUNT}
+     */
+    @Column(name = "fixed_amount")
+    private BigDecimal fixedAmount;
+
 
     @Column(name = "amount_projected")
-    private BigDecimal amountProjected; // amount_projected BIGINT(19) NULL DEFAULT NULL COMMENT 'Amount projected',
+    private BigDecimal amountProjected;
 
+    /**
+     * Amount executed is the amount actually paid out from this TopUp to households
+     */
     @Column(name = "amount_executed")
-    private BigDecimal amountExecuted; // amount_executed BIGINT(19) NULL DEFAULT NULL COMMENT 'Amount executed i.e. disbursed',
+    private BigDecimal amountExecuted;
 
     @Column(name = "created_by")
-    private Long createdBy; // created_by BIGINT(19) NOT NULL COMMENT 'User who created the topup',
+    private Long createdBy;
 
     @Column(name = "updated_by")
-    private Long updatedBy; // updated_by BIGINT(19) NOT NULL COMMENT 'User who updated the topup',
+    private Long updatedBy;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt; // created_at timestamp not null,
+    private ZonedDateTime createdAt;
 
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt; // updated_at timestamp not null
+    private ZonedDateTime updatedAt;
 
     public Long getId() {
         return id;
@@ -298,19 +309,19 @@ public class TopUp {
         this.updatedBy = updatedBy;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public ZonedDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(ZonedDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
+    public ZonedDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(ZonedDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 }

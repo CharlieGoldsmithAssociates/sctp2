@@ -8,8 +8,17 @@
     </div>
     {% endblock %}
     {% block content %}
-    <div id="transfers:CreateNewPeriodApp">
-        <Calculate-Period-Transfers  transfer-period-id="{{ transferPeriod.id }}" />
+    <div id="transfers:CreateNewPeriodApp" class="content-container is-fullheight">
+        <div class="card">
+            <div class="card-header">
+                <div class="column">
+                    <p class="card-header-title">Recipients in Transfer Period</p>
+                </div>
+            </div>
+            <div class="card-content">
+                {# TODO: implement component here #}
+            </div>
+        </div>
     </div>
     {% endblock %}
 {% block footerScripts %}
@@ -27,7 +36,6 @@
         },
 
         components: {
-            'CalculatePeriodTransfers': httpVueLoader('/components/transfers/CalculatePeriodTransfers.vue')
         }
     };
 
