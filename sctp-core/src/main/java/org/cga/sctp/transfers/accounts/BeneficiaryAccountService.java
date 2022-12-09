@@ -42,10 +42,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.cga.sctp.beneficiaries.BeneficiaryService;
 import org.cga.sctp.beneficiaries.Household;
 import org.cga.sctp.transfers.TransferEventHouseholdView;
-import org.cga.sctp.transfers.TransferSession;
 import org.cga.sctp.transfers.TransfersRepository;
-import org.cga.sctp.transfers.periods.TransferPeriod;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -55,7 +52,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -104,27 +100,6 @@ public class BeneficiaryAccountService {
         });
         //  TODO: extract account numbers from the CSV file
         return transferAccountNumberList;
-    }
-
-    public int assignAccountNumbers(TransferSession session, TransferPeriod period, TransferAccountNumberList transferAccountNumberList) {
-        // TODO: validate the session, check if the the period is open and check transfer agency for E-Payments which is the valid reason to assign account numbers
-        List<Long> householdsAssigned = new ArrayList<>();
-        for (TransferAccountNumberList.HouseholdAccountNumber hh : transferAccountNumberList.getAccountNumberList()) {
-            transfersRepository.findByHouseholdId(hh.getHouseholdId())
-                    .ifPresent(transfer -> {
-                        // TODO: Check if the transfer period matches the period in the request
-                        if (transfer.getTransferPeriodId() != period.getId()) {
-                            transfer.setAccountNumber(hh.getAccountNumber());
-                            transfer.setModifiedAt(LocalDateTime.now());
-                            transfersRepository.save(transfer);
-
-                            householdsAssigned.add(hh.getHouseholdId());
-                        }
-                    });
-        }
-        LoggerFactory.getLogger(getClass()).info("Assigned {} account numbers", householdsAssigned.size());
-        // TODO: return the actual list?
-        return householdsAssigned.size();
     }
 
     public Path exportBeneficiaryListToExcel(List<TransferEventHouseholdView> householdList) throws IOException {

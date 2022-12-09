@@ -1,0 +1,46 @@
+{% extends "../base" %}
+    {% import "../../utils/form" %}
+    {% block contextMenu %}
+    <div class="container context-nav-container">
+        <div class="buttons is-right">
+            {# TODO: Add context menu/actions here... #}
+        </div>
+    </div>
+    {% endblock %}
+    {% block content %}
+    <div id="transfers:CreateNewPeriodApp" class="content-container is-fullheight">
+        <div class="card">
+            <div class="card-header">
+                <div class="column">
+                    <p class="card-header-title">Recipients in Transfer Period</p>
+                </div>
+            </div>
+            <div class="card-content">
+                {# TODO: implement component here #}
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+{% block footerScripts %}
+{{ parent() }}
+<script type="module">
+    const App = {
+        el: '#vapp',
+
+        mounted() {
+            console.log('application mounted. ')
+        },
+
+        created() {
+            console.log('application created')
+        },
+
+        components: {
+        }
+    };
+
+    window.addEventListener('load', () => {
+        var app = new Vue(App);
+    });
+</script>
+{% endblock %}

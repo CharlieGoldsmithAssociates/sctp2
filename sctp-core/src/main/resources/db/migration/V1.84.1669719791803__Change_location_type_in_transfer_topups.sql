@@ -1,0 +1,1 @@
+ALTER TABLE transfer_topups CHANGE location_type location_type enum('COUNTRY','SUBNATIONAL1','SUBNATIONAL2','SUBNATIONAL3','SUBNATIONAL4','SUBNATIONAL5') null comment 'The location level that the topup is applicable to';

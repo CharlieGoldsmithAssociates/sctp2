@@ -32,12 +32,12 @@
 
 package org.cga.sctp.transfers.topups;
 
-import org.cga.sctp.location.LocationType;
 import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.Set;
 
 public class NewTopUpForm {
     @NotEmpty(message = "name cannot be empty")
@@ -50,10 +50,14 @@ public class NewTopUpForm {
     private Long funderId;
 
     @NotNull(message = "Location(s) must be specified")
-    private Long locationId;
+    private Long districtCode;
+
+    private String taCodes;
+
+    private String clusterCodes;
 
     @NotNull(message = "Location Type must be specified")
-    private LocationType locationType;
+    private String locationType;
 
     @Nullable
     private BigDecimal percentage;
@@ -67,7 +71,7 @@ public class NewTopUpForm {
     @NotNull
     private boolean active;
 
-    private BigDecimal amount;
+    private BigDecimal fixedAmount;
 
     @NotNull(message = "Specify whether the topup is categorical or not")
     private boolean categorical;
@@ -76,6 +80,8 @@ public class NewTopUpForm {
 
     @NotNull(message = "Please specify whether amount will be discounted from the program Funds")
     private boolean discountedFromFunds;
+
+    private boolean isApplyToNextPeriod;
 
     private Long userId;
 
@@ -124,19 +130,35 @@ public class NewTopUpForm {
         this.programId = programId;
     }
 
-    public Long getLocationId() {
-        return locationId;
+    public Long getDistrictCode() {
+        return districtCode;
     }
 
-    public void setLocationId(Long locationId) {
-        this.locationId = locationId;
+    public void setDistrictCode(Long districtCode) {
+        this.districtCode = districtCode;
     }
 
-    public LocationType getLocationType() {
+    public String getTaCodes() {
+        return taCodes;
+    }
+
+    public void setTaCodes(String taCodes) {
+        this.taCodes = taCodes;
+    }
+
+    public String getClusterCodes() {
+        return clusterCodes;
+    }
+
+    public void setClusterCodes(String clusterCodes) {
+        this.clusterCodes = clusterCodes;
+    }
+
+    public String getLocationType() {
         return locationType;
     }
 
-    public void setLocationType(LocationType locationType) {
+    public void setLocationType(String locationType) {
         this.locationType = locationType;
     }
 
@@ -172,12 +194,12 @@ public class NewTopUpForm {
         this.active = active;
     }
 
-    public BigDecimal getAmount() {
-        return amount;
+    public BigDecimal getFixedAmount() {
+        return fixedAmount;
     }
 
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
+    public void setFixedAmount(BigDecimal fixedAmount) {
+        this.fixedAmount = fixedAmount;
     }
 
     public boolean isCategorical() {
@@ -258,6 +280,14 @@ public class NewTopUpForm {
 
     public void setDisabilities(String disabilities) {
         this.disabilities = disabilities;
+    }
+
+    public boolean isApplyToNextPeriod() {
+        return isApplyToNextPeriod;
+    }
+
+    public void setApplyToNextPeriod(boolean applyToNextPeriod) {
+        isApplyToNextPeriod = applyToNextPeriod;
     }
 
     public static class Validator {

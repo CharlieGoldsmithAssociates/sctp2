@@ -38,7 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -110,7 +110,7 @@ public class TransferAgencyServiceImpl implements TransferAgencyService {
             agencyAssignment.setFrequency(ePaymentTransferFrequency);
         }
 
-        agencyAssignment.setCreatedAt(LocalDateTime.now());
+        agencyAssignment.setCreatedAt(ZonedDateTime.now());
         agencyAssignment.setModifiedAt(agencyAssignment.getCreatedAt());
 
         return transferAgencyAssignmentRepository.save(agencyAssignment);

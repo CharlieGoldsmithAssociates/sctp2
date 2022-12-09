@@ -36,7 +36,17 @@ import java.util.List;
 
 public class TransferReconciliationRequest {
 
+    private Long transferPeriodId;
+
     private List<TransferReconciliation> reconciliationList;
+
+    public Long getTransferPeriodId() {
+        return transferPeriodId;
+    }
+
+    public void setTransferPeriodId(Long transferPeriodId) {
+        this.transferPeriodId = transferPeriodId;
+    }
 
     public List<TransferReconciliation> getReconciliationList() {
         return reconciliationList;
