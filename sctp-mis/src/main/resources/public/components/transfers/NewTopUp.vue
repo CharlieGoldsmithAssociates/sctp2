@@ -72,6 +72,8 @@ module.exports = {
         ageFrom: '',
         ageTo: '',
         gender: 'both',
+        taCodes: new Set(),
+        clusterCodes: new Set(),
         isCategoricalTopUp: false,
         applyNextPeriod: false,
       }
@@ -101,9 +103,9 @@ module.exports = {
       const url = "/transfers/topups/new";
       const config = {headers: {'X-CSRF-TOKEN': csrf()['token']}};
 
+      this.topupForm.taCodes = [...this.topupForm.taCodes];
+      this.topupForm.clusterCodes = [...this.topupForm.clusterCodes];
       this.topupForm.districtCode = this.selectedDistrict.code;
-      this.topupForm.taCodes = [...this.selectedTraditionalAuthorities].join(',');
-      this.topupForm.clusterCodes = [...this.selectedVillageClusters].join(',');
       this.topupForm.chronicIllnesses = [...this.selectedChronicIllnesses].join(',');
       this.topupForm.disabilities = [...this.selectedDisabilities].join(',');
       this.topupForm.orphanhoodStatuses = [...this.selectedOrphanhoodStatuses].join(',');
@@ -173,14 +175,14 @@ module.exports = {
 
       const error_message = 'Error getting child locations';
 
-      vm.selectedVillageClusters = new Set();
+      vm.topupForm.clusterCodes = new Set();
 
-      if (vm.selectedTraditionalAuthorities.size === 0) {
+      if (vm.topupForm.taCodes.size === 0) {
         vm.villageClusters = [];
         return;
       }
 
-      axios.get(`/locations/get-child-locations/multiple?ids=${[...vm.selectedTraditionalAuthorities]}`)
+      axios.get(`/locations/get-child-locations/multiple?ids=${[...vm.topupForm.taCodes]}`)
         .then(function (response) {
           if (response.status === 200 && isJsonContentType(response.headers['content-type'])) {
             vm.villageClusters = response.data;
@@ -429,13 +431,13 @@ module.exports = {
           <div class="columns">
             <div class="column">
               <v-multiselect label="T/A" :options="traditionalAuthorities" option-label-field="text"
-                             option-value-field="id" :selected="selectedTraditionalAuthorities"
+                             option-value-field="id" :selected="topupForm.taCodes"
                              @input="getVillageClusters">
               </v-multiselect>
             </div>
             <div class="column">
               <v-multiselect label="Village Clusters" :options="villageClusters" option-label-field="text"
-                             option-value-field="id" :selected="selectedVillageClusters"></v-multiselect>
+                             option-value-field="id" :selected="topupForm.clusterCodes"></v-multiselect>
             </div>
           </div>
 

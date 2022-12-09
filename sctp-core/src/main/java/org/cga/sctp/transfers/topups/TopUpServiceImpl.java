@@ -73,13 +73,15 @@ public class TopUpServiceImpl implements TopUpService {
         topUp.setDistrictCode(params.getDistrictCode());
 
 
-        Set<Long> taCodes = Stream.of(params.getTaCodes().split(","))
+        Set<Long> taCodes = params.getTaCodes()
+                .stream()
                 .filter(StringUtils::hasText)
                 .map(Long::parseLong)
                 .collect(Collectors.toSet());
         topUp.setTaCodes(taCodes);
 
-        Set<Long> clusterCodes = Stream.of(params.getClusterCodes().split(","))
+        Set<Long> clusterCodes = params.getClusterCodes()
+                .stream()
                 .filter(StringUtils::hasText)
                 .map(Long::parseLong)
                 .collect(Collectors.toSet());
