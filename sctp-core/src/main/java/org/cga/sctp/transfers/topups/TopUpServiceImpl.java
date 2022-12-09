@@ -36,10 +36,14 @@ import org.cga.sctp.location.Location;
 import org.cga.sctp.location.LocationType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class TopUpServiceImpl implements TopUpService {
@@ -58,6 +62,19 @@ public class TopUpServiceImpl implements TopUpService {
         topUp.setFixedAmount(params.getFixedAmount());
         topUp.setHouseholdStatus(params.getHouseholdStatus());
         topUp.setDistrictCode(params.getDistrictCode());
+
+        Set<Long> taCodes = Stream.of(params.getTaCodes().split(","))
+                .filter(StringUtils::hasText)
+                .map(Long::parseLong)
+                .collect(Collectors.toSet());
+        topUp.setTaCodes(taCodes);
+
+        Set<Long> clusterCodes = Stream.of(params.getClusterCodes().split(","))
+                .filter(StringUtils::hasText)
+                .map(Long::parseLong)
+                .collect(Collectors.toSet());
+        topUp.setClusterCodes(clusterCodes);
+
 //        topUp.setLocationType(params.getLocationType());
         topUp.setLocationType(LocationType.SUBNATIONAL1); // TODO:
         // new topups will by default not have been executed
