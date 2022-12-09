@@ -32,9 +32,32 @@
 
 package org.cga.sctp.transfers.periods;
 
+import org.hibernate.annotations.Immutable;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+@Immutable
 @Entity
-@Table(name = "transfer_periods")
-public class TransferPeriod  extends TransferPeriodBase{
+@Table(name = "transfer_periods_v")
+public class TransferPeriodView extends TransferPeriodBase {
+    @Column(name = "opened_by_name")
+    private String openedByName;
+    @Column(name = "program_name")
+    private String programName;
+    @Column(name = "district_name")
+    private String districtName;
+
+    public String getOpenedByName() {
+        return openedByName;
+    }
+
+    public String getProgramName() {
+        return programName;
+    }
+
+    public String getDistrictName() {
+        return districtName;
+    }
 }

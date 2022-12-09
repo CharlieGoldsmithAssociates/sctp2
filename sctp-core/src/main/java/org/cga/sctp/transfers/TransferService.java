@@ -35,11 +35,14 @@ package org.cga.sctp.transfers;
 import org.cga.sctp.beneficiaries.Household;
 import org.cga.sctp.location.Location;
 import org.cga.sctp.targeting.CbtStatus;
-import org.cga.sctp.transfers.agencies.TransferAgenciesRepository;
 import org.cga.sctp.transfers.accounts.TransferAccountNumberList;
+import org.cga.sctp.transfers.agencies.TransferAgenciesRepository;
 import org.cga.sctp.transfers.periods.TransferPeriod;
+import org.cga.sctp.transfers.periods.TransferPeriodRepository;
+import org.cga.sctp.transfers.periods.TransferPeriodView;
 import org.cga.sctp.transfers.reconciliation.TransferReconciliationRequest;
 import org.cga.sctp.user.User;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.nio.file.Path;
@@ -56,6 +59,8 @@ public interface TransferService {
     TransferAgenciesRepository getTransferAgenciesRepository();
 
     TransfersRepository getTransfersRepository();
+
+    abstract TransferPeriodRepository getTransferPeriodRepository();
 
     List<TransferSessionDetailView> findAllActiveSessions(Pageable pageable);
 
@@ -76,6 +81,8 @@ public interface TransferService {
     TransferSession initiateTransfers(Location location, TransferSession transferSession, long userId);
 
     List<Transfer> fetchPendingTransferListByLocation(long districtCode, Long taCode, Long villageCluster, Long zone, Long village, Pageable pageable);
+
+    List<Transfer> fetchTransferListByPeriodAndLocation(Long periodId, long districtCode, Long taCode, Long villageCluster, Long zone, Long village, Pageable pageable);
 
     /**
      * Removes a household from transfer with given reason
@@ -107,7 +114,7 @@ public interface TransferService {
      * @return
      */
     int updatePerformedTransfers(TransferReconciliationRequest transferUpdates, long userId);
-    
+
     /**
      * Performs manual transfers - which is basically updating the amounts.
      *
@@ -136,7 +143,7 @@ public interface TransferService {
 
     /**
      * Exports transfers list to the given directory
-     * @param transferPeriod transfer period to export for
+     * @param transferPeriod  transfer period to export for
      * @param destinationPath path to export to
      * @throws Exception any error that occurs during the process
      */
@@ -161,4 +168,7 @@ public interface TransferService {
      * @return
      */
     int countUnreconciledTransfers(TransferPeriod transferPeriod);
+
+    Page<TransferPeriodView> getTransferPeriodsForMobile(long districtCode, Long taCode, Long villageCluster, int page, int pageSize);
+
 }
