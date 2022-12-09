@@ -10,10 +10,11 @@
 
 {% block content %}
     <div>
-        <new-topup-form />
+        <New-Top-Up/>
     </div>
 {% endblock %}
 {% block footerScripts %}
+{{ parent() }}
     <script type="text/javascript">
         window.__pageData = {{ toJSON(pageData) | raw }};
     </script>
@@ -25,7 +26,7 @@
         created() {
         },
         components: {
-            'NewTopupForm': httpVueLoader('/components/transfers/NewTopUp.vue')
+            'NewTopUp': httpVueLoader('/components/transfers/NewTopUp.vue')
         }
     };
     domready(() => {

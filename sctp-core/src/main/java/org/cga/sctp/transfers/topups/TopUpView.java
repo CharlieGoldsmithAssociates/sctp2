@@ -30,32 +30,39 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.transfers;
+package org.cga.sctp.transfers.topups;
+
+import org.cga.sctp.location.LocationType;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Set;
 
-public interface TransferEventHouseholdView {
-    Long getHouseholdId();
-    String getFormNumber();
+public interface TopUpView {
+    Long getId();
+    String getName();
+    Long getFunderId();
+    String getFunderName();
+    Long getProgramId();
+    String getProgramName();
+    Long getDistrictCode();
     String getDistrictName();
-    String getTaName();
-    String getZoneName();
-    String getClusterName();
-    String getVillageName();
-    String getMlCode();
-    String getVillageHeadName();
-    String getHouseholdHead();
-    Long getMemberCount();
-    Long getTotalChildren();
-    Long getPrimaryChildren();
-    Long getSecondaryChildren();
-    String getReceiverName();
-    BigDecimal getPrimaryIncentive();
-     BigDecimal getSecondaryIncentive();
-    BigDecimal getMonthlyAmount();
-    Long getNumberOfMonths();
-    BigDecimal getTotalMonthlyAmount();
-    BigDecimal getTotalArrears();
-    BigDecimal getTotalAmount();
-    Boolean getIsFirstTransfer();
+    Set<Long> getClusterCodes();
+    Set<Long> getTaCodes();
+    LocationType getLocationType();
+    Boolean getDiscountedFromFunds();
+    Boolean getCategorical();
+    Boolean getActive();
+    Boolean getExecuted();
+    TopUpType getTopupType();
+    TopUpHouseholdStatus getHouseholdStatus();
+    BigDecimal getPercentage();
+    Long getCategoricalTargetingCriteriaId();
+    BigDecimal getFixedAmount();
+    BigDecimal getAmountProjected();
+    BigDecimal getAmountExecuted();
+    Long getCreatedBy();
+    Long getUpdatedBy();
+    LocalDateTime getCreatedAt();
+    LocalDateTime getUpdatedAt();
 }

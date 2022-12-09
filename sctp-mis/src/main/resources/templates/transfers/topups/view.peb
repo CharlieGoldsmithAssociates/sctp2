@@ -1,0 +1,116 @@
+    {% import "../../utils/form" %}
+        {% extends "../base" %}
+        {% block title %}
+        {{ parent() }} - Transfer Top Up Details for {{ topup.name }}
+        {% endblock %}
+
+        {% block contextMenu %}
+        <div class="container context-nav-container">
+            <div class="buttons is-left">
+                <a href="{{ href('/transfers/topups') }}" class="button is-danger">
+            <span class="icon-text">
+                <span class="icon">
+                    <i class="fa fa-chevron-left"></i>
+                </span>
+                <span>Back</span>
+            </span>
+                </a>
+            </div>
+            <div class="buttons is-left">
+                <a href="{{ href('/transfers/topups/' + topup.id + '/edit' ) }}" class="button is-danger">
+            <span class="icon-text">
+                <span class="icon">
+                    <i class="fa fa-pencil"></i>
+                </span>
+                <span>Edit</span>
+            </span>
+                </a>
+            </div>
+        </div>
+
+        {% endblock %}
+
+    {% block content %}
+    <div class="container">
+        <div class="card no-overlap">
+            <header class="card-header">
+                <p class="card-header-title">View Transfer Agency</p>
+            </header>
+            <div class="card-content">
+                <div class="field"><label>ID</label>
+                    <div>{{ topup.id}}</div>
+                </div>
+                <div class="field"><label>Name</label>
+                    <div>{{ topup.name}}</div>
+                </div>
+                <div class="field"><label>Is Active</label>
+                    <div>{{ topup.active}}</div>
+                </div>
+                <div class="field"><label>Program Name</label>
+                    <div>{{ topup.programName}}</div>
+                </div>
+                <div class="field"><label>Funder</label>
+                    <div>{{ topup.funderName}}</div>
+                </div>
+                <div class="field"><label>District</label>
+                    <div>{{ topup.districtName}}</div>
+                </div>
+                <div class="field"><label>T / A</label>
+                    <div>{{ topup.taCodes }}</div>
+                </div>
+                <div class="field"><label>Village Cluster</label>
+                    <div>{{ topup.clusterCodes }}</div>
+                </div>
+                <div class="field"><label>Topup Type</label>
+                    <div>{{ topup.topupType }}</div>
+                </div>
+                <div class="field"><label>Amount</label>
+                    {% if (topup.topupType == "FIXED_AMOUNT") %}
+                        <div>{{ topup.fixedAmount}}</div>
+                    {% elseif (topup.topupType == "PERCENTAGE_OF_RECIPIENT_AMOUNT") %}
+                        <div>{{ topup.percentage }} %</div>
+                    {% else %}
+                        <div>{{ topup.topupType }} %</div>
+                    {% endif %}
+                </div>
+                <div class="field"><label>Is Categorical</label>
+                    <div>{{ topup.isCategoricalTopup }}</div>
+                </div>
+                <div class="field"><label>Categorical TopUp Parameters</label>
+                {# TODO: <div>{{ topup.chronicIllnesses}}</div>#}
+                {# TODO: <div>{{ topup.chronicIllnesses}}</div>#}
+                {# TODO: <div>{{ topup.chronicIllnesses}}</div>#}
+                {# TODO: <div>{{ topup.chronicIllnesses}}</div>#}
+                </div>
+                <div class="field"><label>Is Executed?</label>
+                    <div>{{ topup.isExecuted}}</div>
+                </div>
+                <div class="field"><label>Amount Executed</label>
+                    <div>{{ topup.amountExecuted }}</div>
+                </div>
+            </div>
+        </div>
+        <br/>
+        <div class="card no-overlap">
+            <div class="card-header">
+                <div class="card-header-title">Topup Applies to following Transfer Periods </div>
+            </div>
+            <div class="card-content">
+                <table class="table is-striped is-fullwidth">
+                    <thead>
+                        <tr>
+                            <th>Program</th>
+                            <th>Location (TA > Village Cluster)</th>
+                            <th>Amount Projected</th>
+                            <th>Executed On</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {# TODO: load and display estimated amounts for the periods/locations this topup applies to  #}
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+    {% endblock %}

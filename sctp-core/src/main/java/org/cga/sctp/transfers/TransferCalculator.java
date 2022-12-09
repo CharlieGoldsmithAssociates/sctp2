@@ -39,7 +39,6 @@ import org.cga.sctp.transfers.parameters.HouseholdParameterCondition;
 import org.cga.sctp.transfers.parameters.HouseholdTransferParameter;
 import org.cga.sctp.transfers.periods.TransferPeriod;
 import org.cga.sctp.transfers.topups.TopUp;
-import org.cga.sctp.utils.BigDecimalUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -146,11 +145,11 @@ public class TransferCalculator {
         BigDecimal curTopUp = null;
         for (var topup : topUpList) {
             curTopUp = switch (topup.getTopupType()) {
-                case FIXED_AMOUNT -> topup.getAmount();
+                case FIXED_AMOUNT -> topup.getFixedAmount();
                 case EQUIVALENT_BENEFICIARY_AMOUNT -> monthlyAmount;
                 case PERCENTAGE_OF_RECIPIENT_AMOUNT ->
                         monthlyAmount.multiply(topup.getPercentage()).divide(new BigDecimal("100.00"));
-                default -> topup.getAmount();
+                default -> topup.getFixedAmount();
             };
             totalTopupAmout = totalTopupAmout.add(curTopUp);
         }
@@ -158,7 +157,7 @@ public class TransferCalculator {
         return totalTopupAmout;
     }
 
-    protected void calculateTransferAmount(Transfer transfer, Location location, TransferPeriod transferPeriod) {
+    public void calculateTransferAmount(Transfer transfer, TransferPeriod transferPeriod) {
         final BigDecimal basicAmount = determineAmountByHouseholdSize(transfer.getHouseholdMemberCount(), householdTransferParameters);
         final BigDecimal secondaryBonus = getSecondaryBonusAmount(educationTransferParameters).multiply(BigDecimal.valueOf(transfer.getSecondaryChildrenCount()));
         final BigDecimal primaryBonus = getPrimaryBonusAmount(educationTransferParameters).multiply(BigDecimal.valueOf(transfer.getPrimaryChildrenCount()));
@@ -179,13 +178,13 @@ public class TransferCalculator {
      *
      * @param transferPeriod
      */
-    public void calculateTransfers(Location location, TransferPeriod transferPeriod, List<Transfer> transferList) {
+    public void calculateTransfers(TransferPeriod transferPeriod, List<Transfer> transferList) {
         for (var transfer : transferList) {
             if (transfer.getTransferPeriodId() != transferPeriod.getId()) {
                 continue;
             }
             if (transfer != null)
-                this.calculateTransferAmount(transfer, location, transferPeriod);
+                this.calculateTransferAmount(transfer, transferPeriod);
         }
     }
 }

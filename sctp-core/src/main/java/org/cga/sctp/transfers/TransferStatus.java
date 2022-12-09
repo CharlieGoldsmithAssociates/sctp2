@@ -44,6 +44,9 @@ public enum TransferStatus implements UbrParameterValue {
      * Transfer has not yet occurred i.e. cash has not been disbursed.
      */
     OPEN(19, "Open"),
+    INITIATED(199, "Initiated"),
+    PENDING_DISBURSEMENT(209, "Pending Disbursement"),
+    DISBURSED(219, "Disbursed to beneficiary"),
     /**
      * Cash has been disbursed but Transfer is pending reconciliation and scrutiny
      */

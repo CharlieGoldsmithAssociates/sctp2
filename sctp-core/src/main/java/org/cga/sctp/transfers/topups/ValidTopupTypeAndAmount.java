@@ -30,32 +30,35 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.transfers;
+package org.cga.sctp.transfers.topups;
 
-import java.math.BigDecimal;
+import javax.validation.Constraint;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import javax.validation.Payload;
+import java.lang.annotation.*;
 
-public interface TransferEventHouseholdView {
-    Long getHouseholdId();
-    String getFormNumber();
-    String getDistrictName();
-    String getTaName();
-    String getZoneName();
-    String getClusterName();
-    String getVillageName();
-    String getMlCode();
-    String getVillageHeadName();
-    String getHouseholdHead();
-    Long getMemberCount();
-    Long getTotalChildren();
-    Long getPrimaryChildren();
-    Long getSecondaryChildren();
-    String getReceiverName();
-    BigDecimal getPrimaryIncentive();
-     BigDecimal getSecondaryIncentive();
-    BigDecimal getMonthlyAmount();
-    Long getNumberOfMonths();
-    BigDecimal getTotalMonthlyAmount();
-    BigDecimal getTotalArrears();
-    BigDecimal getTotalAmount();
-    Boolean getIsFirstTransfer();
+@Documented
+@Constraint(validatedBy = {ValidTopupTypeAndAmount.TopupValidatorImpl.class})
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ValidTopupTypeAndAmount {
+    String message() default "Topup is not valid";
+
+    Class<?>[] groups() default {};
+
+    Class<? extends Payload>[] payload() default {};
+
+    class TopupValidatorImpl implements ConstraintValidator<ValidTopupTypeAndAmount, TopUp> {
+        @Override
+        public boolean isValid(TopUp topUp, ConstraintValidatorContext constraintValidatorContext) {
+            if (topUp.getTopupType().equals(TopUpType.FIXED_AMOUNT) && topUp.getFixedAmount() == null) {
+                return false;
+            } else if (topUp.getTopupType().equals(TopUpType.PERCENTAGE_OF_RECIPIENT_AMOUNT) && topUp.getPercentage() == null) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }
 }
