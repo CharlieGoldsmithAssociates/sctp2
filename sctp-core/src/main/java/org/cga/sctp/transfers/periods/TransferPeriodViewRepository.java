@@ -32,10 +32,36 @@
 
 package org.cga.sctp.transfers.periods;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.query.Procedure;
+import org.springframework.data.repository.query.Param;
 
-@Entity
-@Table(name = "transfer_periods")
-public class TransferPeriod  extends TransferPeriodBase {
+import java.util.List;
+
+public interface TransferPeriodViewRepository extends JpaRepository<TransferPeriodView, Long> {
+
+    @Procedure(procedureName = "getTransferPeriodsForMobile")
+    List<TransferPeriodView> getTransferPeriodsForMobile(
+            @Param("district") long districtCode,
+            @Param("ta") Long taCode,
+            @Param("cluster") Long clusterCode,
+            @Param("page") int page,
+            @Param("pageSize") int pageSize
+    );
+
+    @Query(
+            value = """
+                    CALL countTransferPeriodsForMobile(
+                        :_districtCode
+                       ,:_taCode
+                       ,:_clusterCode)
+                    """
+            , nativeQuery = true
+    )
+    Long countTransferPeriodsForMobile(
+            @Param("_districtCode") long districtCode,
+            @Param("_taCode") Long taCode,
+            @Param("_clusterCode") Long clusterCode
+    );
 }

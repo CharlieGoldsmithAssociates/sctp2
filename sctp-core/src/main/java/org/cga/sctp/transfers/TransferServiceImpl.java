@@ -45,6 +45,8 @@ import org.cga.sctp.transfers.agencies.TransferAgenciesRepository;
 import org.cga.sctp.transfers.parameters.*;
 import org.cga.sctp.transfers.periods.TransferPeriod;
 import org.cga.sctp.transfers.periods.TransferPeriodRepository;
+import org.cga.sctp.transfers.periods.TransferPeriodView;
+import org.cga.sctp.transfers.periods.TransferPeriodViewRepository;
 import org.cga.sctp.transfers.reconciliation.TransferReconciliationRequest;
 import org.cga.sctp.transfers.topups.TopUp;
 import org.cga.sctp.transfers.topups.TopUpService;
@@ -53,6 +55,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,17 +64,23 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class TransferServiceImpl implements TransferService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TransferServiceImpl.class);
+    private static final int PAGE_SIZE = 1_000;
 
     @Autowired
     private EntityManager entityManager;
 
     @Autowired
     private TransferPeriodRepository transferPeriodRepository;
+    @Autowired
+    private TransferPeriodViewRepository transferPeriodViewRepository;
 
     @Autowired
     private TransfersRepository transfersRepository;
@@ -120,6 +130,11 @@ public class TransferServiceImpl implements TransferService {
     @Override
     public TransfersRepository getTransfersRepository() {
         return transfersRepository;
+    }
+
+    @Override
+    public TransferPeriodRepository getTransferPeriodRepository() {
+        return transferPeriodRepository;
     }
 
     @Transactional
@@ -244,6 +259,20 @@ public class TransferServiceImpl implements TransferService {
     }
 
     @Override
+    public List<Transfer> fetchTransferListByPeriodAndLocation(Long periodId, long districtCode, Long taCode, Long villageCluster, Long zone, Long village, Pageable pageable) {
+        return transfersRepository.findAllByPeriodByLocationToVillageLevel(
+                periodId,
+                districtCode,
+                taCode,
+                villageCluster,
+                zone,
+                village,
+                pageable.getPageNumber(),
+                pageable.getPageSize()
+        );
+    }
+
+    @Override
     public void removeHouseholdFromTransfers(Household household, TransferPeriod transferPeriod, String reason) {
         throw new UnsupportedOperationException("not yet implemented"); // TODO: implement me
     }
@@ -311,7 +340,7 @@ public class TransferServiceImpl implements TransferService {
                 continue;
             }
 
-            transfer.setRecipientId(reconciliation.getRecipientId());
+            transfer.setReceiverId(reconciliation.getRecipientId());
             transfer.setDisbursementDate(reconciliation.getTimestamp().toLocalDateTime());
             transfer.setAmountDisbursed(reconciliation.getAmountTransferred());
             transfer.setCollected(true);
@@ -395,4 +424,22 @@ public class TransferServiceImpl implements TransferService {
         }
         return transfersRepository.countOpenOrPreCloseTransfersInPeriod(transferPeriod.getTransferSessionId());
     }
+
+    @Transactional
+    @Override
+    public Page<TransferPeriodView> getTransferPeriodsForMobile(long districtCode, Long taCode, Long villageCluster, int page, int pageSize) {
+        List<TransferPeriodView> slice = transferPeriodViewRepository
+                .getTransferPeriodsForMobile(districtCode, taCode, villageCluster, page, Math.max(pageSize, PAGE_SIZE));
+
+        // TODO this is necessary for paging on the android front but can be removed to improve performance
+        //  just that the app would have to be changed to use optimistic paging.
+        Long totalResults = transferPeriodViewRepository.countTransferPeriodsForMobile(
+                districtCode
+                , taCode
+                , villageCluster
+        );
+
+        return new PageImpl<>(slice, PageRequest.of(page, pageSize), totalResults);
+    }
+
 }

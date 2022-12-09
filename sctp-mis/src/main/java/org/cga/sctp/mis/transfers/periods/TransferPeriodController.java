@@ -33,7 +33,6 @@
 package org.cga.sctp.mis.transfers.periods;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.coyote.Response;
 import org.cga.sctp.location.Location;
 import org.cga.sctp.location.LocationService;
 import org.cga.sctp.mis.core.BaseController;
@@ -60,7 +59,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -95,7 +93,7 @@ public class TransferPeriodController extends BaseController {
 
     @GetMapping("/open-new")
     @AdminAndStandardAccessOnly
-    public ModelAndView viewCreateTransferPeriod(@RequestParam(value="district-id", required = false) Long districtId) {
+    public ModelAndView viewCreateTransferPeriod(@RequestParam(value = "district-id", required = false) Long districtId) {
         Location district = null;
         TransferPeriod lastPeriod = null;
         if (districtId != null) {
@@ -115,7 +113,7 @@ public class TransferPeriodController extends BaseController {
     @PostMapping("/open-new")
     @AdminAndStandardAccessOnly
     public ResponseEntity<?> handleCreateTransferPeriod(@AuthenticatedUserDetails AuthenticatedUser user,
-                                                     @Validated @RequestBody TransferPeriodForm form) {
+                                                        @Validated @RequestBody TransferPeriodForm form) {
 
         TransferPeriod newPeriod = new TransferPeriod();
         Location district = locationService.findByCode(form.getDistrictCode());
@@ -176,7 +174,6 @@ public class TransferPeriodController extends BaseController {
         publishGeneralEvent("User %s deleted an open period with id %s", user.username(), periodId);
         return redirect("/transfers/periods");
     }
-
 
     @GetMapping("/calculate-transfers/{period-id}")
     @AdminAndStandardAccessOnly
@@ -263,10 +260,33 @@ public class TransferPeriodController extends BaseController {
                 .addObject("transferPeriod", transferPeriod.get());
     }
 
-   @GetMapping("/close")
+
+    @GetMapping("/close")
     @AdminAndStandardAccessOnly
     public ModelAndView viewCloseTransferPeriod() {
         return view("/transfers/periods/close");
+    }
+
+    @GetMapping("/view/{id}")
+    @AdminAndStandardAccessOnly
+    public ModelAndView viewTransferPeriod(@PathVariable("id") long id) {
+        Optional<TransferPeriod> transferPeriod = transferPeriodService.findById(id);
+        if (transferPeriod.isEmpty()) {
+            return redirect("/transfers/periods");
+        }
+        return view("/transfers/periods/view")
+                .addObject("transferPeriod", transferPeriod.get());
+    }
+
+    @GetMapping("/{period-id}")
+    @AdminAndStandardAccessOnly
+    public ResponseEntity<TransferPeriod> getDeletePeriod(@AuthenticatedUserDetails AuthenticatedUser user,
+                                        @PathVariable("period-id") Long periodId) {
+
+        TransferPeriod transferPeriod = transferPeriodService.findById(periodId)
+                .orElseThrow(() -> new TransferPeriodException("Transfer period with id: " + periodId + " not found"));
+
+        return ResponseEntity.ok(transferPeriod);
     }
 
     @GetMapping("/in-district/{district-code}")

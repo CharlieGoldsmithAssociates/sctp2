@@ -133,6 +133,10 @@ public class LocationService extends BaseService {
         return locationRepository.getCodesByParentCodeIn(parentCodes);
     }
 
+    public List<LocationCode> findAllByCodeIn(List<Long> codes) {
+        return locationRepository.findAllByCodeIn(codes);
+    }
+
     public List<LocationCode> getActiveDistrictCodes() {
         return locationRepository.getActiveCodesByType(LocationType.SUBNATIONAL1.name());
     }

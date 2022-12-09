@@ -38,6 +38,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -74,7 +75,7 @@ public class TransferPeriodService {
             throw new TransferPeriodException("Found an open Transfer Period in the district");
         }
         newPeriod.setClosed(false);
-        newPeriod.setCreatedAt(ZonedDateTime.now());
+        newPeriod.setCreatedAt(LocalDateTime.now());
         newPeriod.setUpdatedAt(newPeriod.getCreatedAt());
         return transferPeriodRepository.save(newPeriod);
     }
