@@ -30,11 +30,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.transfers.periods;
+package org.cga.sctp.api.transfers;
+
+import org.cga.sctp.api.core.pagination.PagedResponse;
+import org.cga.sctp.transfers.periods.TransferPeriodView;
+import org.springframework.data.domain.Page;
+
+import java.util.List;
+
+public class TransferPeriodResponse extends PagedResponse<TransferPeriodView> {
+    public TransferPeriodResponse(Page<TransferPeriodView> page) {
+        super(page);
+    }
+
+    public TransferPeriodResponse(int page, long totalItems, int totalPages, List<TransferPeriodView> items) {
+        super(page, totalItems, totalPages, items);
+    }
 
 
-import javax.persistence.*;
-@Entity
-@Table(name = "transfer_periods")
-public class TransferPeriod  extends TransferPeriodBase {
 }
