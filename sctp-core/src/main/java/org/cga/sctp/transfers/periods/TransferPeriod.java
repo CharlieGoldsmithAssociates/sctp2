@@ -36,5 +36,5 @@ package org.cga.sctp.transfers.periods;
 import javax.persistence.*;
 @Entity
 @Table(name = "transfer_periods")
-public class TransferPeriod  extends TransferPeriodBase{
+public class TransferPeriod  extends TransferPeriodBase {
 }
