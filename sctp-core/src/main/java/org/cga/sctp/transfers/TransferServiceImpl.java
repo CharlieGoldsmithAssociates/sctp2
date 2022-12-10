@@ -165,6 +165,7 @@ public class TransferServiceImpl implements TransferService {
 
 
     @Override
+    @Transactional
     public TransferSession createTransfers(TransferPeriod transferPeriod, long userId, List<HouseholdEnrollmentData> households) {
         Optional<TransferPeriod> existingPeriod = transferPeriodRepository.findFirstByProgramIdAndDistrictIdAndIsOpen(transferPeriod.getProgramId(), transferPeriod.getDistrictCode());
         if (existingPeriod.isEmpty()) {
@@ -187,7 +188,7 @@ public class TransferServiceImpl implements TransferService {
             newTransfer.setHouseholdId(hh.getHouseholdId());
             newTransfer.setTransferState(TransferStatus.OPEN);
             newTransfer.setTransferAgencyId(0L);
-            var recipientId = Long.parseLong(hh.getPrimaryRecipient().getIndividualId());
+            var recipientId = 0L; //TODO Long.parseLong(hh.getPrimaryRecipient().getIndividualId());
             newTransfer.setReceiverId(recipientId); // TODO: remove fields?
             newTransfer.setRecipientId(recipientId); // TODO: remove fields?
             newTransfer.setTransferPeriodId(transferPeriod.getId());
