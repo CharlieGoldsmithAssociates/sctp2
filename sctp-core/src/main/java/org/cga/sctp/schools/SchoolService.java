@@ -78,8 +78,8 @@ public class SchoolService extends BaseService {
         return educationZoneRepository.findAll();
     }
 
-    public List<School> getActiveSchools() {
-        return schoolRepository.findAllByActive(true, Pageable.unpaged()).toList();
+    public Page<SchoolsView> getActiveSchools(Pageable pageable) {
+        return schoolRepository.getActiveSchoolsView(pageable);
     }
 
     public Page<School> getActiveSchoolsPaged(Pageable pageable) {

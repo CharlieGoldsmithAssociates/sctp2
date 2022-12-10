@@ -32,10 +32,16 @@
 
 package org.cga.sctp.mis.targeting;
 
+import org.cga.sctp.targeting.enrollment.AlternateRecipientType;
+import org.cga.sctp.targeting.importation.parameters.Gender;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDate;
+
 import javax.validation.constraints.NotNull;
 
 public class UpdateHouseholdRecipientForm {
-    @NotNull(message = "Required")
     private Long id;
 
     @NotNull(message = "Required")
@@ -44,6 +50,20 @@ public class UpdateHouseholdRecipientForm {
     @NotNull(message = "required")
     private Long household;
 
+    private MultipartFile photo;
+
+    private AlternateRecipientType altType;
+
+    private String firstName;
+    private String lastName;
+    private String nationalId;
+    private Gender gender;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate dateOfBirth;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate idIssueDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate idExpiryDate;
     public Long getId() {
         return id;
     }
@@ -66,5 +86,77 @@ public class UpdateHouseholdRecipientForm {
 
     public void setHousehold(Long household) {
         this.household = household;
+    }
+
+    public MultipartFile getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(MultipartFile photo) {
+        this.photo = photo;
+    }
+
+    public AlternateRecipientType getAltType() {
+        return altType;
+    }
+
+    public void setAltType(AlternateRecipientType altType) {
+        this.altType = altType;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getNationalId() {
+        return nationalId;
+    }
+
+    public void setNationalId(String nationalId) {
+        this.nationalId = nationalId;
+    }
+
+    public Gender getGender() {
+        return gender;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
+    }
+
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    public LocalDate getIdIssueDate() {
+        return idIssueDate;
+    }
+
+    public void setIdIssueDate(LocalDate idIssueDate) {
+        this.idIssueDate = idIssueDate;
+    }
+
+    public LocalDate getIdExpiryDate() {
+        return idExpiryDate;
+    }
+
+    public void setIdExpiryDate(LocalDate idExpiryDate) {
+        this.idExpiryDate = idExpiryDate;
     }
 }

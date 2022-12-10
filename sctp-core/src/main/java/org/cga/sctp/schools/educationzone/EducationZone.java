@@ -35,7 +35,7 @@ package org.cga.sctp.schools.educationzone;
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "education_zones")
@@ -45,35 +45,34 @@ public class EducationZone {
     private Long id;
 
     @NotNull
-    @Column(name="ta_id")
-    private Long taId;
+    @Column(name = "ta_code")
+    private Long taCode;
 
-    @Column(name="district_id")
-    private Long districtId;
+    @Column(name = "district_code")
+    private Long districtCode;
 
     @NotEmpty
-    @Column(name="name")
+    @Column(name = "name")
     private String name;
 
-    @NotEmpty
-    @Column(name="alt_name")
+    @Column(name = "alt_name")
     private String altName;
 
     @NotEmpty
-    @Column(name="code")
+    @Column(name = "code")
     private String code;
 
     @NotNull
-    @Column(name="active")
+    @Column(name = "active")
     private boolean active;
 
     @NotNull
-    @Column(name="created_at")
-    private LocalDateTime createdAt;
+    @Column(name = "created_at")
+    private ZonedDateTime createdAt;
 
     @NotNull
-    @Column(name="updated_at")
-    private LocalDateTime updatedAt;
+    @Column(name = "updated_at")
+    private ZonedDateTime updatedAt;
 
     public Long getId() {
         return id;
@@ -83,20 +82,20 @@ public class EducationZone {
         this.id = id;
     }
 
-    public Long getTaId() {
-        return taId;
+    public Long getTaCode() {
+        return taCode;
     }
 
-    public void setTaId(Long taId) {
-        this.taId = taId;
+    public void setTaCode(Long taCode) {
+        this.taCode = taCode;
     }
 
-    public Long getDistrictId() {
-        return districtId;
+    public Long getDistrictCode() {
+        return districtCode;
     }
 
-    public void setDistrictId(Long districtId) {
-        this.districtId = districtId;
+    public void setDistrictCode(Long districtCode) {
+        this.districtCode = districtCode;
     }
 
     public String getName() {
@@ -131,19 +130,19 @@ public class EducationZone {
         this.active = active;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public @NotNull ZonedDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(@NotNull ZonedDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
+    public @NotNull ZonedDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(@NotNull ZonedDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 }

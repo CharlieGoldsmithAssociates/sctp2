@@ -36,13 +36,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cga.sctp.beneficiaries.BeneficiaryService;
 import org.cga.sctp.beneficiaries.Individual;
 import org.cga.sctp.data.ResourceService;
+import org.cga.sctp.data.UploadFileValidator;
 import org.cga.sctp.mis.core.SecuredBaseController;
 import org.cga.sctp.mis.file_upload.FileUploadService;
 import org.cga.sctp.schools.SchoolService;
 import org.cga.sctp.schools.SchoolsView;
-import org.cga.sctp.targeting.AlternateRecipient;
-import org.cga.sctp.targeting.HouseholdDetails;
-import org.cga.sctp.targeting.SchoolEnrolled;
+import org.cga.sctp.targeting.*;
+import org.cga.sctp.targeting.enrollment.SchoolEnrollmentForm;
 import org.cga.sctp.targeting.enrollment.*;
 import org.cga.sctp.targeting.importation.parameters.EducationLevel;
 import org.cga.sctp.targeting.importation.parameters.Gender;
@@ -53,21 +53,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
-import java.io.IOException;
 import java.net.URI;
-import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -102,6 +103,12 @@ public class EnrollmentController extends SecuredBaseController {
 
     @Autowired
     private FileUploadService fileUploadService;
+
+    @Autowired
+    private UploadFileValidator uploadFileValidator;
+
+    @Autowired
+    private ResourceService resourceService;
 
     @GetMapping
     @AdminAndStandardAccessOnly
@@ -163,20 +170,6 @@ public class EnrollmentController extends SecuredBaseController {
 /*                .addObject("returnUrl", returnUrl)
                 .addObject("schools", schools)
                 .addObject("individuals", individuals)*/;
-    }
-
-    @RequestMapping(value = "/enroll", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @AdminAccessOnly
-    public ResponseEntity<Object> uploadFile(@RequestParam(required = true, value = "file") MultipartFile file,
-                                             @RequestParam(required = false, value = "altPhoto") MultipartFile alternate,
-                                             @RequestParam(required = true, value = "jsondata") String jsondata)
-            throws IOException {
-
-        EnrollmentForm enrollmentForm = objectMapper.readValue(jsondata, EnrollmentForm.class);
-        enrollmentService.processEnrollment(enrollmentForm, file, alternate);
-
-        return new ResponseEntity<>("File is uploaded successfully", HttpStatus.OK);
-
     }
 
     @GetMapping("/edit")
@@ -313,71 +306,247 @@ public class EnrollmentController extends SecuredBaseController {
                 .body(response);
     }
 
-    @PostMapping(value = "/update-recipient", produces = MediaType.APPLICATION_JSON_VALUE)
-    @AdminAndStandardAccessOnly
-    ResponseEntity<?> updateHouseholdRecipient(
-            @RequestParam(value = "type") HouseholdRecipientType type,
-            @RequestParam(value = "photo") MultipartFile photo,
+    @PostMapping("/update-recipient")
+    public ResponseEntity<?> updateRecipient(
+            @RequestParam HouseholdRecipientType type,
             @Valid @ModelAttribute UpdateHouseholdRecipientForm form,
-            BindingResult bindingResult,
-            RedirectAttributes redirectAttributes) {
+            BindingResult bindingResult
+    ) {
+        FieldError fieldError;
         if (bindingResult.hasErrors()) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(bindingResult.getAllErrors());
         }
-
-        HouseholdEnrollment enrollment = enrollmentService
-                .findHouseholdEnrollment(form.getSession(), form.getHousehold());
+        Long householdId = form.getHousehold();
+        MultipartFile formPhoto = form.getPhoto();
+        UploadFileValidator.UploadedFile picture = null;
+        HouseholdEnrollment enrollment = enrollmentService.findHouseholdEnrollment(form.getSession(), householdId);
 
         if (enrollment == null) {
             return ResponseEntity.notFound().build();
         }
 
-        // verify household member existence
-        if (!beneficiaryService.householdMemberExists(form.getHousehold(), form.getId())) {
-            return ResponseEntity.notFound().build();
-        }
-
-        HouseholdRecipient recipient = enrollmentService.getHouseholdRecipient(form.getHousehold());
+        ZonedDateTime timestamp = ZonedDateTime.now();
+        HouseholdRecipient recipient = enrollmentService.getHouseholdRecipient(householdId);
 
         if (recipient == null) {
             recipient = new HouseholdRecipient();
-            recipient.setMainRecipient(form.getId());
-            recipient.setCreatedAt(OffsetDateTime.now());
-            recipient.setHouseholdId(enrollment.getHouseholdId());
+            recipient.setCreatedAt(timestamp);
+            recipient.setHouseholdId(householdId);
+            recipient.setEnrollmentSession(form.getSession());
         }
 
-        recipient.setModifiedAt(OffsetDateTime.now());
-        enrollment.setUpdatedAt(recipient.getModifiedAt());
+        recipient.setModifiedAt(timestamp);
+        enrollment.setUpdatedAt(timestamp);
 
-        if (!fileUploadService.getResourceService().isAcceptedImageFile(photo)) {
-            return ResponseEntity.badRequest().build();
+        RecipientPictureUpdateStatus status = new RecipientPictureUpdateStatus();
+        String[] types = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE};
+
+            if (formPhoto != null && !formPhoto.isEmpty()) {
+                picture = uploadFileValidator.convertMultipartFile(formPhoto);
+            }
+
+        if (picture != null) {
+            if (picture.isStaged()) {
+                if (!picture.hasType(types)) {
+                    picture.delete();
+                    status.setFailed(status.getFailed() + 1);
+                    LOG.error("Invalid file type for primary recipient {}. expected: {}", picture, types);
+                    fieldError = new FieldError("form", "Photo", "Photo is invalid");
+                    return ResponseEntity.badRequest().body(fieldError);
+
+                }
+            } else {
+                status.setFailed(status.getFailed() + 1);
+                LOG.error("Error staging recipient picture file {}", picture);
+                fieldError = new FieldError("form", "Photo", "Cannot upload the file.");
+                return ResponseEntity.badRequest().body(fieldError);
+            }
         }
 
         ResourceService.UpdateResult updateResult = switch (type) {
-            case primary -> fileUploadService.getResourceService().storeMainRecipientPhoto(photo, form.getHousehold());
-            case secondary -> fileUploadService.getResourceService().storeAlternateRecipientPhoto(photo, form.getHousehold());
+            case primary -> resourceService.storeMainRecipientPhoto(picture, householdId);
+            case secondary ->
+                    resourceService.storeAlternateRecipientPhoto(picture, householdId);
         };
 
         if (!updateResult.stored()) {
-            LOG.error("Failure uploading photo file");
+            fieldError = new FieldError("form", "File", "File upload failed.");
+            return ResponseEntity.badRequest().body(fieldError);
         }
 
-        switch (type) {
-            case secondary -> {
-                recipient.setAltRecipient(form.getId()); // TODO For alternate other, require extra data
-                recipient.setAltPhoto(updateResult.name());
-                recipient.setAltPhotoType(updateResult.type());
-            }
+       switch (type) {
             case primary -> {
+                // verify household member existence
+                if (!beneficiaryService.householdMemberExists(householdId, form.getId())) {
+                    return ResponseEntity.notFound().build();
+                }
                 recipient.setMainRecipient(form.getId());
                 recipient.setMainPhoto(updateResult.name());
                 recipient.setMainPhotoType(updateResult.type());
             }
+            case secondary -> {
+                recipient.setAltPhoto(updateResult.name());
+                recipient.setAltPhotoType(updateResult.type());
+                AlternateRecipient altRecipient = enrollmentService.getAlternateRecipientByHouseholdId(householdId);
+                if(altRecipient == null){
+                    altRecipient = new AlternateRecipient();
+                }
+                // check if recipient is member or other
+                if (form.getAltType().equals(AlternateRecipientType.member)) {
+                    Individual individual = beneficiaryService.getIndividual(form.getId());
+                    if (individual == null){
+                        return ResponseEntity.notFound().build();
+                    }
+                    recipient.setAltRecipient(individual.getId());
+                    altRecipient.setGender(individual.getGender());
+                    altRecipient.setLastName(individual.getLastName());
+                    altRecipient.setFirstName(individual.getFirstName());
+                    altRecipient.setNationalId(individual.getIndividualId());
+                    altRecipient.setHouseholdId(individual.getHouseholdId());
+                    altRecipient.setDateOfBirth(individual.getDateOfBirth());
+                    altRecipient.setIdIssueDate(individual.getIdIssueDate());
+                    altRecipient.setIdExpiryDate(individual.getIdExpiryDate());
+                } else {  // type is other
+                    altRecipient.setGender(form.getGender());
+                    altRecipient.setLastName(form.getLastName());
+                    altRecipient.setFirstName(form.getFirstName());
+                    altRecipient.setNationalId(form.getNationalId());
+                    altRecipient.setHouseholdId(form.getHousehold());
+                    altRecipient.setDateOfBirth(form.getDateOfBirth());
+                    altRecipient.setIdExpiryDate(form.getIdExpiryDate());
+                    altRecipient.setIdIssueDate(form.getIdIssueDate());
+                    // TODO All data must be validated if present,
+                }
+
+                enrollmentService.saveAlternateRecipient(altRecipient);
+                recipient.setAltRecipient(altRecipient.getId());
+            }
         }
 
-        enrollmentService.saveEnrollment(enrollment);
         enrollmentService.saveHouseholdRecipient(recipient);
 
-        return ResponseEntity.ok("{}");
+        return ResponseEntity.ok().build();
     }
+
+    @GetMapping(value = "/school-children", produces = MediaType.APPLICATION_JSON_VALUE)
+    @AdminAndStandardAccessOnly
+    ResponseEntity<Map<String, Object>> getSchoolChildren(@RequestParam(value = "household") Long householdId) {
+        List<Individual> children = beneficiaryService.findSchoolChildren(householdId);
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("children", children);
+        return ResponseEntity
+                .ok()
+                .body(response);
+    }
+
+    @GetMapping(value = "/schools", produces = MediaType.APPLICATION_JSON_VALUE)
+    @AdminAndStandardAccessOnly
+    ResponseEntity<Map<String, Object>> getSchools() {
+        List<SchoolsView> schools = schoolService.getSchools();
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("schools", schools);
+        return ResponseEntity
+                .ok()
+                .body(response);
+    }
+
+    @GetMapping(value = "/education-levels", produces = MediaType.APPLICATION_JSON_VALUE)
+    @AdminAndStandardAccessOnly
+    ResponseEntity<Map<String, Object>> getEducationLevels() {
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("educationLevels", EducationLevel.VALUES);
+        return ResponseEntity
+                .ok()
+                .body(response);
+    }
+
+    @GetMapping(value = "/grade-levels", produces = MediaType.APPLICATION_JSON_VALUE)
+    @AdminAndStandardAccessOnly
+    ResponseEntity<Map<String, Object>> getGradeLevels() {
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("gradeLevels", GradeLevel.VALUES);
+        return ResponseEntity
+                .ok()
+                .body(response);
+    }
+
+    @PostMapping("/update-school")
+    public ResponseEntity<?> updateSchool(
+            @Valid @ModelAttribute SchoolEnrollmentForm form,
+            BindingResult bindingResult
+    ) {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        HouseholdEnrollment enrollment = enrollmentService
+                .findHouseholdEnrollment(form.getSessionId(), form.getHouseholdId());
+
+        if (enrollment == null) {
+            return ResponseEntity.notFound().build();
+        }
+        if (schoolService.findById(form.getSchoolId()).isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        enrollmentService.saveChildrenEnrolledSchool(form);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(value = "/schools-enrolled", produces = MediaType.APPLICATION_JSON_VALUE)
+    @AdminAndStandardAccessOnly
+    ResponseEntity<Map<String, List<SchoolEnrolledView>>> getHouseholdSchoolEnrollments(@RequestParam(value = "household") Long householdId) {
+        List<SchoolEnrolledView> schools = enrollmentService.getSchoolEnrolledViewByHousehold(householdId);
+        Map<String, List<SchoolEnrolledView>> response = new LinkedHashMap<>();
+        response.put("schools", schools);
+        return ResponseEntity
+                .ok()
+                .body(response);
+    }
+
+    @PostMapping("/household-status")
+    public ResponseEntity<?> updateHouseholdStatus(
+            @Valid @ModelAttribute UpdateHouseholdStatusForm form,
+            BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body(bindingResult.getAllErrors());
+        }
+        Long householdId, sessionId;
+        CbtStatus householdStatus;
+        householdId = form.getHousehold();
+        sessionId = form.getSession();
+        householdStatus = form.getStatus();
+        // check if household and session exists
+        HouseholdEnrollment enrollment = enrollmentService
+                .findHouseholdEnrollment(sessionId, householdId);
+        if (enrollment == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (householdStatus.name().equals(CbtStatus.Enrolled.name())){
+            // check if main recipient is set
+            if (enrollmentService.getHouseholdPrimaryRecipient(householdId) == null){
+                return ResponseEntity.badRequest().body("Please set the main recipient first");
+            }
+        }
+        if (!householdStatus.name().equals(CbtStatus.Enrolled.name()) && !householdStatus.name().equals(CbtStatus.Selected.name())){
+            LOG.error("Status should be either selected or enrolled");
+            return ResponseEntity.badRequest().build();
+        }
+        enrollmentService.updateHouseholdEnrollmentStatus(sessionId, householdId, householdStatus);
+
+        return ResponseEntity.ok().build();
+     }
+
+    @GetMapping(value = "/household-status", produces = MediaType.APPLICATION_JSON_VALUE)
+    @AdminAndStandardAccessOnly
+    ResponseEntity<Map<String, Object>> getHouseholdEnrollmentStatus(@RequestParam("session") Long sessionId, @RequestParam("household") Long householdId) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        String status = enrollmentService.getHouseholdEnrollmentStatus(sessionId, householdId);
+        response.put("householdStatus", status);
+        return ResponseEntity
+                .ok()
+                .body(response);
+    }
+
 }

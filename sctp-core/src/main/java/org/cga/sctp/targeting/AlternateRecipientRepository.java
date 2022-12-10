@@ -32,10 +32,11 @@
 
 package org.cga.sctp.targeting;
 
+import org.cga.sctp.targeting.enrollment.AlternateHouseholdRecipient;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AlternateRecipientRepository extends JpaRepository<AlternateRecipient,Long> {
-
+    AlternateRecipient getByHouseholdId(Long householdId);
 }

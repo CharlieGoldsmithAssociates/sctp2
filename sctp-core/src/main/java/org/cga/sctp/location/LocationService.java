@@ -113,6 +113,10 @@ public class LocationService extends TransactionalService {
         return parent.level < child.level;
     }
 
+    public boolean isValidLocationCode(Long code) {
+        return locationRepository.existsByCode(code);
+    }
+
     public void addLocation(Location geoLocation) {
         locationRepository.save(geoLocation);
     }
@@ -175,6 +179,14 @@ public class LocationService extends TransactionalService {
 
     public List<LocationCode> getLocationCodesByParent(Long parentCode) {
         return locationRepository.getCodesByParentCode(parentCode);
+    }
+
+    public List<LocationCode> getLocationCodesByParentIn(List<Long> parentCodes) {
+        return locationRepository.getCodesByParentCodeIn(parentCodes);
+    }
+
+    public List<LocationCode> findAllByCodeIn(List<Long> codes) {
+        return locationRepository.findAllByCodeIn(codes);
     }
 
     public List<LocationCode> getActiveDistrictCodes() {

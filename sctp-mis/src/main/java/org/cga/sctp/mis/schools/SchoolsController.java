@@ -41,7 +41,9 @@ import org.cga.sctp.schools.SchoolService;
 import org.cga.sctp.schools.educationzone.EducationZone;
 import org.cga.sctp.targeting.importation.parameters.EducationLevel;
 import org.cga.sctp.user.AdminAccessOnly;
+import org.cga.sctp.user.AdminAndStandardAccessOnly;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -65,9 +67,11 @@ public class SchoolsController extends BaseController {
     private LocationService locationService;
 
     @GetMapping
-    ModelAndView index() {
+    @AdminAndStandardAccessOnly
+    public ModelAndView index(Pageable pageable) {
+        var schools = schoolsService.getActiveSchools(pageable);
         return view("schools/list")
-                .addObject("schools", schoolsService.getSchoolRepository().findAll());
+                .addObject("schools", schools);
     }
 
     @GetMapping("/new")

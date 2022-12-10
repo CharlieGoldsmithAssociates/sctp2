@@ -41,10 +41,13 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface SchoolRepository extends JpaRepository<School,Long> {
+public interface SchoolRepository extends JpaRepository<School, Long> {
 
     @Query(nativeQuery = true, value = "select * from schools_v")
     List<SchoolsView> getSchools();
+
+    @Query(nativeQuery = true, value =  "select * from schools_v")
+    Page<SchoolsView> getActiveSchoolsView(Pageable pageable);
 
     @Query
     Page<School> findAllByActive(boolean value, Pageable pageable);

@@ -36,7 +36,7 @@
             },
 
             components: {
-                'NewPeriod': httpVueLoader('/components/transfers/NewPeriod.vue')
+                'NewPeriod': httpVueLoader('/components/transfers/periods/NewPeriod.vue')
             }
         };
 

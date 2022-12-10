@@ -30,6 +30,7 @@
   ~ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 <script>
+
 module.exports = {
   data() {
     return {
@@ -40,8 +41,13 @@ module.exports = {
       periodMonthlyView: {},
       selectedDistrict: null,
       districts: [],
+      villageClusters: [],
+      selectedVillageClusters: new Set(),
+      traditionalAuthorities: [],
+      selectedTraditionalAuthorities: new Set(),
       selectedProgram: null,
-      programs: []
+      programs: [],
+      isSelectAllVillageClusters: false
     }
   },
   mounted() {
@@ -103,6 +109,55 @@ module.exports = {
             vm.isLoading = false
           });
     },
+    getTraditionalAuthorities() {
+      const vm = this;
+
+      const error_message = 'Error getting child locations';
+
+      vm.selectedTraditionalAuthorities = new Set();
+
+      axios.get(`/locations/get-child-locations?id=${vm.selectedDistrict.code}`)
+          .then(function (response) {
+            if (response.status === 200 && isJsonContentType(response.headers['content-type'])) {
+              vm.traditionalAuthorities = response.data;
+            } else {
+              vm.snackbar(error_message, 'warning');
+            }
+          })
+          .catch(function (error) {
+            vm.snackbar(error_message, 'danger');
+          })
+          .then(function () {
+            vm.isLoading = false
+          });
+    },
+    getVillageClusters() {
+      const vm = this;
+
+      const error_message = 'Error getting child locations';
+
+      vm.selectedVillageClusters = new Set();
+
+      if (vm.selectedTraditionalAuthorities.size === 0) {
+        vm.villageClusters = [];
+        return;
+      }
+
+      axios.get(`/locations/get-child-locations/multiple?ids=${[...vm.selectedTraditionalAuthorities]}`)
+          .then(function (response) {
+            if (response.status === 200 && isJsonContentType(response.headers['content-type'])) {
+              vm.villageClusters = response.data;
+            } else {
+              vm.snackbar(error_message, 'warning');
+            }
+          })
+          .catch(function (error) {
+            vm.snackbar(error_message, 'danger');
+          })
+          .then(function () {
+            vm.isLoading = false
+          });
+    },
     getActiveDistricts() {
       const vm = this;
       vm.isLoading = true
@@ -133,21 +188,24 @@ module.exports = {
 
       const requestBody = {
         programId: vm.selectedProgram,
-        districtId: vm.selectedDistrict,
+        districtCode: vm.selectedDistrict.code,
         startDate: this.formatDate(vm.startDate),
-        endDate: this.formatDate(vm.endDate)
+        endDate: this.formatDate(vm.endDate),
+        traditionalAuthorityCodes: [...vm.selectedTraditionalAuthorities],
+        villageClusterCodes: [...vm.selectedVillageClusters]
       }
+
       axios.post('/transfers/periods/open-new', JSON.stringify(requestBody), config)
           .then(function (response) {
             if (response.status === 200) {
               vm.districts = response.data;
               window.location.href = '/transfers/periods'
             } else {
-              vm.snackbar(error_message, 'warning');
+              vm.snackbar(response.data, 'warning');
             }
           })
           .catch(function (error) {
-            vm.snackbar(error_message, 'danger');
+            vm.snackbar(error.response.data, 'danger');
           })
           .then(function () {
             vm.isLoading = false
@@ -233,15 +291,26 @@ module.exports = {
         <template slot="label">
           <span>District <span class="has-text-danger">*</span> </span>
         </template>
-        <b-select placeholder="Select a district" v-model="selectedDistrict" expanded required>
+        <b-select placeholder="Select a district" v-model="selectedDistrict" @input="getTraditionalAuthorities" expanded required>
           <option
               v-for="option in districts"
-              :value="option.id"
+              :value="option"
               :key="option.id">
             {{ option.name }}
           </option>
         </b-select>
       </b-field>
+      <div class="columns">
+        <div class="column">
+          <v-multiselect label="T/A" :options="traditionalAuthorities" option-label-field="text" option-value-field="id"
+                         :selected="selectedTraditionalAuthorities" @input="getVillageClusters" ></v-multiselect>
+        </div>
+        <div class="column">
+          <v-multiselect label="Village Clusters" :options="villageClusters" option-label-field="text" option-value-field="id"
+                         :selected="selectedVillageClusters"></v-multiselect>
+        </div>
+      </div>
+
       <div class="buttons is-right mt-5">
         <a class="button" href="/transfers/periods">Cancel</a>
         <button @click="openTransferPeriod" class="button is-success" :disabled="!(selectedDistrict && selectedProgram)" >Open Transfer Period &gt;&gt;</button>

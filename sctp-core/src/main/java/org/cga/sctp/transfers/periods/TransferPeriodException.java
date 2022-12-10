@@ -32,7 +32,7 @@
 
 package org.cga.sctp.transfers.periods;
 
-public class TransferPeriodException extends Exception {
+public class TransferPeriodException extends RuntimeException {
 
     public TransferPeriodException(String message) {
         super(message);

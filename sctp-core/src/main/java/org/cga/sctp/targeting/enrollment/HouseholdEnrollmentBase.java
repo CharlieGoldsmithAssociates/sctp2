@@ -35,7 +35,7 @@ package org.cga.sctp.targeting.enrollment;
 import org.cga.sctp.targeting.CbtStatus;
 
 import javax.persistence.*;
-import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 
 @MappedSuperclass
 public class HouseholdEnrollmentBase {
@@ -45,9 +45,9 @@ public class HouseholdEnrollmentBase {
     private Long sessionId;
     private Long householdId;
     private Long reviewerId;
-    private OffsetDateTime createdAt;
-    private OffsetDateTime updatedAt;
-    private OffsetDateTime reviewedAt;
+    private ZonedDateTime createdAt;
+    private ZonedDateTime updatedAt;
+    private ZonedDateTime reviewedAt;
 
     @Enumerated(value = EnumType.STRING)
     @Convert(disableConversion = true)
@@ -93,27 +93,27 @@ public class HouseholdEnrollmentBase {
         this.reviewerId = reviewerId;
     }
 
-    public OffsetDateTime getCreatedAt() {
+    public ZonedDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(OffsetDateTime createdAt) {
+    public void setCreatedAt(ZonedDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public OffsetDateTime getUpdatedAt() {
+    public ZonedDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(OffsetDateTime updatedAt) {
+    public void setUpdatedAt(ZonedDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    public OffsetDateTime getReviewedAt() {
+    public ZonedDateTime getReviewedAt() {
         return reviewedAt;
     }
 
-    public void setReviewedAt(OffsetDateTime reviewedAt) {
+    public void setReviewedAt(ZonedDateTime reviewedAt) {
         this.reviewedAt = reviewedAt;
     }
 }

@@ -34,18 +34,37 @@ package org.cga.sctp.targeting.enrollment;
 
 // TODO Needs validation annotations
 
+import org.cga.sctp.targeting.importation.parameters.EducationLevel;
+import org.cga.sctp.targeting.importation.parameters.GradeLevel;
+
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+
 public class SchoolEnrollmentForm {
+    @NotNull
+    @Min(1)
     private long householdId;
 
+    @NotNull
+    @Min(1)
     private long individualId;
 
+    @NotNull
+    @Min(1)
     private long schoolId;
 
-    private int educationLevel;
+    @NotNull
+    @Min(1)
+    private long sessionId;
 
-    private int grade;
+    @NotNull
+    private EducationLevel educationLevel;
 
-    private int status;
+    @NotNull
+    private GradeLevel grade;
+
+    @NotNull
+    private Boolean status;
 
     public long getHouseholdId() {
         return householdId;
@@ -71,27 +90,35 @@ public class SchoolEnrollmentForm {
         this.schoolId = schoolId;
     }
 
-    public int getEducationLevel() {
+    public long getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(long sessionId) {
+        this.sessionId = sessionId;
+    }
+
+    public EducationLevel getEducationLevel() {
         return educationLevel;
     }
 
-    public void setEducationLevel(int educationLevel) {
+    public void setEducationLevel(EducationLevel educationLevel) {
         this.educationLevel = educationLevel;
     }
 
-    public int getGrade() {
+    public GradeLevel getGrade() {
         return grade;
     }
 
-    public void setGrade(int grade) {
+    public void setGrade(GradeLevel grade) {
         this.grade = grade;
     }
 
-    public int getStatus() {
+    public Boolean getStatus() {
         return status;
     }
 
-    public void setStatus(int status) {
+    public void setStatus(Boolean status) {
         this.status = status;
     }
 }
