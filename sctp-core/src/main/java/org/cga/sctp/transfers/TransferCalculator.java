@@ -137,9 +137,15 @@ public class TransferCalculator {
     }
 
     protected BigDecimal calculateTopUpAmount(Transfer transfer,  List<TopUp> topUpList) {
+        if (topUpList == null) {
+            return BigDecimal.ZERO;
+        }
+        if (topUpList.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
         BigDecimal monthlyAmount = transfer.calculateMonthlyAmount();
         if (monthlyAmount == null) {
-            return null; // TODO: should we set the topup to be 0.0 ?
+            return BigDecimal.ZERO;
         }
         BigDecimal totalTopupAmout = new BigDecimal("0.0");
         BigDecimal curTopUp = null;

@@ -195,7 +195,7 @@ public class Transfer {
     @Column
     private String reconciliationMethod;
 
-    @Column
+    // TODO: @Column
     private LocalDate dateReconciled;
 
     @Column
