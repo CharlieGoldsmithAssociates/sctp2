@@ -142,3 +142,8 @@ input[type="checkbox"].is-medium {
 	 height: 2em;
 }
 /**/
+
+/* Fix selectr dropdown not getting being hidden because it's outside of INPUT */
+.selectr-hidden {
+    display: none !important;
+}
