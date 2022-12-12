@@ -116,7 +116,7 @@ class TransferCalculatorTest {
         assertEquals(BigDecimal.valueOf(4000.0), transfer.getTopupAmount());
 
         BigDecimal expectedTotal = BigDecimal.valueOf(12000.0);
-        assertEquals(expectedTotal, transfer.getTotalAmountToTransfer());
+        assertEquals(expectedTotal, transfer.calculateTotalAmountToTransfer());
     }
 
     private static TopUp createBasicTopUp() {

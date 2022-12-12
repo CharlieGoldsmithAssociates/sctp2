@@ -68,9 +68,6 @@ public class Transfer {
     @Column
     private Integer householdMemberCount;
 
-    @Column
-    private Long recipientId;
-
     /**
      * BIGINT COMMENT 'Amount to receive based on program basic amount or number of household members',
      */
@@ -150,6 +147,9 @@ public class Transfer {
     private String accountNumber;
 
     @Column
+    private BigDecimal totalTransferAmount;
+
+    @Column
     private BigDecimal amountDisbursed;
 
     /**
@@ -195,7 +195,7 @@ public class Transfer {
     @Column
     private String reconciliationMethod;
 
-    // TODO: @Column
+    @Column
     private LocalDate dateReconciled;
 
     @Column
@@ -264,14 +264,6 @@ public class Transfer {
 
     public void setHouseholdMemberCount(Integer householdMemberCount) {
         this.householdMemberCount = householdMemberCount;
-    }
-
-    public Long getRecipientId() {
-        return recipientId;
-    }
-
-    public void setRecipientId(Long recipientId) {
-        this.recipientId = recipientId;
     }
 
     public BigDecimal getBasicSubsidyAmount() {
@@ -498,6 +490,22 @@ public class Transfer {
         this.reviewedBy = reviewedBy;
     }
 
+    public Boolean getFirstTransfer() {
+        return isFirstTransfer;
+    }
+
+    public void setFirstTransfer(Boolean firstTransfer) {
+        isFirstTransfer = firstTransfer;
+    }
+
+    public BigDecimal getTotalTransferAmount() {
+        return totalTransferAmount;
+    }
+
+    public void setTotalTransferAmount(BigDecimal totalTransferAmount) {
+        this.totalTransferAmount = totalTransferAmount;
+    }
+
     public BigDecimal calculateMonthlyAmount() {
         return new BigDecimal("0.0")
                 .add(this.basicSubsidyAmount)
@@ -506,7 +514,7 @@ public class Transfer {
                 .add(this.primaryIncentiveAmount);
     }
 
-    public BigDecimal getTotalAmountToTransfer() {
+    public BigDecimal calculateTotalAmountToTransfer() {
         return this.calculateMonthlyAmount()
                 .multiply(BigDecimal.valueOf(this.numberOfMonths))
                 .add(this.topupAmount);

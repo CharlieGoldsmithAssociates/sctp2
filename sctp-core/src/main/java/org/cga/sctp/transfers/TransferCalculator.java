@@ -175,8 +175,12 @@ public class TransferCalculator {
         transfer.setPrimaryIncentiveAmount(primaryIncentive);
         transfer.setPrimaryBonusAmount(primaryBonus);
         transfer.setSecondaryBonusAmount(secondaryBonus);
+
         // Calculate topups
         transfer.setTopupAmount(calculateTopUpAmount(transfer, topUps));
+
+        // Set the calculated total amount
+        transfer.setTotalTransferAmount(transfer.calculateTotalAmountToTransfer());
     }
 
     /**
