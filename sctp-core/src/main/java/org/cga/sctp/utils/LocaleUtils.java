@@ -64,4 +64,11 @@ public final class LocaleUtils {
     public static boolean isDecimalNumber(String value) {
         return value.matches("^\\d{1,19}(\\.\\d{1,19})?$");
     }
+
+    public static String getNationalFromIndividualId(String individualID) {
+        if (individualID.matches("^[0-9A-Za-z]{8}$")) {
+            return individualID.toUpperCase();
+        }
+        return null;
+    }
 }

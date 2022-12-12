@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,56 +30,18 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting.importation.parameters;
+package org.cga.sctp.targeting;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
-public enum Disability implements UbrParameterValue {
-    Blind(1, null),
-    Deaf(2, null),
-    SpeechImpairment(3, "Speech Impairment"),
-    DeformedLimbs(4, "Deformed limbs"),
-    MentallyDisabled(5, "Mentally disabled"),
-    Albinism(6, null),
-    Other(7, null),
-    NotDisabled(8, "Not disabled");
+import java.util.List;
 
-    public final int code;
-    public final String text;
+@Repository
+interface EligibleHouseholdMemberRepository extends JpaRepository<EligibleHouseholdMember, Long> {
 
-    Disability(int code, String text) {
-        this.code = code;
-        this.text = text;
-    }
-
-    @Override
-    public String toString() {
-        return text != null ? text : name();
-    }
-
-    @Override
-    public int getCode() {
-        return code;
-    }
-
-    public static final Disability[] VALUES = values();
-
-    public static Disability parseCode(String code) {
-        return parseIntCode(Integer.parseInt(code));
-    }
-
-    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    private static Disability parseIntCode(int code) {
-        for(Disability e: VALUES) {
-            if (e.code == code) return e;
-        }
-
-        return null;
-    }
-
-    @JsonValue
-    public String getValueLiteral() {
-        return name();
-    }
+    @Query(nativeQuery = true, value = "select * from eligible_household_members_view where session_id = :ssid LIMIT :page, :pageSize")
+    List<EligibleHouseholdMember> getPaged(@Param("ssid") Long sessionId, @Param("page") int page, @Param("pageSize") int pageSize);
 }

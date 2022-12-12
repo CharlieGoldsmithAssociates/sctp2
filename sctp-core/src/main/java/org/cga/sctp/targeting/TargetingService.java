@@ -37,13 +37,18 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.WorkbookUtil;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.cga.sctp.core.TransactionalService;
 import org.cga.sctp.targeting.criteria.*;
 import org.cga.sctp.targeting.enrollment.EnrolmentSessionRepository;
 import org.cga.sctp.utils.CollectionUtils;
+import org.cga.sctp.utils.LocaleUtils;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.*;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
@@ -60,7 +65,9 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -122,6 +129,9 @@ public class TargetingService extends TransactionalService {
 
     @Autowired
     private TargetedHouseholdSummaryV2Repository targetedHouseholdSummaryV2Repository;
+
+    @Autowired
+    private EligibleHouseholdMemberRepository eligibleHouseholdMemberRepository;
 
     public void saveTargetingSession(TargetingSession targetingSession) {
         targetingSessionRepository.save(targetingSession);
@@ -770,5 +780,126 @@ public class TargetingService extends TransactionalService {
     private void addCell(Row row, int index, String data) {
         Cell cell = row.createCell(index);
         cell.setCellValue(data);
+    }
+
+    public Resource exportEligibleHouseholdsWithMemberDetails(EligibilityVerificationSessionView session) {
+        Path filePath = null;
+        Path tmp_path = Path.of(System.getProperty("java.io.tmpdir")).toAbsolutePath().normalize();
+
+        String timestamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmm")
+                .withLocale(Locale.US)
+                .format(session.getCreatedAt());
+
+        String filename = LocaleUtils.fileName(format(
+                        "%s_%s_%s_%s_%s",
+                        session.getDistrictName(),
+                        session.getTaName(),
+                        session.getProgramName(),
+                        session.getCriterionName(),
+                        timestamp
+                )
+        );
+
+        try {
+            filePath = Files.createTempFile(tmp_path, filename, ".xlsx");
+            exportEligibleHouseholds(session, filePath);
+        } catch (Exception e) {
+            LOG.error("Exception exporting eligible households list to {}", tmp_path, e);
+            if (filePath != null) {
+                try {
+                    Files.delete(filePath);
+                } catch (Exception ignore) {
+                }
+            }
+            return null;
+        }
+
+        return filePath != null ? new FileSystemResource(filePath) : null;
+    }
+
+    /**
+     * Stream data to excel file instead of holding it all in memory
+     *
+     * @param session .
+     */
+    private void exportEligibleHouseholds(EligibilityVerificationSessionView session, Path filePath) {
+        try (SXSSFWorkbook workbook = new SXSSFWorkbook();
+             FileOutputStream fos = new FileOutputStream(filePath.toFile())) {
+
+            workbook.setCompressTempFiles(true);
+
+            SXSSFSheet sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName("Households"));
+
+            // only keep 100 items in memory. Excess will be flushed to file.
+            sheet.setRandomAccessWindowSize(20);
+
+            final Row titleRow = sheet.createRow(0);
+            titleRow.createCell(0).setCellValue("Eligible Household Member List");
+            titleRow.createCell(1).setBlank();
+            titleRow.createCell(2).setCellValue(format("T/A: %s", session.getTaName()));
+
+            final Row headerRow = sheet.createRow(1);
+
+            headerRow.createCell(0).setCellValue("HOUSEHOLD CODE");
+            headerRow.createCell(1).setCellValue("FORM NUMBER");
+            headerRow.createCell(2).setCellValue("NAME");
+            headerRow.createCell(3).setCellValue("MEMBER CODE");
+            headerRow.createCell(4).setCellValue("D.O.B");
+            headerRow.createCell(5).setCellValue("AGE");
+            headerRow.createCell(6).setCellValue("RELATIONSHIP");
+            headerRow.createCell(7).setCellValue("NATIONAL ID");
+            headerRow.createCell(8).setCellValue("DISABILITY");
+            headerRow.createCell(9).setCellValue("CHRONIC ILLNESS");
+
+            // location
+            headerRow.createCell(10).setCellValue("CLUSTER");
+            headerRow.createCell(11).setCellValue("ZONE");
+            headerRow.createCell(12).setCellValue("VILLAGE");
+
+            int pageSize = 100, page = 0, rowIndex = 2;
+            while (true) {
+                List<EligibleHouseholdMember> memberList = eligibleHouseholdMemberRepository
+                        .getPaged(session.getId(), page, pageSize);
+                if (memberList.isEmpty()) {
+                    break;
+                }
+
+                // append to excel
+                for (EligibleHouseholdMember eligibleHouseholdMember : memberList) {
+                    Row row = sheet.createRow(rowIndex);
+
+                    row.createCell(0).setCellValue(eligibleHouseholdMember.getHouseholdCode());
+                    row.createCell(1).setCellValue(eligibleHouseholdMember.getFormNumber());
+                    row.createCell(2).setCellValue(eligibleHouseholdMember.getName());
+                    row.createCell(3).setCellValue(eligibleHouseholdMember.getMemberCode());
+                    row.createCell(4).setCellValue(DateTimeFormatter.ofPattern("yyyy-MM-dd").format(eligibleHouseholdMember.getDateOfBirth()));
+                    row.createCell(5).setCellValue(eligibleHouseholdMember.getAge());
+                    row.createCell(6).setCellValue(eligibleHouseholdMember.getRelationship().name());
+                    row.createCell(7).setCellValue(LocaleUtils.getNationalFromIndividualId(eligibleHouseholdMember.getNationalId()));
+                    row.createCell(8).setCellValue(eligibleHouseholdMember.getDisability().toString());
+                    row.createCell(9).setCellValue(eligibleHouseholdMember.getChronicIllness().toString());
+
+                    // location
+                    row.createCell(10).setCellValue(eligibleHouseholdMember.getCluster());
+                    row.createCell(11).setCellValue(eligibleHouseholdMember.getZone());
+                    row.createCell(12).setCellValue(eligibleHouseholdMember.getVillage());
+
+                    rowIndex++;
+                }
+
+                // last page?
+                if (memberList.size() < pageSize) {
+                    break;
+                }
+
+                page += pageSize;
+            }
+
+            workbook.write(fos);
+            workbook.dispose();
+
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
+        }
     }
 }

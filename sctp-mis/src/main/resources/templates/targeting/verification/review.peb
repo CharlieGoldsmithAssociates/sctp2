@@ -34,6 +34,9 @@
                         </div>
                         <div class="dropdown-menu" id="ibd" role="menu">
                             <div class="dropdown-content">
+                                <a class="dropdown-item"
+                                   target="_blank"
+                                   href="/verification/export/with-member-details?session-id={{ verification.id }}">Export With Member Details</a>
                                 <a onclick="downloadTableToCsv('{{ verification.districtName }}-pre-eligibility-verification-results', [1,7])"
                                    class="dropdown-item">Save As CSV</a>
                                 <a onclick="firstDataTable.print()" class="dropdown-item">Print</a>

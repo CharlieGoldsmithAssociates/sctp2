@@ -22,6 +22,7 @@ import org.cga.sctp.user.AdminAndStandardAccessOnly;
 import org.cga.sctp.user.AuthenticatedUser;
 import org.cga.sctp.user.AuthenticatedUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
@@ -174,6 +175,24 @@ public class EligibilityVerificationController extends BaseController {
         return view("targeting/verification/review", "households", households)
                 .addObject("verification", verificationSessionView);
     }
+
+    @AdminAndStandardAccessOnly
+    @GetMapping("/export/with-member-details")
+    public ResponseEntity<Resource> exportEligibleHouseholdsWithMemberDetails(@RequestParam("session-id") long id) {
+        EligibilityVerificationSessionView session = targetingService.findVerificationViewById(id);
+        if (session == null) {
+            return ResponseEntity.notFound().build();
+        }
+        Resource resource = targetingService.exportEligibleHouseholdsWithMemberDetails(session);
+        if (resource == null) {
+            return ResponseEntity.internalServerError().build();
+        }
+        return ResponseEntity.status(200)
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header("Content-Disposition", format("filename=%s", resource.getFilename()))
+                .body(resource);
+    }
+
 
     @AdminAndStandardAccessOnly
     @GetMapping("/hh-composition")
