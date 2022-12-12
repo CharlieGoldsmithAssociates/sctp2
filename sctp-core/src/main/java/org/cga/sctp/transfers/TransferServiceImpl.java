@@ -188,9 +188,8 @@ public class TransferServiceImpl implements TransferService {
             newTransfer.setHouseholdId(hh.getHouseholdId());
             newTransfer.setTransferState(TransferStatus.OPEN);
             newTransfer.setTransferAgencyId(0L);
-            var recipientId = 0L; //TODO Long.parseLong(hh.getPrimaryRecipient().getIndividualId());
-            newTransfer.setReceiverId(recipientId); // TODO: remove fields?
-            newTransfer.setRecipientId(recipientId); // TODO: remove fields?
+            var recipientId = hh.getPrimaryRecipient().getMemberId();
+            newTransfer.setReceiverId(recipientId);
             newTransfer.setTransferPeriodId(transferPeriod.getId());
             newTransfer.setHouseholdMemberCount(hh.getMemberCount().intValue());
             newTransfer.setChildrenCount(hh.getChildEnrollment6to15());
@@ -209,13 +208,13 @@ public class TransferServiceImpl implements TransferService {
     //        newTransfer.setDisbursedByUserId(null);
     //        newTransfer.setTopupEventId(null);
     //        newTransfer.setTopupAmount(null);
-    //        newTransfer.setReconciled(false);
-    //        newTransfer.setReconciliationMethod(null);
-    //        newTransfer.setDateReconciled(null);
+            newTransfer.setReconciled(false);
+            newTransfer.setReconciliationMethod(null);
+            newTransfer.setDateReconciled(null);
             newTransfer.setCreatedAt(ZonedDateTime.now());
             newTransfer.setModifiedAt(ZonedDateTime.now());
             newTransfer.setCreatedBy(userId);
-            newTransfer.setReviewedBy(null);
+            newTransfer.setReviewedBy(userId);
 
             transferList.add(newTransfer);
         }
@@ -346,7 +345,7 @@ public class TransferServiceImpl implements TransferService {
             transfer.setAmountDisbursed(reconciliation.getAmountTransferred());
             transfer.setCollected(true);
             // TODO: Calculate the arrears for each transfer
-            transfer.setArrearsAmount(transfer.getAmountDisbursed().subtract(transfer.getTotalAmountToTransfer()));
+            transfer.setArrearsAmount(transfer.getAmountDisbursed().subtract(transfer.getTotalTransferAmount()));
             // TODO: we need to have somewhere else to track arrears?
             transfer.setDisbursedByUserId(reconciliation.getReconcilingUserId());
         }
