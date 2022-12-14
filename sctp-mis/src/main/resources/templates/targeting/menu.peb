@@ -36,14 +36,14 @@
                             <h4 class="menu-label has-text-primary">Targeting Criteria</h4>
                             <ul class="menu-list">
                                 <li>
-                                    <a href="/transfers/parameters">
+                                    <a href="/criteria/new">
                                     <span class="icon">
                                         <i class="fas fa-angle-right"></i>
                                     </span>
                                         Create new targeting criteria</a>
                                 </li>
                                 <li>
-                                    <a href="/transfers/parameters/new">
+                                    <a href="/criteria">
                                     <span class="icon">
                                         <i class="fas fa-angle-right"></i>
                                     </span>
@@ -57,14 +57,14 @@
                             <h4 class="menu-label has-text-primary">Pre-Eligibility Verification</h4>
                             <ul class="menu-list">
                                 <li>
-                                    <a href="/transfers/topups">
+                                    <a href="/verification/new">
                                     <span class="icon">
                                         <i class="fas fa-angle-right"></i>
                                     </span>
                                         Run new pre-eligibility verification</a>
                                 </li>
                                 <li>
-                                    <a href="/transfers/topups/new">
+                                    <a href="/verification">
                                     <span class="icon">
                                         <i class="fas fa-angle-right"></i>
                                     </span>
@@ -81,14 +81,14 @@
                             <h4 class="menu-label has-text-primary">Community Based Targeting</h4>
                             <ul class="menu-list">
                                 <li>
-                                    <a href="/transfers/topups/new">
+                                    <a href="/targeting/community/new">
                                     <span class="icon">
                                         <i class="fas fa-angle-right"></i>
                                     </span>
                                         Perform new community based targeting</a>
                                 </li>
                                 <li>
-                                    <a href="/transfers/topups/new">
+                                    <a href="/targeting/community">
                                     <span class="icon">
                                         <i class="fas fa-angle-right"></i>
                                     </span>
@@ -120,7 +120,7 @@
                                     <span class="icon">
                                         <i class="fas fa-angle-right"></i>
                                     </span>
-                                        View household by location</a>
+                                        View households</a>
                                 </li>
                                 <li></li>
                             </ul>

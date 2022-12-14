@@ -40,7 +40,6 @@
     {% endblock %}
     <script src="/assets/js/vendor/fiduswriter/simple-datatables.min.js" type="text/javascript"></script>
     <script src="/assets/js/vendor/mobius1/datatable.exportable.min.js" type="text/javascript"></script>
-    {#<script src="/assets/js/vendor/bulma/bulma.js" type="text/javascript"></script>#}
     <script src="/assets/js/vendor/mobius1/selectr.min.js" type="text/javascript"></script>
     <script src="/assets/js/vendor/axios.min.js" type="text/javascript"></script>
     <script src="/assets/js/domready.js"></script>
