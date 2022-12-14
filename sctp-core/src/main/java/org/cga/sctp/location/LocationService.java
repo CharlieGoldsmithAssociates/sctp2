@@ -284,4 +284,8 @@ public class LocationService extends TransactionalService {
     public LocationImportSession getLocationImportSessionById(long sessionId) {
         return importSessionRepository.findById(sessionId).orElse(null);
     }
+
+    public List<HouseholdLocation> getHouseholdLocations(LocationType locationType, Long parentCode) {
+        return locationRepository.getHouseholdLocations(locationType, parentCode);
+    }
 }

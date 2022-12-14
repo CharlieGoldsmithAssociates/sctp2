@@ -96,4 +96,33 @@ interface LocationRepository extends JpaRepository<Location, Long> {
 
     @Query(nativeQuery = true, value = "SELECT COUNT(l.id) FROM locations l INNER JOIN transfer_agencies_assignments taa ON taa.location_id = l.id  WHERE l.id = :id AND l.active = 1;")
     Integer countNumberOfTransferAgenciesAssigned(@Param("id") Long locationId);
+
+
+    @Query(nativeQuery = true, value = "select district_code code, district_name name, household_count householdCount from household_districts_view")
+    List<HouseholdLocation> getHouseholdDistricts();
+
+    @Query(nativeQuery = true, value = "select ta_code code, ta_name name, household_count householdCount from household_traditional_authorities_view")
+    List<HouseholdLocation> getHouseholdTAs();
+
+    @Query(nativeQuery = true, value = "select ta_code code, ta_name name, household_count householdCount from household_traditional_authorities_view where district_code = :code")
+    List<HouseholdLocation> getHouseholdTAsByDistrictCode(@Param("code") long parentCode);
+
+    @Query(nativeQuery = true, value = "select cluster_code code, cluster_name name, household_count householdCount from household_clusters_view")
+    List<HouseholdLocation> getHouseholdClusters();
+
+    @Query(nativeQuery = true, value = "select cluster_code code, cluster_name name, household_count householdCount from household_clusters_view where ta_code = :code")
+    List<HouseholdLocation> getHouseholdClustersByTaCode(@Param("code") long parentCode);
+
+    default List<HouseholdLocation> getHouseholdLocations(LocationType locationType, Long parentCode) {
+        return
+                switch (locationType) {
+                    case SUBNATIONAL1 -> getHouseholdDistricts();
+                    case SUBNATIONAL2 ->
+                            parentCode != null ? getHouseholdTAsByDistrictCode(parentCode) : getHouseholdTAs();
+                    case SUBNATIONAL3 ->
+                            parentCode != null ? getHouseholdClustersByTaCode(parentCode) : getHouseholdClusters();
+                    default ->
+                            throw new UnsupportedOperationException("Location type " + locationType + " currently not supported");
+                };
+    }
 }

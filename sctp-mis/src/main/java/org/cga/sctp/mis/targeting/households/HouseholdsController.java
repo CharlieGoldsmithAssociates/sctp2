@@ -30,21 +30,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.mis.location;
+package org.cga.sctp.mis.targeting.households;
 
-import org.cga.sctp.location.LocationCode;
-import org.cga.sctp.mis.core.templating.SelectOptionItem;
+import org.cga.sctp.mis.core.BaseController;
+import org.cga.sctp.user.AdminAndStandardAccessOnly;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
-import java.util.List;
-import java.util.stream.Collectors;
+@Controller
+@RequestMapping("/targeting/households")
+@AdminAndStandardAccessOnly
+public class HouseholdsController extends BaseController {
 
-public final class LocationCodeUtil {
-    LocationCodeUtil() {}
-
-    public static List<SelectOptionItem> toSelectOptions(List<LocationCode> codes) {
-        return codes.stream()
-                .map(locationCode -> new SelectOptionItem(locationCode.getCode(),
-                        locationCode.getName(), locationCode.getCode()))
-                .collect(Collectors.toList());
+    @GetMapping("/by-location")
+    ModelAndView index() {
+        return view("targeting/households/by-location");
     }
 }

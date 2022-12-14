@@ -62,7 +62,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.Objects.isNull;
-import static org.cga.sctp.mis.location.LocationCodeUtil.toSelectOptions;
+import static org.cga.sctp.mis.location.LocationUtils.toSelectOptions;
 
 /**
  * This is mostly an MVC controller but also contains some controller actions that
@@ -400,5 +400,16 @@ public class LocationController extends BaseController {
     @AdminAndStandardAccessOnly
     public ResponseEntity<List<Location>> getActiveDistricts() {
         return ResponseEntity.ok(locationService.getActiveDistricts());
+    }
+
+    @AdminAndStandardAccessOnly
+    @GetMapping(value = "/get-household-locations/{location-type}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<SelectOptionItem>> getHouseholdLocations(
+            @PathVariable("location-type") LocationType locationType,
+            @RequestParam(value = "parent-code", defaultValue = "1") Long parentCode) {
+        List<HouseholdLocation> locations = locationService.getHouseholdLocations(locationType, parentCode);
+        return ResponseEntity
+                .ok().contentType(MediaType.APPLICATION_JSON)
+                .body(LocationUtils.householdLocationsToSelectOptions(locations));
     }
 }

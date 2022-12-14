@@ -1,0 +1,134 @@
+    {% extends "base" %}
+    {% block content %}
+    <div class="content-container">
+        <div class="card">
+            <div class="card-header">
+                <p class="card-header-title">Targeting &amp; Enrollment Menu</p>
+            </div>
+            <div class="card-content">
+                <div class="columns">
+                    <div class="column">
+                        <div class="menu">
+                            <p class="menu-label has-text-primary">
+                                Household Data Import
+                            </p>
+                            <ul class="menu-list">
+                                <li>
+                                    <a href="/data-import/from-ubr-api">
+                                        <span class="icon">
+                                            <i class="fas fa-angle-right"></i>
+                                        </span>
+                                        Import data from UBR
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/data-import">
+                                    <span class="icon">
+                                        <i class="fas fa-angle-right"></i>
+                                    </span>
+                                        View data import list</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="menu">
+                            <h4 class="menu-label has-text-primary">Targeting Criteria</h4>
+                            <ul class="menu-list">
+                                <li>
+                                    <a href="/transfers/parameters">
+                                    <span class="icon">
+                                        <i class="fas fa-angle-right"></i>
+                                    </span>
+                                        Create new targeting criteria</a>
+                                </li>
+                                <li>
+                                    <a href="/transfers/parameters/new">
+                                    <span class="icon">
+                                        <i class="fas fa-angle-right"></i>
+                                    </span>
+                                        View targeting criteria list</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="menu">
+                            <h4 class="menu-label has-text-primary">Pre-Eligibility Verification</h4>
+                            <ul class="menu-list">
+                                <li>
+                                    <a href="/transfers/topups">
+                                    <span class="icon">
+                                        <i class="fas fa-angle-right"></i>
+                                    </span>
+                                        Run new pre-eligibility verification</a>
+                                </li>
+                                <li>
+                                    <a href="/transfers/topups/new">
+                                    <span class="icon">
+                                        <i class="fas fa-angle-right"></i>
+                                    </span>
+                                        View pre-eligibility verification list</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="columns">&nbsp;</div>
+                <div class="columns">
+                    <div class="column">
+                        <div class="menu">
+                            <h4 class="menu-label has-text-primary">Community Based Targeting</h4>
+                            <ul class="menu-list">
+                                <li>
+                                    <a href="/transfers/topups/new">
+                                    <span class="icon">
+                                        <i class="fas fa-angle-right"></i>
+                                    </span>
+                                        Perform new community based targeting</a>
+                                </li>
+                                <li>
+                                    <a href="/transfers/topups/new">
+                                    <span class="icon">
+                                        <i class="fas fa-angle-right"></i>
+                                    </span>
+                                        View community based targeting list</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="menu">
+                            <h4 class="menu-label has-text-primary">Enrollment</h4>
+                            <ul class="menu-list">
+                                <li>
+                                    <a href="/targeting/enrolment">
+                                    <span class="icon">
+                                        <i class="fas fa-angle-right"></i>
+                                    </span>
+                                        View enrollment lists</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="menu">
+                            <h4 class="menu-label has-text-primary">Households</h4>
+                            <ul class="menu-list">
+                                <li>
+                                    <a href="/targeting/households/by-location">
+                                    <span class="icon">
+                                        <i class="fas fa-angle-right"></i>
+                                    </span>
+                                        View household by location</a>
+                                </li>
+                                <li></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    {% endblock %}

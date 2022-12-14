@@ -55,7 +55,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
-import static org.cga.sctp.mis.location.LocationCodeUtil.toSelectOptions;
+import static org.cga.sctp.mis.location.LocationUtils.toSelectOptions;
 
 @Controller
 @RequestMapping("/schools/education-zones")
