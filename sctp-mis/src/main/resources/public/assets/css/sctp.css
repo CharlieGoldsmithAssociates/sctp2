@@ -147,3 +147,10 @@ input[type="checkbox"].is-medium {
 .selectr-hidden {
     display: none !important;
 }
+
+/* Fix menu dropdown not stretching to fit parent container */
+.dropdown:hover > .dropdown-menu .dropdown-content {
+    width: fill-available;
+    width: -webkit-fill-available;
+    width: -moz-fill-available;
+}
