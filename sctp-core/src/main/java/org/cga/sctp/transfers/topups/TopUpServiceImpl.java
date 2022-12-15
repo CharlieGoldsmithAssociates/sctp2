@@ -93,9 +93,9 @@ public class TopUpServiceImpl implements TopUpService {
         topUp.setExecuted(false);
         topUp.setAmountExecuted(null);
         topUp.setAmountProjected(null);
+        topUp.setCategorical(params.isCategorical());
 
         if (params.isCategorical()) {
-            topUp.setCategorical(params.isCategorical());
             topUp.setCategoricalTargetingCriteriaId(params.getCategoricalTargetingCriteriaId());
             // TODO: handle categorical parameters - create criteria record and link to the topup
             // TODO: handle params.getOrphanhoodStatuses() et al

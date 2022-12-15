@@ -34,6 +34,7 @@ package org.cga.sctp.transfers.topups;
 
 import org.cga.sctp.location.LocationType;
 
+import javax.persistence.Convert;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -47,8 +48,8 @@ public interface TopUpView {
     String getProgramName();
     Long getDistrictCode();
     String getDistrictName();
-    Set<Long> getClusterCodes();
-    Set<Long> getTaCodes();
+    String getClusterCodes();
+    String getTaCodes();
     LocationType getLocationType();
     Boolean getDiscountedFromFunds();
     Boolean getCategorical();

@@ -324,4 +324,33 @@ public class TopUp {
     public void setUpdatedAt(ZonedDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+    @Override
+    public String toString() {
+        return "TopUp{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", programId=" + programId +
+                ", funderId=" + funderId +
+                ", districtCode=" + districtCode +
+                ", taCodes=" + taCodes +
+                ", clusterCodes=" + clusterCodes +
+                ", locationType=" + locationType +
+                ", isDiscountedFromFunds=" + isDiscountedFromFunds +
+                ", isCategorical=" + isCategorical +
+                ", isActive=" + isActive +
+                ", isExecuted=" + isExecuted +
+                ", topupType=" + topupType +
+                ", householdStatus=" + householdStatus +
+                ", percentage=" + percentage +
+                ", categoricalTargetingCriteriaId=" + categoricalTargetingCriteriaId +
+                ", fixedAmount=" + fixedAmount +
+                ", amountProjected=" + amountProjected +
+                ", amountExecuted=" + amountExecuted +
+                ", createdBy=" + createdBy +
+                ", updatedBy=" + updatedBy +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
+    }
 }
