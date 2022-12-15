@@ -32,9 +32,78 @@
 
 package org.cga.sctp.transfers;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import java.math.BigDecimal;
 
 @Entity
-@Table(name = "transfers")
-public class Transfer extends TransferBase{
+@Table(name = "transfers_v")
+public class TransferView extends TransferBase{
+    @Column
+    private String householdMlCode;
+    @Column
+    private String formNumber;
+    @Column
+    private String transferAgencyName;
+    @Column
+    private Long mainRecipientId;
+    @Column
+    private Long altRecipientId;
+    @Column
+    private String mainRecipientPhoto;
+    @Column
+    private String altRecipientPhoto;
+    @Column
+    private String mainRecipientName;
+    @Column
+    private String altRecipientName;
+    @Column
+    private BigDecimal totalAmountToTransfer;
+    @Column
+    private BigDecimal monthlyAmount;
+
+    public String getHouseholdMlCode() {
+        return householdMlCode;
+    }
+
+    public String getFormNumber() {
+        return formNumber;
+    }
+
+    public String getTransferAgencyName() {
+        return transferAgencyName;
+    }
+
+    public Long getMainRecipientId() {
+        return mainRecipientId;
+    }
+
+    public Long getAltRecipientId() {
+        return altRecipientId;
+    }
+
+    public String getMainRecipientPhoto() {
+        return mainRecipientPhoto;
+    }
+
+    public String getAltRecipientPhoto() {
+        return altRecipientPhoto;
+    }
+
+    public String getMainRecipientName() {
+        return mainRecipientName;
+    }
+
+    public String getAltRecipientName() {
+        return altRecipientName;
+    }
+
+    public BigDecimal getTotalAmountToTransfer() {
+        return totalAmountToTransfer;
+    }
+
+    public BigDecimal getMonthlyAmount() {
+        return monthlyAmount;
+    }
 }

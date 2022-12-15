@@ -74,6 +74,9 @@ public class TransferServiceImpl implements TransferService {
     private TransfersRepository transfersRepository;
 
     @Autowired
+    private TransferViewRepository transferViewRepository;
+
+    @Autowired
     private InitiateTransfersRepository initiateRepo;
 
     @Autowired
@@ -161,8 +164,52 @@ public class TransferServiceImpl implements TransferService {
     }
 
     @Override
-    public List<Transfer> fetchTransferListByPeriodAndLocation(Long periodId, long districtCode, Long taCode, Long villageCluster, Long zone, Long village, Pageable pageable) {
-        return transfersRepository.findAllByPeriodByLocationToVillageLevel(
+    public List<TransferView> fetchTransferViewsByPeriodAndLocation(Long periodId, long districtCode, Long taCode, Long villageCluster, Long zone, Long village, Pageable pageable) {
+        // district, ta, cluster, zone, village
+        if (taCode == 0) {      // find up to district level
+            return transferViewRepository.findAllByPeriodByLocationToDistrictLevel(
+                    periodId,
+                    districtCode,
+                    pageable.getPageNumber(),
+                    pageable.getPageSize()
+            );
+        }
+
+        if (villageCluster == 0) {  // find up to TA level
+            return transferViewRepository.findAllByPeriodByLocationToTALevel(
+                    periodId,
+                    districtCode,
+                    taCode,
+                    pageable.getPageNumber(),
+                    pageable.getPageSize()
+            );
+        }
+
+        if (zone == 0) {  // find up to cluster level
+            return transferViewRepository.findAllByPeriodByLocationToClusterLevel(
+                    periodId,
+                    districtCode,
+                    taCode,
+                    villageCluster,
+                    pageable.getPageNumber(),
+                    pageable.getPageSize()
+            );
+        }
+
+        if (village == 0) {  // find up to zone level
+            return transferViewRepository.findAllByPeriodByLocationToZoneLevel(
+                    periodId,
+                    districtCode,
+                    taCode,
+                    villageCluster,
+                    zone,
+                    pageable.getPageNumber(),
+                    pageable.getPageSize()
+            );
+        }
+
+        // find up to village level
+        return transferViewRepository.findAllByPeriodByLocationToVillageLevel(
                 periodId,
                 districtCode,
                 taCode,
@@ -222,12 +269,11 @@ public class TransferServiceImpl implements TransferService {
                 continue;
             }
 
-            transfer.setReceiverId(reconciliation.getRecipientId());
             transfer.setDisbursementDate(reconciliation.getTimestamp().toLocalDateTime());
             transfer.setAmountDisbursed(reconciliation.getAmountTransferred());
             transfer.setCollected(true);
             // TODO: Calculate the arrears for each transfer
-            transfer.setArrearsAmount(transfer.getAmountDisbursed().subtract(transfer.getTotalAmountToTransfer()));
+            transfer.setArrearsAmount(transfer.getAmountDisbursed().subtract(transfer.calculateTotalAmountToTransfer()));
             // TODO: we need to have somewhere else to track arrears?
             transfer.setDisbursedByUserId(reconciliation.getReconcilingUserId());
         }
