@@ -1,13 +1,40 @@
 <template>
-
-    <div class="menu">
-        <p class="menu-label has-text-primary">
-            Showing households by locations
-        </p>
-        <ul class="menu-list">
-            <location-item :title="location.name" :location-level="location.locationType"
-                v-for="(location, idx) in locations" v-bind:key="idx" />
-        </ul>
+    <div class="card no-overlap">
+        <header class="card-header">
+            <p class="card-header-title">Household Browser</p>
+        </header>
+        <div class="card-content">
+            <section>
+                <splitpanes>
+                    <pane min-size="1">
+                        <list-box title="District"></list-box>
+                    </pane>
+                    <pane min-size="1">
+                        <list-box title="T/A" />
+                    </pane>
+                    <pane>
+                        <splitpanes horizontal="horizontal">
+                            <pane min-size="1">
+                                <splitpanes>
+                                    <pane min-size="1">
+                                        <list-box title="Cluster" list-size="half-height"></list-box>
+                                    </pane>
+                                    <pane min-size="1">
+                                        <list-box title="Zone" list-size="half-height"></list-box>
+                                    </pane>
+                                </splitpanes>
+                            </pane>
+                            <pane min-size="1">
+                                <list-box title="or Group Village Head" list-size="half-height"></list-box>
+                            </pane>
+                        </splitpanes>
+                    </pane>
+                    <pane min-size="1">
+                        <list-box title="Village"></list-box>
+                    </pane>
+                </splitpanes>
+            </section>
+        </div>
     </div>
 </template>
 
@@ -19,6 +46,7 @@ const TYPE_CLUSTER = 3;
 const TYPE_ZONE = 4;
 const TYPE_VILLAGE = 5;
 
+const { Splitpanes, Pane } = splitpanes;
 
 module.exports = {
     props: {
@@ -26,12 +54,13 @@ module.exports = {
     },
     data() {
         return {
-            locations: [{ id: 1002, name: 'Dedza', locationType: 1 }],
             isLoading: false,
         }
     },
     components: {
-        LocationItem: httpVueLoader('/components/targeting/households/LocationItem.vue')
+        Splitpanes,
+        Pane,
+        'ListBox': httpVueLoader('/components/targeting/households/ListBox.vue')
     },
     mounted() {
         this.getHouseholdLocations();
@@ -110,4 +139,12 @@ module.exports = {
         }
     }
 }
+
 </script>
+
+<style scoped>
+.bordered {
+    border: 1px solid #eee;
+    border-radius: 5px;
+}
+</style>

@@ -5,7 +5,8 @@
     {% endblock %}
 
     {% block contextMenu %}
-    <div class="container context-nav-container">
+    {% set useWideContainer = true %}
+    <div class="context-nav-container">
         <div class="buttons is-left">
             <a href="/targeting" class="button is-danger">
                 <span class="icon-text">
@@ -20,18 +21,9 @@
     {% endblock %}
 
     {% block content %}
-    <div>
-        <div class="card no-overlap">
-            <header class="card-header">
-                <p class="card-header-title">Viewing households by location</p>
-            </header>
-            <div class="card-content">
-                <div class="content">
-                    <Household-Browser />
-                </div>
-            </div>
+        <div>
+            <Household-Browser />
         </div>
-    </div>
     {% endblock %}
 
     {% block footerScripts %}

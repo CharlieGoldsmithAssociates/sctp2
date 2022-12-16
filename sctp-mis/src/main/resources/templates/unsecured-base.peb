@@ -21,6 +21,7 @@
     <link rel="stylesheet" type="text/css" href="/assets/css/buefy.min.css" />
     <link rel="stylesheet" type="text/css" href="/assets/css/fa-all.css" />
     <link rel="stylesheet" type="text/css" href="/assets/css/mdi.min.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/css/splitpanes.min.css" />
     <style>.card.no-overlap{ overflow: unset !important; }</style>
     <style>{% block headerStyles %}{% endblock %}</style>
     {% block head %}{% endblock %}
@@ -48,6 +49,7 @@
     <script src="/assets/js/vue-router.js"></script>
     <script src="/assets/js/httpVueLoader.js"></script>
     <script src="/assets/js/buefy.min.js"></script>
+    <script src="/assets/js/splitpanes.2.4.1.min.js"></script>
     <script src="/assets/js/vendor/htmx/htmx.min.js" type="text/javascript"></script>
     <script src="/assets/js/vendor/htmx/ext/client-side-templates.js"></script>
     <script src="/assets/js/vendor/mustache.min.js"></script>

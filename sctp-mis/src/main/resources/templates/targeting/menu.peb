@@ -116,13 +116,19 @@
                             <h4 class="menu-label has-text-primary">Households</h4>
                             <ul class="menu-list">
                                 <li>
+                                    <a href="/targeting/households/search">
+                                    <span class="icon">
+                                        <i class="fas fa-angle-right"></i>
+                                    </span>
+                                        Search for household</a>
+                                </li>
+                                <li>
                                     <a href="/targeting/households/by-location">
                                     <span class="icon">
                                         <i class="fas fa-angle-right"></i>
                                     </span>
-                                        View households</a>
+                                        Browse all households</a>
                                 </li>
-                                <li>&nbsp;</li>
                             </ul>
                         </div>
                     </div>
