@@ -40,6 +40,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -113,7 +114,42 @@ interface LocationRepository extends JpaRepository<Location, Long> {
     @Query(nativeQuery = true, value = "select cluster_code code, cluster_name name, household_count householdCount from household_clusters_view where ta_code = :code")
     List<HouseholdLocation> getHouseholdClustersByTaCode(@Param("code") long parentCode);
 
+    @Query(nativeQuery = true, value = "select zone_code code, zone_name name, household_count householdCount from household_zones_view")
+    List<HouseholdLocation> getHouseholdZones();
+
+    @Query(nativeQuery = true, value = "select zone_code code, zone_name name, household_count householdCount from household_zones_view where cluster_code = :code")
+    List<HouseholdLocation> getHouseholdZonesByClusterCode(@Param("code") long parentCode);
+
+    @Query(nativeQuery = true, value = "select village_code code, village_name name, household_count householdCount from household_villages_view")
+    List<HouseholdLocation> getHouseholdVillages();
+
+    @Query(nativeQuery = true, value = "select village_code code, village_name name, household_count householdCount from household_villages_view where zone_code = :code")
+    List<HouseholdLocation> getHouseholdVillagesByZoneCode(@Param("code") long parentCode);
+
+    @Query(nativeQuery = true, value = "select village_code code, village_name name, household_count householdCount from household_gvh_villages_view where gvh_code = :code")
+    List<HouseholdLocation> getHouseholdVillagesByGvhCode(@Param("code") long parentCode);
+
+
+    @Query(nativeQuery = true, value = "select gvh_code code, gvh_name name, household_count householdCount from household_gvh_view")
+    List<HouseholdLocation> getHouseholdGvhs();
+
+    @Query(nativeQuery = true, value = "select gvh_code code, gvh_name name, household_count householdCount from household_gvh_view where ta_code = :code")
+    List<HouseholdLocation> getHouseholdGvhsByTaCode(@Param("code") long parentCode);
+
+
     default List<HouseholdLocation> getHouseholdLocations(LocationType locationType, Long parentCode) {
+        return getHouseholdLocations(locationType, parentCode, false);
+    }
+
+    /**
+     * <p>Returns locations of the given type.</p>
+     *
+     * @param locationType      Location type
+     * @param parentCode        (Optional) Parent code. If specified, locations returned will be under this parent code.
+     * @param useGvhForVillages Only used when returning villages; Specifies whether to list villages through GVH (Group village head) or Zone
+     * @return .
+     */
+    default List<HouseholdLocation> getHouseholdLocations(LocationType locationType, @Nullable Long parentCode, boolean useGvhForVillages) {
         return
                 switch (locationType) {
                     case SUBNATIONAL1 -> getHouseholdDistricts();
@@ -121,8 +157,22 @@ interface LocationRepository extends JpaRepository<Location, Long> {
                             parentCode != null ? getHouseholdTAsByDistrictCode(parentCode) : getHouseholdTAs();
                     case SUBNATIONAL3 ->
                             parentCode != null ? getHouseholdClustersByTaCode(parentCode) : getHouseholdClusters();
+                    case SUBNATIONAL4 ->
+                            parentCode != null ? getHouseholdZonesByClusterCode(parentCode) : getHouseholdZones();
+                    case SUBNATIONAL5 -> {
+                        if (parentCode != null) {
+                            if (useGvhForVillages) {
+                                yield getHouseholdVillagesByGvhCode(parentCode);
+                            } else {
+                                yield getHouseholdVillagesByZoneCode(parentCode);
+                            }
+                        } else {
+                            yield getHouseholdVillages();
+                        }
+                    }
+                    case SUBNATIONAL6 -> parentCode != null ? getHouseholdGvhsByTaCode(parentCode) : getHouseholdGvhs();
                     default ->
-                            throw new UnsupportedOperationException("Location type " + locationType + " currently not supported");
+                            throw new UnsupportedOperationException("Location type " + locationType + " is currently not supported");
                 };
     }
 }

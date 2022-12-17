@@ -7,30 +7,33 @@
             <section>
                 <splitpanes>
                     <pane min-size="1">
-                        <list-box title="District"></list-box>
+                        <list-box v-bind:auto-load="true" v-on:item-selected="this.onItemSelected"
+                            location-type="DISTRICT" title="District"></list-box>
                     </pane>
                     <pane min-size="1">
-                        <list-box title="T/A" />
+                        <list-box :parent-code="districtCode" location-type="TA" title="T/A" />
                     </pane>
                     <pane>
                         <splitpanes horizontal="horizontal">
                             <pane min-size="1">
                                 <splitpanes>
                                     <pane min-size="1">
-                                        <list-box title="Cluster" list-size="half-height"></list-box>
+                                        <list-box location-type="CLUSTER" title="Cluster"
+                                            list-size="half-height"></list-box>
                                     </pane>
                                     <pane min-size="1">
-                                        <list-box title="Zone" list-size="half-height"></list-box>
+                                        <list-box location-type="ZONE" title="Zone" list-size="half-height"></list-box>
                                     </pane>
                                 </splitpanes>
                             </pane>
                             <pane min-size="1">
-                                <list-box title="or Group Village Head" list-size="half-height"></list-box>
+                                <list-box location-type="GVH" title="or Group Village Head"
+                                    list-size="half-height"></list-box>
                             </pane>
                         </splitpanes>
                     </pane>
                     <pane min-size="1">
-                        <list-box title="Village"></list-box>
+                        <list-box location-type="VILLAGE" title="Village"></list-box>
                     </pane>
                 </splitpanes>
             </section>
@@ -39,12 +42,6 @@
 </template>
 
 <script>
-
-const TYPE_DISTRICT = 1;
-const TYPE_TA = 2;
-const TYPE_CLUSTER = 3;
-const TYPE_ZONE = 4;
-const TYPE_VILLAGE = 5;
 
 const { Splitpanes, Pane } = splitpanes;
 
@@ -55,6 +52,7 @@ module.exports = {
     data() {
         return {
             isLoading: false,
+            districtCode: 0
         }
     },
     components: {
@@ -63,37 +61,20 @@ module.exports = {
         'ListBox': httpVueLoader('/components/targeting/households/ListBox.vue')
     },
     mounted() {
-        this.getHouseholdLocations();
+
     },
     computed: {
 
     },
     methods: {
-        checkImportStatus() {
-            let vm = this;
-            vm.isLoading = true;
-            axios.get('/locations/get-import-status')
-                .then(function (response) {
-                    if (response.status == 200) {
-                        if (isJsonContentType(response.headers['content-type'])) {
-                            vm.statusData = response.data.status;
-                        } else {
-                            throw 'invalid type';
-                        }
-                    } else {
-                        throw `Server returned: ${response.status}`;
-                    }
-                })
-                .catch(function (error) {
-                    vm.errorDialog('There was an error connecting to the server. Please try again');
-                    console.log(error);
-                })
-                .then(function () {
-                    vm.isLoading = false;
-                });
-        },
-        getHouseholdLocations() {
-            let vm = this;
+        onItemSelected(item, locationType) {
+            switch (locationType) {
+                case 'DISTRICT':
+                    this.districtCode = item.code;
+                    break;
+
+            }
+            alert(item);
         },
         snackbar(msg, msgType = 'info') {
             this.$buefy.toast.open({

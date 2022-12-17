@@ -32,10 +32,15 @@
 
 package org.cga.sctp.location;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public interface HouseholdLocation {
+    @JsonProperty("code")
     Long getCode();
 
+    @JsonProperty("name")
     String getName();
 
+    @JsonProperty("household_count")
     Long getHouseholdCount();
 }

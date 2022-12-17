@@ -10,11 +10,11 @@
         <div class="field is-full-width">
             <aside class="menu">
                 <ul :class="`menu-list is-${this.listSize}`">
-                    <li v-for="(item, idx) in items" :key="idx">
-                        <a :class="item.selected ? 'is-active' : ''" @click="onListItemClicked(item)">{{
-                                item.label
-                        }}<br />
-                            <span class="location-code">{{ item.subtitle }}</span>
+                    <li v-for="item in items" :key="item.code">
+                        <a :class="item.selected ? 'is-active' : ''" v-on:click="onListItemClicked(item)">{{
+                                item.name
+                        }} ({{item.household_count}})<br />
+                            <span class="location-code">{{ item.code }}</span>
                         </a>
                     </li>
                 </ul>
@@ -25,6 +25,14 @@
 </template>
 
 <script>
+const LOCATION_DICTIONARY = {
+    DISTRICT: 'SUBNATIONAL1',
+    TA: 'SUBNATIONAL2',
+    CLUSTER: 'SUBNATIONAL3',
+    ZONE: 'SUBNATIONAL4',
+    VILLAGE: 'SUBNATIONAL5',
+    GVH: 'SUBNATIONAL6'
+};
 module.exports = {
     props: {
         title: {
@@ -39,6 +47,23 @@ module.exports = {
         size: {
             type: String,
             default: 'full'
+        },
+        autoLoad: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+        parentCode: {
+            type: Number,
+            required: false,
+            default: 0
+        },
+        locationType: {
+            type: String,
+            required: true,
+            validator(value) {
+                return ['DISTRICT', 'TA', 'CLUSTER', 'ZONE', 'VILLAGE', 'GVH'].includes(value);
+            }
         }
     },
     data() {
@@ -48,15 +73,10 @@ module.exports = {
             fetchCount: 0,
             isLoading: false,
             selectedItem: null,
-            items: [
-                { code: 1006, label: 'Item1 (100)', subtitle: 'Subttitle', selected: false },
-                { code: 1007, label: 'Item2 (100)', subtitle: 'Subttitle', selected: false },
-                { code: 1008, label: 'Item3 (100)', subtitle: 'Subttitle', selected: false },
-                { code: 1009, label: 'Item4 (100)', subtitle: 'Subttitle', selected: false },
-                { code: 1010, label: 'Item5 (100)', subtitle: 'Subttitle', selected: false },
-            ]
+            items: []
         }
     },
+    emits: ['itemSelected'],
     computed: {
         currentCode() {
             return this.selectedCode;
@@ -66,7 +86,14 @@ module.exports = {
         }
     },
     mounted() {
-
+        if (this.autoLoad) {
+            this.getHouseholdLocations();
+        }
+    },
+    watch: {
+        parentCode: function (newValue, oldValue) {
+            this.getHouseholdLocations();
+        }
     },
     methods: {
         updateSelection(newItem) {
@@ -79,13 +106,85 @@ module.exports = {
         },
         onListItemClicked(item) {
             let vm = this;
-            vm.isLoading = true;
-            setTimeout(() => { vm.isLoading = false; vm.updateSelection(item); }, 3000);
+            vm.updateSelection(item);
+            vm.$emit('itemSelected', item, vm.locationType);
         },
         getHouseholdLocations() {
             let vm = this;
             vm.isLoading = true;
-            vm.isLoading = false;
+            var parameters = [];
+            var type = LOCATION_DICTIONARY[vm.locationType];
+
+            if (vm.parentCode != null && vm.parentCode >= 1) {
+                parameters.push(`parent-code=${vm.parentCode}`);
+            }
+
+            if (vm.useGvh) {
+                parameters.push(`use-gvh=${vm.parentCode}`);
+            }
+
+            parameters = parameters.length > 0 ? ('?' + parameters.join('&')) : '';
+
+            axios.get(`/locations/get-household-locations-for-browser/${type}${parameters}`)
+                .then(function (response) {
+                    if (response.status == 200) {
+                        if (isJsonContentType(response.headers['content-type'])) {
+                            vm.items = response.data;
+                        } else {
+                            throw 'invalid content type';
+                        }
+                    } else {
+                        throw `Server returned: ${response.status}`;
+                    }
+                })
+                .catch(function (error) {
+                    vm.snackbar('Error getting data', 'danger');
+                })
+                .then(function () {
+                    vm.isLoading = false;
+                });
+        },
+        snackbar(msg, msgType = 'info') {
+            this.$buefy.toast.open({
+                duration: 5000,
+                message: msg,
+                position: 'is-bottom',
+                type: 'is-' + msgType
+            })
+        },
+        errorDialog(msg, titleText = 'Error') {
+            this.$buefy.dialog.alert({
+                title: titleText,
+                message: msg,
+                type: 'is-danger',
+                hasIcon: true,
+                icon: 'times-circle',
+                iconPack: 'fa',
+                ariaRole: 'alertdialog',
+                ariaModal: true
+            })
+        },
+        confirm(msg, yesfn, nofn = null, title = null, type = 'primary', hasIcon = true) {
+            this.$buefy.dialog.confirm({
+                message: msg,
+                title: title,
+                hasIcon: hasIcon,
+                type: 'is-' + type,
+                onConfirm: () => yesfn(),
+                onCancel: () => nofn && nofn()
+            })
+        },
+        msgDialog(msg, titleText = '', dlgType = 'info', icon = '') {
+            this.$buefy.dialog.alert({
+                title: titleText,
+                message: msg,
+                type: 'is-' + dlgType,
+                hasIcon: icon !== '',
+                icon: icon,
+                iconPack: 'fa',
+                ariaRole: 'alertdialog',
+                ariaModal: true
+            })
         }
     }
 }
@@ -124,5 +223,10 @@ module.exports = {
 
 .menu-list li {
     border-bottom: 1px solid #e9e9e9;
+}
+
+.column {
+    border: 1px solid #dedede;
+    border-radius: 5px;
 }
 </style>

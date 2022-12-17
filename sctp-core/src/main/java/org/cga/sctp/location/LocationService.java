@@ -288,4 +288,8 @@ public class LocationService extends TransactionalService {
     public List<HouseholdLocation> getHouseholdLocations(LocationType locationType, Long parentCode) {
         return locationRepository.getHouseholdLocations(locationType, parentCode);
     }
+
+    public List<HouseholdLocation> getHouseholdLocations(LocationType locationType, Long parentCode, boolean useGvh) {
+        return locationRepository.getHouseholdLocations(locationType, parentCode, useGvh);
+    }
 }
