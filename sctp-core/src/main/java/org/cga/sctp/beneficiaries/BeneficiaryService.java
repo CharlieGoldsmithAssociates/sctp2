@@ -36,6 +36,7 @@ import org.cga.sctp.core.TransactionalService;
 import org.cga.sctp.targeting.CbtStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.lang.NonNull;
@@ -52,6 +53,9 @@ public class BeneficiaryService extends TransactionalService {
 
     @Autowired
     private HouseholdRepository householdRepository;
+
+    @Autowired
+    private BrowsableHouseholdDetailsRepository browsableHouseholdDetailsRepository;
 
     public DashboardStats getDashboardStats() {
         return individualRepository.getDashboardStats();
@@ -110,5 +114,19 @@ public class BeneficiaryService extends TransactionalService {
 
     public boolean householdMemberExists(Long household, Long id) {
         return individualRepository.existsByIdAndHouseholdId(id, household);
+    }
+
+    public HouseholdBrowserResponse getHouseholdsForBrowser(long villageCode, PageRequest r, Boolean returnSlice) {
+        HouseholdBrowserResponse response;
+        if (returnSlice) {
+            Slice<BrowsableHouseholdDetails> households = browsableHouseholdDetailsRepository
+                    .getSliceByVillageCode(villageCode, r);
+            response = new HouseholdBrowserResponse(0, households.toList());
+        } else {
+            Page<BrowsableHouseholdDetails> households = browsableHouseholdDetailsRepository
+                    .getPageByVillageCode(villageCode, r);
+            response = new HouseholdBrowserResponse(households.getTotalElements(), households.toList());
+        }
+        return response;
     }
 }

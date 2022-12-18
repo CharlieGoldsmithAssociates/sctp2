@@ -32,20 +32,46 @@
 
 package org.cga.sctp.mis.targeting.households;
 
+import org.cga.sctp.beneficiaries.BeneficiaryService;
+import org.cga.sctp.beneficiaries.HouseholdBrowserResponse;
 import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.user.AdminAndStandardAccessOnly;
+import org.cga.sctp.validation.SortFields;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 
 @Controller
 @RequestMapping("/targeting/households")
 @AdminAndStandardAccessOnly
 public class HouseholdsController extends BaseController {
 
+    @Autowired
+    private BeneficiaryService beneficiaryService;
+
     @GetMapping("/by-location")
     ModelAndView index() {
         return view("targeting/households/by-location");
+    }
+
+    @GetMapping("/get-by-village")
+    ResponseEntity<HouseholdBrowserResponse> getByVillage(
+            @RequestParam("village-code") long villageCode,
+            @Valid @Min(1) @RequestParam(value = "page", defaultValue = "1") int page,
+            @Valid @Min(1) @Max(100) @RequestParam(value = "size", defaultValue = "100") int pageSize,
+            @RequestParam("order") Sort.Direction sortOrder,
+            @RequestParam("sort") @SortFields({"form_number", "ml_code", "member_count"}) String sort,
+            @RequestParam(value = "slice", defaultValue = "false") Boolean returnSlice) {
+        return ResponseEntity.ok(beneficiaryService.getHouseholdsForBrowser(villageCode, PageRequest.of(page - 1, pageSize, sortOrder, sort), returnSlice));
     }
 }

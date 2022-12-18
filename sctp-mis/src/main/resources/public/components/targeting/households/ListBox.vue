@@ -11,9 +11,9 @@
             <aside class="menu">
                 <ul :class="`menu-list is-${this.listSize}`">
                     <li v-for="item in items" :key="item.code">
-                        <a :class="item.selected ? 'is-active' : ''" v-on:click="onListItemClicked(item)">{{
+                        <a :class="item.selected ? 'is-active' : ''" v-on:click="() => onListItemClicked(item)">{{
                                 item.name
-                        }} ({{item.household_count}})<br />
+                        }} ({{ item.household_count }})<br />
                             <span class="location-code">{{ item.code }}</span>
                         </a>
                     </li>
@@ -58,6 +58,11 @@ module.exports = {
             required: false,
             default: 0
         },
+        autoSelect: {
+            type: Boolean,
+            required: false,
+            default: true
+        },
         locationType: {
             type: String,
             required: true,
@@ -76,14 +81,9 @@ module.exports = {
             items: []
         }
     },
-    emits: ['itemSelected'],
+    emits: ['selected'],
     computed: {
-        currentCode() {
-            return this.selectedCode;
-        },
-        iconClass() {
-            return '';
-        }
+
     },
     mounted() {
         if (this.autoLoad) {
@@ -96,18 +96,28 @@ module.exports = {
         }
     },
     methods: {
+        autoSelectFirstItem() {
+            if (this.autoSelect) {
+                if (this.items.length > 0) {
+                    (this.selectedItem = this.items[0]).selected = true;
+                    this.$emit('selected', this.items[0], this.locationType);
+                } else {
+                    this.selectedItem = null;
+                }
+            }
+        },
         updateSelection(newItem) {
             if (this.selectedItem != newItem) {
                 if (this.selectedItem !== null) {
                     this.selectedItem.selected = false;
                 }
-                (this.selectedItem = newItem).selected = true;
+                newItem.selected = true;
+                this.selectedItem = newItem;
             }
         },
         onListItemClicked(item) {
-            let vm = this;
-            vm.updateSelection(item);
-            vm.$emit('itemSelected', item, vm.locationType);
+            this.updateSelection(item);
+            this.$emit('selected', item, this.locationType);
         },
         getHouseholdLocations() {
             let vm = this;
@@ -130,6 +140,7 @@ module.exports = {
                     if (response.status == 200) {
                         if (isJsonContentType(response.headers['content-type'])) {
                             vm.items = response.data;
+                            vm.autoSelectFirstItem();
                         } else {
                             throw 'invalid content type';
                         }

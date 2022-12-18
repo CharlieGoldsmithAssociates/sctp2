@@ -7,33 +7,42 @@
             <section>
                 <splitpanes>
                     <pane min-size="1">
-                        <list-box v-bind:auto-load="true" v-on:item-selected="this.onItemSelected"
-                            location-type="DISTRICT" title="District"></list-box>
+                        <list-box v-bind:auto-load="true" @selected="onItemSelected" location-type="DISTRICT"
+                            title="District"></list-box>
                     </pane>
                     <pane min-size="1">
-                        <list-box :parent-code="districtCode" location-type="TA" title="T/A" />
+                        <list-box :parent-code="districtCode" @selected="onItemSelected" location-type="TA"
+                            title="T/A" />
                     </pane>
                     <pane>
                         <splitpanes horizontal="horizontal">
                             <pane min-size="1">
                                 <splitpanes>
                                     <pane min-size="1">
-                                        <list-box location-type="CLUSTER" title="Cluster"
-                                            list-size="half-height"></list-box>
+                                        <list-box :parent-code="taCode" @selected="onItemSelected"
+                                            location-type="CLUSTER" title="Cluster" list-size="half-height"></list-box>
                                     </pane>
                                     <pane min-size="1">
-                                        <list-box location-type="ZONE" title="Zone" list-size="half-height"></list-box>
+                                        <list-box :parent-code="clusterCode" @selected="onItemSelected"
+                                            location-type="ZONE" title="Zone" list-size="half-height"></list-box>
                                     </pane>
                                 </splitpanes>
                             </pane>
                             <pane min-size="1">
-                                <list-box location-type="GVH" title="or Group Village Head"
+                                <list-box :parent-code="taCode" :auto-select="false" @selected="onItemSelected"
+                                    location-type="GVH" title="or Group Village Head"
                                     list-size="half-height"></list-box>
                             </pane>
                         </splitpanes>
                     </pane>
                     <pane min-size="1">
-                        <list-box location-type="VILLAGE" title="Village"></list-box>
+                        <list-box :parent-code="villageParentCode" :use-gvh="useGvh" @selected="onItemSelected"
+                            location-type="VILLAGE" title="Village"></list-box>
+                    </pane>
+                </splitpanes>
+                <splitpanes>
+                    <pane min-size="1">
+                        <household-list :village-code="villageCode" />
                     </pane>
                 </splitpanes>
             </section>
@@ -52,13 +61,19 @@ module.exports = {
     data() {
         return {
             isLoading: false,
-            districtCode: 0
+            districtCode: 0,
+            taCode: 0,
+            clusterCode: 0,
+            villageParentCode: 0,
+            villageCode: 0,
+            useGvh: false
         }
     },
     components: {
         Splitpanes,
         Pane,
-        'ListBox': httpVueLoader('/components/targeting/households/ListBox.vue')
+        'ListBox': httpVueLoader('/components/targeting/households/ListBox.vue'),
+        'HouseholdList': httpVueLoader('/components/targeting/households/HouseholdList.vue')
     },
     mounted() {
 
@@ -72,9 +87,24 @@ module.exports = {
                 case 'DISTRICT':
                     this.districtCode = item.code;
                     break;
-
+                case 'TA':
+                    this.taCode = item.code;
+                    break;
+                case 'CLUSTER':
+                    this.clusterCode = item.code;
+                    break;
+                case 'ZONE':
+                    this.villageParentCode = item.code;
+                    this.useGvh = false;
+                    break;
+                case 'GVH':
+                    this.villageParentCode = item.code;
+                    this.useGvh = true;
+                    break;
+                case 'VILLAGE':
+                    this.villageCode = item.code;
+                    break;
             }
-            alert(item);
         },
         snackbar(msg, msgType = 'info') {
             this.$buefy.toast.open({
