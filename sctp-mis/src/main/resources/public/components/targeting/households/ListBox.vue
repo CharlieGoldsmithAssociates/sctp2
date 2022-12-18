@@ -11,9 +11,10 @@
             <aside class="menu">
                 <ul :class="`menu-list is-${this.listSize}`">
                     <li v-for="item in items" :key="item.code">
-                        <a :class="item.selected ? 'is-active' : ''" v-on:click="() => onListItemClicked(item)">{{
-                                item.name
-                        }} ({{ item.household_count }})<br />
+                        <a :class="selectedItemCode == item.code ? 'is-active' : ''"
+                            v-on:click="() => onListItemClicked(item)">{{
+                                    item.name
+                            }} ({{ item.household_count }})<br />
                             <span class="location-code">{{ item.code }}</span>
                         </a>
                     </li>
@@ -83,7 +84,9 @@ module.exports = {
     },
     emits: ['selected'],
     computed: {
-
+        selectedItemCode() {
+            return this.selectedItem != null ? this.selectedItem.code : 0;
+        }
     },
     mounted() {
         if (this.autoLoad) {
@@ -99,7 +102,7 @@ module.exports = {
         autoSelectFirstItem() {
             if (this.autoSelect) {
                 if (this.items.length > 0) {
-                    (this.selectedItem = this.items[0]).selected = true;
+                    this.updateSelection(this.items[0]);
                     this.$emit('selected', this.items[0], this.locationType);
                 } else {
                     this.selectedItem = null;
@@ -108,10 +111,6 @@ module.exports = {
         },
         updateSelection(newItem) {
             if (this.selectedItem != newItem) {
-                if (this.selectedItem !== null) {
-                    this.selectedItem.selected = false;
-                }
-                newItem.selected = true;
                 this.selectedItem = newItem;
             }
         },
