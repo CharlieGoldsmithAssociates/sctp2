@@ -225,7 +225,7 @@ public class TargetingService extends TransactionalService {
     }
 
     public List<CriteriaFilterTemplate> getHouseholdFilterTemplates() {
-        return filterTemplateRepository.getByTableName("households");
+        return filterTemplateRepository.findAllByTableNameIn(Set.of("households", "child_headed_households_view"));
     }
 
     public CriteriaFilterTemplate findFilterTemplateById(Long templateId) {
@@ -293,7 +293,7 @@ public class TargetingService extends TransactionalService {
                 .anyMatch(cfi -> cfi.getTableName().equalsIgnoreCase("individuals") || cfi.getTableName().equalsIgnoreCase("individuals_view"));
 
         hasHouseholdFilters = criteriaFilterInfoList.stream()
-                .anyMatch(cfi -> cfi.getTableName().equalsIgnoreCase("households"));
+                .anyMatch(cfi -> cfi.getTableName().equalsIgnoreCase("households") || cfi.getTableName().equalsIgnoreCase("child_headed_households_view"));
 
         StringBuilder clauseBuilder = new StringBuilder();
 
@@ -337,6 +337,26 @@ public class TargetingService extends TransactionalService {
             }
         } else {
             builder.append(" JOIN individuals_view ON individuals_view.household_id = households.household_id");
+        }
+
+        // Join "ForeignMappedField" filters
+        List<CriteriaFilterInfo> joins = criteriaFilterInfoList.stream()
+                .filter(info -> info.getFieldType() == FilterTemplate.FieldType.ForeignMappedField)
+                .toList();
+
+        if (!joins.isEmpty()) {
+            for (CriteriaFilterInfo info : joins) {
+                String tableAlias = format("%s%d", info.getTableName(), System.currentTimeMillis());
+                String joinStatement = format(
+                        " JOIN `%1$s` `%2$s` ON `%2$s`.`%3$s` = `%4$s`.`%5$s`",
+                        info.getTableName(),
+                        tableAlias,
+                        info.getColumnName(),
+                        info.getSourceTableName(),
+                        info.getSourceColumnName()
+                );
+                builder.append(joinStatement);
+            }
         }
 
         builder.append(" WHERE (").append(clauseBuilder).append(") GROUP BY household_id");

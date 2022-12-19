@@ -259,7 +259,7 @@ public class CriterionFilterController extends BaseController {
         }
 
         CriteriaFilter filter = new CriteriaFilter();
-        filter.setFilterValue(form.getValue());
+        filter.setFilterValue(templateValidator.transformValue(template, form.getValue()));
         filter.setTemplateId(template.getId());
         filter.setCriterionId(criterion.getId());
         filter.setConjunction(form.getConjunction());

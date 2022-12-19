@@ -133,6 +133,9 @@
 
                     filter_value.replaceChildren(template);
                     switch(field_type){
+                        case "ForeignMappedField":
+                            saveButton.disabled = false;
+                        break;
                         case "Decimal":
                             decimal.oninput = onInputHook;
                         break;
@@ -242,6 +245,27 @@
                            data-maxlength="22"
                            step="any"
                            oninput="this.value=this.value.slice(0,this.dataset.maxlength)"
+                           name="value" autocomplete="off" required/>
+                </div>
+            </div>
+        </div>
+    </script>
+    <script id="ForeignMappedField" type="text/template">
+        <div class="column">
+            <article class="message is-info">
+                <div class="message-body">
+                    This filter does not has any input.
+                </div>
+            </article>
+            <div class="field">
+                <div class="control">
+                    <input class="input"
+                           id="decimal"
+                           type="hidden"
+                           value="1"
+                           data-maxlength="1"
+                           maxlength="1"
+                           minlength="1"
                            name="value" autocomplete="off" required/>
                 </div>
             </div>

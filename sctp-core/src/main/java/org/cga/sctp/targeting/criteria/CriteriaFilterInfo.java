@@ -39,6 +39,22 @@ public interface CriteriaFilterInfo {
 
     String getColumnName();
 
+    String getSourceTableName();
+
+    /**
+     * When {@link org.cga.sctp.targeting.criteria.FilterTemplate.FieldType FieldType}
+     * is {@link org.cga.sctp.targeting.criteria.FilterTemplate.FieldType#ForeignMappedField} this
+     * (along with {@link  #getSourceTableName()}) will contain
+     * the column name (prefixed with a generated alias table name from {@link #getTableName()}) which will be used
+     * on the right hand side of its corresponding join statement to the table specified in
+     * {@link  #getSourceTableName()} respectively.
+     *
+     * @return .
+     * @see #getTableName()
+     * @see #getSourceTableName()
+     */
+    String getSourceColumnName();
+
     CriteriaFilterObject.Conjunction getConjunction();
 
     String getFilterValue();
