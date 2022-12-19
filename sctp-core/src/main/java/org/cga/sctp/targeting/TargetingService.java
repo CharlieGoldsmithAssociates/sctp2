@@ -431,6 +431,8 @@ public class TargetingService extends TransactionalService {
                 .setParameter("districtCode", session.getDistrictCode())
                 .setParameter("clusterCodes", CollectionUtils.join(session.getClusters()));
 
+        criteriaFilterInfoList.removeIf(info -> info.getFieldType() == FilterTemplate.FieldType.ForeignMappedField);
+
         for (CriteriaFilterInfo info : criteriaFilterInfoList) {
             final String placeholder = placeholder(info);
             if (info.getOperator().isRanged) {
