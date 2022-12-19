@@ -281,6 +281,11 @@ public class TargetingService extends TransactionalService {
         boolean hasHouseholdFilters;
         boolean hasIndividualFilters;
 
+        // Join "ForeignMappedField" filters
+        List<CriteriaFilterInfo> joins = criteriaFilterInfoList.stream()
+                .filter(info -> info.getFieldType() == FilterTemplate.FieldType.ForeignMappedField)
+                .toList();
+
         ands = criteriaFilterInfoList.stream()
                 .filter(cfi -> cfi.getConjunction() == CriteriaFilterObject.Conjunction.And || cfi.getConjunction() == CriteriaFilterObject.Conjunction.None)
                 .collect(Collectors.toList());
@@ -288,6 +293,10 @@ public class TargetingService extends TransactionalService {
         ors = criteriaFilterInfoList.stream()
                 .filter(cfi -> cfi.getConjunction() == CriteriaFilterObject.Conjunction.Or)
                 .collect(Collectors.toList());
+
+        // remove non-filter (joins)
+        ors.removeAll(joins);
+        ands.removeAll(joins);
 
         hasIndividualFilters = criteriaFilterInfoList.stream()
                 .anyMatch(cfi -> cfi.getTableName().equalsIgnoreCase("individuals") || cfi.getTableName().equalsIgnoreCase("individuals_view"));
@@ -339,11 +348,6 @@ public class TargetingService extends TransactionalService {
             builder.append(" JOIN individuals_view ON individuals_view.household_id = households.household_id");
         }
 
-        // Join "ForeignMappedField" filters
-        List<CriteriaFilterInfo> joins = criteriaFilterInfoList.stream()
-                .filter(info -> info.getFieldType() == FilterTemplate.FieldType.ForeignMappedField)
-                .toList();
-
         if (!joins.isEmpty()) {
             for (CriteriaFilterInfo info : joins) {
                 String tableAlias = format("%s%d", info.getTableName(), System.currentTimeMillis());
@@ -359,7 +363,11 @@ public class TargetingService extends TransactionalService {
             }
         }
 
-        builder.append(" WHERE (").append(clauseBuilder).append(") GROUP BY household_id");
+        if (!clauseBuilder.isEmpty()) {
+            builder.append(" WHERE (").append(clauseBuilder).append(")");
+        }
+
+        builder.append(" GROUP BY household_id");
 
         String query = builder.toString();
 
@@ -464,6 +472,8 @@ public class TargetingService extends TransactionalService {
         query.setParameter("taCode", parameters.getTaCode())
                 .setParameter("districtCode", parameters.getDistrictCode())
                 .setParameter("clusterCodes", CollectionUtils.join(parameters.getClusterCodes()));
+
+        criteriaFilterInfoList.removeIf(info -> info.getFieldType() == FilterTemplate.FieldType.ForeignMappedField);
 
         for (CriteriaFilterInfo info : criteriaFilterInfoList) {
             final String placeholder = placeholder(info);
