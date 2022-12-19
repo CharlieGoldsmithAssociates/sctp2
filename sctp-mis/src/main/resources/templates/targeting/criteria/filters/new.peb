@@ -254,7 +254,7 @@
         <div class="column">
             <article class="message is-info">
                 <div class="message-body">
-                    This filter does not has any input.
+                    This filter does not have any input. Click on 'Save Filter' button to save.
                 </div>
             </article>
             <div class="field">
