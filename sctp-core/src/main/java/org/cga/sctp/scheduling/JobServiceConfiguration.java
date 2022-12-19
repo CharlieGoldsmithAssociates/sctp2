@@ -35,6 +35,9 @@ package org.cga.sctp.scheduling;
 import org.jobrunr.configuration.JobRunr;
 import org.jobrunr.scheduling.JobScheduler;
 import org.jobrunr.server.JobActivator;
+import org.jobrunr.storage.InMemoryStorageProvider;
+import org.jobrunr.storage.StorageProvider;
+import org.jobrunr.storage.ThreadSafeStorageProvider;
 import org.jobrunr.storage.sql.common.SqlStorageProviderFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -50,16 +53,21 @@ public class JobServiceConfiguration {
             DataSource dataSource,
             JobActivator jobActivator,
             @Value("${jobrunr.dashboard.enabled:false}") boolean dashboard,
+            @Value("${jobrunr.storage.memory:false}") boolean useInMemoryStorage,
             @Value("${jobrunr.dashboard.port:8001}") int port) {
         return JobRunr.configure()
                 .useJobActivator(jobActivator)
-                .useStorageProvider(SqlStorageProviderFactory
-                        .using(dataSource))
+                .useStorageProvider(newStorageProvider(useInMemoryStorage, dataSource))
                 .useBackgroundJobServer()
                 .useDashboardIf(dashboard, port)
                 .initialize()
                 .getJobScheduler();
     }
 
-
+    private StorageProvider newStorageProvider(boolean useInMemory, DataSource dataSource) {
+        return useInMemory
+                ? new ThreadSafeStorageProvider(new InMemoryStorageProvider())
+                : SqlStorageProviderFactory.using(dataSource)
+                ;
+    }
 }
