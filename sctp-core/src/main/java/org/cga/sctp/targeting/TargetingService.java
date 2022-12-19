@@ -405,6 +405,7 @@ public class TargetingService extends TransactionalService {
      * @param criterion Criterion from which filters will be used to evaluate households
      * @param userId    The user who initiated this run.
      */
+    @Transactional
     private void runEligibilityVerification(EligibilityVerificationSession session, Criterion criterion, Long userId) {
 
         List<CriteriaFilterInfo> criteriaFilterInfoList = criteriaFilterRepository
