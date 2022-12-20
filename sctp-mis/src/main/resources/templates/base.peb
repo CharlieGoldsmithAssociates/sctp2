@@ -63,7 +63,7 @@
         {% block contextMenu %}{% endblock %}
     <!-- /End Context Nav -->
 
-    <div {{ (useWideContainer ? '' : 'class="container"') }}>
+    <div {{ (useWideContainer ? 'class="container is-fluid pl-0 pr-0"' : 'class="container"') }}>
         <!-- start content -->
         {% block content %}{% endblock %}
         <!-- /end content -->
