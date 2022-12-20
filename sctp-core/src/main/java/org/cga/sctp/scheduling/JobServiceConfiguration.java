@@ -32,23 +32,13 @@
 
 package org.cga.sctp.scheduling;
 
-import org.jobrunr.configuration.JobRunr;
-import org.jobrunr.scheduling.JobScheduler;
-import org.jobrunr.server.JobActivator;
-import org.jobrunr.storage.InMemoryStorageProvider;
-import org.jobrunr.storage.StorageProvider;
-import org.jobrunr.storage.ThreadSafeStorageProvider;
-import org.jobrunr.storage.sql.common.SqlStorageProviderFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import javax.sql.DataSource;
 
 @Configuration
 public class JobServiceConfiguration {
 
-    @Bean
+    /*@Bean
+    @ConditionalOnProperty(prefix = "jobrunr",value = "enabled", havingValue = "true", matchIfMissing = true)
     public JobScheduler initJobRunr(
             DataSource dataSource,
             JobActivator jobActivator,
@@ -69,5 +59,5 @@ public class JobServiceConfiguration {
                 ? new ThreadSafeStorageProvider(new InMemoryStorageProvider())
                 : SqlStorageProviderFactory.using(dataSource)
                 ;
-    }
+    }*/
 }

@@ -73,7 +73,7 @@
             <version>${flyway.version}</version>
         </dependency>
 
-        <dependency>
+       <!-- <dependency>
             <groupId>org.jobrunr</groupId>
             <artifactId>jobrunr</artifactId>
             <version>${job-runner.version}</version>
@@ -83,7 +83,7 @@
             <groupId>org.jobrunr</groupId>
             <artifactId>jobrunr-spring-boot-starter</artifactId>
             <version>${job-runner.version}</version>
-        </dependency>
+        </dependency>-->
 
         <!-- https://mvnrepository.com/artifact/com.opencsv/opencsv -->
         <dependency>
