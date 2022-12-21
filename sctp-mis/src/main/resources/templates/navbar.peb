@@ -59,6 +59,8 @@
               </span>
                 </a>
                 <div class="navbar-dropdown">
+                    <a href="/targeting" class="navbar-item">Targeting &amp; Enrollment Main Menu</a>
+                    <hr class="navbar-divider" />
                     <a href="/data-import" class="navbar-item">Import Data From Sources</a>
                     <a href="/criteria" class="navbar-item">Create Targeting Criteria</a>
                     <a href="/verification" class="navbar-item">Pre-Eligibility Verification</a>

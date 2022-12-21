@@ -3,15 +3,13 @@ package org.cga.sctp.mis.targeting;
 import org.cga.sctp.beneficiaries.BeneficiaryService;
 import org.cga.sctp.beneficiaries.Household;
 import org.cga.sctp.beneficiaries.Individual;
-import org.cga.sctp.location.Location;
-import org.cga.sctp.location.LocationCode;
-import org.cga.sctp.location.LocationService;
-import org.cga.sctp.location.LocationType;
+import org.cga.sctp.location.*;
 import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.mis.core.navigation.BreadcrumbDefinition;
 import org.cga.sctp.mis.core.navigation.BreadcrumbPath;
 import org.cga.sctp.mis.core.navigation.ModuleNames;
 import org.cga.sctp.mis.core.templating.SelectOptionItem;
+import org.cga.sctp.mis.location.LocationUtils;
 import org.cga.sctp.program.Program;
 import org.cga.sctp.program.ProgramService;
 import org.cga.sctp.targeting.*;
@@ -76,7 +74,7 @@ public class EligibilityVerificationController extends BaseController {
         return view("targeting/verification/new")
                 .addObject("criteria", criteria)
                 .addObject("programs", programs)
-                .addObject("districts", toSelectOptions(locationService.getActiveDistrictCodes()));
+                .addObject("districts", LocationUtils.householdLocationsToSelectOptions(locationService.getHouseholdLocations(LocationType.SUBNATIONAL1, null)));
     }
 
     @AdminAccessOnly
@@ -104,7 +102,6 @@ public class EligibilityVerificationController extends BaseController {
 
     @AdminAccessOnly
     @PostMapping
-    @BreadcrumbPath(link = "/", title = "Create Eligibility Verification Session")
     public ModelAndView create(
             @AuthenticatedUserDetails AuthenticatedUser user,
             @Valid @ModelAttribute("form") NewVerificationSessionForm form,

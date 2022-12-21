@@ -86,7 +86,6 @@ public interface EnrolmentSessionRepository extends JpaRepository<EnrollmentSess
     @Query(nativeQuery = true, value = "SELECT count(household_id) FROM household_enrollment WHERE session_id = :id AND (status = 6 OR status <> 5")
     int countPreEligibleOrNotEnrolled(@Param("id") Long id);
 
-    // add and status == Closed condition..
-    @Query("FROM EnrollmentSession WHERE districtCode = :districtCode")
-    Optional<EnrollmentSession> findOneByDistrictCode(@Param("districtCode") Long districtCode);
+    @Query
+    Optional<EnrollmentSession> findLastByDistrictCode(Long locationCode); // TODO: add isClosed parameter
 }

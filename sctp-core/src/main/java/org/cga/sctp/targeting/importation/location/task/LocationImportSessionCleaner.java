@@ -40,7 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class LocationImportSessionCleaner extends BaseComponent {
     @Autowired
-    private LocationService locationService;
+    private final LocationService locationService;
 
     public LocationImportSessionCleaner(@Autowired LocationService locationService) {
         this.locationService = locationService;

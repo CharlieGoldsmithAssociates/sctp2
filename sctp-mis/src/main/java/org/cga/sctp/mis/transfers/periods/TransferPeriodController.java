@@ -62,8 +62,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.Collections.singletonMap;
-
 @Controller
 @RequestMapping("/transfers/periods")
 public class TransferPeriodController extends BaseController {
@@ -203,10 +201,12 @@ public class TransferPeriodController extends BaseController {
 
         try {
             logger.info("Checking for enrollment session in District {}", transferPeriod.get().getDistrictCode());
-            var enrollmentSession = enrollmentService.findMostRecentSessionByLocation(transferPeriod.get().getDistrictCode());
+            Location location = locationService.findById(transferPeriod.get().getDistrictCode());
+
+            var enrollmentSession = enrollmentService.findMostRecentSessionByLocation(location.getCode());
             if (enrollmentSession.isEmpty()) {
-                return ResponseEntity.badRequest()
-                        .body(singletonMap("message", "cannot initiate transfers in period when no enrollment sessions are available"));
+                // TODO:
+                throw new TransferException("cannot initiate transfers in period when no enrollment sessions are available");
             }
             Page<HouseholdEnrollmentData> households = enrollmentService.getAllHouseholdEnrollmentData(enrollmentSession.get().getId());
 

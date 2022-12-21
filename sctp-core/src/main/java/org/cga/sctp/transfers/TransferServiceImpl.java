@@ -232,6 +232,74 @@ public class TransferServiceImpl implements TransferService {
     }
 
     @Override
+    @Transactional
+    public TransferSession createTransfers(TransferPeriod transferPeriod, long userId, List<HouseholdEnrollmentData> households) {
+        Optional<TransferPeriod> existingPeriod = transferPeriodRepository.findFirstByProgramIdAndDistrictIdAndIsOpen(transferPeriod.getProgramId(), transferPeriod.getDistrictCode());
+        if (existingPeriod.isEmpty()) {
+            throw new TransferException("Cannot initiate transfers without an open Transfer Period for the program in the given location");
+        }
+
+        List<TopUp> topupsList = topUpService.findAllInLocation(transferPeriod.getDistrictCode());
+        Optional<TransferParameter> transferParameter = transferParametersRepository.findByProgramId(transferPeriod.getProgramId());
+        if (transferParameter.isEmpty()) {
+            throw new TransferException("Program does not have an 'active' or valid transfer parameter");
+        }
+        List<EducationTransferParameter> programEducationParameters = educationTransferParameterRepository.findByTransferParameterId(transferParameter.get().getId());
+        List<HouseholdTransferParameter> programHouseholdParameters = householdTransferParametersRepository.findByTransferParameterId(transferParameter.get().getId());
+        TransferCalculator transferCalculator = new TransferCalculator(programHouseholdParameters, programEducationParameters, topupsList);
+        List<Transfer> transferList = new ArrayList<>();
+
+        for (HouseholdEnrollmentData hh: households) {
+            Transfer newTransfer = new Transfer();
+            newTransfer.setProgramId(transferPeriod.getProgramId());
+            newTransfer.setHouseholdId(hh.getHouseholdId());
+            newTransfer.setTransferState(TransferStatus.OPEN);
+            newTransfer.setTransferAgencyId(0L);
+            var recipientId = hh.getPrimaryRecipient().getMemberId();
+            newTransfer.setReceiverId(recipientId);
+
+            newTransfer.setTransferPeriodId(transferPeriod.getId());
+            newTransfer.setHouseholdMemberCount(hh.getMemberCount().intValue());
+            newTransfer.setChildrenCount(hh.getChildEnrollment6to15());
+            newTransfer.setPrimaryIncentiveChildrenCount(hh.getChildEnrollment6to15());
+            newTransfer.setPrimaryChildrenCount(hh.getPrimaryChildren());
+            newTransfer.setSecondaryChildrenCount(hh.getSecondaryChildren());
+            newTransfer.setNumberOfMonths(transferPeriod.countNoOfMonths());
+    //        newTransfer.setIsFirstTransfer(false);
+    //        newTransfer.setSuspended(false);
+    //        newTransfer.setWithheld(false);
+    //        newTransfer.setAccountNumber(null);
+    //        newTransfer.setAmountDisbursed(null);
+    //        newTransfer.setCollected(false);
+    //        newTransfer.setDisbursementDate(null);
+    //        newTransfer.setArrearsAmount(null);
+    //        newTransfer.setDisbursedByUserId(null);
+    //        newTransfer.setTopupEventId(null);
+    //        newTransfer.setTopupAmount(null);
+            newTransfer.setReconciled(false);
+            newTransfer.setReconciliationMethod(null);
+            newTransfer.setDateReconciled(null);
+            newTransfer.setCreatedAt(ZonedDateTime.now());
+            newTransfer.setModifiedAt(ZonedDateTime.now());
+            newTransfer.setCreatedBy(userId);
+            newTransfer.setReviewedBy(userId);
+
+            newTransfer.setCreatedAt(ZonedDateTime.now());
+            newTransfer.setModifiedAt(ZonedDateTime.now());
+            newTransfer.setCreatedBy(userId);
+
+
+            transferList.add(newTransfer);
+        }
+
+        transferCalculator.calculateTransfers(transferPeriod, transferList);
+
+        transfersRepository.saveAll(transferList);
+
+        return null;
+    }
+
+    @Override
     public List<Transfer> fetchTransferList(long districtCode, Long taCode, Long villageCluster, Long zone, Long village, Pageable pageable) {
         return transfersRepository.findAllByLocationToVillageLevel(
                 districtCode,

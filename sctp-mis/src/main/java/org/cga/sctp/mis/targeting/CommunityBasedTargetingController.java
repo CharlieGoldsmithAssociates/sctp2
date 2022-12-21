@@ -36,7 +36,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static java.util.Objects.isNull;
-import static org.cga.sctp.mis.location.LocationCodeUtil.toSelectOptions;
+import static org.cga.sctp.mis.location.LocationUtils.toSelectOptions;
 
 @Controller
 @RequestMapping("/targeting/community")

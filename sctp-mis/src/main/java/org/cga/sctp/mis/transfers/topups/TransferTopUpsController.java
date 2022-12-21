@@ -144,6 +144,7 @@ public class TransferTopUpsController extends SecuredBaseController {
             form.setUserId(user.id());
             Optional<TopUp> topUp = topUpService.newTopup(form);
             if (topUp.isPresent()) {
+                System.out.println(topUp.get());
                 return ResponseEntity.ok(topUp.get());
             }
         } catch (ConstraintViolationException e) {
@@ -183,5 +184,13 @@ public class TransferTopUpsController extends SecuredBaseController {
         topUpService.deleteById(topupId);
         publishGeneralEvent("User %s deleted topup with id %s", user.username(), topupId);
         return view(redirectWithSuccessMessage("/transfers/topups", "TopUp deleted successfully", attributes));
+    }
+
+    @GetMapping("/{topup-id}")
+    @AdminAndStandardAccessOnly
+    public ResponseEntity<TopUpView> getView(@PathVariable("topup-id") final Long topupId) {
+        return topUpService.findById(topupId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
