@@ -6,17 +6,81 @@ AS SELECT
     h.ml_code AS household_ml_code,
     h.ubr_code AS form_number,
     ta.name AS transfer_agency_name,
-    hr.main_recipient AS main_recipient_id,
-    COALESCE (hr.alt_recipient, hr.alt_other) alt_recipient_id,
-    trim(CONCAT(IFNULL(i1.first_name, ''), ' ', IFNULL(i1.last_name, ''))) AS main_recipient_name,
-    trim(CONCAT(IFNULL(althr.first_name, ''), ' ', IFNULL(althr.last_name, ''))) AS alt_recipient_name,
-    hr.main_photo AS main_recipient_photo,
-    hr.alt_photo AS alt_recipient_photo,
     (COALESCE(t.basic_subsidy_amount, 0.00) + COALESCE(t.secondary_bonus_amount, 0.00) + COALESCE(t.primary_bonus_amount, 0.00) + COALESCE(t.primary_incentive_amount, 0.00)) AS monthly_amount,
-    (((COALESCE(t.basic_subsidy_amount, 0.00) + COALESCE(t.secondary_bonus_amount, 0.00) + COALESCE(t.primary_bonus_amount, 0.00) + COALESCE(t.primary_incentive_amount, 0.00)) * COALESCE(t.number_of_months, 0.00)) + COALESCE(t.topup_amount, 0.00)) AS total_amount_to_transfer
+    (((COALESCE(t.basic_subsidy_amount, 0.00) + COALESCE(t.secondary_bonus_amount, 0.00) + COALESCE(t.primary_bonus_amount, 0.00) + COALESCE(t.primary_incentive_amount, 0.00)) * COALESCE(t.number_of_months, 0.00)) + COALESCE(t.topup_amount, 0.00)) AS total_amount_to_transfer,
+        (
+            CASE
+                WHEN (
+                    `mhr`.`id` IS NULL
+                ) THEN (
+                    SELECT
+                        NULL
+                )
+                ELSE (
+                    SELECT
+                        json_object(
+                            'member_id',
+                            `mhr`.`id`,
+                            'first_name',
+                            `mhr`.`first_name`,
+                            'last_name',
+                            `mhr`.`last_name`,
+                            'gender',
+                            `mhr`.`gender`,
+                            'date_of_birth',
+                            `mhr`.`date_of_birth`,
+                            'individual_id',
+                            `mhr`.`individual_id`,
+                            'household_id',
+                            `mhr`.`household_id`,
+                            'member_code',
+                            `mhr`.`member_code`,
+                            'is_household_member',
+                            `mhr`.`is_household_member`
+                        )
+                )
+            END
+        ) AS `main_recipient`,
+        (
+            CASE
+                WHEN (
+                    `ahr`.`id` IS NULL
+                ) THEN (
+                    SELECT
+                        NULL
+                )
+                ELSE (
+                    SELECT
+                        json_object(
+                            'member_id',
+                            `ahr`.`id`,
+                            'first_name',
+                            `ahr`.`first_name`,
+                            'last_name',
+                            `ahr`.`last_name`,
+                            'gender',
+                            `ahr`.`gender`,
+                            'date_of_birth',
+                            `ahr`.`date_of_birth`,
+                            'individual_id',
+                            `ahr`.`individual_id`,
+                            'household_id',
+                            `ahr`.`household_id`,
+                            'member_code',
+                            `ahr`.`member_code`,
+                            'is_household_member',
+                            `ahr`.`is_household_member`
+                        )
+                )
+            END
+        ) AS `secondary_recipient`,
+      CONCAT(i.first_name, ' ', i.last_name) AS head_name,
+      i.member_code AS head_member_code,
+      i.gender AS head_gender
     FROM transfers t
     LEFT JOIN households h ON t.household_id = h.household_id
     LEFT JOIN transfer_agencies ta ON t.transfer_agency_id = ta.id
     LEFT JOIN household_recipient hr ON t.household_id = hr.household_id
-    LEFT JOIN individuals i1 ON hr.main_recipient = i1.id
-    LEFT JOIN alternate_household_recipients althr ON t.household_id = althr.household_id;
+    LEFT JOIN main_household_recipients mhr ON mhr.household_id = t.household_id
+    LEFT JOIN alternate_household_recipients ahr ON t.household_id = ahr.household_id
+	LEFT JOIN individuals i ON i.household_id = t.household_id AND i.relationship_to_head = 1;

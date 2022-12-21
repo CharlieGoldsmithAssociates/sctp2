@@ -32,36 +32,70 @@
 
 package org.cga.sctp.transfers;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.cga.sctp.targeting.enrollment.HouseholdEnrollmentData;
+import org.cga.sctp.targeting.enrollment.HouseholdRecipientJsonConverter;
+import org.cga.sctp.targeting.importation.converters.GenderParameterValueConverter;
+import org.cga.sctp.targeting.importation.parameters.Gender;
+import org.hibernate.annotations.Immutable;
+
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 
 @Entity
+@Immutable
 @Table(name = "transfers_v")
-public class TransferView extends TransferBase{
+public class TransferView extends TransferBase {
     @Column
     private String householdMlCode;
     @Column
     private String formNumber;
     @Column
     private String transferAgencyName;
-    @Column
-    private Long mainRecipientId;
-    @Column
-    private Long altRecipientId;
-    @Column
-    private String mainRecipientPhoto;
-    @Column
-    private String altRecipientPhoto;
-    @Column
-    private String mainRecipientName;
-    @Column
-    private String altRecipientName;
+
+    /**
+     * BIGINT COMMENT 'monthlyAmount * number_of_months + topup_amount'
+     */
     @Column
     private BigDecimal totalAmountToTransfer;
+
+    /**
+     * BIGINT COMMENT 'A sum of basic_subsidy_amount, secondary_bonus_amount, primary_bonus_amount, primary_incentive_amount'
+     */
     @Column
     private BigDecimal monthlyAmount;
+
+    /**
+     * COMMENT 'Household head name'
+     */
+    @Column
+    private String headName;
+
+    /**
+     * COMMENT 'Household head gender. 1:Male, 2:Female'
+     */
+    @Column
+    @Convert(converter = GenderParameterValueConverter.class)
+    private Gender headGender;
+
+    /**
+     * COMMENT 'Household head memberCode'
+     */
+    @Column
+    private String headMemberCode;
+
+    @Column
+    @JsonProperty("main_recipient")
+    @Convert(converter = HouseholdRecipientJsonConverter.class)
+    private HouseholdEnrollmentData.HouseholdRecipientInfo mainRecipient;
+
+    @Column
+    @JsonProperty("secondary_recipient")
+    @Convert(converter = HouseholdRecipientJsonConverter.class)
+    private HouseholdEnrollmentData.HouseholdRecipientInfo secondaryRecipient;
 
     public String getHouseholdMlCode() {
         return householdMlCode;
@@ -75,30 +109,6 @@ public class TransferView extends TransferBase{
         return transferAgencyName;
     }
 
-    public Long getMainRecipientId() {
-        return mainRecipientId;
-    }
-
-    public Long getAltRecipientId() {
-        return altRecipientId;
-    }
-
-    public String getMainRecipientPhoto() {
-        return mainRecipientPhoto;
-    }
-
-    public String getAltRecipientPhoto() {
-        return altRecipientPhoto;
-    }
-
-    public String getMainRecipientName() {
-        return mainRecipientName;
-    }
-
-    public String getAltRecipientName() {
-        return altRecipientName;
-    }
-
     public BigDecimal getTotalAmountToTransfer() {
         return totalAmountToTransfer;
     }
@@ -106,4 +116,17 @@ public class TransferView extends TransferBase{
     public BigDecimal getMonthlyAmount() {
         return monthlyAmount;
     }
+
+    public String getHeadName() {
+        return headName;
+    }
+
+    public Gender getHeadGender() {
+        return headGender;
+    }
+
+    public String getHeadMemberCode() {
+        return headMemberCode;
+    }
+
 }
