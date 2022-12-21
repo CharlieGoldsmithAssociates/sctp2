@@ -42,7 +42,6 @@ import org.cga.sctp.targeting.importation.location.ImportLocationType;
 import org.cga.sctp.targeting.importation.location.task.LocationImportSessionCleaner;
 import org.cga.sctp.targeting.importation.location.task.UbrGeoLocationImportTask;
 import org.cga.sctp.targeting.importation.ubrapi.UbrApiConfiguration;
-import org.jobrunr.scheduling.BackgroundJob;
 import org.jobrunr.scheduling.JobScheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -158,7 +157,7 @@ public class LocationService extends TransactionalService {
     }
 
     public List<LocationInfo> getByParent(Location location) {
-        return locationRepository.getByParentId(location.getId());
+        return locationRepository.getByParentId(location.getId(), true);
     }
 
     public List<Location> getActiveByType(LocationType type) {
@@ -274,7 +273,7 @@ public class LocationService extends TransactionalService {
 
     public void startLocationImport(LocationImportSession session) {
         saveLocationImportSession(session);
-        BackgroundJob.enqueue(() -> ubrGeoLocationImportTask.doWork(session.getId()));
+        jobScheduler.enqueue(() -> ubrGeoLocationImportTask.doWork(session.getId()));
     }
 
     public void markFailedImportSessionsAsInterrupted(String status) {
@@ -283,5 +282,13 @@ public class LocationService extends TransactionalService {
 
     public LocationImportSession getLocationImportSessionById(long sessionId) {
         return importSessionRepository.findById(sessionId).orElse(null);
+    }
+
+    public List<HouseholdLocation> getHouseholdLocations(LocationType locationType, Long parentCode) {
+        return locationRepository.getHouseholdLocations(locationType, parentCode);
+    }
+
+    public List<HouseholdLocation> getHouseholdLocations(LocationType locationType, Long parentCode, boolean useGvh) {
+        return locationRepository.getHouseholdLocations(locationType, parentCode, useGvh);
     }
 }

@@ -4,8 +4,9 @@
     {% set canModifyUsers = true %}
 
     {% block contextMenu %}
+    {% set useWideContainer = true %}
         {% if canModifyUsers %}
-        <div class="container context-nav-container">
+        <div class="container is-fluid pl-0 pr-0 context-nav-container">
             <div class="buttons is-right">
                 <a href="{{ href('/users/new') }}" class="button is-primary">Add New User</a>
             </div>
@@ -14,7 +15,7 @@
     {% endblock %}
 
     {% block content %}
-    <div class="container">
+    <div class="container is-fluid pl-0 pr-0">
         <div class="card no-overlap">
             <header class="card-header">
                 <p class="card-header-title">System Users</p>
@@ -30,6 +31,7 @@
                             <th>Email</th>
                             <th>System Role</th>
                             <th>Status</th>
+                            <th>Last Login Attempt</th>
                             <th data-sortable="false">Options</th>
                         </tr>
                         </thead>
@@ -42,6 +44,7 @@
                                 <td>{{ user.email }}</td>
                                 <td>{{ user.role.label }}</td>
                                 <td>{{ user.status }}</td>
+                                <td>{{ user.lastAuthAttemptAt | date }}</td>
                                 <td>
                                     {% if not user.systemUser %}
                                         {{ optionsMenu(

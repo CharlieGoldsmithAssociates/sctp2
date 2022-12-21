@@ -1,0 +1,42 @@
+    {% extends "targeting/households/base" %}
+
+    {% block title %}
+        {{ parent() }} | Households
+    {% endblock %}
+
+    {% block contextMenu %}
+    {% set useWideContainer = true %}
+    <div class="context-nav-container">
+        <div class="buttons is-left">
+            <a href="/targeting" class="button is-danger">
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fa fa-chevron-left"></i>
+                    </span>
+                    <span>Back to menu</span>
+                </span>
+            </a>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block content %}
+        <div>
+            <Household-Browser />
+        </div>
+    {% endblock %}
+
+    {% block footerScripts %}
+    {{ parent() }}
+    <script type="module">
+        const App = {
+            el: '#vapp',
+            components: {
+                'HouseholdBrowser': httpVueLoader('/components/targeting/households/HouseholdBrowser.vue')
+            }
+        };
+        window.addEventListener('load', () => {
+            var app = new Vue(App);
+        });
+    </script>
+    {% endblock %}

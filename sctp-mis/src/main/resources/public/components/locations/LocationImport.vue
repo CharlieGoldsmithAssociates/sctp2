@@ -118,7 +118,7 @@ module.exports = {
             vm.confirm(
                 'Import locations from UBR?',
                 function () {
-                    const errorMessage = 'Location import cannot be done at the momemnt. Please try again';
+                    const errorMessage = 'Location import cannot be done at the moment. Please try again';
                     const config = { headers: { 'X-CSRF-TOKEN': csrf()['token'] } };
 
                     vm.isLoading = true;

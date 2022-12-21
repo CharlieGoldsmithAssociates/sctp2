@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,38 +30,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting.criteria;
+package org.cga.sctp.beneficiaries;
 
-public interface CriteriaFilterInfo {
-    Long getId();
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-    String getTableName();
+import java.util.List;
 
-    String getColumnName();
-
-    String getSourceTableName();
-
-    /**
-     * When {@link org.cga.sctp.targeting.criteria.FilterTemplate.FieldType FieldType}
-     * is {@link org.cga.sctp.targeting.criteria.FilterTemplate.FieldType#ForeignMappedField} this
-     * (along with {@link  #getSourceTableName()}) will contain
-     * the column name (prefixed with a generated alias table name from {@link #getTableName()}) which will be used
-     * on the right hand side of its corresponding join statement to the table specified in
-     * {@link  #getSourceTableName()} respectively.
-     *
-     * @return .
-     * @see #getTableName()
-     * @see #getSourceTableName()
-     */
-    String getSourceColumnName();
-
-    CriteriaFilterObject.Conjunction getConjunction();
-
-    String getFilterValue();
-
-    FilterTemplate.FieldType getFieldType();
-
-    String getLabel();
-
-    Operator getOperator();
+public record HouseholdBrowserResponse(
+        @JsonProperty
+        long total,
+        @JsonProperty
+        List<BrowsableHouseholdDetails> households) {
 }

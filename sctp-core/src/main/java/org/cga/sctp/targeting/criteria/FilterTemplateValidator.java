@@ -67,12 +67,26 @@ public class FilterTemplateValidator extends BaseComponent {
                     return false;
                 }
             }
-            case ListSingle -> {
+            case ListSingle, ForeignMappedField -> {
                 return true;
             }
             //case ListMultiple, NumberRange, DecimalRange, Date -> throw ex;
             default -> throw ex;
         }
         return true;
+    }
+
+    /**
+     * <p>Returns a transformed value to be used. Some field types do not take input. This method provides the opportunity to filter unwanted input</p>
+     *
+     * @param template .
+     * @param value    .
+     * @return .
+     */
+    public String transformValue(CriteriaFilterTemplate template, String value) {
+        if (template.getFieldType().wantsFilterValue) {
+            return value;
+        }
+        return null;
     }
 }

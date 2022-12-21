@@ -37,6 +37,7 @@ import org.jobrunr.scheduling.JobScheduler;
 import org.jobrunr.server.JobActivator;
 import org.jobrunr.storage.sql.common.SqlStorageProviderFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -46,6 +47,7 @@ import javax.sql.DataSource;
 public class JobServiceConfiguration {
 
     @Bean
+    @ConditionalOnProperty(prefix = "jobrunr", value = "enabled", havingValue = "true", matchIfMissing = true)
     public JobScheduler initJobRunr(
             DataSource dataSource,
             JobActivator jobActivator,
@@ -53,13 +55,10 @@ public class JobServiceConfiguration {
             @Value("${jobrunr.dashboard.port:8001}") int port) {
         return JobRunr.configure()
                 .useJobActivator(jobActivator)
-                .useStorageProvider(SqlStorageProviderFactory
-                        .using(dataSource))
+                .useStorageProvider(SqlStorageProviderFactory.using(dataSource))
                 .useBackgroundJobServer()
                 .useDashboardIf(dashboard, port)
                 .initialize()
                 .getJobScheduler();
     }
-
-
 }

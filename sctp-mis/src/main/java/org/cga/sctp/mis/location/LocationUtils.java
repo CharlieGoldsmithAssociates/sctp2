@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,38 +30,30 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting.criteria;
+package org.cga.sctp.mis.location;
 
-public interface CriteriaFilterInfo {
-    Long getId();
+import org.cga.sctp.location.HouseholdLocation;
+import org.cga.sctp.location.LocationCode;
+import org.cga.sctp.mis.core.templating.SelectOptionItem;
 
-    String getTableName();
+import java.util.List;
+import java.util.stream.Collectors;
 
-    String getColumnName();
+public final class LocationUtils {
+    LocationUtils() {
+    }
 
-    String getSourceTableName();
+    public static List<SelectOptionItem> toSelectOptions(List<LocationCode> codes) {
+        return codes.stream()
+                .map(locationCode -> new SelectOptionItem(locationCode.getCode(),
+                        locationCode.getName(), locationCode.getCode()))
+                .collect(Collectors.toList());
+    }
 
-    /**
-     * When {@link org.cga.sctp.targeting.criteria.FilterTemplate.FieldType FieldType}
-     * is {@link org.cga.sctp.targeting.criteria.FilterTemplate.FieldType#ForeignMappedField} this
-     * (along with {@link  #getSourceTableName()}) will contain
-     * the column name (prefixed with a generated alias table name from {@link #getTableName()}) which will be used
-     * on the right hand side of its corresponding join statement to the table specified in
-     * {@link  #getSourceTableName()} respectively.
-     *
-     * @return .
-     * @see #getTableName()
-     * @see #getSourceTableName()
-     */
-    String getSourceColumnName();
-
-    CriteriaFilterObject.Conjunction getConjunction();
-
-    String getFilterValue();
-
-    FilterTemplate.FieldType getFieldType();
-
-    String getLabel();
-
-    Operator getOperator();
+    public static List<SelectOptionItem> householdLocationsToSelectOptions(List<HouseholdLocation> locations) {
+        return locations.stream()
+                .map(location -> new SelectOptionItem(location.getCode(),
+                        String.format("%s (%,d)", location.getName(), location.getHouseholdCount()), location.getCode()))
+                .collect(Collectors.toList());
+    }
 }

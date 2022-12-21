@@ -225,7 +225,7 @@ public class TargetingService extends TransactionalService {
     }
 
     public List<CriteriaFilterTemplate> getHouseholdFilterTemplates() {
-        return filterTemplateRepository.getByTableName("households");
+        return filterTemplateRepository.findAllByTableNameIn(Set.of("households", "child_headed_households_view"));
     }
 
     public CriteriaFilterTemplate findFilterTemplateById(Long templateId) {
@@ -281,6 +281,11 @@ public class TargetingService extends TransactionalService {
         boolean hasHouseholdFilters;
         boolean hasIndividualFilters;
 
+        // Join "ForeignMappedField" filters
+        List<CriteriaFilterInfo> joins = criteriaFilterInfoList.stream()
+                .filter(info -> info.getFieldType() == FilterTemplate.FieldType.ForeignMappedField)
+                .toList();
+
         ands = criteriaFilterInfoList.stream()
                 .filter(cfi -> cfi.getConjunction() == CriteriaFilterObject.Conjunction.And || cfi.getConjunction() == CriteriaFilterObject.Conjunction.None)
                 .collect(Collectors.toList());
@@ -289,11 +294,15 @@ public class TargetingService extends TransactionalService {
                 .filter(cfi -> cfi.getConjunction() == CriteriaFilterObject.Conjunction.Or)
                 .collect(Collectors.toList());
 
+        // remove non-filter (joins)
+        ors.removeAll(joins);
+        ands.removeAll(joins);
+
         hasIndividualFilters = criteriaFilterInfoList.stream()
                 .anyMatch(cfi -> cfi.getTableName().equalsIgnoreCase("individuals") || cfi.getTableName().equalsIgnoreCase("individuals_view"));
 
         hasHouseholdFilters = criteriaFilterInfoList.stream()
-                .anyMatch(cfi -> cfi.getTableName().equalsIgnoreCase("households"));
+                .anyMatch(cfi -> cfi.getTableName().equalsIgnoreCase("households") || cfi.getTableName().equalsIgnoreCase("child_headed_households_view"));
 
         StringBuilder clauseBuilder = new StringBuilder();
 
@@ -339,7 +348,26 @@ public class TargetingService extends TransactionalService {
             builder.append(" JOIN individuals_view ON individuals_view.household_id = households.household_id");
         }
 
-        builder.append(" WHERE (").append(clauseBuilder).append(") GROUP BY household_id");
+        if (!joins.isEmpty()) {
+            for (CriteriaFilterInfo info : joins) {
+                String tableAlias = format("%s%d", info.getTableName(), System.currentTimeMillis());
+                String joinStatement = format(
+                        " JOIN `%1$s` `%2$s` ON `%2$s`.`%3$s` = `%4$s`.`%5$s`",
+                        info.getTableName(),
+                        tableAlias,
+                        info.getColumnName(),
+                        info.getSourceTableName(),
+                        info.getSourceColumnName()
+                );
+                builder.append(joinStatement);
+            }
+        }
+
+        if (!clauseBuilder.isEmpty()) {
+            builder.append(" WHERE (").append(clauseBuilder).append(")");
+        }
+
+        builder.append(" GROUP BY household_id");
 
         String query = builder.toString();
 
@@ -377,6 +405,7 @@ public class TargetingService extends TransactionalService {
      * @param criterion Criterion from which filters will be used to evaluate households
      * @param userId    The user who initiated this run.
      */
+    @Transactional
     private void runEligibilityVerification(EligibilityVerificationSession session, Criterion criterion, Long userId) {
 
         List<CriteriaFilterInfo> criteriaFilterInfoList = criteriaFilterRepository
@@ -402,6 +431,8 @@ public class TargetingService extends TransactionalService {
                 .setParameter("createdAt", timestamp)
                 .setParameter("districtCode", session.getDistrictCode())
                 .setParameter("clusterCodes", CollectionUtils.join(session.getClusters()));
+
+        criteriaFilterInfoList.removeIf(info -> info.getFieldType() == FilterTemplate.FieldType.ForeignMappedField);
 
         for (CriteriaFilterInfo info : criteriaFilterInfoList) {
             final String placeholder = placeholder(info);
@@ -444,6 +475,8 @@ public class TargetingService extends TransactionalService {
         query.setParameter("taCode", parameters.getTaCode())
                 .setParameter("districtCode", parameters.getDistrictCode())
                 .setParameter("clusterCodes", CollectionUtils.join(parameters.getClusterCodes()));
+
+        criteriaFilterInfoList.removeIf(info -> info.getFieldType() == FilterTemplate.FieldType.ForeignMappedField);
 
         for (CriteriaFilterInfo info : criteriaFilterInfoList) {
             final String placeholder = placeholder(info);

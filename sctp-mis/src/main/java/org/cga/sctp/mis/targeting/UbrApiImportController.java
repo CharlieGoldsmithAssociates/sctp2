@@ -64,7 +64,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
-import static org.cga.sctp.mis.location.LocationCodeUtil.toSelectOptions;
+import static org.cga.sctp.mis.location.LocationUtils.toSelectOptions;
 
 @Controller
 @RequestMapping("/data-import/from-ubr-api")

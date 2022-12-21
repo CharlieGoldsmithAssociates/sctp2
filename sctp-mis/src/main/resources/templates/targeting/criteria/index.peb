@@ -3,13 +3,31 @@
     {% block contextMenu %}
         {% set canModify = hasRole('ADMINISTRATOR') %}
         {# @pebvariable name="canModify" type="java.lang.Boolean" #}
-        {% if canModify %}
-            <div class="container context-nav-container">
-                <div class="buttons is-right">
-                    <a href="{{ href('criteria/new') }}" class="button is-primary">Create New</a>
+        <div class="container context-nav-container">
+            <div class="level">
+                <div class="level-left">
+                    <div class="level-item">
+                        <a href="/targeting" class="button is-danger">
+                            <span class="icon-text">
+                                <span class="icon">
+                                    <i class="fa fa-chevron-left"></i>
+                                </span>
+                                <span>Back to main menu</span>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+                <div class="level-right">
+                    <div class="level-item">
+                        {% if canModify %}
+                            <div class="buttons is-right">
+                                <a href="{{ href('criteria/new') }}" class="button is-primary">Create New</a>
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
-        {% endif %}
+        </div>
     {% endblock %}
 
     {% block content %}
