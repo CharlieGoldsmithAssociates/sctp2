@@ -157,7 +157,7 @@ public class LocationService extends TransactionalService {
     }
 
     public List<LocationInfo> getByParent(Location location) {
-        return locationRepository.getByParentId(location.getId());
+        return locationRepository.getByParentId(location.getId(), true);
     }
 
     public List<Location> getActiveByType(LocationType type) {

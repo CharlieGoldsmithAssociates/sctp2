@@ -72,6 +72,13 @@ interface LocationRepository extends JpaRepository<Location, Long> {
     @Query(nativeQuery = true, value = "select * from locations_info_v where parentId = :parent ORDER BY name, code")
     List<LocationInfo> getByParentId(@Param("parent") Long parentId);
 
+    @Query(nativeQuery = true, value = "select * from locations_info_v where parentId = :parent AND locationType != 'SUBNATIONAL6' ORDER BY name, code")
+    List<LocationInfo> getByParentIdExcludingGvh(@Param("parent") Long parentId);
+
+    default List<LocationInfo> getByParentId(long parentId, boolean excludeGvhFromList) {
+        return excludeGvhFromList ? getByParentIdExcludingGvh(parentId) : getByParentId(parentId);
+    }
+
     List<Location> getByActiveAndParentId(boolean active, Long parentId);
 
     Location getByActiveAndIdAndLocationType(boolean active, Long id, LocationType type);
