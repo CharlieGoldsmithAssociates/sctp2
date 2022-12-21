@@ -34,18 +34,19 @@ package org.cga.sctp.targeting.importation.location.task;
 
 import org.cga.sctp.core.BaseComponent;
 import org.cga.sctp.location.LocationService;
+import org.jobrunr.jobs.annotations.Job;
 import org.springframework.beans.factory.annotation.Autowired;
 
 
 public class LocationImportSessionCleaner extends BaseComponent {
     @Autowired
-    private LocationService locationService;
+    private final LocationService locationService;
 
     public LocationImportSessionCleaner(@Autowired LocationService locationService) {
         this.locationService = locationService;
     }
 
-    //@Job(name = "Location Import Session Recovery", retries = 2)
+    @Job(name = "Location Import Session Recovery", retries = 2)
     public void doWork() {
         LOG.debug("Recover sessions");
         locationService.markFailedImportSessionsAsInterrupted("Interrupted due to application shutdown");

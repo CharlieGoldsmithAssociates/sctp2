@@ -41,6 +41,7 @@ import org.cga.sctp.targeting.importation.location.GeoLocationImport;
 import org.cga.sctp.targeting.importation.location.GeoLocationReader;
 import org.cga.sctp.targeting.importation.location.ImportLocationType;
 import org.cga.sctp.targeting.importation.ubrapi.UbrApiConfiguration;
+import org.jobrunr.jobs.annotations.Job;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
@@ -137,7 +138,7 @@ public class UbrGeoLocationImportTask extends BaseComponent {
         return true;
     }
 
-    //@Job(name = "UBR Location Downloader", retries = 1)
+    @Job(name = "UBR Location Downloader", retries = 1)
     @Transactional
     public void doWork(long importSessionId) throws Exception {
         LocationImportSession session = locationService.getLocationImportSessionById(importSessionId);

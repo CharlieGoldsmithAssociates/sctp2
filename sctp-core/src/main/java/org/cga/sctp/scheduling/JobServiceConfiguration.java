@@ -32,32 +32,33 @@
 
 package org.cga.sctp.scheduling;
 
+import org.jobrunr.configuration.JobRunr;
+import org.jobrunr.scheduling.JobScheduler;
+import org.jobrunr.server.JobActivator;
+import org.jobrunr.storage.sql.common.SqlStorageProviderFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import javax.sql.DataSource;
 
 @Configuration
 public class JobServiceConfiguration {
 
-    /*@Bean
-    @ConditionalOnProperty(prefix = "jobrunr",value = "enabled", havingValue = "true", matchIfMissing = true)
+    @Bean
+    @ConditionalOnProperty(prefix = "jobrunr", value = "enabled", havingValue = "true", matchIfMissing = true)
     public JobScheduler initJobRunr(
             DataSource dataSource,
             JobActivator jobActivator,
             @Value("${jobrunr.dashboard.enabled:false}") boolean dashboard,
-            @Value("${jobrunr.storage.memory:false}") boolean useInMemoryStorage,
             @Value("${jobrunr.dashboard.port:8001}") int port) {
         return JobRunr.configure()
                 .useJobActivator(jobActivator)
-                .useStorageProvider(newStorageProvider(useInMemoryStorage, dataSource))
+                .useStorageProvider(SqlStorageProviderFactory.using(dataSource))
                 .useBackgroundJobServer()
                 .useDashboardIf(dashboard, port)
                 .initialize()
                 .getJobScheduler();
     }
-
-    private StorageProvider newStorageProvider(boolean useInMemory, DataSource dataSource) {
-        return useInMemory
-                ? new ThreadSafeStorageProvider(new InMemoryStorageProvider())
-                : SqlStorageProviderFactory.using(dataSource)
-                ;
-    }*/
 }

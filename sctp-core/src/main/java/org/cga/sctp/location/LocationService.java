@@ -42,6 +42,7 @@ import org.cga.sctp.targeting.importation.location.ImportLocationType;
 import org.cga.sctp.targeting.importation.location.task.LocationImportSessionCleaner;
 import org.cga.sctp.targeting.importation.location.task.UbrGeoLocationImportTask;
 import org.cga.sctp.targeting.importation.ubrapi.UbrApiConfiguration;
+import org.jobrunr.scheduling.JobScheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
@@ -78,8 +79,8 @@ public class LocationService extends TransactionalService {
     @Autowired
     private SystemInformation systemInformation;
 
-    /*@Autowired
-    private JobScheduler jobScheduler;*/
+    @Autowired
+    private JobScheduler jobScheduler;
 
     private LocationImportSessionCleaner importSessionCleaner;
     private UbrGeoLocationImportTask ubrGeoLocationImportTask;
@@ -100,7 +101,7 @@ public class LocationService extends TransactionalService {
 
     @EventListener(ApplicationReadyEvent.class)
     void onApplicationStartup() {
-        //jobScheduler.enqueue(importSessionCleaner::doWork);
+        jobScheduler.enqueue(importSessionCleaner::doWork);
     }
 
     public Page<Location> getLocations(Pageable pageable) {
@@ -272,7 +273,7 @@ public class LocationService extends TransactionalService {
 
     public void startLocationImport(LocationImportSession session) {
         saveLocationImportSession(session);
-        //BackgroundJob.enqueue(() -> ubrGeoLocationImportTask.doWork(session.getId()));
+        jobScheduler.enqueue(() -> ubrGeoLocationImportTask.doWork(session.getId()));
     }
 
     public void markFailedImportSessionsAsInterrupted(String status) {
