@@ -124,8 +124,9 @@ public class UbrGeoLocationImportTask extends BaseComponent {
                     importSession.setImportedCount(importedCount += size);
                 }
                 locationService.saveLocationImportSession(importSession);
-                LOG.debug("");
+                LOG.info("import finished for {}", locationType);
             }
+            importSession.setStatusText(format("import: {} {}", importedCount, locationType));
         } catch (Exception e) {
             LOG.error("Error fetching location data from UBR", e);
             if (e instanceof IOException) {
@@ -165,6 +166,7 @@ public class UbrGeoLocationImportTask extends BaseComponent {
                 return;
             }
         }
+        session.setStatusText("Downloads completed!");
         saveSuccessful(session);
     }
 
