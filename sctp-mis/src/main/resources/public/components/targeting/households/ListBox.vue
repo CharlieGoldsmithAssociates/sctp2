@@ -10,7 +10,7 @@
         <div class="field is-full-width">
             <aside class="menu">
                 <ul :class="`menu-list is-${this.listSize}`">
-                    <li v-for="item in items" :key="item.code">
+                    <li v-for="item in filteredItems" :key="item.code">
                         <a :class="selectedItemCode == item.code ? 'is-active' : ''"
                             v-on:click="() => onListItemClicked(item)">{{
                                     item.name
@@ -84,6 +84,21 @@ module.exports = {
     },
     emits: ['selected'],
     computed: {
+        filteredItems() {
+            if (this.searchTerm.trim().length == 0) {
+                return this.items;
+            } else {
+                let results = [];
+                let term = this.searchTerm;
+                for (var i = 0; i < this.items.length; i++) {
+                    var item = this.items[i];
+                    if (this.contains(item.code.toString(), term) || this.contains(item.name, term)) {
+                        results.push(item);
+                    }
+                }
+                return results;
+            }
+        },
         selectedItemCode() {
             return this.selectedItem != null ? this.selectedItem.code : 0;
         }
@@ -99,6 +114,9 @@ module.exports = {
         }
     },
     methods: {
+        contains(haystack, needle) {
+            return haystack.toUpperCase().indexOf(needle.toUpperCase()) != -1;
+        },
         autoSelectFirstItem() {
             if (this.autoSelect) {
                 if (this.items.length > 0) {
