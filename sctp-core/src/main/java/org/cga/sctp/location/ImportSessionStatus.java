@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, CGATechnologies
+ * Copyright (c) 2022, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,39 +30,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.mis.system;
+package org.cga.sctp.location;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.ConstructorBinding;
-import org.springframework.context.annotation.Configuration;
-
-@Configuration
-@ConstructorBinding
-public class SystemInformation {
-    private final String name;
-    private final String version;
-    private final String buildTimestamp;
-
-    public SystemInformation(
-            @Value("${spring.application.name}") String name,
-            @Value("${spring.application.version}") String version,
-            @Value("${spring.application.build_timestamp}") String buildTimestamp
-    ) {
-        this.name = name;
-        this.version = version;
-        this.buildTimestamp = buildTimestamp;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public String getBuildTimestamp() {
-        return buildTimestamp;
-    }
+public enum ImportSessionStatus {
+    Downloading,
+    Error,
+    Downloaded
 }

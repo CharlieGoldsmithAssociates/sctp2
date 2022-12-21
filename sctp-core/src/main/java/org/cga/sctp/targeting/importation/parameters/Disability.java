@@ -38,7 +38,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum Disability implements UbrParameterValue {
     Blind(1, null),
     Deaf(2, null),
-    SpeechImpairment(3, "Speech Imparement"), // This is how it was spelled in the forms
+    SpeechImpairment(3, "Speech Impairment"),
     DeformedLimbs(4, "Deformed limbs"),
     MentallyDisabled(5, "Mentally disabled"),
     Albinism(6, null),

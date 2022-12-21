@@ -3,26 +3,28 @@ package org.cga.sctp.mis.targeting;
 import org.cga.sctp.beneficiaries.BeneficiaryService;
 import org.cga.sctp.beneficiaries.Household;
 import org.cga.sctp.beneficiaries.Individual;
-import org.cga.sctp.location.Location;
-import org.cga.sctp.location.LocationCode;
-import org.cga.sctp.location.LocationService;
-import org.cga.sctp.location.LocationType;
+import org.cga.sctp.location.*;
 import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.mis.core.navigation.BreadcrumbDefinition;
 import org.cga.sctp.mis.core.navigation.BreadcrumbPath;
 import org.cga.sctp.mis.core.navigation.ModuleNames;
 import org.cga.sctp.mis.core.templating.SelectOptionItem;
+import org.cga.sctp.mis.location.LocationUtils;
 import org.cga.sctp.program.Program;
 import org.cga.sctp.program.ProgramService;
 import org.cga.sctp.targeting.*;
 import org.cga.sctp.targeting.criteria.Criterion;
+import org.cga.sctp.targeting.criteria.HouseholdCountParameters;
 import org.cga.sctp.user.AdminAccessOnly;
 import org.cga.sctp.user.AdminAndStandardAccessOnly;
 import org.cga.sctp.user.AuthenticatedUser;
 import org.cga.sctp.user.AuthenticatedUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -72,7 +74,7 @@ public class EligibilityVerificationController extends BaseController {
         return view("targeting/verification/new")
                 .addObject("criteria", criteria)
                 .addObject("programs", programs)
-                .addObject("districts", toSelectOptions(locationService.getActiveDistrictCodes()));
+                .addObject("districts", LocationUtils.householdLocationsToSelectOptions(locationService.getHouseholdLocations(LocationType.SUBNATIONAL1, null)));
     }
 
     @AdminAccessOnly
@@ -83,8 +85,23 @@ public class EligibilityVerificationController extends BaseController {
     }
 
     @AdminAccessOnly
+    @PostMapping(value = "/count-matching-households", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Long> countHouseholdsMatchingCriterionFilters(
+            @Valid @RequestBody HouseholdCountParameters parameters,
+            BindingResult bindingResult
+    ) {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().build();
+        }
+        final Criterion criterion = targetingService.findCriterionById(parameters.getCriterionId());
+        if (criterion == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(targetingService.countHouseholdsMatchingCriterionFilters(parameters, criterion));
+    }
+
+    @AdminAccessOnly
     @PostMapping
-    @BreadcrumbPath(link = "/", title = "Create Eligibility Verification Session")
     public ModelAndView create(
             @AuthenticatedUserDetails AuthenticatedUser user,
             @Valid @ModelAttribute("form") NewVerificationSessionForm form,
@@ -155,6 +172,24 @@ public class EligibilityVerificationController extends BaseController {
         return view("targeting/verification/review", "households", households)
                 .addObject("verification", verificationSessionView);
     }
+
+    @AdminAndStandardAccessOnly
+    @GetMapping("/export/with-member-details")
+    public ResponseEntity<Resource> exportEligibleHouseholdsWithMemberDetails(@RequestParam("session-id") long id) {
+        EligibilityVerificationSessionView session = targetingService.findVerificationViewById(id);
+        if (session == null) {
+            return ResponseEntity.notFound().build();
+        }
+        Resource resource = targetingService.exportEligibleHouseholdsWithMemberDetails(session);
+        if (resource == null) {
+            return ResponseEntity.internalServerError().build();
+        }
+        return ResponseEntity.status(200)
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header("Content-Disposition", format("filename=%s", resource.getFilename()))
+                .body(resource);
+    }
+
 
     @AdminAndStandardAccessOnly
     @GetMapping("/hh-composition")

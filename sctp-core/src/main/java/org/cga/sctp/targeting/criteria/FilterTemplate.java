@@ -39,14 +39,26 @@ import java.time.LocalDateTime;
 public abstract class FilterTemplate {
 
     public enum FieldType {
-        Number,
-        Decimal,
-        Text,
-        Date,
-        ListSingle,
-        ListMultiple,
-        NumberRange,
-        DecimalRange
+        Number(true),
+        NumberSigned(true),
+        Decimal(true),
+        Text(true),
+        Date(true),
+        ListSingle(true),
+        ListMultiple(true),
+        NumberRange(true),
+        DecimalRange(true),
+        /*
+         This filter has no value, it simply will be used for joining to other tables and views.
+         Computation is assumed to have already been done in the foreign linked table/view
+         */
+        ForeignMappedField(false);
+
+        FieldType(boolean wantsFilterValue) {
+            this.wantsFilterValue = wantsFilterValue;
+        }
+
+        public final boolean wantsFilterValue;
     }
 
     @Id
@@ -55,6 +67,10 @@ public abstract class FilterTemplate {
 
     private String tableName;
     private String columnName;
+
+    private String sourceTableName;
+    private String sourceColumnName;
+
     /**
      * Display text
      */
@@ -65,6 +81,9 @@ public abstract class FilterTemplate {
     private String fieldValues;
     private LocalDateTime createdAt;
     private String hint;
+
+    @Enumerated(EnumType.STRING)
+    private Operator operator;
 
     public Long getId() {
         return id;
@@ -128,5 +147,29 @@ public abstract class FilterTemplate {
 
     public void setHint(String hint) {
         this.hint = hint;
+    }
+
+    public Operator getOperator() {
+        return operator;
+    }
+
+    public void setOperator(Operator operator) {
+        this.operator = operator;
+    }
+
+    public String getSourceTableName() {
+        return sourceTableName;
+    }
+
+    public void setSourceTableName(String sourceTableName) {
+        this.sourceTableName = sourceTableName;
+    }
+
+    public String getSourceColumnName() {
+        return sourceColumnName;
+    }
+
+    public void setSourceColumnName(String sourceColumnName) {
+        this.sourceColumnName = sourceColumnName;
     }
 }

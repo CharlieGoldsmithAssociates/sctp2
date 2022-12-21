@@ -30,21 +30,23 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.mis.location;
+package org.cga.sctp.beneficiaries;
 
-import org.cga.sctp.location.LocationCode;
-import org.cga.sctp.mis.core.templating.SelectOptionItem;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.stream.Collectors;
+@Repository
+interface BrowsableHouseholdDetailsRepository extends JpaRepository<BrowsableHouseholdDetails, Long> {
 
-public final class LocationCodeUtil {
-    LocationCodeUtil() {}
+    @Query(nativeQuery = true, value = "select * from household_browser_item_view where village_code = :village")
+    Page<BrowsableHouseholdDetails> getPageByVillageCode(@Param("village") long villageCode, Pageable p);
 
-    public static List<SelectOptionItem> toSelectOptions(List<LocationCode> codes) {
-        return codes.stream()
-                .map(locationCode -> new SelectOptionItem(locationCode.getCode(),
-                        locationCode.getName(), locationCode.getCode()))
-                .collect(Collectors.toList());
-    }
+
+    @Query(nativeQuery = true, value = "select * from household_browser_item_view where village_code = :village")
+    Slice<BrowsableHouseholdDetails> getSliceByVillageCode(@Param("village") long villageCode, Pageable p);
 }

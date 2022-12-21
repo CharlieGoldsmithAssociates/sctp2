@@ -38,6 +38,7 @@ import org.cga.sctp.targeting.importation.parameters.EducationLevel;
 import org.cga.sctp.targeting.importation.parameters.Gender;
 import org.cga.sctp.targeting.importation.parameters.GradeLevel;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -71,6 +72,7 @@ public class EnrollmentUpdateForm {
     }
 
     public static class HouseholdRecipients {
+        @Validated
         public static class NonHouseholdMemberDetails {
             @NotNull
             private Gender gender;

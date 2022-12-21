@@ -108,8 +108,20 @@
                             <div class="field-body">
                                 <div class="field">
                                     <div class="control">
-                                        <div class="buttons is-right">
-                                            <button class="button is-primary">Apply</button>
+                                        <div class="level">
+                                            <div class="level-left">
+                                                <div class="level-item">
+                                                    <button id="btnCount"
+                                                            class="button is-info"
+                                                            type="button">Count Matching Households</button>
+                                                </div>
+                                                <p class="level-item"><strong id="householdCount">&nbsp;</strong></p>
+                                            </div>
+                                            <div class="level-right">
+                                                <p class="level-item">
+                                                    <button class="button is-primary" type="submit">Apply</button>
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -144,9 +156,81 @@
                     onError(e);
                 }
             };
-            window.loadLocations = function(target, sender, prepend, useExtraField){
+            let parameters = {districtCode: 0, taCode: 0, criterionId: 0, clusterCodes: []};
+            let updateCountButton = () => {
+                btnCount.disabled = parameters.districtCode === 0
+                    || parameters.taCode === 0
+                    || parameters.criterionId === 0
+                    || parameters.clusterCodes.length === 0;
+                console.table(parameters);
+            };
+            btnCount.onclick = function(){
+                let updateStatus = (s) => householdCount.innerText = s;
+                let onSuccess = (p) => {
+                    p.text().then(count => householdCount.innerText = `Matching households: ${count}`);
+                }
+                let errorHandler = (r) => {
+                    if(!r.ok){
+                        throw Error(r.statusText);
+                    }
+                    return r;
+                };
+                let onError = (e) => {
+                    console.log(e);
+                    alert('There was an error when counting matching households.');
+                }
+                let getOptionValue = (parameter, selectElement, label) => {
+                    var options = selectElement.selectedOptions;
+                    if(options.length == 0){
+                        updateStatus(`Selection is required for ${label}`);
+                        return false;
+                    }
+                    if(selectElement.multiple){
+                        parameters[parameter] = [];
+                        Array.apply(null, options).forEach((o) => parameters[parameter].push(parseInt(o.value)))
+                    }else{
+                        if(!/^[0-9]+$/.test(options[0].value)){
+                            updateStatus(`Selection is required for ${label}`);
+                            return false;
+                        }
+                        parameters[parameter] = parseInt(options[0].value);
+                    }
+                    return true;
+                }
+                if(!getOptionValue('districtCode', district, 'district')){
+                    return;
+                }
+                if(!getOptionValue('taCode', traditionalAuthority, 'traditional authority')){
+                    return;
+                }
+                if(!getOptionValue('clusterCodes', clusters, 'clusters')){
+                    return;
+                }
+                if(!getOptionValue('criterionId', criterion, 'criterion')){
+                    return;
+                }
+                try {
+                    const params = {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': csrf()['token'],
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(parameters)
+                    };
+                    fetch('/verification/count-matching-households', params)
+                    .then(errorHandler)
+                    .then(r => onSuccess(r))
+                    .catch(e => onError(e));
+                }catch(e){
+                    onError(e);
+                }
+            };
+            window.loadLocations = function(target, sender, prepend, useExtraField, type){
+                var code = sender.selectedOptions[0].value;
                 getOptions(
-                    '/locations/get-child-locations?id=' + sender.selectedOptions[0].value,
+                    `/locations/get-household-locations/${type}?parent-code=${code}`,
                     function(data){
                         renderOptions(target, data, prepend, useExtraField);
                     },
@@ -156,9 +240,26 @@
                     }
                  );
             };
-            district.onchange = function(){ clusters.length = 0;
-            loadLocations(traditionalAuthority, this, true, true); };
-            traditionalAuthority.onchange = function(){ loadLocations(clusters, this, false, true); };
+            district.onchange = function(){
+                clusters.length = 0;
+                //parameters.districtCode = district.selectedOptions[0].value;
+                //updateCountButton();
+                loadLocations(traditionalAuthority, this, true, true, 'SUBNATIONAL2');
+            };
+            criterion.onchange = () => {
+                //parameters.criterionId = criterion.selectedOptions[0].value;
+                //updateCountButton();
+            };
+            traditionalAuthority.onchange = function(){
+                //parameters.taCode = traditionalAuthority.selectedOptions[0].value;
+                //updateCountButton();
+                loadLocations(clusters, this, false, true, 'SUBNATIONAL3');
+            };
+            clusters.onchange = () => {
+                //parameters.clusterCodes.length = 0;
+                //updateCountButton();
+                //Array.apply(null, clusters.selectedOptions).forEach((o) => parameters.clusterCodes.push(o.value))
+            }
         })();
         </script>
 {% endblock %}

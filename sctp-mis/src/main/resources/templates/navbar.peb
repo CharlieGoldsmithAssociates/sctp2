@@ -21,7 +21,22 @@
                     <a class="navbar-item" href="/transfers/agencies">Transfer Agencies</a>
                     <a class="navbar-item" href="/terminologies">Terminologies</a>
                     {% if hasRole("ADMINISTRATOR") %}
-                    <a class="navbar-item" href="/locations">Geolocation Areas</a>
+                        <div class="nested navbar-item dropdown">
+                            <div class="dropdown-trigger">
+                                <button class="button" aria-haspopup="true" aria-controls="geo-dropdown-menu">
+                                    <span>Geolocation Areas</span>
+                                    <span class="icon is-small">
+                                        <i class="fas fa-angle-right" aria-hidden="true"></i>
+                                    </span>
+                                </button>
+                            </div>
+                            <div class="dropdown-menu" id="geo-dropdown-menu" role="menu">
+                                <div class="dropdown-content">
+                                    <a href="/locations/import" class="dropdown-item">Import from UBR</a>
+                                    <a href="/locations" class="dropdown-item">Manage Locations</a>
+                                </div>
+                            </div>
+                        </div>
                     {% endif %}
                     {% if hasRole("ADMINISTRATOR") %}
                     <a class="navbar-item" href="/programs">Programmes</a>
@@ -44,6 +59,8 @@
               </span>
                 </a>
                 <div class="navbar-dropdown">
+                    <a href="/targeting" class="navbar-item">Targeting &amp; Enrollment Main Menu</a>
+                    <hr class="navbar-divider" />
                     <a href="/data-import" class="navbar-item">Import Data From Sources</a>
                     <a href="/criteria" class="navbar-item">Create Targeting Criteria</a>
                     <a href="/verification" class="navbar-item">Pre-Eligibility Verification</a>

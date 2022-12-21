@@ -39,7 +39,10 @@ import org.cga.sctp.mis.core.templating.Booleans;
 import org.cga.sctp.mis.core.templating.SelectOptionItem;
 import org.cga.sctp.terminology.TerminologyService;
 import org.cga.sctp.user.AdminAndStandardAccessOnly;
+import org.cga.sctp.user.AuthenticatedUser;
+import org.cga.sctp.user.AuthenticatedUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -52,16 +55,18 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static java.util.Objects.isNull;
-import static org.cga.sctp.mis.location.LocationCodeUtil.toSelectOptions;
+import static org.cga.sctp.mis.location.LocationUtils.toSelectOptions;
 
 /**
  * This is mostly an MVC controller but also contains some controller actions that
  * server AJAX requests.
- *
  */
 @Controller
 @RequestMapping("/locations")
@@ -123,6 +128,40 @@ public class LocationController extends BaseController {
                 .addObject("locationType", terminologyService.getTerminologyByName(type.name()))
                 .addObject("parentType", getLocationParentType(type))
                 .addObject("booleans", Booleans.VALUES);
+    }
+
+    @GetMapping("/import")
+    @AdminAndStandardAccessOnly
+    ModelAndView importLocationsPage() {
+        return view("/locations/import");
+    }
+
+    @GetMapping(value = "/get-import-status", produces = MediaType.APPLICATION_JSON_VALUE)
+    @AdminAndStandardAccessOnly
+    ResponseEntity<Map<String, Object>> getImportStatus() {
+        LocationImportSessionSummary session = locationService.getLatestImportSession();
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("status", session);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(value = "/queue-imports-task", produces = MediaType.APPLICATION_JSON_VALUE)
+    @AdminAndStandardAccessOnly
+    ResponseEntity<?> queueLocationImportTask(@AuthenticatedUserDetails AuthenticatedUser user) {
+        if (locationService.hasActiveLocationImportSession()) {
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
+        } else {
+            LocationImportSession session = new LocationImportSession();
+            session.setUserId(user.id());
+            session.setStartDate(ZonedDateTime.now());
+            session.setStatus(ImportSessionStatus.Downloading);
+            session.setReportedCount(0L);
+            session.setImportedCount(0L);
+
+            locationService.startLocationImport(session);
+
+            return getImportStatus();
+        }
     }
 
     @PostMapping
@@ -361,5 +400,28 @@ public class LocationController extends BaseController {
     @AdminAndStandardAccessOnly
     public ResponseEntity<List<Location>> getActiveDistricts() {
         return ResponseEntity.ok(locationService.getActiveDistricts());
+    }
+
+    @AdminAndStandardAccessOnly
+    @GetMapping(value = "/get-household-locations/{location-type}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<SelectOptionItem>> getHouseholdLocationsAsSelectOptions(
+            @PathVariable("location-type") LocationType locationType,
+            @RequestParam(value = "parent-code", defaultValue = "1") Long parentCode) {
+        List<HouseholdLocation> locations = locationService.getHouseholdLocations(locationType, parentCode);
+        return ResponseEntity
+                .ok().contentType(MediaType.APPLICATION_JSON)
+                .body(LocationUtils.householdLocationsToSelectOptions(locations));
+    }
+
+    @AdminAndStandardAccessOnly
+    @GetMapping(value = "/get-household-locations-for-browser/{location-type}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<HouseholdLocation>> get(
+            @PathVariable("location-type") LocationType locationType,
+            @RequestParam(value = "parent-code", defaultValue = "1") Long parentCode,
+            @RequestParam(value = "use-gvh", defaultValue = "false") Boolean useGvh) {
+        List<HouseholdLocation> locations = locationService.getHouseholdLocations(locationType, parentCode,useGvh);
+        return ResponseEntity
+                .ok().contentType(MediaType.APPLICATION_JSON)
+                .body(locations);
     }
 }

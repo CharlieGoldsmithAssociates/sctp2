@@ -37,13 +37,18 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.WorkbookUtil;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.cga.sctp.core.TransactionalService;
 import org.cga.sctp.targeting.criteria.*;
 import org.cga.sctp.targeting.enrollment.EnrolmentSessionRepository;
 import org.cga.sctp.utils.CollectionUtils;
+import org.cga.sctp.utils.LocaleUtils;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.*;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
@@ -53,18 +58,19 @@ import javax.persistence.Query;
 import javax.transaction.Transactional;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Objects;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.isNull;
 
 @Service
 public class TargetingService extends TransactionalService {
@@ -123,6 +129,9 @@ public class TargetingService extends TransactionalService {
 
     @Autowired
     private TargetedHouseholdSummaryV2Repository targetedHouseholdSummaryV2Repository;
+
+    @Autowired
+    private EligibleHouseholdMemberRepository eligibleHouseholdMemberRepository;
 
     public void saveTargetingSession(TargetingSession targetingSession) {
         targetingSessionRepository.save(targetingSession);
@@ -212,11 +221,11 @@ public class TargetingService extends TransactionalService {
     }
 
     public List<CriteriaFilterTemplate> getIndividualFilterTemplates() {
-        return filterTemplateRepository.getByTableName("individuals");
+        return filterTemplateRepository.findAllByTableNameIn(Set.of("individuals", "individuals_view"));
     }
 
     public List<CriteriaFilterTemplate> getHouseholdFilterTemplates() {
-        return filterTemplateRepository.getByTableName("households");
+        return filterTemplateRepository.findAllByTableNameIn(Set.of("households", "child_headed_households_view"));
     }
 
     public CriteriaFilterTemplate findFilterTemplateById(Long templateId) {
@@ -251,6 +260,13 @@ public class TargetingService extends TransactionalService {
         );
     }
 
+    private String column(CriteriaFilterInfo info) {
+        return switch (info.getTableName()) {
+            case "individuals", "individuals_view" -> format("`individuals_view`.`%s`", info.getColumnName());
+            default -> format("`%s`.`%s`", info.getTableName(), info.getColumnName());
+        };
+    }
+
     public void compileFilterQuery(Criterion criterion) {
         List<CriteriaFilterInfo> criteriaFilterInfoList =
                 criteriaFilterRepository.getFilterValuesForCriterion(criterion.getId());
@@ -265,6 +281,11 @@ public class TargetingService extends TransactionalService {
         boolean hasHouseholdFilters;
         boolean hasIndividualFilters;
 
+        // Join "ForeignMappedField" filters
+        List<CriteriaFilterInfo> joins = criteriaFilterInfoList.stream()
+                .filter(info -> info.getFieldType() == FilterTemplate.FieldType.ForeignMappedField)
+                .toList();
+
         ands = criteriaFilterInfoList.stream()
                 .filter(cfi -> cfi.getConjunction() == CriteriaFilterObject.Conjunction.And || cfi.getConjunction() == CriteriaFilterObject.Conjunction.None)
                 .collect(Collectors.toList());
@@ -273,11 +294,15 @@ public class TargetingService extends TransactionalService {
                 .filter(cfi -> cfi.getConjunction() == CriteriaFilterObject.Conjunction.Or)
                 .collect(Collectors.toList());
 
+        // remove non-filter (joins)
+        ors.removeAll(joins);
+        ands.removeAll(joins);
+
         hasIndividualFilters = criteriaFilterInfoList.stream()
-                .anyMatch(cfi -> cfi.getTableName().equalsIgnoreCase("individuals"));
+                .anyMatch(cfi -> cfi.getTableName().equalsIgnoreCase("individuals") || cfi.getTableName().equalsIgnoreCase("individuals_view"));
 
         hasHouseholdFilters = criteriaFilterInfoList.stream()
-                .anyMatch(cfi -> cfi.getTableName().equalsIgnoreCase("households"));
+                .anyMatch(cfi -> cfi.getTableName().equalsIgnoreCase("households") || cfi.getTableName().equalsIgnoreCase("child_headed_households_view"));
 
         StringBuilder clauseBuilder = new StringBuilder();
 
@@ -289,10 +314,7 @@ public class TargetingService extends TransactionalService {
                     clauseBuilder.append(" AND ");
                 }
                 first = false;
-                clauseBuilder.append(info.getTableName())
-                        .append(".")
-                        .append(info.getColumnName())
-                        .append(" = :").append(placeholder(info));
+                clauseBuilder.append(info.getOperator().buildCondition(column(info), placeholder(info)));
             }
             clauseBuilder.append(')');
         }
@@ -308,10 +330,7 @@ public class TargetingService extends TransactionalService {
                     clauseBuilder.append(" OR ");
                 }
                 first = false;
-                clauseBuilder.append(info.getTableName())
-                        .append(".")
-                        .append(info.getColumnName())
-                        .append(" = :").append(placeholder(info));
+                clauseBuilder.append(info.getOperator().buildCondition(column(info), placeholder(info)));
             }
             clauseBuilder.append(')');
         }
@@ -319,17 +338,36 @@ public class TargetingService extends TransactionalService {
         // Compile the query only. The actual run and parameter binding will be done later.
 
         builder = new StringBuilder("SELECT households.household_id, households.location_code, households.ta_code,")
-                .append("households.zone_code, households.cluster_code FROM households");
+                .append("households.zone_code, households.cluster_code FROM households JOIN non_empty_households_v ON non_empty_households_v.household_id = households.household_id");
 
         if (hasHouseholdFilters) {
             if (hasIndividualFilters) {
-                builder.append(" JOIN individuals ON individuals.household_id = households.household_id");
+                builder.append(" JOIN individuals_view ON individuals_view.household_id = households.household_id");
             }
         } else {
-            builder.append(" JOIN individuals ON individuals.household_id = households.household_id");
+            builder.append(" JOIN individuals_view ON individuals_view.household_id = households.household_id");
         }
 
-        builder.append(" WHERE (").append(clauseBuilder).append(") GROUP BY household_id");
+        if (!joins.isEmpty()) {
+            for (CriteriaFilterInfo info : joins) {
+                String tableAlias = format("%s%d", info.getTableName(), System.currentTimeMillis());
+                String joinStatement = format(
+                        " JOIN `%1$s` `%2$s` ON `%2$s`.`%3$s` = `%4$s`.`%5$s`",
+                        info.getTableName(),
+                        tableAlias,
+                        info.getColumnName(),
+                        info.getSourceTableName(),
+                        info.getSourceColumnName()
+                );
+                builder.append(joinStatement);
+            }
+        }
+
+        if (!clauseBuilder.isEmpty()) {
+            builder.append(" WHERE (").append(clauseBuilder).append(")");
+        }
+
+        builder.append(" GROUP BY household_id");
 
         String query = builder.toString();
 
@@ -367,10 +405,13 @@ public class TargetingService extends TransactionalService {
      * @param criterion Criterion from which filters will be used to evaluate households
      * @param userId    The user who initiated this run.
      */
+    @Transactional
     private void runEligibilityVerification(EligibilityVerificationSession session, Criterion criterion, Long userId) {
 
         List<CriteriaFilterInfo> criteriaFilterInfoList = criteriaFilterRepository
                 .getFilterValuesForCriterion(session.getCriterionId());
+
+        ZonedDateTime timestamp = ZonedDateTime.now();
 
         StringBuilder builder = new StringBuilder(" INSERT INTO eligible_households (session_id, household_id, created_at, run_by, selection_status)")
                 .append(" WITH _insert_ AS (").append(criterion.getCompiledQuery()).append(")")
@@ -387,15 +428,70 @@ public class TargetingService extends TransactionalService {
                 .setParameter("selectionStatus", CbtStatus.PreEligible.name())
                 .setParameter("taCode", session.getTaCode())
                 .setParameter("sessionId", session.getId())
-                .setParameter("createdAt", LocalDateTime.now())
+                .setParameter("createdAt", timestamp)
                 .setParameter("districtCode", session.getDistrictCode())
                 .setParameter("clusterCodes", CollectionUtils.join(session.getClusters()));
 
+        criteriaFilterInfoList.removeIf(info -> info.getFieldType() == FilterTemplate.FieldType.ForeignMappedField);
+
         for (CriteriaFilterInfo info : criteriaFilterInfoList) {
-            query.setParameter(placeholder(info), info.getFilterValue());
+            final String placeholder = placeholder(info);
+            if (info.getOperator().isRanged) {
+                String placeholder1 = format("%s_1", placeholder);
+                String placeholder2 = format("%s_2", placeholder);
+                String[] values = info.getFilterValue().split(",");
+
+                query.setParameter(placeholder1, values[0]);
+                query.setParameter(placeholder2, values[1]);
+            } else {
+                query.setParameter(placeholder, info.getFilterValue());
+            }
         }
 
         query.executeUpdate();
+    }
+
+    /**
+     * @param parameters .
+     * @param criterion  .
+     * @return Number of households that match the filters under the given criterion
+     */
+    public long countHouseholdsMatchingCriterionFilters(HouseholdCountParameters parameters, Criterion criterion) {
+
+        List<CriteriaFilterInfo> criteriaFilterInfoList = criteriaFilterRepository
+                .getFilterValuesForCriterion(parameters.getCriterionId());
+
+        StringBuilder builder = new StringBuilder("WITH _cte_ AS (")
+                .append(criterion.getCompiledQuery()).append(")")
+                .append(" SELECT COUNT(DISTINCT _cte_.household_id)")
+                .append(" FROM _cte_")
+                .append(" WHERE location_code = :districtCode AND ta_code = :taCode")
+                .append(" AND FIND_IN_SET(cluster_code, :clusterCodes)");
+
+        String sql = builder.toString();
+
+        Query query = entityManager.createNativeQuery(sql);
+
+        query.setParameter("taCode", parameters.getTaCode())
+                .setParameter("districtCode", parameters.getDistrictCode())
+                .setParameter("clusterCodes", CollectionUtils.join(parameters.getClusterCodes()));
+
+        criteriaFilterInfoList.removeIf(info -> info.getFieldType() == FilterTemplate.FieldType.ForeignMappedField);
+
+        for (CriteriaFilterInfo info : criteriaFilterInfoList) {
+            final String placeholder = placeholder(info);
+            if (info.getOperator().isRanged) {
+                String placeholder1 = format("%s_1", placeholder);
+                String placeholder2 = format("%s_2", placeholder);
+                String[] values = info.getFilterValue().split(",");
+
+                query.setParameter(placeholder1, values[0]);
+                query.setParameter(placeholder2, values[1]);
+            } else {
+                query.setParameter(placeholder, info.getFilterValue());
+            }
+        }
+        return ((BigInteger) query.getSingleResult()).longValue();
     }
 
     public Page<EligibilityVerificationSessionView> getVerificationSessionViews(Pageable pageable) {
@@ -717,5 +813,126 @@ public class TargetingService extends TransactionalService {
     private void addCell(Row row, int index, String data) {
         Cell cell = row.createCell(index);
         cell.setCellValue(data);
+    }
+
+    public Resource exportEligibleHouseholdsWithMemberDetails(EligibilityVerificationSessionView session) {
+        Path filePath = null;
+        Path tmp_path = Path.of(System.getProperty("java.io.tmpdir")).toAbsolutePath().normalize();
+
+        String timestamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmm")
+                .withLocale(Locale.US)
+                .format(session.getCreatedAt());
+
+        String filename = LocaleUtils.fileName(format(
+                        "%s_%s_%s_%s_%s",
+                        session.getDistrictName(),
+                        session.getTaName(),
+                        session.getProgramName(),
+                        session.getCriterionName(),
+                        timestamp
+                )
+        );
+
+        try {
+            filePath = Files.createTempFile(tmp_path, filename, ".xlsx");
+            exportEligibleHouseholds(session, filePath);
+        } catch (Exception e) {
+            LOG.error("Exception exporting eligible households list to {}", tmp_path, e);
+            if (filePath != null) {
+                try {
+                    Files.delete(filePath);
+                } catch (Exception ignore) {
+                }
+            }
+            return null;
+        }
+
+        return filePath != null ? new FileSystemResource(filePath) : null;
+    }
+
+    /**
+     * Stream data to excel file instead of holding it all in memory
+     *
+     * @param session .
+     */
+    private void exportEligibleHouseholds(EligibilityVerificationSessionView session, Path filePath) {
+        try (SXSSFWorkbook workbook = new SXSSFWorkbook();
+             FileOutputStream fos = new FileOutputStream(filePath.toFile())) {
+
+            workbook.setCompressTempFiles(true);
+
+            SXSSFSheet sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName("Households"));
+
+            // only keep 100 items in memory. Excess will be flushed to file.
+            sheet.setRandomAccessWindowSize(20);
+
+            final Row titleRow = sheet.createRow(0);
+            titleRow.createCell(0).setCellValue("Eligible Household Member List");
+            titleRow.createCell(1).setBlank();
+            titleRow.createCell(2).setCellValue(format("T/A: %s", session.getTaName()));
+
+            final Row headerRow = sheet.createRow(1);
+
+            headerRow.createCell(0).setCellValue("HOUSEHOLD CODE");
+            headerRow.createCell(1).setCellValue("FORM NUMBER");
+            headerRow.createCell(2).setCellValue("NAME");
+            headerRow.createCell(3).setCellValue("MEMBER CODE");
+            headerRow.createCell(4).setCellValue("D.O.B");
+            headerRow.createCell(5).setCellValue("AGE");
+            headerRow.createCell(6).setCellValue("RELATIONSHIP");
+            headerRow.createCell(7).setCellValue("NATIONAL ID");
+            headerRow.createCell(8).setCellValue("DISABILITY");
+            headerRow.createCell(9).setCellValue("CHRONIC ILLNESS");
+
+            // location
+            headerRow.createCell(10).setCellValue("CLUSTER");
+            headerRow.createCell(11).setCellValue("ZONE");
+            headerRow.createCell(12).setCellValue("VILLAGE");
+
+            int pageSize = 100, page = 0, rowIndex = 2;
+            while (true) {
+                List<EligibleHouseholdMember> memberList = eligibleHouseholdMemberRepository
+                        .getPaged(session.getId(), page, pageSize);
+                if (memberList.isEmpty()) {
+                    break;
+                }
+
+                // append to excel
+                for (EligibleHouseholdMember eligibleHouseholdMember : memberList) {
+                    Row row = sheet.createRow(rowIndex);
+
+                    row.createCell(0).setCellValue(eligibleHouseholdMember.getHouseholdCode());
+                    row.createCell(1).setCellValue(eligibleHouseholdMember.getFormNumber());
+                    row.createCell(2).setCellValue(eligibleHouseholdMember.getName());
+                    row.createCell(3).setCellValue(eligibleHouseholdMember.getMemberCode());
+                    row.createCell(4).setCellValue(DateTimeFormatter.ofPattern("yyyy-MM-dd").format(eligibleHouseholdMember.getDateOfBirth()));
+                    row.createCell(5).setCellValue(eligibleHouseholdMember.getAge());
+                    row.createCell(6).setCellValue(eligibleHouseholdMember.getRelationship().name());
+                    row.createCell(7).setCellValue(LocaleUtils.getNationalFromIndividualId(eligibleHouseholdMember.getNationalId()));
+                    row.createCell(8).setCellValue(eligibleHouseholdMember.getDisability().toString());
+                    row.createCell(9).setCellValue(eligibleHouseholdMember.getChronicIllness().toString());
+
+                    // location
+                    row.createCell(10).setCellValue(eligibleHouseholdMember.getCluster());
+                    row.createCell(11).setCellValue(eligibleHouseholdMember.getZone());
+                    row.createCell(12).setCellValue(eligibleHouseholdMember.getVillage());
+
+                    rowIndex++;
+                }
+
+                // last page?
+                if (memberList.size() < pageSize) {
+                    break;
+                }
+
+                page += pageSize;
+            }
+
+            workbook.write(fos);
+            workbook.dispose();
+
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
+        }
     }
 }

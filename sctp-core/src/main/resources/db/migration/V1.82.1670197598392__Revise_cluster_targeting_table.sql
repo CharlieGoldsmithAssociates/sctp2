@@ -1,0 +1,1 @@
+alter table cluster_targeting DROP PRIMARY KEY, ADD PRIMARY KEY(session_id, cluster_code);

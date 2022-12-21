@@ -32,6 +32,7 @@
 
 package org.cga.sctp.mis.system;
 
+import org.cga.sctp.application.SystemInformation;
 import org.cga.sctp.core.BaseService;
 import org.cga.sctp.mis.config.HostConfigOverride;
 import org.cga.sctp.mis.config.ServerConfiguration;

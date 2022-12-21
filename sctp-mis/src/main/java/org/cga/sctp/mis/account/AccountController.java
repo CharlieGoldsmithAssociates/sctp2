@@ -89,6 +89,7 @@ public class AccountController extends BaseController {
             return withDangerMessage("/account/password", "Invalid password entered.");
         }
 
+        user.setAuthAttempts(0);
         user.setPassword(authService.hashPassword(passwordForm.getNewPassword()));
         userService.saveUser(user);
 

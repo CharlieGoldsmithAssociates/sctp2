@@ -32,8 +32,10 @@
 
 package org.cga.sctp.mis.targeting;
 
+import org.cga.sctp.location.Location;
 import org.cga.sctp.location.LocationCode;
 import org.cga.sctp.location.LocationService;
+import org.cga.sctp.location.LocationType;
 import org.cga.sctp.mis.core.SecuredBaseController;
 import org.cga.sctp.mis.core.navigation.BreadcrumbDefinition;
 import org.cga.sctp.mis.core.navigation.BreadcrumbPath;
@@ -53,6 +55,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -61,7 +64,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
-import static org.cga.sctp.mis.location.LocationCodeUtil.toSelectOptions;
+import static org.cga.sctp.mis.location.LocationUtils.toSelectOptions;
 
 @Controller
 @RequestMapping("/data-import/from-ubr-api")
@@ -93,13 +96,37 @@ public class UbrApiImportController extends SecuredBaseController {
                                        RedirectAttributes attributes) {
         if (result.hasErrors()) {
             setDangerFlashMessage("Cannot import data, the form has errors please correct them.", attributes);
-            return view("targeting/import/ubr/api");
+            return view("targeting/import/ubr/api")
+                    .addObject("districts", toSelectOptions(locationService.getActiveDistrictCodes()))
+                    .addObject("traditionalAuthorities", emptyList())
+                    .addObject("groupVillageHeads", emptyList());
         }
+
+        Location district, ta;
+
+        if ((district = locationService.findActiveLocationByCodeAndType(Long.parseLong(form.getDistrictCode()), LocationType.SUBNATIONAL1)) == null) {
+            result.addError(new FieldError("form", "district_code", "Invalid district selected"));
+            setDangerFlashMessage("Cannot import data, the form has errors please correct them.", attributes);
+            return view("targeting/import/ubr/api")
+                    .addObject("districts", toSelectOptions(locationService.getActiveDistrictCodes()))
+                    .addObject("traditionalAuthorities", emptyList())
+                    .addObject("groupVillageHeads", emptyList());
+        }
+
+        if ((ta = locationService.findActiveLocationByCodeAndType(Long.parseLong(form.getTraditionalAuthorityCode()), LocationType.SUBNATIONAL2)) == null) {
+            result.addError(new FieldError("form", "district_code", "Invalid T/A selected"));
+            setDangerFlashMessage("Cannot import data, the form has errors please correct them.", attributes);
+            return view("targeting/import/ubr/api").addObject("districts", toSelectOptions(locationService.getActiveDistrictCodes()))
+                    .addObject("traditionalAuthorities", emptyList())
+                    .addObject("groupVillageHeads", emptyList());
+        }
+
         LOG.info("UBR Import village clusters {}", form.getGroupVillageHeadCode());
 
-        DataImport dataImport = ubrImportService.queueImportFromUBRAPI(form, user.id());
+        DataImport dataImport = ubrImportService.queueImportFromUBRAPI(form, format("%s, %s", ta.getName(), district.getName()), user.id());
 
-        return view(redirectWithSuccessMessage(String.format("/data-import/%s/details", dataImport.getId()), "System has initiated Data Import from UBR API. Please check status of the import after a few moments", attributes));
+        return view(redirectWithSuccessMessage(format("/data-import/%s/details", dataImport.getId()),
+                "System has initiated Data Import from UBR API. Please check status of the import after a few moments", attributes));
     }
 
     private DataImportView getImport(Long id, RedirectAttributes attributes) {

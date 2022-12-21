@@ -38,6 +38,7 @@ import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 /**
  * A request to the UBR API to fetch Households
@@ -48,11 +49,11 @@ public class UbrRequest {
      */
     public static final long UBR_SCTP_PROGRAMME_CODE = 1;
 
-    @NonNull
+    @NotNull(message = "District is required")
     @JsonProperty("district_code")
     private String districtCode; //":"103",
 
-    @NonNull
+    @NotNull(message = "Traditional authority is required")
     @JsonProperty("traditional_authority_code")
     private String traditionalAuthorityCode; //": "10302",
 

@@ -36,8 +36,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface CriteriaFilterTemplateRepository extends JpaRepository<CriteriaFilterTemplate, Long> {
     List<CriteriaFilterTemplate> getByTableName(String tableName);
+
+    List<CriteriaFilterTemplate> findAllByTableNameIn(Set<String> tableName);
 }

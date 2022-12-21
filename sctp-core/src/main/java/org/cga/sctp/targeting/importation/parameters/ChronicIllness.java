@@ -40,7 +40,7 @@ public enum ChronicIllness implements UbrParameterValue {
     TB(2, null),
     HivAids(3, "HIV/AIDS"),
     Asthma(4, null),
-    Arthritis(5, "Athritis"),
+    Arthritis(5, "Arthritis"),
     Epilepsy(6, null),
     Cancer(7, null),
     Other(8, null),

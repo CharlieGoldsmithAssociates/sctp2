@@ -122,3 +122,35 @@ input[type="checkbox"].is-medium {
 .obj-fit-contain {
     object-fit: contain;
 }
+
+/* Nested dropdown extension */
+.nested.dropdown:hover > .dropdown-menu {
+	 display: block;
+}
+ .nested.dropdown .dropdown-menu {
+	 top: -15px;
+	 margin-left: 100%;
+}
+ .nested.dropdown .dropdown-trigger button::after {
+
+}
+ .nested.dropdown .dropdown-trigger button {
+	 padding: 0px 0px;
+	 border: 0px;
+	 font-size: 14px;
+	 font-weight: 400;
+	 height: 2em;
+}
+/**/
+
+/* Fix selectr dropdown not getting being hidden because it's outside of INPUT */
+.selectr-hidden {
+    display: none !important;
+}
+
+/* Fix menu dropdown not stretching to fit parent container */
+.dropdown:hover > .dropdown-menu .dropdown-content {
+    width: fill-available;
+    width: -webkit-fill-available;
+    width: -moz-fill-available;
+}

@@ -45,9 +45,7 @@ import org.cga.sctp.targeting.importation.ubrapi.data.TargetingData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -96,10 +94,9 @@ public class UBRImportService extends TransactionalService {
 
     private static final UbrApiDataToHouseholdImportMapper mapper = new UbrApiDataToHouseholdImportMapper();
 
-    public DataImport queueImportFromUBRAPI(final UbrRequest ubrRequest, final long userId) {
+    public DataImport queueImportFromUBRAPI(final UbrRequest ubrRequest, String importSessionTitle, final long userId) {
         ubrRequest.setProgrammes(UbrRequest.UBR_SCTP_PROGRAMME_CODE);
 
-        String importSessionTitle = format("%s - %s @%s", ubrRequest.getDistrictCode(), ubrRequest.getTraditionalAuthorityCode(), LocalDate.now().format(DateTimeFormatter.ISO_DATE));
         DataImport dataImport = new DataImport();
         dataImport.setTitle(importSessionTitle);
         dataImport.setDataSource(DataImportObject.ImportSource.UBR_API);

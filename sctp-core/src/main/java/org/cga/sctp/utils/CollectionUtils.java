@@ -46,7 +46,7 @@ public final class CollectionUtils {
         if (glue == null || glue.isEmpty()) {
             return "";
         }
-        StringJoiner joiner = new StringJoiner(glue);
+        final StringJoiner joiner = new StringJoiner(glue);
         for (Object o : collection) {
             joiner.add(Objects.toString(o));
         }

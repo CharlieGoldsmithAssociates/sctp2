@@ -265,8 +265,6 @@ public class EnrollmentController extends BaseController {
 
         enrollmentService.updateHouseholdMemberDetails(sessionId, updateRequest.getUpdates());
 
-        LOG.warn("update member details");
-
         return ResponseEntity.ok().build();
     }
 }

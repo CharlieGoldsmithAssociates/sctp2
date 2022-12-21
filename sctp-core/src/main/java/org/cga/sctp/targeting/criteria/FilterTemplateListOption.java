@@ -44,6 +44,9 @@ public class FilterTemplateListOption {
     private String fieldValue;
     private String fieldText;
 
+    @Enumerated(EnumType.STRING)
+    private Operator operator;
+
     public Long getId() {
         return id;
     }
@@ -74,5 +77,22 @@ public class FilterTemplateListOption {
 
     public void setFieldText(String fieldText) {
         this.fieldText = fieldText;
+    }
+
+    public Operator getOperator() {
+        return operator;
+    }
+
+    public void setOperator(Operator operator) {
+        this.operator = operator;
+    }
+
+    public String[] getBetweenOperatorValues() {
+        if (operator != Operator.BETWEEN) {
+            throw new IllegalStateException("Operator is not " + Operator.BETWEEN);
+        }
+        String[] parts = getFieldValue().split(",");
+        assert parts.length == 2;
+        return parts;
     }
 }
