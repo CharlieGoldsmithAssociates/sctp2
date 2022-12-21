@@ -66,12 +66,12 @@ public class TopUp {
     private Long districtCode;
 
     @Column(name = "ta_codes")
-//    @Convert(converter = LongSetConverter.class)
-    private String taCodes;
+    @Convert(converter = LongSetConverter.class)
+    private Set<Long> taCodes;
 
     @Column(name = "cluster_codes")
-//    @Convert(converter = LongSetConverter.class)
-    private String clusterCodes;
+    @Convert(converter = LongSetConverter.class)
+    private Set<Long> clusterCodes;
 
     @Column(name = "location_type")
     @Enumerated(EnumType.STRING)
@@ -180,20 +180,20 @@ public class TopUp {
         this.districtCode = districtCode;
     }
 
-    public String getClusterCodes() {
-        return clusterCodes;
-    }
-
-    public void setClusterCodes(String clusterCodes) {
-        this.clusterCodes = clusterCodes;
-    }
-
-    public String getTaCodes() {
+    public Set<Long> getTaCodes() {
         return taCodes;
     }
 
-    public void setTaCodes(String taCodes) {
+    public void setTaCodes(Set<Long> taCodes) {
         this.taCodes = taCodes;
+    }
+
+    public Set<Long> getClusterCodes() {
+        return clusterCodes;
+    }
+
+    public void setClusterCodes(Set<Long> clusterCodes) {
+        this.clusterCodes = clusterCodes;
     }
 
     public LocationType getLocationType() {
@@ -322,5 +322,34 @@ public class TopUp {
 
     public void setUpdatedAt(ZonedDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    @Override
+    public String toString() {
+        return "TopUp{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", programId=" + programId +
+                ", funderId=" + funderId +
+                ", districtCode=" + districtCode +
+                ", taCodes=" + taCodes +
+                ", clusterCodes=" + clusterCodes +
+                ", locationType=" + locationType +
+                ", isDiscountedFromFunds=" + isDiscountedFromFunds +
+                ", isCategorical=" + isCategorical +
+                ", isActive=" + isActive +
+                ", isExecuted=" + isExecuted +
+                ", topupType=" + topupType +
+                ", householdStatus=" + householdStatus +
+                ", percentage=" + percentage +
+                ", categoricalTargetingCriteriaId=" + categoricalTargetingCriteriaId +
+                ", fixedAmount=" + fixedAmount +
+                ", amountProjected=" + amountProjected +
+                ", amountExecuted=" + amountExecuted +
+                ", createdBy=" + createdBy +
+                ", updatedBy=" + updatedBy +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
     }
 }

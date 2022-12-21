@@ -36,7 +36,6 @@ import org.cga.sctp.location.LocationType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Set;
 
 public interface TopUpView {
     Long getId();
@@ -47,8 +46,8 @@ public interface TopUpView {
     String getProgramName();
     Long getDistrictCode();
     String getDistrictName();
-    Set<Long> getClusterCodes();
-    Set<Long> getTaCodes();
+    String getClusterCodes();
+    String getTaCodes();
     LocationType getLocationType();
     Boolean getDiscountedFromFunds();
     Boolean getCategorical();

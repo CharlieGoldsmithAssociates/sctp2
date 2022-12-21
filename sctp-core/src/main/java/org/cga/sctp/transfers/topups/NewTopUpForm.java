@@ -52,9 +52,9 @@ public class NewTopUpForm {
     @NotNull(message = "Location(s) must be specified")
     private Long districtCode;
 
-    private String taCodes;
+    private Set<String> taCodes;
 
-    private String clusterCodes;
+    private Set<String> clusterCodes;
 
     @NotNull(message = "Location Type must be specified")
     private String locationType;
@@ -138,19 +138,19 @@ public class NewTopUpForm {
         this.districtCode = districtCode;
     }
 
-    public String getTaCodes() {
+    public Set<String> getTaCodes() {
         return taCodes;
     }
 
-    public void setTaCodes(String taCodes) {
+    public void setTaCodes(Set<String> taCodes) {
         this.taCodes = taCodes;
     }
 
-    public String getClusterCodes() {
+    public Set<String> getClusterCodes() {
         return clusterCodes;
     }
 
-    public void setClusterCodes(String clusterCodes) {
+    public void setClusterCodes(Set<String> clusterCodes) {
         this.clusterCodes = clusterCodes;
     }
 

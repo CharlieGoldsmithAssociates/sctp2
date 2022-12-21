@@ -38,11 +38,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class TopUpServiceImpl implements TopUpService {
@@ -67,16 +70,30 @@ public class TopUpServiceImpl implements TopUpService {
         topUp.setFixedAmount(params.getFixedAmount());
         topUp.setHouseholdStatus(params.getHouseholdStatus());
         topUp.setDistrictCode(params.getDistrictCode());
-        topUp.setTaCodes(params.getTaCodes());
-        topUp.setClusterCodes(params.getClusterCodes());
 
+        Set<Long> taCodes = params.getTaCodes()
+                .stream()
+                .filter(StringUtils::hasText)
+                .map(Long::parseLong)
+                .collect(Collectors.toSet());
+        topUp.setTaCodes(taCodes);
+
+        Set<Long> clusterCodes = params.getClusterCodes()
+                .stream()
+                .filter(StringUtils::hasText)
+                .map(Long::parseLong)
+                .collect(Collectors.toSet());
+        topUp.setClusterCodes(clusterCodes);
+
+//        topUp.setLocationType(params.getLocationType());
+        topUp.setLocationType(LocationType.SUBNATIONAL1); // TODO:
         // new topups will by default not have been executed
         topUp.setExecuted(false);
         topUp.setAmountExecuted(null);
         topUp.setAmountProjected(null);
+        topUp.setCategorical(params.isCategorical());
 
         if (params.isCategorical()) {
-            topUp.setCategorical(params.isCategorical());
             topUp.setCategoricalTargetingCriteriaId(params.getCategoricalTargetingCriteriaId());
             // TODO: handle categorical parameters - create criteria record and link to the topup
             // TODO: handle params.getOrphanhoodStatuses() et al
