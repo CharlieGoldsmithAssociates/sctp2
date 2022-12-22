@@ -42,6 +42,8 @@ import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface EnrolmentSessionRepository extends JpaRepository<EnrollmentSession, Long> {
     /**
@@ -83,4 +85,7 @@ public interface EnrolmentSessionRepository extends JpaRepository<EnrollmentSess
 
     @Query(nativeQuery = true, value = "SELECT count(household_id) FROM household_enrollment WHERE session_id = :id AND (status = 6 OR status <> 5")
     int countPreEligibleOrNotEnrolled(@Param("id") Long id);
+
+    @Query
+    Optional<EnrollmentSession> findLastByDistrictCode(Long locationCode); // TODO: add isClosed parameter
 }

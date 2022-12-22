@@ -43,8 +43,9 @@ import javax.persistence.Converter;
 public enum TopUpType implements UbrParameterValue {
     FIXED_AMOUNT(1, "Fixed Amount"),
     PERCENTAGE_OF_RECIPIENT_AMOUNT(2, "% of Recipient Amount"),
-    EQUIVALENT_BENEFICIARY_AMOUNT(3, "Current HH monthly amount"),
-    EPAYMENT_ADMIN_FEE_TOPUP(4, "E-Payment admin/cashout fee");
+    EQUIVALENT_BENEFICIARY_AMOUNT(3, "Current HH monthly amount");
+
+    // EPAYMENT_ADMIN_FEE_TOPUP(4, "E-Payment admin/cashout fee"); TODO: requires more clarification on this.
     private final int code;
     private final String description;
 

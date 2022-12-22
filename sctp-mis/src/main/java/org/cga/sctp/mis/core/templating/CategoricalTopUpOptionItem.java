@@ -30,32 +30,33 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.transfers;
+package org.cga.sctp.mis.core.templating;
 
-import java.math.BigDecimal;
+public class CategoricalTopUpOptionItem {
+    private Integer code;
+    private String text;
 
-public interface TransferEventHouseholdView {
-    Long getHouseholdId();
-    String getFormNumber();
-    String getDistrictName();
-    String getTaName();
-    String getZoneName();
-    String getClusterName();
-    String getVillageName();
-    String getMlCode();
-    String getVillageHeadName();
-    String getHouseholdHead();
-    Long getMemberCount();
-    Long getTotalChildren();
-    Long getPrimaryChildren();
-    Long getSecondaryChildren();
-    String getReceiverName();
-    BigDecimal getPrimaryIncentive();
-     BigDecimal getSecondaryIncentive();
-    BigDecimal getMonthlyAmount();
-    Long getNumberOfMonths();
-    BigDecimal getTotalMonthlyAmount();
-    BigDecimal getTotalArrears();
-    BigDecimal getTotalAmount();
-    Boolean getIsFirstTransfer();
+    public CategoricalTopUpOptionItem() {
+    }
+
+    public CategoricalTopUpOptionItem(Integer code, String text) {
+        this.code = code;
+        this.text = text;
+    }
+
+    public Integer getCode() {
+        return code;
+    }
+
+    public void setCode(Integer code) {
+        this.code = code;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
 }

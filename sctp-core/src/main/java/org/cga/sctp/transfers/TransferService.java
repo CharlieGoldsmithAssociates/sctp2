@@ -35,6 +35,7 @@ package org.cga.sctp.transfers;
 import org.cga.sctp.beneficiaries.Household;
 import org.cga.sctp.location.Location;
 import org.cga.sctp.targeting.CbtStatus;
+import org.cga.sctp.targeting.enrollment.HouseholdEnrollmentData;
 import org.cga.sctp.transfers.accounts.TransferAccountNumberList;
 import org.cga.sctp.transfers.agencies.TransferAgenciesRepository;
 import org.cga.sctp.transfers.periods.TransferPeriod;
@@ -53,8 +54,6 @@ import java.util.Optional;
  * Orchestrates and manages Transfers
  */
 public interface TransferService {
-
-    TransferSessionRepository getTranferSessionRepository();
 
     TransferAgenciesRepository getTransferAgenciesRepository();
 
@@ -79,6 +78,15 @@ public interface TransferService {
      * @param userId user who performed activity
      */
     TransferSession initiateTransfers(Location location, TransferSession transferSession, long userId);
+
+    /**
+     * Creates transfer records and pre-computes the transfer amounts for the households
+     * that will get transfers in the period.
+     *
+     * @param transferPeriod the transfer period to create transfers in
+     * @param userId user who performed activity
+     */
+    TransferSession createTransfers(TransferPeriod transferPeriod, long userId, List<HouseholdEnrollmentData> householdEnrollmentData);
 
     List<Transfer> fetchPendingTransferListByLocation(long districtCode, Long taCode, Long villageCluster, Long zone, Long village, Pageable pageable);
 

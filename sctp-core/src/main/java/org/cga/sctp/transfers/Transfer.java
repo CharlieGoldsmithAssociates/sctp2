@@ -34,9 +34,9 @@ package org.cga.sctp.transfers;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "transfers")
@@ -53,9 +53,6 @@ public class Transfer {
     private Long householdId;
 
     @Column
-    private Long transferSessionId;
-
-    @Column
     @Convert(converter = TransferStatus.Converter.class)
     private TransferStatus transferState;
 
@@ -65,26 +62,11 @@ public class Transfer {
     @Column
     private Long transferPeriodId;
 
-    @Column
-    private Long districtId;
-
-    @Column
-    private Long villageClusterId;
-
-    @Column
-    private Long traditionalAuthorityId;
-
-    @Column
-    private Long zoneId;
-
     /**
      * Number of household Members during enrollment',
      */
     @Column
     private Integer householdMemberCount;
-
-    @Column
-    private Long recipientId;
 
     /**
      * BIGINT COMMENT 'Amount to receive based on program basic amount or number of household members',
@@ -144,7 +126,7 @@ public class Transfer {
      * TINYINT(1) DEFAULT 1 COMMENT 'Whether it is the first transfer for the household or not',
      */
     @Column(name = "is_first_transfer")
-    private Long isFirstTransfer;
+    private Boolean isFirstTransfer;
 
     /**
      * TINYINT(1) COMMENT 'Whether the transfer has been Suspended for other reasons',
@@ -158,21 +140,15 @@ public class Transfer {
     @Column
     private Boolean isWithheld;
 
-    /**
-     * BIGINT null COMMENT 'Receiever who will receive the funds, possible to be non-member of household',
-     */
     @Column
     private Long receiverId;
 
-    /**
-     * VARCHAR(50) NULL COMMENT 'Account number assigned for transfer',
-     */
     @Column
     private String accountNumber;
 
-    /**
-     * BIGINT DEFAULT 0 COMMENT 'Amount received by the household',
-     */
+    @Column
+    private BigDecimal totalTransferAmount;
+
     @Column
     private BigDecimal amountDisbursed;
 
@@ -223,16 +199,14 @@ public class Transfer {
     private LocalDate dateReconciled;
 
     @Column
-    private LocalDateTime createdAt;
+    private ZonedDateTime createdAt;
 
     @Column
-    private LocalDateTime modifiedAt;
+    private ZonedDateTime modifiedAt;
 
-    // BIGINT NOT NULL COMMENT 'The user who created/initiated this transfer record',
     @Column
     private Long createdBy;
 
-    // BIGINT NOT NULL COMMENT 'The user who approved/reviewed the transfer record should not be == created_by',
     @Column
     private Long reviewedBy;
 
@@ -260,14 +234,6 @@ public class Transfer {
         this.householdId = householdId;
     }
 
-    public Long getTransferSessionId() {
-        return transferSessionId;
-    }
-
-    public void setTransferSessionId(Long transferSessionId) {
-        this.transferSessionId = transferSessionId;
-    }
-
     public TransferStatus getTransferState() {
         return transferState;
     }
@@ -292,52 +258,12 @@ public class Transfer {
         this.transferPeriodId = transferPeriodId;
     }
 
-    public Long getDistrictId() {
-        return districtId;
-    }
-
-    public void setDistrictId(Long districtId) {
-        this.districtId = districtId;
-    }
-
-    public Long getVillageClusterId() {
-        return villageClusterId;
-    }
-
-    public void setVillageClusterId(Long villageClusterId) {
-        this.villageClusterId = villageClusterId;
-    }
-
-    public Long getTraditionalAuthorityId() {
-        return traditionalAuthorityId;
-    }
-
-    public void setTraditionalAuthorityId(Long traditionalAuthorityId) {
-        this.traditionalAuthorityId = traditionalAuthorityId;
-    }
-
-    public Long getZoneId() {
-        return zoneId;
-    }
-
-    public void setZoneId(Long zoneId) {
-        this.zoneId = zoneId;
-    }
-
     public Integer getHouseholdMemberCount() {
         return householdMemberCount;
     }
 
     public void setHouseholdMemberCount(Integer householdMemberCount) {
         this.householdMemberCount = householdMemberCount;
-    }
-
-    public Long getRecipientId() {
-        return recipientId;
-    }
-
-    public void setRecipientId(Long recipientId) {
-        this.recipientId = recipientId;
     }
 
     public BigDecimal getBasicSubsidyAmount() {
@@ -412,11 +338,11 @@ public class Transfer {
         this.secondaryBonusAmount = secondaryBonusAmount;
     }
 
-    public Long getIsFirstTransfer() {
+    public Boolean getIsFirstTransfer() {
         return isFirstTransfer;
     }
 
-    public void setIsFirstTransfer(Long isFirstTransfer) {
+    public void setIsFirstTransfer(Boolean isFirstTransfer) {
         this.isFirstTransfer = isFirstTransfer;
     }
 
@@ -532,19 +458,19 @@ public class Transfer {
         this.dateReconciled = dateReconciled;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public ZonedDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(ZonedDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getModifiedAt() {
+    public ZonedDateTime getModifiedAt() {
         return modifiedAt;
     }
 
-    public void setModifiedAt(LocalDateTime modifiedAt) {
+    public void setModifiedAt(ZonedDateTime modifiedAt) {
         this.modifiedAt = modifiedAt;
     }
 
@@ -564,6 +490,22 @@ public class Transfer {
         this.reviewedBy = reviewedBy;
     }
 
+    public Boolean getFirstTransfer() {
+        return isFirstTransfer;
+    }
+
+    public void setFirstTransfer(Boolean firstTransfer) {
+        isFirstTransfer = firstTransfer;
+    }
+
+    public BigDecimal getTotalTransferAmount() {
+        return totalTransferAmount;
+    }
+
+    public void setTotalTransferAmount(BigDecimal totalTransferAmount) {
+        this.totalTransferAmount = totalTransferAmount;
+    }
+
     public BigDecimal calculateMonthlyAmount() {
         return new BigDecimal("0.0")
                 .add(this.basicSubsidyAmount)
@@ -572,7 +514,7 @@ public class Transfer {
                 .add(this.primaryIncentiveAmount);
     }
 
-    public BigDecimal getTotalAmountToTransfer() {
+    public BigDecimal calculateTotalAmountToTransfer() {
         return this.calculateMonthlyAmount()
                 .multiply(BigDecimal.valueOf(this.numberOfMonths))
                 .add(this.topupAmount);

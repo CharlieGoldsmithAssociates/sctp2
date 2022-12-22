@@ -30,41 +30,17 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.mis.transfers;
+package org.cga.sctp.transfers;
 
-import javax.validation.constraints.NotNull;
-
-public class InitiateTransferForm {
-    @NotNull(message = "Program must be specified")
-    private Long programId;
-
-    @NotNull(message = "Enrollment Session must be specified")
-    private Long enrollmentSessionId;
-
-    @NotNull(message = "District must be specified")
-    private Long districtId;
-
-    public Long getProgramId() {
-        return programId;
+public class TransferException extends RuntimeException{
+    public TransferException() {
     }
 
-    public void setProgramId(Long programId) {
-        this.programId = programId;
+    public TransferException(String message) {
+        super(message);
     }
 
-    public Long getEnrollmentSessionId() {
-        return enrollmentSessionId;
-    }
-
-    public void setEnrollmentSessionId(Long enrollmentSessionId) {
-        this.enrollmentSessionId = enrollmentSessionId;
-    }
-
-    public Long getDistrictId() {
-        return districtId;
-    }
-
-    public void setDistrictId(Long districtId) {
-        this.districtId = districtId;
+    public TransferException(Throwable cause) {
+        super(cause);
     }
 }

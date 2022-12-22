@@ -47,6 +47,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -105,7 +106,7 @@ class TransferCalculatorTest {
         List<TopUp> topUps = Collections.singletonList(createBasicTopUp());
 
         TransferCalculator transferCalculator = new TransferCalculator(householdTransferParameters, educationTransferParameters, topUps);
-        transferCalculator.calculateTransfers(location, transferPeriod, Collections.singletonList(transfer));
+        transferCalculator.calculateTransfers(transferPeriod, Collections.singletonList(transfer));
 
         assertEquals(BigDecimal.valueOf(3000.0), transfer.getBasicSubsidyAmount());
         assertEquals(BigDecimal.valueOf(1000.0), transfer.getSecondaryBonusAmount());
@@ -115,13 +116,13 @@ class TransferCalculatorTest {
         assertEquals(BigDecimal.valueOf(4000.0), transfer.getTopupAmount());
 
         BigDecimal expectedTotal = BigDecimal.valueOf(12000.0);
-        assertEquals(expectedTotal, transfer.getTotalAmountToTransfer());
+        assertEquals(expectedTotal, transfer.calculateTotalAmountToTransfer());
     }
 
     private static TopUp createBasicTopUp() {
         TopUp topUp = new TopUp();
         topUp.setName("Basic TopUp");
-        topUp.setAmount(BigDecimal.ZERO);
+        topUp.setFixedAmount(BigDecimal.ZERO);
         topUp.setDiscountedFromFunds(false);
         topUp.setTopupType(TopUpType.PERCENTAGE_OF_RECIPIENT_AMOUNT);
         topUp.setPercentage(BigDecimal.valueOf(50.00));

@@ -38,6 +38,10 @@ import org.cga.sctp.location.LocationService;
 import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.program.Program;
 import org.cga.sctp.program.ProgramService;
+import org.cga.sctp.targeting.enrollment.EnrollmentService;
+import org.cga.sctp.targeting.enrollment.HouseholdEnrollmentData;
+import org.cga.sctp.transfers.TransferException;
+import org.cga.sctp.transfers.TransferService;
 import org.cga.sctp.transfers.agencies.TransferAgencyService;
 import org.cga.sctp.transfers.periods.TransferPeriod;
 import org.cga.sctp.transfers.periods.TransferPeriodException;
@@ -45,11 +49,10 @@ import org.cga.sctp.transfers.periods.TransferPeriodService;
 import org.cga.sctp.user.AdminAndStandardAccessOnly;
 import org.cga.sctp.user.AuthenticatedUser;
 import org.cga.sctp.user.AuthenticatedUserDetails;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -58,7 +61,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/transfers/periods")
@@ -74,6 +76,12 @@ public class TransferPeriodController extends BaseController {
 
     @Autowired
     private TransferPeriodService transferPeriodService;
+
+    @Autowired
+    private TransferService transferService;
+
+    @Autowired
+    private EnrollmentService enrollmentService;
 
     @GetMapping
     @AdminAndStandardAccessOnly
@@ -166,6 +174,93 @@ public class TransferPeriodController extends BaseController {
         publishGeneralEvent("User %s deleted an open period with id %s", user.username(), periodId);
         return redirect("/transfers/periods");
     }
+
+    @GetMapping("/calculate-transfers/{period-id}")
+    @AdminAndStandardAccessOnly
+    public ModelAndView getCalculatePage(@AuthenticatedUserDetails AuthenticatedUser user,
+                                         @PathVariable("period-id") Long transferPeriodId,
+                                         RedirectAttributes attributes) {
+
+        Optional<TransferPeriod> transferPeriod = transferPeriodService.findById(transferPeriodId);
+        if (transferPeriod.isEmpty()) {
+            return redirectWithDangerMessageModelAndView("/transfers/periods", "Transfer Period does not exist or cannot calculate transfers for it", attributes);
+        }
+
+        return view("/transfers/periods/calculate-transfers")
+                .addObject("transferPeriod", transferPeriod.get());
+    }
+
+    @PostMapping("/initiate-calculations/{period-id}")
+    @AdminAndStandardAccessOnly
+    public ResponseEntity<Object> postCalculatePage(@AuthenticatedUserDetails AuthenticatedUser user,
+                                                    @PathVariable("period-id") Long transferPeriodId) {
+        Optional<TransferPeriod> transferPeriod = transferPeriodService.findById(transferPeriodId);
+        if (transferPeriod.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        try {
+            logger.info("Checking for enrollment session in District {}", transferPeriod.get().getDistrictCode());
+            Location location = locationService.findById(transferPeriod.get().getDistrictCode());
+
+            var enrollmentSession = enrollmentService.findMostRecentSessionByLocation(location.getCode());
+            if (enrollmentSession.isEmpty()) {
+                // TODO:
+                throw new TransferException("cannot initiate transfers in period when no enrollment sessions are available");
+            }
+            Page<HouseholdEnrollmentData> households = enrollmentService.getAllHouseholdEnrollmentData(enrollmentSession.get().getId());
+
+            transferService.createTransfers(transferPeriod.get(), user.id(), households.toList());
+            // TODO: return data or calculate off-thread
+            return ResponseEntity.ok().build();
+        } catch (Exception e ) {
+            LOG.error("Failed to create transfers records", e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/reconcile/{period-id}")
+    @AdminAndStandardAccessOnly
+    public ModelAndView getReconcilePage(@AuthenticatedUserDetails AuthenticatedUser user,
+                                         @PathVariable("period-id") Long periodId,
+                                         RedirectAttributes attributes) {
+        Optional<TransferPeriod> transferPeriod = transferPeriodService.findById(periodId);
+        if (transferPeriod.isEmpty()) {
+            return redirectWithDangerMessageModelAndView("/transfers/periods", "Transfer Period does not exist", attributes);
+        }
+
+        return view("/transfers/periods/reconcile")
+                .addObject("transferPeriod", transferPeriod.get());
+    }
+
+    @GetMapping("/transfer-list/{period-id}")
+    @AdminAndStandardAccessOnly
+    public ModelAndView getTransferListPage(@AuthenticatedUserDetails AuthenticatedUser user,
+                                         @PathVariable("period-id") Long periodId,
+                                         RedirectAttributes attributes) {
+        Optional<TransferPeriod> transferPeriod = transferPeriodService.findById(periodId);
+        if (transferPeriod.isEmpty()) {
+            return redirectWithDangerMessageModelAndView("/transfers/periods", "Transfer Period does not exist", attributes);
+        }
+
+        return view("/transfers/periods/transfer-list")
+                .addObject("transferPeriod", transferPeriod.get());
+    }
+
+    @GetMapping("/close/{period-id}")
+    @AdminAndStandardAccessOnly
+    public ModelAndView getClosePage(@AuthenticatedUserDetails AuthenticatedUser user,
+                                         @PathVariable("period-id") Long periodId,
+                                         RedirectAttributes attributes) {
+        Optional<TransferPeriod> transferPeriod = transferPeriodService.findById(periodId);
+        if (transferPeriod.isEmpty()) {
+            return redirectWithDangerMessageModelAndView("/transfers/periods", "Transfer Period does not exist", attributes);
+        }
+
+        return view("/transfers/periods/close")
+                .addObject("transferPeriod", transferPeriod.get());
+    }
+
 
     @GetMapping("/close")
     @AdminAndStandardAccessOnly

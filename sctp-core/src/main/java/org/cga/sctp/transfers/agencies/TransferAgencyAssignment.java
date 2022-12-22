@@ -36,7 +36,7 @@ import org.cga.sctp.beneficiaries.Household;
 import org.cga.sctp.location.Location;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 /**
  * Links enrolled {@link Household}s with a {@link TransferAgency}
@@ -72,10 +72,10 @@ public class TransferAgencyAssignment {
     private int frequency;
 
     @Column
-    private LocalDateTime createdAt;
+    private ZonedDateTime createdAt;
 
     @Column
-    private LocalDateTime modifiedAt;
+    private ZonedDateTime modifiedAt;
 
     public Long getId() {
         return id;
@@ -141,19 +141,19 @@ public class TransferAgencyAssignment {
         this.frequency = frequency;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public ZonedDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(ZonedDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getModifiedAt() {
+    public ZonedDateTime getModifiedAt() {
         return modifiedAt;
     }
 
-    public void setModifiedAt(LocalDateTime modifiedAt) {
+    public void setModifiedAt(ZonedDateTime modifiedAt) {
         this.modifiedAt = modifiedAt;
     }
 }

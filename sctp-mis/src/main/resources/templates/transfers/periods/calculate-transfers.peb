@@ -1,0 +1,38 @@
+{% extends "../base" %}
+    {% import "../../utils/form" %}
+    {% block contextMenu %}
+    <div class="container context-nav-container">
+        <div class="buttons is-right">
+            {# TODO: Add context menu/actions here... #}
+        </div>
+    </div>
+    {% endblock %}
+    {% block content %}
+    <div id="transfers:CreateNewPeriodApp">
+        <Calculate-Period-Transfers  transfer-period-id="{{ transferPeriod.id }}" />
+    </div>
+    {% endblock %}
+{% block footerScripts %}
+{{ parent() }}
+<script type="module">
+    const App = {
+        el: '#vapp',
+
+        mounted() {
+            console.log('application mounted. ')
+        },
+
+        created() {
+            console.log('application created')
+        },
+
+        components: {
+            'CalculatePeriodTransfers': httpVueLoader('/components/transfers/CalculatePeriodTransfers.vue')
+        }
+    };
+
+    window.addEventListener('load', () => {
+        var app = new Vue(App);
+    });
+</script>
+{% endblock %}

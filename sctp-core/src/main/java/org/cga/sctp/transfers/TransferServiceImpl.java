@@ -35,15 +35,21 @@ package org.cga.sctp.transfers;
 import org.cga.sctp.beneficiaries.BeneficiaryService;
 import org.cga.sctp.beneficiaries.Household;
 import org.cga.sctp.location.Location;
+import org.cga.sctp.location.LocationService;
 import org.cga.sctp.targeting.CbtStatus;
+import org.cga.sctp.targeting.enrollment.EnrollmentService;
+import org.cga.sctp.targeting.enrollment.HouseholdEnrollmentData;
 import org.cga.sctp.transfers.accounts.BeneficiaryAccountService;
 import org.cga.sctp.transfers.accounts.TransferAccountNumberList;
 import org.cga.sctp.transfers.agencies.TransferAgenciesRepository;
+import org.cga.sctp.transfers.parameters.*;
 import org.cga.sctp.transfers.periods.TransferPeriod;
 import org.cga.sctp.transfers.periods.TransferPeriodRepository;
 import org.cga.sctp.transfers.periods.TransferPeriodView;
 import org.cga.sctp.transfers.periods.TransferPeriodViewRepository;
 import org.cga.sctp.transfers.reconciliation.TransferReconciliationRequest;
+import org.cga.sctp.transfers.topups.TopUp;
+import org.cga.sctp.transfers.topups.TopUpService;
 import org.cga.sctp.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +61,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -64,6 +73,9 @@ import java.util.Optional;
 public class TransferServiceImpl implements TransferService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TransferServiceImpl.class);
     private static final int PAGE_SIZE = 1_000;
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Autowired
     private TransferPeriodRepository transferPeriodRepository;
@@ -81,6 +93,24 @@ public class TransferServiceImpl implements TransferService {
 
     @Autowired
     private TransferSessionRepository transferSessionRepository;
+
+    @Autowired
+    private TopUpService topUpService;
+
+    @Autowired
+    private TransferParametersRepository transferParametersRepository;
+
+    @Autowired
+    private EducationTransferParameterRepository educationTransferParameterRepository;
+
+    @Autowired
+    private HouseholdTransferParametersRepository householdTransferParametersRepository;
+
+    @Autowired
+    private LocationService locationService;
+
+    @Autowired
+    private EnrollmentService enrollmentService;
 
     @Autowired
     private BeneficiaryService beneficiaryService;
@@ -119,18 +149,86 @@ public class TransferServiceImpl implements TransferService {
         if (transferPeriod.isEmpty()) {
             throw new UnsupportedOperationException("Cannot initiate transfers without an open Transfer Period for the program in the given location");
         }
-
-        initiateRepo.initiateTransfersForEnrolledHouseholds(
-                // transferSession.getProgramId(),
-                transferSession.getEnrollmentSessionId(),
-                transferSession.getId(),
-                transferPeriod.get().getId(),
-                location.getId(),
-                userId
-        );
+//
+//        initiateRepo.initiateTransfersForEnrolledHouseholds(
+//                // transferSession.getProgramId(),
+//                transferSession.getEnrollmentSessionId(),
+//                transferSession.getId(),
+//                transferPeriod.get().getId(),
+//                location.getId(),
+//                userId
+//        );
         // TODO: Mark household status as Beneficiary
         // TODO: Close the district for other operations
         return transferSession;
+    }
+
+    @Override
+    @Transactional
+    public TransferSession createTransfers(TransferPeriod transferPeriod, long userId, List<HouseholdEnrollmentData> households) {
+        Optional<TransferPeriod> existingPeriod = transferPeriodRepository.findFirstByProgramIdAndDistrictIdAndIsOpen(transferPeriod.getProgramId(), transferPeriod.getDistrictCode());
+        if (existingPeriod.isEmpty()) {
+            throw new TransferException("Cannot initiate transfers without an open Transfer Period for the program in the given location");
+        }
+
+        List<TopUp> topupsList = topUpService.findAllInLocation(transferPeriod.getDistrictCode());
+        Optional<TransferParameter> transferParameter = transferParametersRepository.findByProgramId(transferPeriod.getProgramId());
+        if (transferParameter.isEmpty()) {
+            throw new TransferException("Program does not have an 'active' or valid transfer parameter");
+        }
+        List<EducationTransferParameter> programEducationParameters = educationTransferParameterRepository.findByTransferParameterId(transferParameter.get().getId());
+        List<HouseholdTransferParameter> programHouseholdParameters = householdTransferParametersRepository.findByTransferParameterId(transferParameter.get().getId());
+        TransferCalculator transferCalculator = new TransferCalculator(programHouseholdParameters, programEducationParameters, topupsList);
+        List<Transfer> transferList = new ArrayList<>();
+
+        for (HouseholdEnrollmentData hh: households) {
+            Transfer newTransfer = new Transfer();
+            newTransfer.setProgramId(transferPeriod.getProgramId());
+            newTransfer.setHouseholdId(hh.getHouseholdId());
+            newTransfer.setTransferState(TransferStatus.OPEN);
+            newTransfer.setTransferAgencyId(0L);
+            var recipientId = hh.getPrimaryRecipient().getMemberId();
+            newTransfer.setReceiverId(recipientId);
+
+            newTransfer.setTransferPeriodId(transferPeriod.getId());
+            newTransfer.setHouseholdMemberCount(hh.getMemberCount().intValue());
+            newTransfer.setChildrenCount(hh.getChildEnrollment6to15());
+            newTransfer.setPrimaryIncentiveChildrenCount(hh.getChildEnrollment6to15());
+            newTransfer.setPrimaryChildrenCount(hh.getPrimaryChildren());
+            newTransfer.setSecondaryChildrenCount(hh.getSecondaryChildren());
+            newTransfer.setNumberOfMonths(transferPeriod.countNoOfMonths());
+    //        newTransfer.setIsFirstTransfer(false);
+    //        newTransfer.setSuspended(false);
+    //        newTransfer.setWithheld(false);
+    //        newTransfer.setAccountNumber(null);
+    //        newTransfer.setAmountDisbursed(null);
+    //        newTransfer.setCollected(false);
+    //        newTransfer.setDisbursementDate(null);
+    //        newTransfer.setArrearsAmount(null);
+    //        newTransfer.setDisbursedByUserId(null);
+    //        newTransfer.setTopupEventId(null);
+    //        newTransfer.setTopupAmount(null);
+            newTransfer.setReconciled(false);
+            newTransfer.setReconciliationMethod(null);
+            newTransfer.setDateReconciled(null);
+            newTransfer.setCreatedAt(ZonedDateTime.now());
+            newTransfer.setModifiedAt(ZonedDateTime.now());
+            newTransfer.setCreatedBy(userId);
+            newTransfer.setReviewedBy(userId);
+
+            newTransfer.setCreatedAt(ZonedDateTime.now());
+            newTransfer.setModifiedAt(ZonedDateTime.now());
+            newTransfer.setCreatedBy(userId);
+
+
+            transferList.add(newTransfer);
+        }
+
+        transferCalculator.calculateTransfers(transferPeriod, transferList);
+
+        transfersRepository.saveAll(transferList);
+
+        return null;
     }
 
     @Override
@@ -181,7 +279,27 @@ public class TransferServiceImpl implements TransferService {
 
     @Override
     public int reconcileTransfers(TransferReconciliationRequest transferReconciliationRequest) {
-        throw new UnsupportedOperationException("not yet implemented"); // TODO: implement me
+//        List<Transfer> transfers = transfersRepository.findAllByTransferPeriodId(transferReconciliationRequest.getTransferPeriodId());
+        ZonedDateTime timestamp = ZonedDateTime.now();
+        String sqlTemplate = """    
+                UPDATE transfers t
+                 JOIN household_enrollment eh ON eh.household_id = i.household_id
+                 SET t.amount_collected = :amount_collected, i.modified_at = :timestamp
+                 WHERE t.transfer_period_id = :transfer_period_id and t.household_id = :household_id
+                ;""";
+
+        int updated = 0;
+        for (TransferReconciliationRequest.TransferReconciliation update : transferReconciliationRequest.getReconciliationList()) {
+            entityManager.createNativeQuery(sqlTemplate)
+                    .setParameter("timestamp", timestamp)
+                    .setParameter("amount_collected", update.getAmountTransferred())
+                    .setParameter("transfer_period_id", transferReconciliationRequest.getTransferPeriodId())
+                    .setParameter("household_id", update.getHouseholdId())
+                    .executeUpdate();
+            updated++;
+        }
+
+        return updated;
     }
 
     @Override
@@ -227,7 +345,7 @@ public class TransferServiceImpl implements TransferService {
             transfer.setAmountDisbursed(reconciliation.getAmountTransferred());
             transfer.setCollected(true);
             // TODO: Calculate the arrears for each transfer
-            transfer.setArrearsAmount(transfer.getAmountDisbursed().subtract(transfer.getTotalAmountToTransfer()));
+            transfer.setArrearsAmount(transfer.getAmountDisbursed().subtract(transfer.getTotalTransferAmount()));
             // TODO: we need to have somewhere else to track arrears?
             transfer.setDisbursedByUserId(reconciliation.getReconcilingUserId());
         }
@@ -236,13 +354,41 @@ public class TransferServiceImpl implements TransferService {
 
     @Override
     public int closeTransfers(List<Transfer> transferList, User user) {
-        throw new UnsupportedOperationException("not yet implemented"); // TODO: implement me
+        int numUpdated = 0;
+        for(Transfer transfer: transferList) {
+            transfer.setCollected(true);
+            transfer.setTransferState(TransferStatus.CLOSED);
+            try {
+                transfersRepository.save(transfer);
+                numUpdated++;
+            } catch (Exception e) {
+                LOGGER.warn("Failed to update transfer {} got errror", transfer.getId(), e);
+            }
+        }
+        return numUpdated;
     }
 
     @Override
     public int assignAccountNumbers(TransferSession session, TransferPeriod period, TransferAccountNumberList transferAccountNumberList) {
         // TODO: validate the session, check if the the period is open and check transfer agency for E-Payments which is the valid reason to assign account numbers
-        return beneficiaryAccountService.assignAccountNumbers(session, period, transferAccountNumberList);
+        // TODO: validate the session, check if the the period is open and check transfer agency for E-Payments which is the valid reason to assign account numbers
+        List<Long> householdsAssigned = new ArrayList<>();
+        for (TransferAccountNumberList.HouseholdAccountNumber hh : transferAccountNumberList.getAccountNumberList()) {
+            transfersRepository.findByHouseholdId(hh.getHouseholdId())
+                    .ifPresent(transfer -> {
+                        // TODO: Check if the transfer period matches the period in the request
+                        if (transfer.getTransferPeriodId() != period.getId()) {
+                            transfer.setAccountNumber(hh.getAccountNumber());
+                            transfer.setModifiedAt(ZonedDateTime.now());
+                            transfersRepository.save(transfer);
+
+                            householdsAssigned.add(hh.getHouseholdId());
+                        }
+                    });
+        }
+        LoggerFactory.getLogger(getClass()).info("Assigned {} account numbers", householdsAssigned.size());
+        // TODO: return the actual list?
+        return householdsAssigned.size();
     }
 
     @Override
@@ -273,8 +419,10 @@ public class TransferServiceImpl implements TransferService {
 
     @Override
     public int countUnreconciledTransfers(TransferPeriod transferPeriod) {
-        // TODO: count unreconciled transfers
-        return 0;
+        if (transferPeriod == null) {
+            return 0;
+        }
+        return transfersRepository.countOpenOrPreCloseTransfersInPeriod(transferPeriod.getTransferSessionId());
     }
 
     @Transactional
