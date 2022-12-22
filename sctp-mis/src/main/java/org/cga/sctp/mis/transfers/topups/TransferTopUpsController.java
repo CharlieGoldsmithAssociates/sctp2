@@ -43,24 +43,20 @@ import org.cga.sctp.mis.core.templating.Booleans;
 import org.cga.sctp.program.Program;
 import org.cga.sctp.program.ProgramService;
 import org.cga.sctp.transfers.topups.*;
-import org.cga.sctp.user.AdminAccessOnly;
 import org.cga.sctp.user.AdminAndStandardAccessOnly;
 import org.cga.sctp.user.AuthenticatedUser;
 import org.cga.sctp.user.AuthenticatedUserDetails;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.ConstraintViolationException;
-import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -82,8 +78,16 @@ public class TransferTopUpsController extends SecuredBaseController {
     @Autowired
     private TopUpService topUpService;
 
+    @GetMapping
+    @AdminAndStandardAccessOnly
+    public ModelAndView getIndex() {
+        List<TopUp> topups = topUpService.findAllActive(Pageable.unpaged()); // TODO: get page parameters from request
+        return view("transfers/topups/list")
+                .addObject("topups", topups);
+    }
+
     @GetMapping("/new")
-    @AdminAccessOnly
+    @AdminAndStandardAccessOnly
     public ModelAndView getNewPage(RedirectAttributes attributes) {
         List<Program> programs = programService.getActivePrograms();
         List<Location> districts = locationService.getActiveDistricts();
@@ -123,7 +127,7 @@ public class TransferTopUpsController extends SecuredBaseController {
     }
 
     @GetMapping("/new/preview")
-    @AdminAccessOnly
+    @AdminAndStandardAccessOnly
     public ResponseEntity<Object> getTopupAmountPreview() {
         // this action returns a preview of the topup applied to the given location and households there-in
         return null;
@@ -135,26 +139,58 @@ public class TransferTopUpsController extends SecuredBaseController {
     )
     @AdminAndStandardAccessOnly
     public ResponseEntity<Object> postNewPage(@AuthenticatedUserDetails AuthenticatedUser user,
-                                              @RequestBody NewTopUpForm form) {
+                                              @Validated @RequestBody NewTopUpForm form) {
         try {
             form.setUserId(user.id());
             Optional<TopUp> topUp = topUpService.newTopup(form);
             if (topUp.isPresent()) {
+                System.out.println(topUp.get());
                 return ResponseEntity.ok(topUp.get());
             }
         } catch (ConstraintViolationException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e);
         }
 
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping
-    @AdminAccessOnly
-    public ModelAndView getIndex() {
-        List<TopUp> topups = topUpService.findAllActive();
-        return view("transfers/topups/list")
-                .addObject("topups", topups);
+    @GetMapping("/view/{topup-id}")
+    @AdminAndStandardAccessOnly
+    public ModelAndView getView(@PathVariable("topup-id") final Long topupId, @AuthenticatedUserDetails AuthenticatedUser user, RedirectAttributes attributes) {
+        Optional<TopUpView> optionalTopUp = topUpService.findById(topupId);
+        if (optionalTopUp.isEmpty()) {
+            return view(redirectWithDangerMessage("/transfers/topups", "Topup not found", attributes));
+        }
+
+        return view("/transfers/topups/view")
+                .addObject("topup", optionalTopUp.get());
     }
 
+    @GetMapping("/delete/{topup-id}")
+    @AdminAndStandardAccessOnly
+    public ModelAndView getDelete(@PathVariable("topup-id") final Long topupId) {
+        Optional<TopUpView> optionalTopUp = topUpService.findById(topupId);
+        if (optionalTopUp.isEmpty()) {
+            return redirect("/transfers/topups"); // TODO: redirect with flash message?
+        }
+
+        return view("/transfers/topups/delete")
+                .addObject("topup", optionalTopUp.get());
+    }
+
+    @PostMapping("/delete/{topup-id}")
+    @AdminAndStandardAccessOnly
+    public ModelAndView postDelete(@PathVariable("topup-id") final Long topupId, @AuthenticatedUserDetails AuthenticatedUser user, RedirectAttributes attributes) {
+        topUpService.deleteById(topupId);
+        publishGeneralEvent("User %s deleted topup with id %s", user.username(), topupId);
+        return view(redirectWithSuccessMessage("/transfers/topups", "TopUp deleted successfully", attributes));
+    }
+
+    @GetMapping("/{topup-id}")
+    @AdminAndStandardAccessOnly
+    public ResponseEntity<TopUpView> getView(@PathVariable("topup-id") final Long topupId) {
+        return topUpService.findById(topupId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }

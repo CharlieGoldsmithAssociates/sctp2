@@ -33,80 +33,112 @@
 package org.cga.sctp.transfers.topups;
 
 import org.cga.sctp.location.LocationType;
+import org.cga.sctp.targeting.LongSetConverter;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.util.Set;
 
 @Entity
 @Table(name="transfer_topups")
+@ValidTopupTypeAndAmount
 public class TopUp {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; //  id BIGINT(19) PRIMARY KEY NOT NULL AUTO_INCREMENT COMMENT 'Primary key',
+    private Long id;
 
+    @NotEmpty(message = "Topup name must be specified")
     @Column(name = "name")
-    private String name; // name VARCHAR(90) NULL DEFAULT NULL COMMENT 'Name of topup' COLLATE 'utf8_unicode_ci',
+    private String name;
 
+    @NotNull(message = "Program must be specified")
     @Column(name = "program_id")
-    private Long programId; // Program for the topup
+    private Long programId;
 
+    @NotNull
     @Column(name = "funder_id")
-    private Long funderId; // funder_id BIGINT(19) NOT NULL COMMENT 'Funding institution for this topup',
+    private Long funderId;
 
-    @Column(name = "location_id")
-    private Long locationId; // location_id INT(10) NOT NULL COMMENT 'FOREIGN KEY Table geolocation Field geo_id, District',
+    @Column(name = "district_code")
+    private Long districtCode;
+
+    @Column(name = "ta_codes")
+    @Convert(converter = LongSetConverter.class)
+    private Set<Long> taCodes;
+
+    @Column(name = "cluster_codes")
+    @Convert(converter = LongSetConverter.class)
+    private Set<Long> clusterCodes;
 
     @Column(name = "location_type")
     @Enumerated(EnumType.STRING)
-    private LocationType locationType; // location_type INT(10) NOT NULL COMMENT 'FOREIGN KEY Table item Field ite_id, Level',
+    private LocationType locationType;
 
+    /**
+     * The top-up arrears are discounted from the SCTP funds to be requested'
+     */
     @Column(name = "is_discounted_from_funds")
-    private boolean isDiscountedFromFunds; // is_discounted_from_funds TINYINT(1) NULL DEFAULT NULL COMMENT 'The top-up arrears are discounted from the SCTP funds to be requested',
+    private boolean isDiscountedFromFunds;
 
+    /**
+     * Whether topup is categorical or not
+     */
     @Column(name = "is_categorical")
-    private boolean isCategorical; // is_categorical TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'Whether topup is categorical or not',
+    private boolean isCategorical;
 
     @Column(name = "is_active")
-    private boolean isActive; // is_active  TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'Active or not 1 = yes, 0 = no',
+    private boolean isActive;
 
     @Column(name = "is_executed")
-    private boolean isExecuted; // is_executed TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'Executed or not 1 = yes, 0 = no',
+    private boolean isExecuted;
 
     @Column(name = "topup_type")
     @Convert(converter = TopUpType.Converter.class)
-    private TopUpType topupType; // topup_type TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'Topup type, See TopupType enumeration',
+    private TopUpType topupType;
 
     @Column
     @Convert(converter = TopUpHouseholdStatus.Converter.class)
     private TopUpHouseholdStatus householdStatus;
 
+    /**
+     * Percentage amount only applies for {@link TopUpType#PERCENTAGE_OF_RECIPIENT_AMOUNT}
+     */
     @Column(name = "percentage")
-    private BigDecimal percentage; // percentage DOUBLE COMMENT 'For percentage based topups, the percentage to use for calculation',
+    private BigDecimal percentage;
 
     @Column(name = "categorical_targeting_criteria_id")
-    private Long categoricalTargetingCriteriaId; // categorical_targeting_criteria_id BIGINT(19) NULL COMMENT 'For categorical topups, the criteria to use.',
+    private Long categoricalTargetingCriteriaId;
 
-    @Column(name = "amount")
-    private BigDecimal amount; // amount BIGINT(19) NULL DEFAULT NULL COMMENT 'Amount to topup',
+    /**
+     * Fixed amount only applies for {@link TopUpType#FIXED_AMOUNT}
+     */
+    @Column(name = "fixed_amount")
+    private BigDecimal fixedAmount;
+
 
     @Column(name = "amount_projected")
-    private BigDecimal amountProjected; // amount_projected BIGINT(19) NULL DEFAULT NULL COMMENT 'Amount projected',
+    private BigDecimal amountProjected;
 
+    /**
+     * Amount executed is the amount actually paid out from this TopUp to households
+     */
     @Column(name = "amount_executed")
-    private BigDecimal amountExecuted; // amount_executed BIGINT(19) NULL DEFAULT NULL COMMENT 'Amount executed i.e. disbursed',
+    private BigDecimal amountExecuted;
 
     @Column(name = "created_by")
-    private Long createdBy; // created_by BIGINT(19) NOT NULL COMMENT 'User who created the topup',
+    private Long createdBy;
 
     @Column(name = "updated_by")
-    private Long updatedBy; // updated_by BIGINT(19) NOT NULL COMMENT 'User who updated the topup',
+    private Long updatedBy;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt; // created_at timestamp not null,
+    private ZonedDateTime createdAt;
 
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt; // updated_at timestamp not null
+    private ZonedDateTime updatedAt;
 
     public Long getId() {
         return id;
@@ -140,12 +172,28 @@ public class TopUp {
         this.programId = programId;
     }
 
-    public Long getLocationId() {
-        return locationId;
+    public Long getDistrictCode() {
+        return districtCode;
     }
 
-    public void setLocationId(Long locationId) {
-        this.locationId = locationId;
+    public void setDistrictCode(Long districtCode) {
+        this.districtCode = districtCode;
+    }
+
+    public Set<Long> getTaCodes() {
+        return taCodes;
+    }
+
+    public void setTaCodes(Set<Long> taCodes) {
+        this.taCodes = taCodes;
+    }
+
+    public Set<Long> getClusterCodes() {
+        return clusterCodes;
+    }
+
+    public void setClusterCodes(Set<Long> clusterCodes) {
+        this.clusterCodes = clusterCodes;
     }
 
     public LocationType getLocationType() {
@@ -220,12 +268,12 @@ public class TopUp {
         this.categoricalTargetingCriteriaId = categoricalTargetingCriteriaId;
     }
 
-    public BigDecimal getAmount() {
-        return amount;
+    public BigDecimal getFixedAmount() {
+        return fixedAmount;
     }
 
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
+    public void setFixedAmount(BigDecimal fixedAmount) {
+        this.fixedAmount = fixedAmount;
     }
 
     public BigDecimal getAmountProjected() {
@@ -260,19 +308,48 @@ public class TopUp {
         this.updatedBy = updatedBy;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public ZonedDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(ZonedDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
+    public ZonedDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(ZonedDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    @Override
+    public String toString() {
+        return "TopUp{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", programId=" + programId +
+                ", funderId=" + funderId +
+                ", districtCode=" + districtCode +
+                ", taCodes=" + taCodes +
+                ", clusterCodes=" + clusterCodes +
+                ", locationType=" + locationType +
+                ", isDiscountedFromFunds=" + isDiscountedFromFunds +
+                ", isCategorical=" + isCategorical +
+                ", isActive=" + isActive +
+                ", isExecuted=" + isExecuted +
+                ", topupType=" + topupType +
+                ", householdStatus=" + householdStatus +
+                ", percentage=" + percentage +
+                ", categoricalTargetingCriteriaId=" + categoricalTargetingCriteriaId +
+                ", fixedAmount=" + fixedAmount +
+                ", amountProjected=" + amountProjected +
+                ", amountExecuted=" + amountExecuted +
+                ", createdBy=" + createdBy +
+                ", updatedBy=" + updatedBy +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
     }
 }

@@ -67,9 +67,10 @@
                                             <div class="dropdown-content">
                                                 <a href="{{ href('/transfers/periods/view/' + p.id) }}" class="dropdown-item">View</a>
                                                 <a href="{{ href('/transfers/periods/calculate-transfers/' + p.id) }}" class="dropdown-item">Calculate Transfers</a>
-                                                <a href="{{ href('/transfers/periods/view/' + p.id) }}" class="dropdown-item">Review Transfer List</a>
-                                                <a href="{{ href('/transfers/periods/view/' + p.id) }}" class="dropdown-item">Perform Reconciliations</a>
+                                                <a href="{{ href('/transfers/periods/transfer-list/' + p.id) }}" class="dropdown-item">Review Transfer List</a>
+                                                <a href="{{ href('/transfers/periods/reconcile/' + p.id) }}" class="dropdown-item">Perform Reconciliations</a>
                                                 <hr class="dropdown-divider">
+                                                <a href="{{ href('/transfers/periods/close/' + p.id) }}"  class="dropdown-item is-text-red">Close Period</a>
                                                 <a href="{{ href('/transfers/periods/delete/' + p.id) }}"  class="dropdown-item is-text-red">Delete</a>
                                             </div>
                                         </div>

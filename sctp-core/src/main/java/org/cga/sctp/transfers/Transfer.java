@@ -34,7 +34,8 @@ package org.cga.sctp.transfers;
 
 import javax.persistence.*;
 
+
 @Entity
 @Table(name = "transfers")
-public class Transfer extends TransferBase{
+public class Transfer extends TransferBase {
 }

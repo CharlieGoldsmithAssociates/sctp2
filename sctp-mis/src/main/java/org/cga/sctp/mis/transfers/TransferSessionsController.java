@@ -33,37 +33,25 @@
 package org.cga.sctp.mis.transfers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.cga.sctp.funders.Funder;
 import org.cga.sctp.location.Location;
 import org.cga.sctp.location.LocationService;
 import org.cga.sctp.mis.core.BaseController;
 import org.cga.sctp.program.Program;
 import org.cga.sctp.program.ProgramService;
 import org.cga.sctp.targeting.enrollment.EnrollmentService;
-import org.cga.sctp.transfers.TransferEventHouseholdView;
 import org.cga.sctp.transfers.TransferService;
-import org.cga.sctp.transfers.TransferSession;
-import org.cga.sctp.transfers.parameters.EducationTransferParameter;
 import org.cga.sctp.transfers.parameters.TransferParametersService;
 import org.cga.sctp.user.AdminAndStandardAccessOnly;
-import org.cga.sctp.user.AuthenticatedUser;
-import org.cga.sctp.user.AuthenticatedUserDetails;
 import org.cga.sctp.user.UserService;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/transfers/sessions")
@@ -118,83 +106,4 @@ public class TransferSessionsController extends BaseController {
                 .addObject("programs", programs)
                 .addObject("districts", districts);
     }
-
-    @PostMapping("/initiate")
-    @AdminAndStandardAccessOnly
-    public ModelAndView postInitiateStep2(@AuthenticatedUserDetails AuthenticatedUser user,
-                                          @Validated @ModelAttribute InitiateTransferForm form,
-                                          BindingResult result,
-                                          RedirectAttributes attributes) {
-        if (result.hasErrors()) {
-            LoggerFactory.getLogger(getClass()).error("Failed to initiate transfers: {}", result.getAllErrors());
-            return withDangerMessage("/transfers/initiate/step1", "Failed to create Transfer records. Please fix the errors on the form")
-                    .addObject("programs", programService.getActivePrograms())
-                    .addObject("districts", locationService.getActiveDistricts())
-                    .addObject("householdParameters", transferParametersService.findAllActiveHouseholdParameters())
-                    .addObject("educationBonuses", transferParametersService.findAllEducationTransferParameters())
-                    .addObject("educationIncentives", transferParametersService.findAllEducationTransferParameters());
-
-        }
-
-        boolean householdsPendingEnrollment = false;
-        if (form.getEnrollmentSessionId() != null && form.getEnrollmentSessionId() > 0L) {
-            householdsPendingEnrollment = enrollmentService.sessionHasHouseholdsWithPreEligibleOrNotYetEnrolled(form.getEnrollmentSessionId());
-        }
-
-        if (householdsPendingEnrollment) {
-            LoggerFactory.getLogger(getClass()).error("Failed to update agency: {}", attributes);
-            return withDangerMessage("/transfers/initiate/step1", "Some households have not yet been enrolled or marked Ineligible.")
-                    .addObject("programs", programService.getActivePrograms())
-                    .addObject("districts", locationService.getActiveDistricts())
-                    .addObject("householdParameters", transferParametersService.findAllActiveHouseholdParameters())
-                    .addObject("educationBonuses", transferParametersService.findAllEducationTransferParameters())
-                    .addObject("educationIncentives", transferParametersService.findAllEducationTransferParameters());
-        }
-
-        TransferSession transferSession = new TransferSession();
-        transferSession.setProgramId(form.getProgramId());
-        transferSession.setActive(true);
-        transferSession.setDistrictId(form.getDistrictId());
-        transferSession.setCreatedAt(LocalDateTime.now());
-        transferSession.setModifiedAt(transferSession.getCreatedAt());
-
-        Program program = programService.getProgramById(form.getProgramId());
-        Location location = locationService.findById(form.getDistrictId());
-
-        transferService.initiateTransfers(location, transferSession, user.id());
-
-        return redirect(format("/transfers/sessions/%s/pre-calculation", transferSession.getId()));
-    }
-
-    @GetMapping("/{session-id}/pre-calculation")
-    @AdminAndStandardAccessOnly
-    public ModelAndView viewPerformCalculationPage(@PathVariable("session-id") Long sessionId,
-                                                   RedirectAttributes attributes) {
-
-        Optional<TransferSession> sessionOptional = transferService.getTranferSessionRepository().findById(sessionId);
-        if (sessionOptional.isEmpty()) {
-            setDangerFlashMessage("Transfer Session does not exist or is not valid", attributes);
-            return redirect("/transfers/sessions");
-        }
-        List<TransferEventHouseholdView> transferEvents = transferService.findAllHouseholdsInSession(sessionId);
-
-        TransferCalculationPageData pageData = new TransferCalculationPageData();
-        pageData.setProgramInfo(null); // TODO: Get program id somewhere);
-        pageData.setTransferSession(sessionOptional.get());
-        pageData.setHouseholdRows(transferEvents);
-        pageData.setHouseholdParams(transferParametersService.findAllActiveHouseholdParameters());
-
-        Map<String, EducationTransferParameter> educationParamsMap = new HashMap<>();
-        transferParametersService.findAllEducationTransferParameters().forEach(entry -> {
-            educationParamsMap.put(entry.getEducationLevel().toString().toLowerCase(), entry);
-        });
-
-        pageData.setEducationParams(educationParamsMap);
-
-        return view("/transfers/calculation/pre-calculation")
-                .addObject("pageData", pageData)
-                .addObject("objectMapper", objectMapper); // for serializing data to JSON in the template
-    }
-
-
 }

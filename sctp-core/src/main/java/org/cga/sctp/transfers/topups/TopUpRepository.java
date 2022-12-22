@@ -32,14 +32,106 @@
 
 package org.cga.sctp.transfers.topups;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TopUpRepository extends JpaRepository<TopUp, Long> {
     @Query
     List<TopUp> findAllByIsActive(boolean value);
+
+    @Query(nativeQuery = true, value = """
+            SELECT 
+            p.name AS programName,
+            f.name AS funderName,
+            l.name AS districtName,
+            concat(cr8or.first_name, ' ', cr8or.last_name) AS createdByUser,
+            concat(upd8r.first_name, ' ', upd8r.last_name) AS updatedByUser,
+            top.id AS id,
+            top.name AS name,
+            top.funder_id AS funderId,
+            top.program_id AS programId,
+            top.district_code AS districtCode,
+            top.cluster_codes AS clusterCodes,
+            top.ta_codes AS taCodes,
+            top.location_type AS locationType,
+            top.is_discounted_from_funds AS isDiscountedFromFunds,
+            top.is_categorical AS isCategorical,
+            top.is_active AS isActive,
+            top.is_executed AS isExecuted,
+            top.topup_type AS topupType,
+            top.household_status AS householdStatus,
+            top.percentage AS percentage,
+            top.categorical_targeting_criteria_id AS categoricalTargetingCriteriaId,
+            top.fixed_amount AS fixedAmount,
+            top.amount_projected AS amountProjected,
+            top.amount_executed AS amountExecuted,
+            top.created_by AS createdBy,
+            top.updated_by AS updatedBy,
+            top.created_at AS createdAt,
+            top.updated_at AS updatedAt
+            FROM transfer_topups as top
+            INNER JOIN programs p ON p.id = top.program_id 
+            INNER JOIN funders f ON f.id = top.funder_id 
+            LEFT OUTER JOIN locations l ON l.code = top.district_code 
+            INNER JOIN users cr8or ON cr8or.id = top.created_by 
+            INNER JOIN users upd8r ON upd8r.id = top.updated_by""")
+    List<TopUpView> fetchAllTopups();
+
+    @Query(nativeQuery = true, value = """
+            SELECT 
+            p.name AS programName,
+            f.name AS funderName,
+            l.name AS districtName,
+            concat(cr8or.first_name, ' ', cr8or.last_name) AS createdByUser,
+            concat(upd8r.first_name, ' ', upd8r.last_name) AS updatedByUser,
+            top.id AS id,
+            top.name AS name,
+            top.funder_id AS funderId,
+            top.program_id AS programId,
+            top.district_code AS districtCode,
+            top.cluster_codes AS clusterCodes,
+            top.ta_codes AS taCodes,
+            top.location_type AS locationType,
+            top.is_discounted_from_funds AS isDiscountedFromFunds,
+            top.is_categorical AS categorical,
+            top.is_active AS active,
+            top.is_executed AS executed,
+            top.topup_type AS topupType,
+            top.household_status AS householdStatus,
+            top.percentage AS percentage,
+            top.categorical_targeting_criteria_id AS categoricalTargetingCriteriaId,
+            top.fixed_amount AS fixedAmount,
+            top.amount_projected AS amountProjected,
+            top.amount_executed AS amountExecuted,
+            top.created_by AS createdBy,
+            top.updated_by AS updatedBy,
+            top.created_at AS createdAt,
+            top.updated_at AS updatedAt
+            FROM transfer_topups as top
+            INNER JOIN programs p ON p.id = top.program_id 
+            INNER JOIN funders f ON f.id = top.funder_id 
+            LEFT OUTER JOIN locations l ON l.code = top.district_code 
+            INNER JOIN users cr8or ON cr8or.id = top.created_by 
+            INNER JOIN users upd8r ON upd8r.id = top.updated_by
+            WHERE top.id = :topupId
+            """)
+    Optional<TopUpView> findOneTopupById(@Param("topupId") Long topupId);
+
+    List<TopUp> findAllByIsActive(boolean value, Pageable pageable);
+
+    @Query
+    List<TopUp> findAllByIsExecuted(boolean value, Pageable pageable);
+
+    @Query
+    List<TopUp> findAllByIsExecutedAndDistrictCode(boolean value, long districtCode);
+
+    @Query
+    List<TopUp> findAllActiveByDistrictCode(long districtCode);
 }

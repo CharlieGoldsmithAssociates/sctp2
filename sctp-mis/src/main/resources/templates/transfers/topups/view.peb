@@ -1,0 +1,54 @@
+    {% import "../../utils/form" %}
+        {% extends "../base" %}
+        {% block title %}
+        {{ parent() }} - Transfer Top Up Details for {{ topup.name }}
+        {% endblock %}
+
+        {% block contextMenu %}
+        <div class="container context-nav-container">
+            <div class="buttons is-left">
+                <a href="{{ href('/transfers/topups') }}" class="button is-danger">
+            <span class="icon-text">
+                <span class="icon">
+                    <i class="fa fa-chevron-left"></i>
+                </span>
+                <span>Back</span>
+            </span>
+                </a>
+            </div>
+            <div class="buttons is-left">
+                <a href="{{ href('/transfers/topups/' + topup.id + '/edit' ) }}" class="button is-danger">
+            <span class="icon-text">
+                <span class="icon">
+                    <i class="fa fa-pencil"></i>
+                </span>
+                <span>Edit</span>
+            </span>
+                </a>
+            </div>
+        </div>
+
+        {% endblock %}
+
+        {% block content %}
+    <div class="container">
+        <View-Top-Up topup-id="{{ topup.id }}" />
+    </div>
+    {% endblock %}
+    {% block footerScripts %}
+    <script type="module">
+    const App = {
+        el: '#vapp',
+        mounted() {
+        },
+        created() {
+        },
+        components: {
+            'ViewTopUp': httpVueLoader('/components/transfers/ViewTopUp.vue')
+        }
+    };
+    domready(() => {
+        var app = new Vue(App);
+    });
+    </script>
+    {% endblock %}

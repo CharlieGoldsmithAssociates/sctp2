@@ -33,7 +33,9 @@
 package org.cga.sctp.transfers.topups;
 
 import org.cga.sctp.location.Location;
+import org.springframework.data.domain.Pageable;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,15 +43,21 @@ public interface TopUpService {
 
     Optional<TopUp> newTopup(NewTopUpForm params);
 
-    List<TopUp> fetchAllActive();
+    List<TopUp> fetchAllActive(Pageable pageable);
 
     List<TopUp> fetchAllActive(Location location);
 
-    List<TopUp> fetchAllExecuted();
+    List<TopUp> fetchAllExecuted(Pageable pageable);
 
     List<TopUp> fetchAllExecuted(Location location);
 
-    void markAsExecuted(TopUp topUp, Long amount);
+    void markAsExecuted(TopUp topUp, BigDecimal amount);
 
-    List<TopUp> findAllActive();
+    Optional<TopUpView> findById(Long topupId);
+
+    List<TopUp> findAllActive(Pageable pageable);
+
+    void deleteById(Long topupId);
+
+    List<TopUp> findAllInLocation(Long code);
 }
