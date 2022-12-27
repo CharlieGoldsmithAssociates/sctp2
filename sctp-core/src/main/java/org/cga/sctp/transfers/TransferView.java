@@ -97,6 +97,23 @@ public class TransferView extends TransferBase {
     @Convert(converter = HouseholdRecipientJsonConverter.class)
     private HouseholdEnrollmentData.HouseholdRecipientInfo secondaryRecipient;
 
+    @Column(name = "district_name", nullable = false, length = 100)
+    private String districtName;
+
+    @Column(name = "ta_name", nullable = false, length = 100)
+    private String taName;
+
+    @Column(name = "gvh_name", nullable = false, length = 100)
+    private String gvhName;
+
+    @Column(name = "cluster_name", nullable = false, length = 100)
+    private String clusterName;
+
+    @Column(name = "village_name", nullable = false, length = 100)
+    private String villageName;
+
+    private String zoneName;
+
     public String getHouseholdMlCode() {
         return householdMlCode;
     }
@@ -129,4 +146,27 @@ public class TransferView extends TransferBase {
         return headMemberCode;
     }
 
+    public String getDistrictName() {
+        return districtName;
+    }
+
+    public String getTaName() {
+        return taName;
+    }
+
+    public String getGvhName() {
+        return gvhName;
+    }
+
+    public String getClusterName() {
+        return clusterName;
+    }
+
+    public String getVillageName() {
+        return villageName;
+    }
+
+    public String getZoneName() {
+        return zoneName;
+    }
 }

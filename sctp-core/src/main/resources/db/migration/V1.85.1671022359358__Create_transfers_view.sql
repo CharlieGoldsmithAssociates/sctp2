@@ -76,11 +76,24 @@ AS SELECT
         ) AS `secondary_recipient`,
       CONCAT(i.first_name, ' ', i.last_name) AS head_name,
       i.member_code AS head_member_code,
-      i.gender AS head_gender
+      i.gender AS head_gender,
+      d.name AS district_name,
+      tl.name AS ta_name,
+      g.name AS gvh_name,
+      c.name AS cluster_name,
+      v.name AS village_name,
+      z.name AS zone_name
     FROM transfers t
     LEFT JOIN households h ON t.household_id = h.household_id
     LEFT JOIN transfer_agencies ta ON t.transfer_agency_id = ta.id
     LEFT JOIN household_recipient hr ON t.household_id = hr.household_id
     LEFT JOIN main_household_recipients mhr ON mhr.household_id = t.household_id
     LEFT JOIN alternate_household_recipients ahr ON t.household_id = ahr.household_id
-	LEFT JOIN individuals i ON i.household_id = t.household_id AND i.relationship_to_head = 1;
+	LEFT JOIN individuals i ON i.household_id = t.household_id AND i.relationship_to_head = 1
+	LEFT JOIN locations d ON d.code = h.location_code
+    LEFT JOIN locations tl ON tl.code = h.ta_code
+    LEFT JOIN locations g ON g.code = h.group_village_head_code
+    LEFT JOIN locations c ON c.code = h.cluster_code
+    LEFT JOIN locations v ON v.code = h.village_code
+    LEFT JOIN locations z ON z.code = h.zone_code
+	;
