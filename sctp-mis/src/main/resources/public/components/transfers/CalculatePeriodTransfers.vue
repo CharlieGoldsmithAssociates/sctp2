@@ -43,7 +43,7 @@ module.exports = {
         topups: false,
         arrears: false,
       },
-      transfers: [ ],
+      transfers: [],
     }
   },
 
@@ -87,7 +87,7 @@ module.exports = {
     initiateTransfers() {
       const vm = this;
       vm.isLoading = true;
-      const config = { headers: { 'X-CSRF-TOKEN': csrf()['token'], 'Content-Type': 'application/json' } }
+      const config = {headers: {'X-CSRF-TOKEN': csrf()['token'], 'Content-Type': 'application/json'}}
 
       axios.post(`/transfers/periods/initiate-calculations/${this.transferPeriodId}`, {id: this.transferPeriodId}, config)
         .then(response => {
@@ -105,93 +105,168 @@ module.exports = {
 }
 </script>
 <template>
-  <div class="card">
-    <div class="card-header">
-      <div class="card-header-title">Calculate Transfers</div>
-    </div>
-    <div class="card-content">
-      <div class="actions">
-        <button class="button is-default">Re-Run Calculations</button>&nbsp;
-        <button class="button is-danger">Save Calculations</button>
-      </div>
-      <div v-if="transfers.length < 1" class="p">
-        <div class="notification  is-link is-light m-4 is-text-3xl has-text-centered">
-          <p>There are not Transfers records created for this Transfer Period.</p>
-          <button @click="initiateTransfers" class="button is-warning"><i class="fa fa-add"></i> Create Transfers &amp; Run Calculations</button>
+  <section>
+    <div class="card">
+      <div class="card-content">
+        <div class="is-flex is-justify-content-space-between is-align-items-center">
+          <h3 class="is-size-4">Transfer Period Information</h3>
+          <div class="buttons is-flex is-flex-direction-column">
+            <div class="row is-full">
+              <b-button type="is-info is-light" class="is-wide">Re-Run Calculations</b-button>
+              <b-button type="is-info" class="is-wide">Pay Beneficiaries</b-button>
+            </div>
+            <div class="row is-full">
+              <b-button type="is-primary" class="is-wide">Approve Calculations</b-button>
+              <b-button type="is-primary is-light" class="is-wide">Perform Reconciliation</b-button>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="table-wrapper" style="overflow-x: scroll" v-else>
-        <div class="table-wrapper-inner" style="width: 200%; height: 80vh; padding-left: 50px;">
-          <table class="table">
-            <thead>
-            <tr>
-              <th>Form Number</th>
-              <th>Household Head</th>
-              <th>Main Receiver</th>
-              <th>Alternate Receiver</th>
-              <th># of Members</th>
-              <th># Children</th>
-              <th>Household Amount</th>
-              <th>Primary Bonus</th>
-              <th>Primary Incentive</th>
-              <th>Seconday Bonus</th>
-              <th v-show="enableExtraColumns.topups">Total Topup</th>
-              <th>Total Monthly</th>
-              <th>Total Amount Without Arrears</th>
-              <th v-show="enableExtraColumns.arrears">Arrears Amount</th>
-              <th v-show="enableExtraColumns.arrears">Total Amount With Arrears</th>
-              <th>Options</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for="t in transfers" :key="t.id">
-              <td>{{ t.formNumber }}</td>
-              <td>{{ t.householdHead }}</td>
-              <td>{{ t.mainReceiver }}</td>
-              <td>{{ t.alternateReceiver }}</td>
-              <td>{{ t.numOfMembers }}</td>
-              <td>{{ t.numOfChildren }}</td>
-              <td>{{ t.householdAmount }}</td>
-              <td>{{ t.primaryBonus }}</td>
-              <td>{{ t.primaryIncentive }}</td>
-              <td>{{ t.secondayBonus }}</td>
-              <td v-show="enableExtraColumns.topups">{{ t.totalTopup }}</td>
-              <td>{{ t.totalMonthly }}</td>
-              <td>{{ t.totalAmountWithoutArrears }}</td>
-              <td v-show="enableExtraColumns.arrears">{{ t.arrearsAmount }}</td>
-              <td v-show="enableExtraColumns.arrears">{{ t.totalAmountWithArrears }}</td>
-              <td>
-                <div class="dropdown is-hoverable">
-                  <div class="dropdown-trigger">
-                    <button class="button button is-info is-inverted is-options" aria-haspopup="true"
-                            aria-controls="dropdown-menu2">
-                      <span>Options</span>
-                      <span class="icon is-small">
+    </div>
+
+    <div class="card mt-2">
+      <div class="card-content">
+        <b-tabs type="is-boxed">
+          <b-tab-item label="Summary" class="pt-3">
+            <div class="columns">
+              <div class="column has-background-light p-4 mr-4 rounded">
+                <h4 class="is-size-6 mb-2">Households</h4>
+                <h2 class="is-size-3 has-text-weight-bold">56000</h2>
+              </div>
+              <div class="column has-background-light p-4 mr-4 rounded">
+                <h4 class="is-size-6 mb-2">Households</h4>
+                <h2 class="is-size-3 has-text-weight-bold">56000</h2>
+              </div>
+              <div class="column has-background-light p-4 mr-4 rounded">
+                <h4 class="is-size-6 mb-2">Households</h4>
+                <h2 class="is-size-3 has-text-weight-bold">56000</h2>
+              </div>
+              <div class="column has-background-light p-4 rounded">
+                <h4 class="is-size-6 mb-2">Households</h4>
+                <h2 class="is-size-3 has-text-weight-bold">56000</h2>
+              </div>
+            </div>
+            <div class="columns mt-4">
+              <div class="column has-background-light p-4 mr-4 rounded">
+                <h4 class="is-size-6 mb-2">Households</h4>
+                <h2 class="is-size-3 has-text-weight-bold">56000</h2>
+              </div>
+              <div class="column has-background-light p-4 mr-4 rounded">
+                <h4 class="is-size-6 mb-2">Households</h4>
+                <h2 class="is-size-3 has-text-weight-bold">56000</h2>
+              </div>
+              <div class="column has-background-light p-4 mr-4 rounded">
+                <h4 class="is-size-6 mb-2">Households</h4>
+                <h2 class="is-size-3 has-text-weight-bold">56000</h2>
+              </div>
+              <div class="column has-background-light p-4 rounded">
+                <h4 class="is-size-6 mb-2">Households</h4>
+                <h2 class="is-size-3 has-text-weight-bold">56000</h2>
+              </div>
+            </div>
+          </b-tab-item>
+          <b-tab-item label="Households / Beneficiaries">
+            <div class="actions">
+              <button class="button is-default">Re-Run Calculations</button>&nbsp;
+              <button class="button is-danger">Save Calculations</button>
+            </div>
+            <div v-if="transfers.length < 1" class="p">
+              <div class="notification  is-link is-light m-4 is-text-3xl has-text-centered">
+                <p>There are not Transfers records created for this Transfer Period.</p>
+                <button @click="initiateTransfers" class="button is-warning"><i class="fa fa-add"></i> Create Transfers
+                  &amp; Run Calculations
+                </button>
+              </div>
+            </div>
+            <div class="table-wrapper" style="overflow-x: scroll" v-else>
+              <div class="table-wrapper-inner" style="width: 200%; height: 80vh; padding-left: 50px;">
+                <table class="table">
+                  <thead>
+                  <tr>
+                    <th>Form Number</th>
+                    <th>Household Head</th>
+                    <th>Main Receiver</th>
+                    <th>Alternate Receiver</th>
+                    <th># of Members</th>
+                    <th># Children</th>
+                    <th>Household Amount</th>
+                    <th>Primary Bonus</th>
+                    <th>Primary Incentive</th>
+                    <th>Seconday Bonus</th>
+                    <th v-show="enableExtraColumns.topups">Total Topup</th>
+                    <th>Total Monthly</th>
+                    <th>Total Amount Without Arrears</th>
+                    <th v-show="enableExtraColumns.arrears">Arrears Amount</th>
+                    <th v-show="enableExtraColumns.arrears">Total Amount With Arrears</th>
+                    <th>Options</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr v-for="t in transfers" :key="t.id">
+                    <td>{{ t.formNumber }}</td>
+                    <td>{{ t.householdHead }}</td>
+                    <td>{{ t.mainReceiver }}</td>
+                    <td>{{ t.alternateReceiver }}</td>
+                    <td>{{ t.numOfMembers }}</td>
+                    <td>{{ t.numOfChildren }}</td>
+                    <td>{{ t.householdAmount }}</td>
+                    <td>{{ t.primaryBonus }}</td>
+                    <td>{{ t.primaryIncentive }}</td>
+                    <td>{{ t.secondayBonus }}</td>
+                    <td v-show="enableExtraColumns.topups">{{ t.totalTopup }}</td>
+                    <td>{{ t.totalMonthly }}</td>
+                    <td>{{ t.totalAmountWithoutArrears }}</td>
+                    <td v-show="enableExtraColumns.arrears">{{ t.arrearsAmount }}</td>
+                    <td v-show="enableExtraColumns.arrears">{{ t.totalAmountWithArrears }}</td>
+                    <td>
+                      <div class="dropdown is-hoverable">
+                        <div class="dropdown-trigger">
+                          <button class="button button is-info is-inverted is-options" aria-haspopup="true"
+                                  aria-controls="dropdown-menu2">
+                            <span>Options</span>
+                            <span class="icon is-small">
                           <i class="fas fa-angle-down" aria-hidden="true"></i>
                         </span>
-                    </button>
-                  </div>
-                  <div class="dropdown-menu" id="dropdown-menu2" role="menu">
-                    <div class="dropdown-content">
-                      <a href="#" @click="viewSingleTransfer(t.id)" class="dropdown-item">View Transfer</a>
-                      <a href="#" @click="viewHouseholdDetail(t.id)" class="dropdown-item">View Household Detail</a>
-                      <a href="#" @click="updateAccountNumber(t.id)" class="dropdown-item">Update Account Number</a>
-                      <a href="#" @click="viewTopupsOn(t.id)" class="dropdown-item">View Topups</a>
-                      <a class="divider"></a>
-                      <a href="#" @click="performReconciliationOn(t.id)" class="dropdown-item">Reconcile</a>
-                      <a href="#" @click="viewReconciliationStatus(t.id)" class="dropdown-item">Reconciliation Status</a>
-                      <a class="divider"></a>
-                      <a href="#" @click="suspendHousehold(t.id)" class="dropdown-item">Suspend Household</a>
-                      <a href="#" @click="exitHousehold(t.id)" class="dropdown-item">Exit Household</a>
-                    </div>
-                  </div>
-                </div>
-              </td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
+                          </button>
+                        </div>
+                        <div class="dropdown-menu" id="dropdown-menu2" role="menu">
+                          <div class="dropdown-content">
+                            <a href="#" @click="viewSingleTransfer(t.id)" class="dropdown-item">View Transfer</a>
+                            <a href="#" @click="viewHouseholdDetail(t.id)" class="dropdown-item">View Household
+                              Detail</a>
+                            <a href="#" @click="updateAccountNumber(t.id)" class="dropdown-item">Update Account
+                              Number</a>
+                            <a href="#" @click="viewTopupsOn(t.id)" class="dropdown-item">View Topups</a>
+                            <a class="divider"></a>
+                            <a href="#" @click="performReconciliationOn(t.id)" class="dropdown-item">Reconcile</a>
+                            <a href="#" @click="viewReconciliationStatus(t.id)" class="dropdown-item">Reconciliation
+                              Status</a>
+                            <a class="divider"></a>
+                            <a href="#" @click="suspendHousehold(t.id)" class="dropdown-item">Suspend Household</a>
+                            <a href="#" @click="exitHousehold(t.id)" class="dropdown-item">Exit Household</a>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </b-tab-item>
+          <b-tab-item label="Topups & Parameters"></b-tab-item>
+          <b-tab-item label="Transfer Agencies"></b-tab-item>
+        </b-tabs>
       </div>
     </div>
-  </div>
+  </section>
 </template>
+<style scoped>
+.button.is-wide {
+  min-width: 250px;
+}
+
+.is-flex.is-flex-gap {
+  gap: 0.5rem;
+}
+</style>
