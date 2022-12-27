@@ -190,9 +190,6 @@ public class TransferServiceImpl implements TransferService {
             newTransfer.setHouseholdId(hh.getHouseholdId());
             newTransfer.setTransferState(TransferStatus.OPEN);
             newTransfer.setTransferAgencyId(0L);
-            var recipientId = hh.getPrimaryRecipient().getMemberId();
-            newTransfer.setReceiverId(recipientId);
-
             newTransfer.setTransferPeriodId(transferPeriod.getId());
             newTransfer.setHouseholdMemberCount(hh.getMemberCount().intValue());
             newTransfer.setChildrenCount(hh.getChildEnrollment6to15());
@@ -249,8 +246,7 @@ public class TransferServiceImpl implements TransferService {
 
     @Override
     public List<Transfer> fetchPendingTransferListByLocation(long districtCode, Long taCode, Long villageCluster, Long zone, Long village, Pageable pageable) {
-        return transfersRepository.findAllByStatusByLocationToVillageLevel(
-                TransferStatus.OPEN.getCode(),
+        return transfersRepository.findAllByLocationToVillageLevel(
                 districtCode,
                 taCode,
                 villageCluster,

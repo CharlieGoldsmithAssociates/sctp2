@@ -34,8 +34,8 @@ package org.cga.sctp.transfers;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @MappedSuperclass
 public class TransferBase {
@@ -195,6 +195,9 @@ public class TransferBase {
     @Column
     private Long topupEventId;
 
+    @Column
+    private BigDecimal totalTransferAmount;
+
     /**
      * BIGINT COMMENT 'Amount to be disbursed for topup',
      */
@@ -209,13 +212,13 @@ public class TransferBase {
     private String reconciliationMethod;
 
     @Column
-    private LocalDate dateReconciled;
+    private ZonedDateTime dateReconciled;
 
     @Column
-    private LocalDateTime createdAt;
+    private ZonedDateTime createdAt;
 
     @Column
-    private LocalDateTime modifiedAt;
+    private ZonedDateTime modifiedAt;
 
     // BIGINT NOT NULL COMMENT 'The user who created/initiated this transfer record',
     @Column
@@ -449,6 +452,14 @@ public class TransferBase {
         this.disbursementDate = disbursementDate;
     }
 
+    public BigDecimal getTotalTransferAmount() {
+        return totalTransferAmount;
+    }
+
+    public void setTotalTransferAmount(BigDecimal totalTransferAmount) {
+        this.totalTransferAmount = totalTransferAmount;
+    }
+
     public BigDecimal getArrearsAmount() {
         return arrearsAmount;
     }
@@ -497,27 +508,27 @@ public class TransferBase {
         this.reconciliationMethod = reconciliationMethod;
     }
 
-    public LocalDate getDateReconciled() {
+    public ZonedDateTime getDateReconciled() {
         return dateReconciled;
     }
 
-    public void setDateReconciled(LocalDate dateReconciled) {
+    public void setDateReconciled(ZonedDateTime dateReconciled) {
         this.dateReconciled = dateReconciled;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public ZonedDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(ZonedDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getModifiedAt() {
+    public ZonedDateTime getModifiedAt() {
         return modifiedAt;
     }
 
-    public void setModifiedAt(LocalDateTime modifiedAt) {
+    public void setModifiedAt(ZonedDateTime modifiedAt) {
         this.modifiedAt = modifiedAt;
     }
 
