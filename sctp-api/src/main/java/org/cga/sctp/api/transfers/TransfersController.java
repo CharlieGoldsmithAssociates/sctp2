@@ -42,6 +42,7 @@ import org.cga.sctp.api.user.ApiUserDetails;
 import org.cga.sctp.api.utils.LangUtils;
 import org.cga.sctp.transfers.Transfer;
 import org.cga.sctp.transfers.TransferService;
+import org.cga.sctp.transfers.TransferView;
 import org.cga.sctp.transfers.periods.TransferPeriodView;
 import org.cga.sctp.transfers.reconciliation.TransferReconciliationRequest;
 import org.cga.sctp.user.AuthenticatedUserDetails;
@@ -106,36 +107,37 @@ public class TransfersController {
         return ResponseEntity.ok(new TransferListResponse(page, PAGE_SIZE, transferListSummary.size(), transferListSummary));
     }
 
-
     /**
-     * This endpoint is mostly intended for use by the App client
-     * It displays a list of transfers in a certain period
+     * @param user
      * @param periodId
-     * @param page
      * @param taCode
      * @param villageCluster
      * @param zone
+     * @param villageCode
+     * @param page
+     * @param pageSize
      * @return
      */
     @GetMapping("/periods/{period-id}")
     @Operation(description = "Retrieves Transfer List for the given Geolocation. Does not include full household detail")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = TransferListResponse.class)))
+            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = TransferViewResponse.class)))
     })
     @IncludeGeneralResponses
-    public ResponseEntity<TransferListResponse> getPeriodTransfers(
+    public ResponseEntity<TransferViewResponse> getPeriodTransfers(
             @AuthenticatedUserDetails ApiUserDetails user,
             @PathVariable(value = "period-id") Long periodId,
-            @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "traditional-authority-code", required = false, defaultValue = "0") Long taCode,
             @RequestParam(value = "village-cluster-code", required = false, defaultValue = "0") Long villageCluster,
             @RequestParam(value = "zone-code", required = false, defaultValue = "0") Long zone,
-            @RequestParam(value = "village-code", required = false, defaultValue = "0") Long villageCode
+            @RequestParam(value = "village-code", required = false, defaultValue = "0") Long villageCode,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "pageSize", defaultValue = "0") int pageSize
     ) {
         Pageable pageable = Pageable.ofSize(PAGE_SIZE).withPage(page);
         long districtCode = user.getAccessTokenClaims().getDistrictCode().longValue();
-        List<Transfer> transferListSummary = transferService.fetchTransferListByPeriodAndLocation(periodId, districtCode, taCode, villageCluster, zone, villageCode, pageable);
-        return ResponseEntity.ok(new TransferListResponse(page, PAGE_SIZE, transferListSummary.size(), transferListSummary));
+        List<TransferView> transferListSummary = transferService.fetchTransferViewsByPeriodAndLocation(periodId, districtCode, taCode, villageCluster, zone, villageCode, pageable);
+        return ResponseEntity.ok(new TransferViewResponse(page, PAGE_SIZE, transferListSummary.size(), transferListSummary));
     }
 
     /**
