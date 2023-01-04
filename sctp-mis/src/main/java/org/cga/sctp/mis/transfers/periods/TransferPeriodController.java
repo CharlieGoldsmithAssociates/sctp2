@@ -201,7 +201,7 @@ public class TransferPeriodController extends BaseController {
 
         try {
             logger.info("Checking for enrollment session in District {}", transferPeriod.get().getDistrictCode());
-            Location location = locationService.findById(transferPeriod.get().getDistrictCode());
+            Location location = locationService.findByCode(transferPeriod.get().getDistrictCode());
 
             var enrollmentSession = enrollmentService.findMostRecentSessionByLocation(location.getCode());
             if (enrollmentSession.isEmpty()) {
@@ -212,7 +212,8 @@ public class TransferPeriodController extends BaseController {
 
             transferService.createTransfers(transferPeriod.get(), user.id(), households.toList());
             // TODO: return data or calculate off-thread
-            return ResponseEntity.ok().build();
+            // TODO: change return type of this API
+            return ResponseEntity.ok(transferPeriod.get());
         } catch (Exception e ) {
             LOG.error("Failed to create transfers records", e);
             return ResponseEntity.internalServerError().build();
