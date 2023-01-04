@@ -1,0 +1,1 @@
+ALTER TABLE transfers DROP COLUMN `receiver_id`;

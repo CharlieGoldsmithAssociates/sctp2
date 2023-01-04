@@ -51,9 +51,6 @@ public class TransferBase {
     private Long householdId;
 
     @Column
-    private Long transferSessionId;
-
-    @Column
     @Convert(converter = TransferStatus.Converter.class)
     private TransferStatus transferState;
 
@@ -62,18 +59,6 @@ public class TransferBase {
 
     @Column
     private Long transferPeriodId;
-
-    @Column
-    private Long districtId;
-
-    @Column
-    private Long villageClusterId;
-
-    @Column
-    private Long traditionalAuthorityId;
-
-    @Column
-    private Long zoneId;
 
     /**
      * Number of household Members during enrollment',
@@ -190,6 +175,12 @@ public class TransferBase {
     private Long disbursedByUserId;
 
     /**
+     * BIGINT NULL COMMENT 'Comment by disbursedByUser',
+     */
+    @Column(name = "comment", nullable = true, length = 200)
+    private String comment;
+
+    /**
      * BIGINT COMMENT 'TODO: Review and create topup_events table which will describe why topup exists',
      */
     @Column
@@ -252,14 +243,6 @@ public class TransferBase {
         this.householdId = householdId;
     }
 
-    public Long getTransferSessionId() {
-        return transferSessionId;
-    }
-
-    public void setTransferSessionId(Long transferSessionId) {
-        this.transferSessionId = transferSessionId;
-    }
-
     public TransferStatus getTransferState() {
         return transferState;
     }
@@ -282,38 +265,6 @@ public class TransferBase {
 
     public void setTransferPeriodId(Long transferPeriodId) {
         this.transferPeriodId = transferPeriodId;
-    }
-
-    public Long getDistrictId() {
-        return districtId;
-    }
-
-    public void setDistrictId(Long districtId) {
-        this.districtId = districtId;
-    }
-
-    public Long getVillageClusterId() {
-        return villageClusterId;
-    }
-
-    public void setVillageClusterId(Long villageClusterId) {
-        this.villageClusterId = villageClusterId;
-    }
-
-    public Long getTraditionalAuthorityId() {
-        return traditionalAuthorityId;
-    }
-
-    public void setTraditionalAuthorityId(Long traditionalAuthorityId) {
-        this.traditionalAuthorityId = traditionalAuthorityId;
-    }
-
-    public Long getZoneId() {
-        return zoneId;
-    }
-
-    public void setZoneId(Long zoneId) {
-        this.zoneId = zoneId;
     }
 
     public Integer getHouseholdMemberCount() {
