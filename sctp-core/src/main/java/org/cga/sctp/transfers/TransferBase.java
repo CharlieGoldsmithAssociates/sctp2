@@ -190,6 +190,12 @@ public class TransferBase {
     private Long disbursedByUserId;
 
     /**
+     * BIGINT NULL COMMENT 'Comment by disbursedByUser',
+     */
+    @Column(name = "comment", nullable = true, length = 200)
+    private String comment;
+
+    /**
      * BIGINT COMMENT 'TODO: Review and create topup_events table which will describe why topup exists',
      */
     @Column

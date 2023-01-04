@@ -97,21 +97,37 @@ public class TransferView extends TransferBase {
     @Convert(converter = HouseholdRecipientJsonConverter.class)
     private HouseholdEnrollmentData.HouseholdRecipientInfo secondaryRecipient;
 
+    @Column
+    private Long districtCode;
+
     @Column(name = "district_name", nullable = false, length = 100)
     private String districtName;
 
+    @Column
+    private Long taCode;
+
     @Column(name = "ta_name", nullable = false, length = 100)
     private String taName;
-
+    @Column
+    private Long gvhCode;
     @Column(name = "gvh_name", nullable = false, length = 100)
     private String gvhName;
+
+    @Column
+    private Long clusterCode;
 
     @Column(name = "cluster_name", nullable = false, length = 100)
     private String clusterName;
 
+    private Long villageCode;
+
     @Column(name = "village_name", nullable = false, length = 100)
     private String villageName;
 
+    @Column
+    private Long zoneCode;
+
+    @Column(name = "zone_name", nullable = false, length = 100)
     private String zoneName;
 
     public String getHouseholdMlCode() {
@@ -146,24 +162,56 @@ public class TransferView extends TransferBase {
         return headMemberCode;
     }
 
+    public HouseholdEnrollmentData.HouseholdRecipientInfo getMainRecipient() {
+        return mainRecipient;
+    }
+
+    public HouseholdEnrollmentData.HouseholdRecipientInfo getSecondaryRecipient() {
+        return secondaryRecipient;
+    }
+
+    public Long getDistrictCode() {
+        return districtCode;
+    }
+
     public String getDistrictName() {
         return districtName;
+    }
+
+    public Long getTaCode() {
+        return taCode;
     }
 
     public String getTaName() {
         return taName;
     }
 
+    public Long getGvhCode() {
+        return gvhCode;
+    }
+
     public String getGvhName() {
         return gvhName;
+    }
+
+    public Long getClusterCode() {
+        return clusterCode;
     }
 
     public String getClusterName() {
         return clusterName;
     }
 
+    public Long getVillageCode() {
+        return villageCode;
+    }
+
     public String getVillageName() {
         return villageName;
+    }
+
+    public Long getZoneCode() {
+        return zoneCode;
     }
 
     public String getZoneName() {
