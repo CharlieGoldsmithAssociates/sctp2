@@ -30,12 +30,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.transfers;
+package org.cga.sctp.api.transfers;
 
-import javax.persistence.*;
+import org.cga.sctp.api.core.pagination.PagedResponse;
+import org.cga.sctp.transfers.TransferView;
+import org.springframework.data.domain.Page;
 
+import java.util.List;
 
-@Entity
-@Table(name = "transfers")
-public class Transfer extends TransferBase {
+public class TransferViewResponse extends PagedResponse<TransferView> {
+    public TransferViewResponse(Page<TransferView> page) {
+        super(page);
+    }
+
+    public TransferViewResponse(int page, long totalItems, int totalPages, List<TransferView> items) {
+        super(page, totalItems, totalPages, items);
+    }
 }

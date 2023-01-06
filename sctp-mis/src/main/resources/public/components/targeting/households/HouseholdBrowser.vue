@@ -1,53 +1,45 @@
 <template>
-    <div class="card no-overlap">
-        <header class="card-header">
-            <p class="card-header-title">Household Browser</p>
-        </header>
-        <div class="card-content">
-            <section>
-                <splitpanes>
-                    <pane min-size="1">
-                        <list-box v-bind:auto-load="true" @selected="onItemSelected" location-type="DISTRICT"
-                            title="District"></list-box>
-                    </pane>
-                    <pane min-size="1">
-                        <list-box :parent-code="districtCode" @selected="onItemSelected" location-type="TA"
-                            title="T/A" />
-                    </pane>
-                    <pane>
-                        <splitpanes horizontal="horizontal">
-                            <pane min-size="1">
-                                <splitpanes>
-                                    <pane min-size="1">
-                                        <list-box :parent-code="taCode" @selected="onItemSelected"
-                                            location-type="CLUSTER" title="Cluster" list-size="half-height"></list-box>
-                                    </pane>
-                                    <pane min-size="1">
-                                        <list-box :parent-code="clusterCode" @selected="onItemSelected"
-                                            location-type="ZONE" title="Zone" list-size="half-height"></list-box>
-                                    </pane>
-                                </splitpanes>
-                            </pane>
-                            <pane min-size="1">
-                                <list-box :parent-code="taCode" :auto-select="false" @selected="onItemSelected"
-                                    location-type="GVH" title="or Group Village Head"
-                                    list-size="half-height"></list-box>
-                            </pane>
-                        </splitpanes>
-                    </pane>
-                    <pane min-size="1">
-                        <list-box :parent-code="villageParentCode" :use-gvh="useGvh" @selected="onItemSelected"
-                            location-type="VILLAGE" title="Village"></list-box>
-                    </pane>
-                </splitpanes>
-                <splitpanes>
-                    <pane min-size="1">
-                        <household-list :village-code="villageCode" />
-                    </pane>
-                </splitpanes>
-            </section>
+    <section>
+        <div class="card no-overlap">
+            <header class="card-header">
+                <p class="card-header-title">Household Browser</p>
+            </header>
+            <div class="card-content">
+                <section>
+                    <splitpanes>
+                        <pane min-size="1">
+                            <list-box v-bind:auto-load="true" @selected="onItemSelected" location-type="DISTRICT"
+                                title="District"></list-box>
+                        </pane>
+                        <pane min-size="1">
+                            <list-box :parent-code="districtCode" @selected="onItemSelected" location-type="TA"
+                                title="T/A" />
+                        </pane>
+                        <pane min-size="1">
+                            <list-box :parent-code="taCode" @selected="onItemSelected" location-type="CLUSTER"
+                                title="Cluster"></list-box>
+                        </pane>
+                        <pane min-size="1">
+                            <list-box :parent-code="clusterCode" @selected="onItemSelected" location-type="ZONE"
+                                title="Zone"></list-box>
+                        </pane>
+                        <pane min-size="1">
+                            <list-box :parent-code="villageParentCode" :use-gvh="false" @selected="onItemSelected"
+                                location-type="VILLAGE" title="Village"></list-box>
+                        </pane>
+                    </splitpanes>
+                    <!-- <splitpanes>
+                        <pane min-size="1">
+                            <household-list :village-code="villageCode" />
+                        </pane>
+                    </splitpanes> -->
+                </section>
+            </div>
         </div>
-    </div>
+        <div class="container is-fluid p-0 mt-6">
+            <household-list :village-code="villageCode" />
+        </div>
+    </section>
 </template>
 
 <script>
@@ -96,10 +88,6 @@ module.exports = {
                 case 'ZONE':
                     this.villageParentCode = item.code;
                     this.useGvh = false;
-                    break;
-                case 'GVH':
-                    this.villageParentCode = item.code;
-                    this.useGvh = true;
                     break;
                 case 'VILLAGE':
                     this.villageCode = item.code;
