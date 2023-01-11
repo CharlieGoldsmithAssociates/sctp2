@@ -43,6 +43,9 @@ public class TransferUpdateDto {
     private Long transferAgencyId;
     private Long recipientId;
     private BigDecimal amountTransferred;
+
+    private String comment;
+
     private Long reconcilingUserId;
     private TransferStatus status;
     private Timestamp timestamp;
@@ -77,6 +80,14 @@ public class TransferUpdateDto {
 
     public void setAmountTransferred(BigDecimal amountTransferred) {
         this.amountTransferred = amountTransferred;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 
     public Long getReconcilingUserId() {

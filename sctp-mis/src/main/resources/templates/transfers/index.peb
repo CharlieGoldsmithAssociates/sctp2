@@ -52,13 +52,6 @@
                                     Transfer Parameters</a>
                             </li>
                             <li>
-                                <a href="/transfers/parameters/new">
-                                    <span class="icon">
-                                        <i class="fas fa-angle-right"></i>
-                                    </span>
-                                    New Transfer Parameter</a>
-                            </li>
-                            <li>
                                 <a href="/transfers/topups">
                                     <span class="icon">
                                         <i class="fas fa-angle-right"></i>

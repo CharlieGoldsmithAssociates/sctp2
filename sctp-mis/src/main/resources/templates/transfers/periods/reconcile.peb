@@ -16,7 +16,7 @@
                     </div>
                 </div>
                 <div class="card-content">
-                    <Reconcile-Period transferPeriodId="{{ transferPeriod.id }}"/>
+                    <Reconcile-Period transfer-Period-Id="{{ transferPeriod.id }}"/>
                 </div>
             </div>
         </div>

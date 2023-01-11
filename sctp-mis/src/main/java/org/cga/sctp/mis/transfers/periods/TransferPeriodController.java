@@ -42,6 +42,8 @@ import org.cga.sctp.targeting.enrollment.EnrollmentService;
 import org.cga.sctp.targeting.enrollment.HouseholdEnrollmentData;
 import org.cga.sctp.transfers.TransferException;
 import org.cga.sctp.transfers.TransferService;
+import org.cga.sctp.transfers.TransferView;
+import org.cga.sctp.transfers.TransferViewRepository;
 import org.cga.sctp.transfers.agencies.TransferAgencyService;
 import org.cga.sctp.transfers.periods.TransferPeriod;
 import org.cga.sctp.transfers.periods.TransferPeriodException;
@@ -51,6 +53,7 @@ import org.cga.sctp.user.AuthenticatedUser;
 import org.cga.sctp.user.AuthenticatedUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
@@ -76,6 +79,9 @@ public class TransferPeriodController extends BaseController {
 
     @Autowired
     private TransferPeriodService transferPeriodService;
+
+    @Autowired
+    private TransferViewRepository transferViewRepository;
 
     @Autowired
     private TransferService transferService;
@@ -236,16 +242,23 @@ public class TransferPeriodController extends BaseController {
 
     @GetMapping("/transfer-list/{period-id}")
     @AdminAndStandardAccessOnly
-    public ModelAndView getTransferListPage(@AuthenticatedUserDetails AuthenticatedUser user,
-                                         @PathVariable("period-id") Long periodId,
-                                         RedirectAttributes attributes) {
+    public ResponseEntity<List<TransferView>> getTransferListPage(@AuthenticatedUserDetails AuthenticatedUser user,
+                                                                  @PathVariable("period-id") Long periodId,
+                                                                  Pageable pageable) {
         Optional<TransferPeriod> transferPeriod = transferPeriodService.findById(periodId);
         if (transferPeriod.isEmpty()) {
-            return redirectWithDangerMessageModelAndView("/transfers/periods", "Transfer Period does not exist", attributes);
+//            return redirectWithDangerMessageModelAndView("/transfers/periods", "Transfer Period does not exist", attributes);
+            return ResponseEntity.notFound().build();
         }
 
-        return view("/transfers/periods/transfer-list")
-                .addObject("transferPeriod", transferPeriod.get());
+        List<TransferView> transferViewList = transferViewRepository.findAllByPeriodByLocationToDistrictLevel(
+                transferPeriod.get().getId(),
+                transferPeriod.get().getDistrictCode(),
+                pageable.getPageNumber(),
+                pageable.getPageSize()
+        );
+
+        return ResponseEntity.ok(transferViewList);
     }
 
     @GetMapping("/close/{period-id}")

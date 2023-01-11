@@ -1,0 +1,94 @@
+{% extends "../base" %}
+{% import "../../utils/form" %}
+{% block contextMenu %}
+<div class="container context-nav-container">
+    <div class="buttons is-right">
+        {# TODO: Add context menu/actions here... #}
+    </div>
+</div>
+{% endblock %}
+{% block content %}
+<div class="content-container is-fullheight">
+    <div class="card">
+        <div class="card-header">
+            <div class="column">
+                <p class="card-header-title">Pay Transfer</p>
+            </div>
+        </div>
+        <div class="card-content">
+            <div class="columns">
+                <div class="column">
+                    <h1 class="title is-6">Transfer ID:</h1>
+                    <h2 class="subtitle has-text-weight-light  is-6">{{ transfer.id }}</h2>
+                </div>
+                <div class="column">
+                    <h1 class="title is-6">Household Form Number:</h1>
+                    <h2 class="subtitle has-text-weight-light  is-6">{{ transfer.formNumber }}</h2>
+
+                    <h1 class="title is-6">Household ML Code:</h1>
+                    <h2 class="subtitle has-text-weight-light  is-6">{{ transfer.householdMlCode }}</h2>
+                </div>
+            </div>
+            <div class="columns">
+                <div class="column">
+                    <h1 class="title is-6">Total Amount</h1>
+                    <div class="subtitle has-text-weight-light is-6">{{ transfer.totalAmountToTransfer }}</div>
+                </div>
+                <div class="column">
+                    <h1 class="title is-6">Total Monthly</h1>
+                    <div class="subtitle has-text-weight-light is-6">{{ transfer.totalMonthlyAmount }}</div>
+                </div>
+                <div class="column">
+                    <h1 class="title is-6">Total Topup</h1>
+                    <div class="subtitle has-text-weight-light is-6">{{ transfer.totalTopupAmount }}</div>
+                </div>
+            </div>
+            <div class="columns">
+                <div class="column">
+                    <h1 class="title is-6"></h1>
+                    <div class="subtitle has-text-weight-light is-6"></div>
+                </div>
+                <div class="column">
+                    <h1 class="title is-6"></h1>
+                    <div class="subtitle has-text-weight-light is-6"></div>
+                </div>
+            </div>
+            <div class="columns">
+                <div class="column">
+                    <h1 class="title is-6"></h1>
+                    <div class="subtitle has-text-weight-light is-6"></div>
+                </div>
+                <div class="column">
+                    <h1 class="title is-6"></h1>
+                    <div class="subtitle has-text-weight-light is-6"></div>
+                </div>
+            </div>
+            <Pay-Household transfer-id="{{ transfer.id }}" />
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block footerScripts %}
+{{ parent() }}
+<script type="module">
+const App = {
+    el: '#vapp',
+
+    mounted() {
+        console.log('application mounted. ')
+    },
+
+    created() {
+        console.log('application created')
+    },
+
+    components: {
+        'PayHousehold': httpVueLoader('/components/transfers/PayHousehold.vue')
+    }
+};
+
+window.addEventListener('load', () => {
+    var app = new Vue(App);
+});
+</script>
+{% endblock %}

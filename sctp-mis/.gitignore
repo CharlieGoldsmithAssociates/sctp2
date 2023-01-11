@@ -1,7 +1,7 @@
 .idea/
 *.iml
 *.ipr
-application-dev.yaml
+application.yaml
 application-prod.properties
 application-dev.properties
 target/

@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2022, CGATechnologies
+ * Copyright (c) 2023, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,29 +32,39 @@
 
 package org.cga.sctp.mis.transfers;
 
-import org.cga.sctp.mis.core.SecuredBaseController;
-import org.cga.sctp.transfers.DistrictTransferSummaryView;
-import org.cga.sctp.transfers.TransferService;
-import org.cga.sctp.user.AdminAndStandardAccessOnly;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
+import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 
-import java.util.List;
+public class PayTransferDto {
+    @NotNull
+    private Long transferId;
 
-@RequestMapping("/transfers/sessions/summary")
-@Controller
-public class TransferSummaryController extends SecuredBaseController {
-    @Autowired
-    private TransferService transferService;
+    @NotNull
+    private BigDecimal amount;
 
-    @GetMapping
-    @AdminAndStandardAccessOnly
-    public ModelAndView viewSummaryPage() {
-        List<DistrictTransferSummaryView> districtSummaries = transferService.fetchDistrictSummaries();
-        return view("transfers/summary")
-                .addObject("districtSummaries", districtSummaries);
+    private String comment;
+
+    public Long getTransferId() {
+        return transferId;
+    }
+
+    public void setTransferId(Long transferId) {
+        this.transferId = transferId;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 }

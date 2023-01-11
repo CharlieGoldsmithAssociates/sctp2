@@ -166,6 +166,7 @@ public class TransferServiceImpl implements TransferService {
         return transferSession;
     }
 
+
     @Override
     @Transactional
     public TransferSession createTransfers(TransferPeriod transferPeriod, long userId, List<HouseholdEnrollmentData> households) {
@@ -190,6 +191,7 @@ public class TransferServiceImpl implements TransferService {
             newTransfer.setHouseholdId(hh.getHouseholdId());
             newTransfer.setTransferState(TransferStatus.OPEN);
             newTransfer.setTransferAgencyId(0L);
+
             newTransfer.setTransferPeriodId(transferPeriod.getId());
             newTransfer.setHouseholdMemberCount(hh.getMemberCount().intValue());
             newTransfer.setChildrenCount(hh.getChildEnrollment6to15());
@@ -216,18 +218,18 @@ public class TransferServiceImpl implements TransferService {
             newTransfer.setCreatedBy(userId);
             newTransfer.setReviewedBy(userId);
 
-            newTransfer.setCreatedAt(ZonedDateTime.now());
-            newTransfer.setModifiedAt(ZonedDateTime.now());
-            newTransfer.setCreatedBy(userId);
-
-
             transferList.add(newTransfer);
         }
 
         transferCalculator.calculateTransfers(transferPeriod, transferList);
 
         transfersRepository.saveAll(transferList);
-
+//        initiateRepo.initiateTransfersForEnrolledHouseholds(
+//            enrollmentSession.get().getId(),
+//            transferPeriod.getId(),
+//            transferPeriod.getDistrictCode(),
+//            userId
+//        );
         return null;
     }
 

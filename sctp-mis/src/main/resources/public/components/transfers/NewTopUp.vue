@@ -269,7 +269,7 @@ module.exports = {
         <div class="card-header-title">New Top Up</div>
       </div>
       <div class="card-content">
-        <for action="" method="post" enctype="application/x-www-form-urlencoded">
+        <form action="" method="post" enctype="application/x-www-form-urlencoded">
           <div class="columns">
             <div class="column is-half">
               <div class="field">
