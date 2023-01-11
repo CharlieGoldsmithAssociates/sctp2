@@ -215,6 +215,12 @@ public class TransferBase {
     @Column
     private Long createdBy;
 
+    /**
+     * TINYINT(1) DEFAULT 0 COMMENT 'Whether the transfer is reviewed/recorded',
+     */
+    @Column(name = "is_reviewed")
+    private Boolean isReviewed;
+
     // BIGINT NOT NULL COMMENT 'The user who approved/reviewed the transfer record should not be == created_by',
     @Column
     private Long reviewedBy;
@@ -489,6 +495,14 @@ public class TransferBase {
 
     public void setCreatedBy(Long createdBy) {
         this.createdBy = createdBy;
+    }
+
+    public Boolean getReviewed() {
+        return isReviewed;
+    }
+
+    public void setReviewed(Boolean reviewed) {
+        isReviewed = reviewed;
     }
 
     public Long getReviewedBy() {
