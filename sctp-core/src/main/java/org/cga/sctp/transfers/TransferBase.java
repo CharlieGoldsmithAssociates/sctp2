@@ -499,6 +499,14 @@ public class TransferBase {
         this.reviewedBy = reviewedBy;
     }
 
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
     public BigDecimal calculateMonthlyAmount() {
         return new BigDecimal("0.0")
                 .add(this.basicSubsidyAmount)
