@@ -11,7 +11,7 @@
         {% endblock %}
     {% block content %}
 
-    <div class="card card-default">
+    <div class="card card-default no-overlap">
         <div class="card-header">
             <div class="card-header-title">Top Ups</div>
         </div>
@@ -38,7 +38,7 @@
                     <td>{{ t.amountProjected }}</td>
                     <td>{{ yesOrNo(t.isExecuted) }}</td>
                     <td data-sortable="false">
-                        <div class="dropdown is-hoverable is-right">
+                        <div class="dropdown is-hoverable">
                             <div class="dropdown-trigger">
                                 <button class="button button is-info is-inverted is-options"
                                         aria-haspopup="true" aria-controls="topup-{{ t.id }}">

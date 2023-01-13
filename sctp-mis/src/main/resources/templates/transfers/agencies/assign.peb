@@ -22,7 +22,7 @@
 
     {% block content %}
     <div class="container">
-    <div class="card">
+    <div class="card card-default no-overlap">
         <div class="card-header">
             <h2 class="card-header-title">Assign Transfer Agency</h2>
         </div>

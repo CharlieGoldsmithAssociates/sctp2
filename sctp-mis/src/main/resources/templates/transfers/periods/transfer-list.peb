@@ -9,7 +9,7 @@
     {% endblock %}
     {% block content %}
     <div id="transfers:CreateNewPeriodApp" class="content-container is-fullheight">
-        <div class="card">
+        <div class="card card-default no-overlap">
             <div class="card-header">
                 <div class="column">
                     <p class="card-header-title">Recipients in Transfer Period</p>

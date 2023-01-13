@@ -1,7 +1,7 @@
     {% extends "../base" %}
 
         {% block content %}
-    <div class="card no-overlap">
+    <div class="card card-default no-overlap">
         <header class="card-header">
             <p class="card-header-title">Transfer Parameters</p>
         </header>

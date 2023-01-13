@@ -18,7 +18,7 @@
 
     {% block content %}
     <div class="container">
-        <div class="card no-overlap">
+        <div class="card card-default no-overlap">
             <header class="card-header">
                 <p class="card-header-title">Transfer Agencies assigned to Locations</p>
             </header>
