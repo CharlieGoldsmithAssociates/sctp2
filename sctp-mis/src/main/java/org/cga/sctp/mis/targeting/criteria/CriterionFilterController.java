@@ -213,6 +213,7 @@ public class CriterionFilterController extends BaseController {
         }
 
         if (result.hasErrors()) {
+            LOG.error("form errors: {}", result.getAllErrors());
             return withDangerMessage("targeting/criteria/filters/new", "Something went wrong while saving your filter.")
                     .addObject("criterion", criterion)
                     .addObject("conjunctions", CriteriaFilterObject.Conjunction.VALUES)
@@ -241,9 +242,9 @@ public class CriterionFilterController extends BaseController {
         }
 
         if (form.getConjunction() == CriteriaFilterObject.Conjunction.None) {
-            if (targetingService.getCriterionFilterCount(criterion) > 1) {
+            if (targetingService.getCriterionFilterCount(criterion) >= 1) {
                 return withDangerMessage("targeting/criteria/filters/new",
-                        "The conjunction ’None’ can only be used by the first filter only.")
+                        "The conjunction ’None’ can only be used by the very first filter only.")
                         .addObject("criterion", criterion)
                         .addObject("conjunctions", CriteriaFilterObject.Conjunction.VALUES)
                         .addObject("templates", Collections.emptyList());

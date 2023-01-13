@@ -44,6 +44,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Set;
 
 @Repository
 interface LocationRepository extends JpaRepository<Location, Long> {
@@ -121,6 +122,9 @@ interface LocationRepository extends JpaRepository<Location, Long> {
     @Query(nativeQuery = true, value = "select cluster_code code, cluster_name name, household_count householdCount from household_clusters_view where ta_code = :code")
     List<HouseholdLocation> getHouseholdClustersByTaCode(@Param("code") long parentCode);
 
+    @Query(nativeQuery = true, value = "select cluster_code code, cluster_name name, household_count householdCount from household_clusters_view where ta_code IN (:codes)")
+    List<HouseholdLocation> getHouseholdClustersByTaCodes(@Param("codes") Set<Long> taCodes);
+
     @Query(nativeQuery = true, value = "select zone_code code, zone_name name, household_count householdCount from household_zones_view")
     List<HouseholdLocation> getHouseholdZones();
 
@@ -182,4 +186,32 @@ interface LocationRepository extends JpaRepository<Location, Long> {
                             throw new UnsupportedOperationException("Location type " + locationType + " is currently not supported");
                 };
     }
+
+
+    default List<HouseholdLocation> getBulkHouseholdLocations(LocationType locationType, Set<Long> parentCodes) {
+        return
+                switch (locationType) {
+                    case SUBNATIONAL1 -> getHouseholdDistricts();
+                    case SUBNATIONAL2 ->
+                            parentCodes.isEmpty() ? getHouseholdTAs() : getHouseholdTAsByDistrictCode(parentCodes.stream().findFirst().get());
+                    case SUBNATIONAL3 -> parentCodes.isEmpty() ? List.of() : getHouseholdClustersByTaCodes(parentCodes);
+                    case COUNTRY, SUBNATIONAL4, SUBNATIONAL5, SUBNATIONAL6 ->
+                            throw new UnsupportedOperationException("Bulk location selection for type " + locationType + " is currently not supported");
+                };
+    }
+
+    @Query(
+            nativeQuery = true,
+            value = """
+                    SELECT COUNT(c.code)\s
+                    FROM location_by_codes_v c\s
+                    JOIN (
+                     SELECT code, parentCode\s
+                     FROM location_by_codes_v\s
+                     WHERE location_type = 'SUBNATIONAL2' AND parentCode = :district
+                    ) AS d ON d.code = c.parentCode\s
+                    WHERE c.code IN (:clusters)
+                    """
+    )
+    Long countClustersUnderDistrict(@Param("district") long districtCode, @Param("clusters") Set<Long> clusters);
 }

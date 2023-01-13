@@ -53,6 +53,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -414,12 +415,37 @@ public class LocationController extends BaseController {
     }
 
     @AdminAndStandardAccessOnly
+    @GetMapping(value = "/get-household-locations-without-conversion/{location-type}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<HouseholdLocation>> getHouseholdLocations(
+            @PathVariable("location-type") LocationType locationType,
+            @RequestParam(value = "parent-code", defaultValue = "1") Long parentCode) {
+        List<HouseholdLocation> locations = locationService.getHouseholdLocations(locationType, parentCode);
+        return ResponseEntity
+                .ok().contentType(MediaType.APPLICATION_JSON)
+                .body(locations);
+    }
+
+    @AdminAndStandardAccessOnly
+    @PostMapping(value = "/get-bulk-household-locations/{location-type}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<HouseholdLocation>> getBulkHouseholdLocationsAsSelectOptions(
+            @PathVariable("location-type") LocationType locationType,
+            @Valid @RequestBody HouseholdLocationBulkSelectionRequest request, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().build();
+        }
+        List<HouseholdLocation> locations = locationService.getBulkHouseholdLocations(locationType, request.getParentCodes());
+        return ResponseEntity
+                .ok().contentType(MediaType.APPLICATION_JSON)
+                .body(locations);
+    }
+
+    @AdminAndStandardAccessOnly
     @GetMapping(value = "/get-household-locations-for-browser/{location-type}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<HouseholdLocation>> get(
             @PathVariable("location-type") LocationType locationType,
             @RequestParam(value = "parent-code", defaultValue = "1") Long parentCode,
             @RequestParam(value = "use-gvh", defaultValue = "false") Boolean useGvh) {
-        List<HouseholdLocation> locations = locationService.getHouseholdLocations(locationType, parentCode,useGvh);
+        List<HouseholdLocation> locations = locationService.getHouseholdLocations(locationType, parentCode, useGvh);
         return ResponseEntity
                 .ok().contentType(MediaType.APPLICATION_JSON)
                 .body(locations);

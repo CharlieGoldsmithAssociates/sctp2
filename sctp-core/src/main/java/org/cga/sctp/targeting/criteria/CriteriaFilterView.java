@@ -35,6 +35,8 @@ package org.cga.sctp.targeting.criteria;
 import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Table;
 
 @Entity
@@ -43,13 +45,15 @@ import javax.persistence.Table;
 public class CriteriaFilterView extends CriteriaFilterObject {
     private String label;
     private String selectedValue;
-    private String category;
 
-    public String getCategory() {
+    @Enumerated(EnumType.STRING)
+    private FilterTemplate.TargetCategory category;
+
+    public FilterTemplate.TargetCategory getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(FilterTemplate.TargetCategory category) {
         this.category = category;
     }
 

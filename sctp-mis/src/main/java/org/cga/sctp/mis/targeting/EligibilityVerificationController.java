@@ -3,13 +3,12 @@ package org.cga.sctp.mis.targeting;
 import org.cga.sctp.beneficiaries.BeneficiaryService;
 import org.cga.sctp.beneficiaries.Household;
 import org.cga.sctp.beneficiaries.Individual;
-import org.cga.sctp.location.*;
+import org.cga.sctp.location.Location;
+import org.cga.sctp.location.LocationService;
+import org.cga.sctp.location.LocationType;
 import org.cga.sctp.mis.core.BaseController;
-import org.cga.sctp.mis.core.navigation.BreadcrumbDefinition;
 import org.cga.sctp.mis.core.navigation.BreadcrumbPath;
-import org.cga.sctp.mis.core.navigation.ModuleNames;
 import org.cga.sctp.mis.core.templating.SelectOptionItem;
-import org.cga.sctp.mis.location.LocationUtils;
 import org.cga.sctp.program.Program;
 import org.cga.sctp.program.ProgramService;
 import org.cga.sctp.targeting.*;
@@ -23,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -33,12 +33,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/verification")
-@BreadcrumbDefinition(module = ModuleNames.TARGETING, index = @BreadcrumbPath(link = "/verification", title = "Pre-Eligibility Verification", navigable = true))
 public class EligibilityVerificationController extends BaseController {
 
     @Autowired
@@ -61,27 +61,24 @@ public class EligibilityVerificationController extends BaseController {
         return view("targeting/verification/history", "verifications", verificationList);
     }
 
-    private List<SelectOptionItem> toSelectOptions(List<LocationCode> codes) {
-        return codes.stream()
-                .map(locationCode -> new SelectOptionItem(locationCode.getCode(),
-                        locationCode.getName(), locationCode.getCode()))
-                .collect(Collectors.toList());
-    }
 
-    private ModelAndView newModel() {
+    @AdminAccessOnly
+    @GetMapping(value = "/get-new-session-data", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<String, List<SelectOptionItem>>> getNewVerificationSessionData() {
         List<Program> programs = programService.getActivePrograms();
         List<Criterion> criteria = targetingService.getActiveTargetingCriteria();
-        return view("targeting/verification/new")
-                .addObject("criteria", criteria)
-                .addObject("programs", programs)
-                .addObject("districts", LocationUtils.householdLocationsToSelectOptions(locationService.getHouseholdLocations(LocationType.SUBNATIONAL1, null)));
+        HashMap<String, List<SelectOptionItem>> data = new HashMap<>() {{
+            put("programs", programs.stream().map(program -> new SelectOptionItem(program.getId(), program.getName())).toList());
+            put("criteria", criteria.stream().map(criterion -> new SelectOptionItem(criterion.getId(), criterion.getName())).toList());
+        }};
+        return ResponseEntity.ok(data);
     }
 
     @AdminAccessOnly
     @GetMapping("/new")
     @BreadcrumbPath(link = "/new", title = "New Eligibility Verification Session")
     public ModelAndView newVerificationSession(@ModelAttribute("form") NewVerificationSessionForm form) {
-        return newModel();
+        return view("targeting/verification/new");
     }
 
     @AdminAccessOnly
@@ -102,50 +99,51 @@ public class EligibilityVerificationController extends BaseController {
 
     @AdminAccessOnly
     @PostMapping
-    public ModelAndView create(
+    public ResponseEntity<Long> create(
             @AuthenticatedUserDetails AuthenticatedUser user,
-            @Valid @ModelAttribute("form") NewVerificationSessionForm form,
-            BindingResult result,
-            RedirectAttributes attributes) {
+            @Valid @RequestBody NewVerificationSessionForm form,
+            BindingResult result) {
 
         if (result.hasErrors()) {
-            return newModel();
+            LOG.error("request contains errors {}", result.getAllErrors());
+            return ResponseEntity.badRequest().build();
         }
 
-        Program program = programService.getProgramById(form.getProgram());
-        Criterion criterion = targetingService.getActiveTargetingCriterionById(form.getCriterion());
-        Location district = locationService.findActiveLocationByCodeAndType(form.getDistrict(), LocationType.SUBNATIONAL1);
-        Location ta = locationService.findActiveLocationByCodeAndType(form.getTraditionalAuthority(), LocationType.SUBNATIONAL2);
+        Program program = programService.getProgramById(form.getProgramId());
+        Criterion criterion = targetingService.getActiveTargetingCriterionById(form.getCriterionId());
+        Location district = locationService.findActiveLocationByCodeAndType(form.getDistrictCode(), LocationType.SUBNATIONAL1);
 
         if (program == null) {
-            return setDangerMessage(newModel(), "Cannot find program.");
-        }
-        if (district == null) {
-            return setDangerMessage(newModel(), "Cannot find district.");
-        }
-        if (ta == null) {
-            return setDangerMessage(newModel(), "Cannot find traditional authority.");
+            LOG.warn("program ID not found");
+            return ResponseEntity.badRequest().build();
         }
 
-        if (!ta.getLocationType().isImmediateChildOf(district.getLocationType())) {
-            return setDangerMessage(newModel(),
-                    "Invalid location selection. Selected traditional authority does not belong to the selected district,.");
+        if (district == null) {
+            LOG.warn("Cannot find district");
+            return ResponseEntity.badRequest().build();
         }
 
         if (criterion == null) {
-            return setDangerMessage(newModel(), "Selected criteria cannot be found.");
+            LOG.warn("Selected criteria cannot be found.");
+            return ResponseEntity.badRequest().build();
         }
 
         if (!criterion.isApplicable()) {
-            return setDangerMessage(newModel(), "Selected criterion cannot be used because it does not contain filters.");
+            LOG.warn("Selected criterion cannot be used because it does not contain filters.");
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
+        }
+
+        if (!locationService.verifyClustersBelongToDistrict(district, form.getClusterCodes())) {
+            LOG.warn("Found clusters that do not belong to selected district");
+            return ResponseEntity.badRequest().build();
         }
 
         EligibilityVerificationSession session = new EligibilityVerificationSession();
         session.setHouseholds(0L);
         session.setUserId(user.id());
-        session.setTaCode(ta.getCode());
+        session.setTaCode(0L);
         session.setProgramId(program.getId());
-        session.setClusters(form.getClusters());
+        session.setClusters(form.getClusterCodes());
         session.setCriterionId(criterion.getId());
         session.setCreatedAt(ZonedDateTime.now());
         session.setDistrictCode(district.getCode());
@@ -154,9 +152,7 @@ public class EligibilityVerificationController extends BaseController {
         // Run
         targetingService.addEligibilityVerificationSession(session, criterion, user.id());
 
-        setSuccessFlashMessage("Pre-eligibility verification created", attributes);
-
-        return redirect("/verification");
+        return ResponseEntity.ok(session.getId());
     }
 
     @AdminAndStandardAccessOnly

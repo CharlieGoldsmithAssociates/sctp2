@@ -56,6 +56,7 @@ import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -288,7 +289,15 @@ public class LocationService extends TransactionalService {
         return locationRepository.getHouseholdLocations(locationType, parentCode);
     }
 
+    public List<HouseholdLocation> getBulkHouseholdLocations(LocationType locationType, Set<Long> parentCodes) {
+        return locationRepository.getBulkHouseholdLocations(locationType, parentCodes);
+    }
+
     public List<HouseholdLocation> getHouseholdLocations(LocationType locationType, Long parentCode, boolean useGvh) {
         return locationRepository.getHouseholdLocations(locationType, parentCode, useGvh);
+    }
+
+    public boolean verifyClustersBelongToDistrict(Location district, Set<Long> clusters) {
+        return locationRepository.countClustersUnderDistrict(district.getCode(), clusters) == clusters.size();
     }
 }

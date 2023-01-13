@@ -43,4 +43,6 @@ public interface CriteriaFilterTemplateRepository extends JpaRepository<Criteria
     List<CriteriaFilterTemplate> getByTableName(String tableName);
 
     List<CriteriaFilterTemplate> findAllByTableNameIn(Set<String> tableName);
+
+    List<CriteriaFilterTemplate> findByTargetCategory(FilterTemplate.TargetCategory category);
 }

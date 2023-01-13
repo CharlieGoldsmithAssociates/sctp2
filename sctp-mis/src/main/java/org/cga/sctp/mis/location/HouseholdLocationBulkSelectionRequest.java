@@ -1,7 +1,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2022, CGATechnologies
+ * Copyright (c) 2023, CGATechnologies
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,48 +30,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cga.sctp.targeting.criteria;
+package org.cga.sctp.mis.location;
 
-
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.util.Set;
 
-public class HouseholdCountParameters {
+public class HouseholdLocationBulkSelectionRequest {
 
-    @NotNull(message = "Criterion is required")
-    private long criterionId;
+    @NotNull(message = "List of parent codes is required")
+    private Set<@Min(1) Long> parentCodes;
 
-    @NotNull(message = "District code is required")
-    private long districtCode;
-
-    @NotNull(message = "Cluster codes are required")
-    @NotEmpty(message = "Cluster codes cannot be empty")
-    @Size(min = 1, message = "Must have {min} - {max} cluster codes")
-    private Set<Long> clusterCodes;
-
-    public long getDistrictCode() {
-        return districtCode;
+    public Set<Long> getParentCodes() {
+        return parentCodes;
     }
 
-    public void setDistrictCode(long districtCode) {
-        this.districtCode = districtCode;
-    }
-
-    public Set<Long> getClusterCodes() {
-        return clusterCodes;
-    }
-
-    public void setClusterCodes(Set<Long> clusterCodes) {
-        this.clusterCodes = clusterCodes;
-    }
-
-    public long getCriterionId() {
-        return criterionId;
-    }
-
-    public void setCriterionId(long criterionId) {
-        this.criterionId = criterionId;
+    public void setParentCodes(Set<Long> parentCodes) {
+        this.parentCodes = parentCodes;
     }
 }

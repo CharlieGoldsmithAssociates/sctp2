@@ -69,7 +69,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -221,11 +220,11 @@ public class TargetingService extends TransactionalService {
     }
 
     public List<CriteriaFilterTemplate> getIndividualFilterTemplates() {
-        return filterTemplateRepository.findAllByTableNameIn(Set.of("individuals", "individuals_view"));
+        return filterTemplateRepository.findByTargetCategory(FilterTemplate.TargetCategory.individuals);
     }
 
     public List<CriteriaFilterTemplate> getHouseholdFilterTemplates() {
-        return filterTemplateRepository.findAllByTableNameIn(Set.of("households", "child_headed_households_view"));
+        return filterTemplateRepository.findByTargetCategory(FilterTemplate.TargetCategory.households);
     }
 
     public CriteriaFilterTemplate findFilterTemplateById(Long templateId) {
@@ -385,10 +384,6 @@ public class TargetingService extends TransactionalService {
         return verificationSessionViewRepository.findById(id).orElse(null);
     }
 
-    public void saveEligibilityVerificationSession(EligibilityVerificationSession session) {
-        verificationSessionRepository.save(session);
-    }
-
     public void addEligibilityVerificationSession(EligibilityVerificationSession session, Criterion criterion, Long userId) {
         if (session instanceof HibernateProxy) {
             return;
@@ -417,8 +412,7 @@ public class TargetingService extends TransactionalService {
                 .append(" WITH _insert_ AS (").append(criterion.getCompiledQuery()).append(")")
                 .append(" SELECT :sessionId, household_id, :createdAt, :runBy, :selectionStatus")
                 .append(" FROM _insert_")
-                .append(" WHERE location_code = :districtCode AND ta_code = :taCode")
-                .append(" AND FIND_IN_SET(cluster_code, :clusterCodes)");
+                .append(" WHERE location_code = :districtCode AND FIND_IN_SET(cluster_code, :clusterCodes)");
 
         String sql = builder.toString();
 
@@ -426,7 +420,6 @@ public class TargetingService extends TransactionalService {
 
         query.setParameter("runBy", userId)
                 .setParameter("selectionStatus", CbtStatus.PreEligible.name())
-                .setParameter("taCode", session.getTaCode())
                 .setParameter("sessionId", session.getId())
                 .setParameter("createdAt", timestamp)
                 .setParameter("districtCode", session.getDistrictCode())
@@ -465,15 +458,13 @@ public class TargetingService extends TransactionalService {
                 .append(criterion.getCompiledQuery()).append(")")
                 .append(" SELECT COUNT(DISTINCT _cte_.household_id)")
                 .append(" FROM _cte_")
-                .append(" WHERE location_code = :districtCode AND ta_code = :taCode")
-                .append(" AND FIND_IN_SET(cluster_code, :clusterCodes)");
+                .append(" WHERE location_code = :districtCode AND FIND_IN_SET(cluster_code, :clusterCodes)");
 
         String sql = builder.toString();
 
         Query query = entityManager.createNativeQuery(sql);
 
-        query.setParameter("taCode", parameters.getTaCode())
-                .setParameter("districtCode", parameters.getDistrictCode())
+        query.setParameter("districtCode", parameters.getDistrictCode())
                 .setParameter("clusterCodes", CollectionUtils.join(parameters.getClusterCodes()));
 
         criteriaFilterInfoList.removeIf(info -> info.getFieldType() == FilterTemplate.FieldType.ForeignMappedField);

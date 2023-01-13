@@ -38,6 +38,11 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 public abstract class FilterTemplate {
 
+    public enum TargetCategory {
+        individuals,
+        households
+    }
+
     public enum FieldType {
         Number(true),
         NumberSigned(true),
@@ -84,6 +89,9 @@ public abstract class FilterTemplate {
 
     @Enumerated(EnumType.STRING)
     private Operator operator;
+
+    @Enumerated(EnumType.STRING)
+    private TargetCategory targetCategory;
 
     public Long getId() {
         return id;
@@ -171,5 +179,13 @@ public abstract class FilterTemplate {
 
     public void setSourceColumnName(String sourceColumnName) {
         this.sourceColumnName = sourceColumnName;
+    }
+
+    public TargetCategory getTargetCategory() {
+        return targetCategory;
+    }
+
+    public void setTargetCategory(TargetCategory targetCategory) {
+        this.targetCategory = targetCategory;
     }
 }

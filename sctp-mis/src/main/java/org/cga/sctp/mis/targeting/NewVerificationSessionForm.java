@@ -32,67 +32,62 @@
 
 package org.cga.sctp.mis.targeting;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.validation.annotation.Validated;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Set;
 
 @Validated
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class NewVerificationSessionForm {
     @NotNull(message = "At least one cluster must be selected")
-    @Size(min = 1, max = 2048, message = "Min {min}-{max}")
-    private Set<Long> clusters;
+    @Size(min = 1, message = "Min {min}-{max}")
+    private Set<Long> clusterCodes;
 
     @NotNull(message = "Program is required")
-    private Long program;
+    @Min(1)
+    private Long programId;
 
     @NotNull(message = "Criterion is required")
-    private Long criterion;
+    @Min(1)
+    private Long criterionId;
 
     @NotNull(message = "District is required")
-    private Long district;
+    @Min(1)
+    private Long districtCode;
 
-    @NotNull(message = "Traditional authority is required")
-    private Long traditionalAuthority;
-
-    public Long getDistrict() {
-        return district;
+    public Long getDistrictCode() {
+        return districtCode;
     }
 
-    public void setDistrict(Long district) {
-        this.district = district;
+    public void setDistrictCode(Long districtCode) {
+        this.districtCode = districtCode;
     }
 
-    public Long getTraditionalAuthority() {
-        return traditionalAuthority;
+    public Long getProgramId() {
+        return programId;
     }
 
-    public void setTraditionalAuthority(Long traditionalAuthority) {
-        this.traditionalAuthority = traditionalAuthority;
+    public void setProgramId(Long programId) {
+        this.programId = programId;
     }
 
-    public Long getProgram() {
-        return program;
+    public Long getCriterionId() {
+        return criterionId;
     }
 
-    public void setProgram(Long program) {
-        this.program = program;
+    public void setCriterionId(Long criterionId) {
+        this.criterionId = criterionId;
     }
 
-    public Long getCriterion() {
-        return criterion;
+    public Set<Long> getClusterCodes() {
+        return clusterCodes;
     }
 
-    public void setCriterion(Long criterion) {
-        this.criterion = criterion;
-    }
-
-    public Set<Long> getClusters() {
-        return clusters;
-    }
-
-    public void setClusters(Set<Long> clusters) {
-        this.clusters = clusters;
+    public void setClusterCodes(Set<Long> clusterCodes) {
+        this.clusterCodes = clusterCodes;
     }
 }
