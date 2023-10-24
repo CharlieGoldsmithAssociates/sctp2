@@ -1,13 +1,19 @@
 # SCTP-2
 
-This is a multi-mode maven project.
+## Project Objectives
 
-#### Requirements
+* The Social Cash Transfer Programme aims to reduce poverty and hunger, and increase school enrolment.
+* It is designed to provide bi-monthly unconditional cash transfers to more than 300,000 households categorised as poor, severely impoverished and labour constrained.
+* The Management Information System aims to support new and existing operational needs of the programme.
+
+## Environment Requirements
 
 - **Runtime Environment**: [Java 16](https://adoptopenjdk.net/?variant=openjdk16&jvmVariant=hotspot)
 - **Database**: [MySQL 8](https://dev.mysql.com/downloads/mysql/)
 
-## Project sub-modules
+## Project Sub-modules
+
+This is a multi-mode maven project.
 
 1. [sctp-core](/sctp-core)
    
@@ -78,7 +84,7 @@ For more Spring Boot configuration reference, see:
 - [Spring Boot Reference Documentation](https://docs.spring.io/spring-boot/docs/2.4.5/reference/html/index.html)
 - [Common Application properties](https://docs.spring.io/spring-boot/docs/2.4.5/reference/html/appendix-application-properties.html#common-application-properties)
 
-# License
+## License
 
 ```text
 Copyright (C) 2021 CGA Technologies, a trading name of Charlie Goldsmith Associates Ltd
